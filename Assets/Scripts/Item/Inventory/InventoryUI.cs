@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using TMPro;
 using Items;
 using Items.Tags;
+using TileEntity;
 using UnityEngine.EventSystems;
 
 namespace Items.Inventory {
@@ -21,7 +22,7 @@ namespace Items.Inventory {
         OverrideAction
         
     }
-    public interface IInventoryListener
+    public interface IIndexInventoryListener
     {
         public void InventoryUpdate(int n);
     }
@@ -37,8 +38,9 @@ namespace Items.Inventory {
         [SerializeField] private ItemSlotUI itemSlotUIPrefab;
         protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;
-        protected List<IInventoryListener> listeners = new List<IInventoryListener>();
+        protected List<IIndexInventoryListener> listeners = new List<IIndexInventoryListener>();
         protected List<Action<int>> callbacks = new List<Action<int>>();
+        protected List<Action> genericCallbacks = new List<Action>();
         protected Action<int> onHighlight;
         protected Func<int, string> toolTipOverride;
         public Func<int, string> ToolTipOverride => toolTipOverride;
@@ -212,7 +214,7 @@ namespace Items.Inventory {
         }
         
         
-        public void AddListener(IInventoryListener listener) {
+        public void AddListener(IIndexInventoryListener listener) {
             listeners.Add(listener);
         }
 
@@ -220,10 +222,17 @@ namespace Items.Inventory {
         {
             callbacks.Add(callback);
         }
+        
+        public void AddCallback(Action callback)
+        {
+            genericCallbacks.Add(callback);
+        }
+        
+        
 
         public void CallListeners(int index)
         {
-            foreach (IInventoryListener listener in listeners)
+            foreach (IIndexInventoryListener listener in listeners)
             {
                 listener.InventoryUpdate(index);
             }
@@ -231,6 +240,10 @@ namespace Items.Inventory {
             foreach (Action<int> callback in callbacks)
             {
                 callback?.Invoke(index);
+            }
+            foreach (Action callback in genericCallbacks)
+            {
+                callback?.Invoke();
             }
         }
 

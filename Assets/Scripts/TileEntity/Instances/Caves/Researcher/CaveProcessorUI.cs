@@ -76,11 +76,11 @@ namespace TileEntity.Instances.Caves.Researcher
             mDriveInputUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
             
-            mDriveInputUI.AddListener(caveProcessorInstance);
+            mDriveInputUI.AddCallback(caveProcessorInstance.InventoryUpdate);
             
             mDriveOutputUI.DisplayInventory(caveProcessorInstance.OutputDrives);
             mDriveOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mDriveOutputUI.AddListener(caveProcessorInstance);
+            mDriveOutputUI.AddCallback(caveProcessorInstance.InventoryUpdate);
             
             mTextInput.ActivateInputField();
             mTextInput.Select();

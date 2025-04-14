@@ -67,12 +67,12 @@ public class TileHelper
     public static Vector2 getRealTileCenter(Vector2 vector2) {
         return new Vector2(getRealTileCenter(vector2.x), getRealTileCenter(vector2.y));
     }
-    public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, WorldTileGridMap worldTileGridMap)
+    public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, WorldTileMap worldTileMap)
         {
-            callTileEntityPlaceListener(worldTileGridMap.GetTileEntityAtPosition(position+Vector2Int.up),item);
-            callTileEntityPlaceListener(worldTileGridMap.GetTileEntityAtPosition(position+Vector2Int.down),item);
-            callTileEntityPlaceListener(worldTileGridMap.GetTileEntityAtPosition(position+Vector2Int.left),item);
-            callTileEntityPlaceListener(worldTileGridMap.GetTileEntityAtPosition(position+Vector2Int.right),item);
+            callTileEntityPlaceListener(worldTileMap.GetTileEntityAtPosition(position+Vector2Int.up),item);
+            callTileEntityPlaceListener(worldTileMap.GetTileEntityAtPosition(position+Vector2Int.down),item);
+            callTileEntityPlaceListener(worldTileMap.GetTileEntityAtPosition(position+Vector2Int.left),item);
+            callTileEntityPlaceListener(worldTileMap.GetTileEntityAtPosition(position+Vector2Int.right),item);
         }
 
     public static void callTileEntityPlaceListener(ITileEntityInstance tileEntity, TileItem tileItem) {

@@ -63,8 +63,8 @@ namespace UI.Chat {
         private void SetWireFrameState(bool? wireFrame, Color? color)
         {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            OutlineWorldTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineWorldTileGridMap>();
-            foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+            BlockWorldTileMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<BlockWorldTileMap>();
+            foreach (BlockWorldTileMap outlineTileGridMap in outlineTileGridMaps) {
                 outlineTileGridMap.setView(wireFrame,color);
             }
         }

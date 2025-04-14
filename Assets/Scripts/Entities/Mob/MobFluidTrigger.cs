@@ -59,16 +59,16 @@ namespace Entities.Mob
                 
                 Vector2 bottomPosition = (Vector2)transform.position + Vector2.down * GetComponent<SpriteRenderer>().bounds.extents.y;
                 Vector2 collisionPoint = other.ClosestPoint(bottomPosition);
-                FluidWorldTileMap fluidWorldTileMap = other.GetComponent<FluidWorldTileMap>();
-                fluidWorldTileMap ??= other.GetComponentInParent<FluidWorldTileMap>();
-                if (!fluidWorldTileMap)
+                FluidTileMap fluidTileMap = other.GetComponent<FluidTileMap>();
+                fluidTileMap ??= other.GetComponentInParent<FluidTileMap>();
+                if (!fluidTileMap)
                 {
                     collidingFluid = null;
                     collidingFluid = null;
                     fluidDamage = 0;
                     return;
                 }
-                collidingFluid = fluidWorldTileMap.GetFluidItem(collisionPoint);
+                collidingFluid = fluidTileMap.GetFluidItem(collisionPoint);
                 fluidEntityMovement?.OnEnterFluid(collisionPoint);
                 if (!collidingFluid || !damagedByFluid) return;
                 if (collidingFluid.fluidOptions.DamagePerSecond <= 0.05f)

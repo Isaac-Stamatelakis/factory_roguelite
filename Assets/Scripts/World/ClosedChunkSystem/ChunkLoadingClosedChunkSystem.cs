@@ -45,11 +45,11 @@ namespace Chunks.Systems {
         public override IEnumerator SaveCoroutine()
         {
             var delay = new WaitForFixedUpdate();
-            FluidWorldTileMap fluidWorldTileMap = GetFluidTileMap();
+            FluidTileMap fluidTileMap = GetFluidTileMap();
             List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
             foreach (Vector2Int chunkPosition in currentlyCachedChunks) {
                 if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
-                fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
+                fluidTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();

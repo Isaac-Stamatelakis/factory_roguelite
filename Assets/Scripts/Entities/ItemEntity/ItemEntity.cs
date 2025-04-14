@@ -175,9 +175,9 @@ namespace Entities {
                 Debug.Log("In Fluid!");
                 Vector2 bottomPosition = (Vector2)transform.position + Vector2.down * GetComponent<SpriteRenderer>().bounds.extents.y;
                 Vector2 collisionPoint = other.ClosestPoint(bottomPosition);
-                FluidWorldTileMap fluidWorldTileMap = other.GetComponent<FluidWorldTileMap>();
-                fluidWorldTileMap ??= other.GetComponentInParent<FluidWorldTileMap>();
-                FluidTileItem collidingFluid = fluidWorldTileMap.GetFluidItem(collisionPoint);
+                FluidTileMap fluidTileMap = other.GetComponent<FluidTileMap>();
+                fluidTileMap ??= other.GetComponentInParent<FluidTileMap>();
+                FluidTileItem collidingFluid = fluidTileMap.GetFluidItem(collisionPoint);
                 if (!collidingFluid) return;
                 if (collidingFluid.fluidOptions.DestroysItems)
                 {

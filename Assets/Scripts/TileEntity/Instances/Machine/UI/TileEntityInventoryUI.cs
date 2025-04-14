@@ -109,7 +109,7 @@ namespace TileEntity.Instances.Machine.UI
             if (size == 0) return;
             
             inventoryUI.DisplayInventory(inventory);
-            if (displayedTileEntity is IInventoryListener inventoryListener)
+            if (displayedTileEntity is IIndexInventoryListener inventoryListener)
             {
                 inventoryUI.AddListener(inventoryListener);
             }

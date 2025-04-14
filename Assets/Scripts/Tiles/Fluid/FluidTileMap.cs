@@ -18,7 +18,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace Fluids {
-    public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
+    public class FluidTileMap : AbstractWorldTileMap<FluidTileItem>, ITileMapListener
     {
         private class FluidParticles
         {
@@ -66,7 +66,7 @@ namespace Fluids {
             mapCollider2D = tilemap.GetComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
-            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap);
+            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileMap);
             
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
             unlitCollider2D.maximumTileChangeCount=int.MaxValue; 
@@ -259,7 +259,7 @@ namespace Fluids {
                     FluidCell current = simulator.GetFluidCell(position);
                     if (current != null && current.Liquid > 0.05f)
                     {
-                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
+                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileMap;
                         tileGridMap?.BreakAndDropTile(position,true);
                     }
                     

@@ -28,7 +28,7 @@ namespace TileMaps {
     {
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
     }
-    public class OutlineWorldTileGridMap : WorldTileGridMap, IOutlineTileGridMap
+    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;

@@ -32,7 +32,7 @@ using UI.Indicators.General;
 using UI.ToolTip;
 
 namespace PlayerModule {
-    public class PlayerInventory : MonoBehaviour, IInventoryListener
+    public class PlayerInventory : MonoBehaviour, IIndexInventoryListener
     {
         public enum InventoryMode
         {

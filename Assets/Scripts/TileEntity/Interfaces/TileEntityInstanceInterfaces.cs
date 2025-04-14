@@ -160,16 +160,26 @@ namespace TileEntity {
     {
         public string GetTextPreview();
     }
-    
+    /// <summary>
+    /// TileEntities which implement are interactable through quick stack, give all, and take all inventory utils from player
+    /// </summary>
     public interface ISingleSolidInventoryTileEntity : ITileEntityInstance
     {
         public List<ItemSlot> GetInventory();
     }
-    
+    /// <summary>
+    /// Similar to ISingleSolidInventory but with for tile entities with more complex inventories.
+    /// TileEntities which implement are interactable through quick stack, give all, and take all inventory utils from player
+    /// </summary>
     public interface IMultiSolidItemStorageTileEntity : ITileEntityInstance
     {
         public List<ItemSlot> GetInputInventory();
         public List<List<ItemSlot>> GetOutputInventories();
+    }
+
+    public interface IInventoryUpdateListener
+    {
+        public void InventoryUpdate();
     }
     
 

@@ -149,18 +149,18 @@ namespace Chunks.Systems {
         {
             if (tileType.isTile())
             {
-                WorldTileGridMap worldTileGridMap = tileType switch
+                WorldTileMap worldTileMap = tileType switch
                 {
-                    TileMapType.Block => container.AddComponent<OutlineWorldTileGridMap>(),
+                    TileMapType.Block => container.AddComponent<BlockWorldTileMap>(),
                     TileMapType.Background => container.AddComponent<BackgroundWorldTileMap>(),
-                    _ => container.AddComponent<WorldTileGridMap>()
+                    _ => container.AddComponent<WorldTileMap>()
                 };
 
-                return worldTileGridMap;
+                return worldTileMap;
             } else if (tileType.isConduit()) {
                 return container.AddComponent<ConduitTileMap>();
             } else if (tileType.isFluid()) {
-                return container.AddComponent<FluidWorldTileMap>();
+                return container.AddComponent<FluidTileMap>();
             }
 
             throw new ArgumentOutOfRangeException();

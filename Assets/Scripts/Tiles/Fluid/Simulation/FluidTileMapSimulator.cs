@@ -63,9 +63,9 @@ namespace Tiles.Fluid.Simulation
     {
 	    private const bool LOG = false;
 	    
-	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap, WorldTileGridMap objectTileMap, WorldTileGridMap blockTileMap)
+	    public FluidTileMapSimulator(FluidTileMap fluidTileMap, WorldTileMap objectTileMap, WorldTileMap blockTileMap)
 	    {
-		    this.fluidWorldTileMap = fluidWorldTileMap;
+		    this.fluidTileMap = fluidTileMap;
 		    this.objectTileMap = objectTileMap;
 		    this.blockTileMap = blockTileMap;
 		    currentUpdates = new FluidCell[MAX_UPDATES_PER_SECOND];
@@ -105,9 +105,9 @@ namespace Tiles.Fluid.Simulation
 
 	    // Adjusts flow speed (0.0f - 1.0f)
 	    const float FLOW_SPEED = 1f;
-	    private FluidWorldTileMap fluidWorldTileMap;
-	    private WorldTileGridMap objectTileMap;
-	    private WorldTileGridMap blockTileMap;
+	    private FluidTileMap fluidTileMap;
+	    private WorldTileMap objectTileMap;
+	    private WorldTileMap blockTileMap;
         float CalculateVerticalFlowValue(float remainingLiquid, FluidCell destination)
         {
 	        float sum = remainingLiquid + destination.Liquid;
@@ -263,17 +263,17 @@ namespace Tiles.Fluid.Simulation
 	        var above = GetFluidCell(fluidCell.Position + Vector2Int.up);
 	        if (above != null && above.Liquid > 1/16f && above.FluidTileItem)
 	        {
-		        fluidWorldTileMap.DisplayTile(fluidCell.Position.x,fluidCell.Position.y, fluidCell.FluidTileItem, 1);
+		        fluidTileMap.DisplayTile(fluidCell.Position.x,fluidCell.Position.y, fluidCell.FluidTileItem, 1);
 		        return;
 	        }
 	        if (fluidCell.Liquid > MIN_FILL)
 	        {
-		        fluidWorldTileMap.DisplayTile(fluidCell);
+		        fluidTileMap.DisplayTile(fluidCell);
 		        return;
 	        }
 	        fluidCell.Liquid = 0;
 	        fluidCell.FluidTileItem = null;
-	        fluidWorldTileMap.DisplayTile(fluidCell);
+	        fluidTileMap.DisplayTile(fluidCell);
         }
 		public void Simulate()
 		{
@@ -522,8 +522,8 @@ namespace Tiles.Fluid.Simulation
 			dominated.Liquid = 0;
 			
 			blockTileMap.PlaceNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
-			fluidWorldTileMap.BreakTile(dominated.Position);
-			fluidWorldTileMap.BreakTile(dominator.Position);
+			fluidTileMap.BreakTile(dominated.Position);
+			fluidTileMap.BreakTile(dominator.Position);
 			UnsettleNeighbors(dominated.Position);
 	
 			return false;

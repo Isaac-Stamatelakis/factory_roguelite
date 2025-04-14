@@ -35,7 +35,7 @@ namespace TileEntity.Instances.Machine.UI
             title.text = tileEntityInstance.GetName();
             tileEntityInventoryUI.Display(burnerMachineInstance.GetItemInventory().Content,burnerMachineInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(burnerMachineInstance.BurnerFuelInventory.BurnerSlots);
-            burnerInventoryUI.AddListener(burnerMachineInstance);
+            burnerInventoryUI.AddCallback(burnerMachineInstance.InventoryUpdate);
 
             if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
 

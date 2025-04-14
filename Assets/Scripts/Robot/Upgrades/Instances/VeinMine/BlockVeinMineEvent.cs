@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace Robot.Upgrades.Instances.VeinMine
 {
-    public class BlockVeinMineEvent : VeinMineEvent<WorldTileGridMap>
+    public class BlockVeinMineEvent : VeinMineEvent<WorldTileMap>
     {
         private int drillPower;
         private int initialHardness;
 
-        public BlockVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop, Func<bool> energyCostFunction, int drillPower, int initialHardness) : base(hitableTileMap, drop,energyCostFunction)
+        public BlockVeinMineEvent(WorldTileMap hitableTileMap, bool drop, Func<bool> energyCostFunction, int drillPower, int initialHardness) : base(hitableTileMap, drop,energyCostFunction)
         {
             this.drillPower = drillPower;
             this.initialHardness = initialHardness;

@@ -83,7 +83,7 @@ namespace TileEntity.Instances.Machine.Instances
             
         }
 
-        public abstract void InventoryUpdate(int n);
+        public abstract void InventoryUpdate();
 
         public abstract float GetProgressPercent();
         public TileEntityLayoutObject GetMachineLayout()

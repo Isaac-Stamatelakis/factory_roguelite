@@ -13,7 +13,7 @@ using WorldModule.Caves;
 using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances {
-    public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI, IInventoryListener, IInventoryUITileEntityUI
+    public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI, IInventoryUpdateListener
     {
         public InventoryUI mInventoryUI;
         public CaveSelectController caveSelectController;
@@ -36,7 +36,7 @@ namespace TileEntity.Instances {
             mInventoryUI.DisplayInventory(caveTeleporterInstance.CaveStorageDrives);
             mInventoryUI.AddTagRestriction(ItemTag.CaveData);
             mInventoryUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
-            mInventoryUI.AddListener(this);
+            mInventoryUI.AddCallback(InventoryUpdate);
             GlobalHelper.DeleteAllChildren(mButtonList.transform);
             StartCoroutine(LoadCaves());
             caveSelectController.Initialize(() =>
@@ -116,7 +116,7 @@ namespace TileEntity.Instances {
             return false;
         }
 
-        public void InventoryUpdate(int n)
+        public void InventoryUpdate()
         {
             Display();
         }

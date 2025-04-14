@@ -60,12 +60,12 @@ namespace Player.Movement
             {
                 case TriggerableCollisionState.HeadInFluid:
                 case TriggerableCollisionState.FeetInFluid:
-                    FluidWorldTileMap fluidWorldTileMap = other.GetComponent<FluidWorldTileMap>();
-                    if (!fluidWorldTileMap)
+                    FluidTileMap fluidTileMap = other.GetComponent<FluidTileMap>();
+                    if (!fluidTileMap)
                     {
-                        fluidWorldTileMap = other.GetComponentInParent<FluidWorldTileMap>();
+                        fluidTileMap = other.GetComponentInParent<FluidTileMap>();
                     }
-                    if (!fluidWorldTileMap) return;
+                    if (!fluidTileMap) return;
                     SpriteRenderer spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
                     Vector2 playerPosition = (Vector2)playerRobot.transform.position + Vector2.down * spriteRenderer.bounds.extents.y;
                     
@@ -80,8 +80,8 @@ namespace Player.Movement
                     {
                         Vector2 collisionPoint = other.ClosestPoint(position);
                         Vector2Int cellPosition = Global.GetCellPositionFromWorld(collisionPoint);
-                        FluidTileItem fluidTileItem = fluidWorldTileMap.GetFluidTile(cellPosition);
-                        fluidWorldTileMap.Disrupt(position,cellPosition,fluidTileItem);
+                        FluidTileItem fluidTileItem = fluidTileMap.GetFluidTile(cellPosition);
+                        fluidTileMap.Disrupt(position,cellPosition,fluidTileItem);
                         return fluidTileItem;
                     }
                     

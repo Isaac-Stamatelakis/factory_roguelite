@@ -460,8 +460,8 @@ namespace Dimensions {
             }
             light2D.color = dimensionOptions.LightColor;
             
-            OutlineWorldTileGridMap[] outlineTileGridMaps = FindObjectsOfType<OutlineWorldTileGridMap>();
-            foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+            BlockWorldTileMap[] outlineTileGridMaps = FindObjectsOfType<BlockWorldTileMap>();
+            foreach (BlockWorldTileMap outlineTileGridMap in outlineTileGridMaps) {
                 outlineTileGridMap.setView(false,dimensionOptions.OutlineColor);
             }
 

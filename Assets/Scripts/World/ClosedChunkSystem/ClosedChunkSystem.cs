@@ -55,7 +55,7 @@ namespace Chunks.Systems {
         protected bool interactable = true;
         public bool Interactable => interactable;
         public IntervalVector CoveredArea => coveredArea;
-        private FluidWorldTileMap fluidWorldTileMap;
+        private FluidTileMap fluidTileMap;
         List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>(128);
         List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>(128);
         List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>(128);
@@ -72,15 +72,15 @@ namespace Chunks.Systems {
             }
             Vector2Int chunkPosition = chunk.GetPosition();
             cachedChunks[chunkPosition] = chunk;
-            fluidWorldTileMap?.AddChunk(chunk);
+            fluidTileMap?.AddChunk(chunk);
         }
         public void RemoveChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.GetPosition();
             if (ChunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
-            fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
-            fluidWorldTileMap?.RemoveChunk(chunkPosition);
+            fluidTileMap?.Simulator.SaveToChunk(chunk);
+            fluidTileMap?.RemoveChunk(chunkPosition);
         }
 
         public ILoadedChunk GetChunk(Vector2Int position)
@@ -152,7 +152,7 @@ namespace Chunks.Systems {
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
             cameraBounds.SetSystem(this,dimController.BoundCamera);
             
-            fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+            fluidTileMap = tileGridMaps[TileMapType.Fluid] as FluidTileMap;
         }
 
         public virtual void InitLoaders() {
@@ -294,7 +294,7 @@ namespace Chunks.Systems {
         public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
             if (chunkPartition.IsLoading()) yield break;
             loadedPartitionBoundary.PartitionLoaded(chunkPartition.GetRealPosition());
-            fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),true);
+            fluidTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),true);
             yield return chunkPartition.Load(tileGridMaps,direction);
             chunkPartition.SetIsLoading(false);
         }
@@ -314,7 +314,7 @@ namespace Chunks.Systems {
         public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
             
             chunkPartition.UnloadEntities();
-            fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
+            fluidTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
             loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
             
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
@@ -330,16 +330,16 @@ namespace Chunks.Systems {
             partitionUnloader.clearQueue();
         }
 
-        public FluidWorldTileMap GetFluidTileMap()
+        public FluidTileMap GetFluidTileMap()
         {
-            return tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+            return tileGridMaps[TileMapType.Fluid] as FluidTileMap;
         }
         
         public virtual void Save()
         {
             SaveEntities();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
+                fluidTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();

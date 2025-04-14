@@ -298,7 +298,7 @@ namespace TileMaps.Place {
             iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             
             
-            if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
+            if (iWorldTileMap is not WorldTileMap tileGridMap) {
                 return;
             }
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
@@ -317,10 +317,10 @@ namespace TileMaps.Place {
                     var collider = Physics2D.BoxCast(centered, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
                     if (ReferenceEquals(collider,null)) continue;
                     Vector2Int cellPosition = Global.GetCellPositionFromWorld(centered);
-                    WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
-                    TileItem tile = tileGridMap?.getTileItem(cellPosition);
+                    WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();
+                    TileItem tile = tileMap?.getTileItem(cellPosition);
                     if (!tile || !tile.tileOptions.placeBreakable) continue;
-                    tileGridMap.BreakAndDropTile(cellPosition, true);
+                    tileMap.BreakAndDropTile(cellPosition, true);
                 }
             }
         }
@@ -389,7 +389,7 @@ namespace TileMaps.Place {
         }
 
         private static bool placeFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            if (iWorldTileMap is not FluidWorldTileMap fluidTileMap) {
+            if (iWorldTileMap is not FluidTileMap fluidTileMap) {
                 return false;
             }
             Vector2Int placePosition = Global.GetCellPositionFromWorld(worldPosition);
@@ -460,8 +460,8 @@ namespace TileMaps.Place {
             var collider = Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
             if (ReferenceEquals(collider,null)) return false;
             if (ignorePlaceBreakable) return true;
-            WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
-            TileItem tile = tileGridMap?.GetTileItem(position);
+            WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();
+            TileItem tile = tileMap?.GetTileItem(position);
             if (!tile) return true; // Return true here since only 16x16 tiles should ever be placebreakable. 
             return !tile.tileOptions.placeBreakable;
         }

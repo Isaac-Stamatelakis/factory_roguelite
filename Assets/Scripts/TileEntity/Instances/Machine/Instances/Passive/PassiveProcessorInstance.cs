@@ -46,7 +46,7 @@ namespace TileEntity.Instances.Machines {
         }
 
         
-        public override void InventoryUpdate(int n) {
+        public override void InventoryUpdate() {
             if (currentRecipe != null) {
                 return;
             }

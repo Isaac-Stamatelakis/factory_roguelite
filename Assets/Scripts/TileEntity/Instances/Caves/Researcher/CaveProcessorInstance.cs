@@ -12,7 +12,7 @@ using UI.QuestBook;
 using UnityEngine;
 
 namespace TileEntity.Instances.Caves.Researcher {
-    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IConduitPortTileEntity, IInventoryListener, IBreakActionTileEntity
+    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IConduitPortTileEntity, IInventoryUpdateListener, IBreakActionTileEntity
     {
         public List<ItemSlot> InputDrives;
         public List<ItemSlot> OutputDrives;
@@ -120,10 +120,10 @@ namespace TileEntity.Instances.Caves.Researcher {
             }
 
             CopyDriveProcess.CopyId = null;
-            InventoryUpdate(0);
+            InventoryUpdate();
         }
         
-        public void InventoryUpdate(int n)
+        public void InventoryUpdate()
         {
             if (CopyDriveProcess is { IsComplete: false }) return;
 
