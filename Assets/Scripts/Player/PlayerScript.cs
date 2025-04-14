@@ -48,8 +48,9 @@ namespace Player
         [SerializeField] private PlayerUIContainer playerUIContainer;
         [SerializeField] private TileViewerCollection tileViewers;
         [SerializeField] private ParticleSystem particles;
-        [SerializeField] private Transform toolObjectContainer;
-        public Transform ToolObjectContainer => toolObjectContainer;
+        [SerializeField] private PlayerToolSpawnedObjectCollection SpawnedObjectCollection;
+        public Transform PersistentObjectContainer => SpawnedObjectCollection.Persistent;
+        public Transform TemporaryObjectContainer => SpawnedObjectCollection.Temporary;
         private PlayerGameStageCollection gameStageCollection;
         public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
@@ -275,5 +276,12 @@ namespace Player
         {
             UnlockedStages = unlockedStages;
         }
+    }
+
+    [System.Serializable]
+    public class PlayerToolSpawnedObjectCollection
+    {
+        public Transform Persistent;
+        public Transform Temporary;
     }
 }

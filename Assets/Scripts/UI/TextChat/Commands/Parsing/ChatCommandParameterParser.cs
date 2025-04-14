@@ -128,6 +128,21 @@ namespace UI.Chat {
             }
             return parameters[index];
         }
+
+        public static string FormatParameters(List<string> possibilities)
+        {
+            string parameter = "(";
+            for (int i = 0; i < possibilities.Count; i++)
+            {
+                parameter += possibilities[i];
+                if (i != possibilities.Count - 1)
+                {
+                    parameter += "|";
+                }
+            }
+            parameter += ")";
+            return parameter;
+        }
     }
 }
 

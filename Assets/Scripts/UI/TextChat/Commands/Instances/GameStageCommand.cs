@@ -53,7 +53,9 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/gamestage ('add' or 'remove') 'STAGENAME'\nModifies gamestage meta data of current world";
+            List<string> firstOptions = getAutoFill(0);
+            
+            return $"/gamestage {ChatCommandParameterParser.FormatParameters(firstOptions)} (stage)\nModifies gamestage meta data of current world";
         }
 
         public List<string> getAutoFill(int paramIndex)

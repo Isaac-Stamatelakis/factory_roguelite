@@ -39,13 +39,13 @@ namespace Player.Mouse
         /// <returns>True if broken false if not</returns>
         public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
         {
-            if (tileMapLayer.raycastable())
+            if (tileMapLayer.Raycastable())
             {
-                int layer = tileMapLayer.toRaycastLayers();
+                int layer = tileMapLayer.ToRaycastLayers();
                 return RaycastHitBlock(mousePosition,layer,power,drop,precise);
             }
             
-            foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
+            foreach (TileMapType tileMapType in tileMapLayer.GetTileMapTypes()) {
                 IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {

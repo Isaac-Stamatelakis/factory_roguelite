@@ -372,7 +372,7 @@ namespace PlayerModule.Mouse {
         /// <param name="offset"></param>
         /// <returns></returns>
         public static bool TryClickTileEntity(Vector2 mousePosition) {
-            int layers = TileMapLayer.Base.toRaycastLayers();
+            int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             if (ReferenceEquals(tilemapObject,null)) return false;
             Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
@@ -522,7 +522,7 @@ namespace PlayerModule.Mouse {
         public AutoTileFinder(Transform playerTransform)
         {
             this.playerTransform = playerTransform;
-            castLayer = TileMapLayer.Base.toRaycastLayers();
+            castLayer = TileMapLayer.Base.ToRaycastLayers();
         }
 
         public Vector2 GetTilePosition(Vector2 mousePosition, float range)

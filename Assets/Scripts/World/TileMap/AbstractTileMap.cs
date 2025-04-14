@@ -71,7 +71,7 @@ namespace TileMaps {
             baseZValue = transform.position.z;
             
             gameObject.AddComponent<TilemapRenderer>();
-            if (type.hasCollider()) {
+            if (type.HasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
                 // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
                 tilemapCollider.maximumTileChangeCount=int.MaxValue; 

@@ -84,7 +84,7 @@ namespace UI.Chat {
         {
             List<string> commands = ChatCommandFactory.getAllCommands();
             int pages = Mathf.CeilToInt(commands.Count/COMMANDS_PER_PAGE);
-            string output = $"Displays a list of all available commands. Optional parameter: specify a page number between 1 and {pages+1} to view commands in segments. Enter a command to receive a detailed description.";
+            string output = $"/help (1-{pages+1})? {ChatCommandParameterParser.FormatParameters(commands)}?\nDisplays a list of all available commands. Enter a command to receive a detailed description.";
             return output;
         }
     }

@@ -15,14 +15,13 @@ namespace TileMaps.Layer {
     }
 
     public static class TileMapLayerExtension {
-        public static List<TileMapType> getTileMapTypes(this TileMapLayer layer) {
+        public static List<TileMapType> GetTileMapTypes(this TileMapLayer layer) {
             switch (layer) {
                 case TileMapLayer.Base:
                     return new List<TileMapType>{
                         TileMapType.Block,
                         TileMapType.Platform,
                         TileMapType.Object,
-                        TileMapType.ColladableObject
                     };
                 case TileMapLayer.Background:
                     return new List<TileMapType>{
@@ -52,26 +51,21 @@ namespace TileMaps.Layer {
                     return null;
             }
         }
-        public static bool raycastable(this TileMapLayer layer) {
+        public static bool Raycastable(this TileMapLayer layer) {
             switch (layer) {
                 case TileMapLayer.Base:
                     return true;
                 case TileMapLayer.Background:
-                    return false;
                 case TileMapLayer.Item:
-                    return false;
                 case TileMapLayer.Fluid:
-                    return false;
                 case TileMapLayer.Energy:
-                    return false;
                 case TileMapLayer.Signal:
-                    return false;
                 default:
                     return false;
             }
         }
-        public static int toRaycastLayers(this TileMapLayer layer) {
-            List<TileMapType> tileMapTypes = layer.getTileMapTypes();
+        public static int ToRaycastLayers(this TileMapLayer layer) {
+            List<TileMapType> tileMapTypes = layer.GetTileMapTypes();
             if (tileMapTypes == null) {
                 return 0;
             }
@@ -81,7 +75,7 @@ namespace TileMaps.Layer {
             }
             return layerMask;
         }
-        public static bool isTile(this TileMapLayer layer) {
+        public static bool IsTile(this TileMapLayer layer) {
             switch (layer) {
                 case TileMapLayer.Base:
                     return true;
@@ -91,7 +85,7 @@ namespace TileMaps.Layer {
                     return false;
             }
         }
-        public static bool isConduit(this TileMapLayer layer) {
+        public static bool IsConduit(this TileMapLayer layer) {
             switch (layer) {
                 case TileMapLayer.Item:
                     return true;
@@ -105,7 +99,7 @@ namespace TileMaps.Layer {
                     return false;
             }
         }
-        public static ConduitType toConduit(this TileMapLayer layer) {
+        public static ConduitType ToConduit(this TileMapLayer layer) {
             switch (layer) {
                 case TileMapLayer.Item:
                     return ConduitType.Item;

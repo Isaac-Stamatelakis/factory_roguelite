@@ -8,13 +8,13 @@ namespace UI.Chat {
     public class MiscDevCommand : ChatCommand, IAutoFillChatCommand
     {
         private const string INSTA_BREAK = "instabreak";
-        private const string NO_BREAK_CD = "cooldown";
+        private const string NO_BREAK_CD = "nocooldown";
         private const string NO_HIT = "nohit";
-        private const string NO_PLACE_COST = "breakcost";
-        private const string NO_PLACE_LIMIT = "placelimit";
-        private const string NO_ENERGY_COST = "energycost";
-        private const string TOGGLE_LIGHT = "light";
-        private const string NO_TELEPORT_COOLDOWN = "teleportcooldown";
+        private const string NO_PLACE_COST = "nobreakcost";
+        private const string NO_PLACE_LIMIT = "noplacelimit";
+        private const string NO_ENERGY_COST = "noenergycost";
+        private const string TOGGLE_LIGHT = "lighton";
+        private const string NO_TELEPORT_COOLDOWN = "noteleportcooldown";
         public MiscDevCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
         {
         }
@@ -85,7 +85,8 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/devmode (option)+ (on|off)? \nToggles various devmodes";
+            List<string> options = getAutoFill(0);
+            return $"/devmode {ChatCommandParameterParser.FormatParameters(options)}+ (on|off)? \nSet values of various devmodes";
         }
 
         public List<string> getAutoFill(int paramIndex)

@@ -8,6 +8,7 @@ using UI.QuestBook;
 using WorldModule;
 
 namespace UI.Chat {
+    [Obsolete]
     public class QuestCheatCommand : ChatCommand
     {
         public QuestCheatCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
@@ -31,7 +32,7 @@ namespace UI.Chat {
             return "/quest_cheat (optional 'boolean') \nToggles cheat mode";
         }
     }
-    
+    [Obsolete]
     public class QuestResetCommand : ChatCommand, IAutoFillChatCommand
     {
         public QuestResetCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)

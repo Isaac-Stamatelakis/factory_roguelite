@@ -104,8 +104,8 @@ namespace Entities.Mobs {
                 return;
             }
             entity.transform.localPosition = position;
-            mobEntity.initalize();
-            mobEntity.Deseralize(serializedEntityData);
+            mobEntity.Initialize();
+            mobEntity.Deserialize(serializedEntityData);
         }
         
 

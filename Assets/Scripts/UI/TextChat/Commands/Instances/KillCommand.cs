@@ -13,7 +13,7 @@ namespace UI.Chat {
     {
         private readonly Dictionary<string, Action<string[],TextChatUI>> funcOptionMap = new Dictionary<string, Action<string[],TextChatUI>>
         {
-            { "self", KillSelf },
+            { "player", KillSelf },
             { "items", KillItems}
         };
         public KillCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
@@ -50,7 +50,7 @@ namespace UI.Chat {
         }
         public override string getDescription()
         {
-            return "/kill ('self' or 'items')\nKills objects";
+            return "/kill (player|items)\nKills objects";
         }
 
         public List<string> getAutoFill(int paramIndex)

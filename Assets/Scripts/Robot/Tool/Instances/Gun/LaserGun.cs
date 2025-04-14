@@ -53,8 +53,8 @@ namespace Robot.Tool.Instances
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
             // TODO auto adjust this based on firing rate
-            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.ToolObjectContainer, "GunAoE");
-            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.ToolObjectContainer, "Laser");
+            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE");
+            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser");
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -151,7 +151,7 @@ namespace Robot.Tool.Instances
         private void FireLaser(Vector2 direction, float speed, bool usePool)
         {
             if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_LASER,0.1f)) return;
-            BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.ToolObjectContainer,false);
+            BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.TemporaryObjectContainer,false);
             float z = basicLaserGunProjectile.transform.position.z;
             var vector3 = playerRobot.gunController.GetEdgePosition();
             vector3.z = z;
@@ -169,7 +169,7 @@ namespace Robot.Tool.Instances
             }
             Vector2 direction = dif.normalized;
             
-            LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.ToolObjectContainer,false);
+            LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.TemporaryObjectContainer,false);
             float z = laserGunExplosionProjectile.transform.position.z;
             var vector3 = playerRobot.gunController.GetEdgePosition();
             vector3.z = z;

@@ -300,7 +300,7 @@ namespace Chunks.Systems {
         }
 
         private void InitConduitSystemManager(TileMapType conduitMapType) {
-            ConduitType conduitType = conduitMapType.toConduitType();
+            ConduitType conduitType = conduitMapType.ToConduitType();
             Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts = ConduitPortFactory.GetTileEntityPorts(conduitType,softLoadedChunks);
             Dictionary<Vector2Int, IConduit> conduits = GetConduits(conduitType, tileEntityPorts);
             IConduitSystemManager manager = ConduitSystemManagerFactory.CreateManager(
@@ -421,7 +421,7 @@ namespace Chunks.Systems {
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
                     foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
                         IConduitSystemManager manager = kvp.Value;
-                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
+                        partitionConduits[kvp.Key.ToConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
                     partition.Save();
@@ -442,7 +442,7 @@ namespace Chunks.Systems {
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
                     foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
                         IConduitSystemManager manager = kvp.Value;
-                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
+                        partitionConduits[kvp.Key.ToConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
                     partition.Save();

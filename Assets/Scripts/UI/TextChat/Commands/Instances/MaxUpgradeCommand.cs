@@ -10,6 +10,7 @@ using Robot.Upgrades;
 using Robot.Upgrades.Network;
 
 namespace UI.Chat {
+    [Obsolete]
     public class MaxUpgradeCommand : ChatCommand, IAutoFillChatCommand
     {
         public const string NAME = "upgrade";

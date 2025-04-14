@@ -23,7 +23,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/teleport x y\nTeleports the player to the specified coordinates (x, y) within the current dimension.";
+            return "/teleport (x|~offset) (y|~offset)\nTeleports the player to the specified coordinates (x, y) within the current dimension.";
         }
     }
 }

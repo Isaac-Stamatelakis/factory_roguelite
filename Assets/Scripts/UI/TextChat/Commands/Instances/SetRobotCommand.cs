@@ -13,6 +13,7 @@ using Robot.Tool.Instances;
 using RobotModule;
 
 namespace UI.Chat {
+    [Obsolete]
     public class SetRobotCommand : ChatCommand, IAutoFillChatCommand
     {
         public SetRobotCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)

@@ -27,6 +27,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
+            if (ItemSlot == null) return null;
             ItemSlot.amount = UInt32.MaxValue;
             return ItemSlot;
         }

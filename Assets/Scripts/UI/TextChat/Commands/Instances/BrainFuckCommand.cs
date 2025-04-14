@@ -8,6 +8,7 @@ using UnityEditor;
 using WorldModule;
 
 namespace UI.Chat {
+    [Obsolete]
     public class BrainFuckCommand : ChatCommand
     {
         public BrainFuckCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)

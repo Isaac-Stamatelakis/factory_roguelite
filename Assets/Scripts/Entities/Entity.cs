@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Entities {
     public abstract class Entity : MonoBehaviour
     {
-        public abstract void initalize();
+        public abstract void Initialize();
     }
 }
 

@@ -28,6 +28,7 @@ namespace UI.PlayerInvUI
         [SerializeField] private GameObject playerInventoryContainer;
         [SerializeField] private InventoryUtilUI inventoryUtilUI;
         private InventoryUI originalPlayerInventoryUI;
+        public InventoryUI PlayerInventoryUI => playerInventoryUI;
         public void Start()
         {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;

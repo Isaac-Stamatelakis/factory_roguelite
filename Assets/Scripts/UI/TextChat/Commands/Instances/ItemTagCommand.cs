@@ -87,7 +87,11 @@ namespace UI.Chat {
         
         public override string getDescription()
         {
-            return "/itemtag ('print' or 'set') 'tag' 'json'\nAssigns item the given tag with data";
+            List<string> firstOptions = getAutoFill(0);
+            List<string> secondOptions = getAutoFill(1);
+            string first = ChatCommandParameterParser.FormatParameters(firstOptions);
+            string second = ChatCommandParameterParser.FormatParameters(secondOptions);
+            return $"/itemtag {first} {second} (data)\nAssigns item the given tag with data";
         }
 
         public List<string> getAutoFill(int paramIndex)

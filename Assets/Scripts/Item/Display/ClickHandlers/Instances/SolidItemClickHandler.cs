@@ -6,6 +6,8 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Tags;
+using Player.UI.Inventory;
+using PlayerModule;
 using UnityEngine;
 
 namespace Item.Inventory.ClickHandlers.Instances
@@ -127,9 +129,23 @@ namespace Item.Inventory.ClickHandlers.Instances
         private bool TransferConnections(List<ItemSlot> inventory)
         {
             if (!Input.GetKey(KeyCode.LeftShift)) return false;
-            
-            if (ReferenceEquals(inventoryUI.Connection, null)) return false;
             ItemSlot transferItem = inventory[index];
+            if (ReferenceEquals(inventoryUI.Connection, null))
+            {
+                // Pushes item to front of inventory instead of switching from inventories
+                for (int i = 0; i < inventory.Count; i++)
+                {
+                    ItemSlot currentCheck = inventory[i];
+                    if (!ItemSlotUtils.IsItemSlotNull(currentCheck)) continue;
+                    inventory[i] = transferItem;
+                    inventory[index] = currentCheck;
+                    inventoryUI.RefreshSlots();
+                    inventoryUI.CallListeners(index);
+                    return true;
+                }
+                return false;
+            }
+            
             if (!inventoryUI.Connection.ValidateInput(transferItem,index)) return false;
             var connectionInventory = inventoryUI.Connection.GetInventory();
 
@@ -143,7 +159,9 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
         protected override void MiddleClick()
         {
-            List<ItemSlot> sorted = ItemSlotUtils.SortInventory(inventoryUI.GetInventory(), ItemSlotUtils.InventorySortMode.Name);
+            if (inventoryUI.InventoryInteractMode != InventoryInteractMode.Standard) return; // Coudl cause issues
+            InventorySortingMode sortingMode = (InventorySortingMode)PlayerPrefs.GetInt(InventoryUtilUI.SORT_MODE_LOOKUP);
+            List<ItemSlot> sorted = ItemSlotUtils.SortInventory(inventoryUI.GetInventory(), sortingMode,Global.MAX_SIZE);
             for (int i = 0; i < sorted.Count; i++)
             {
                 inventoryUI.SetItem(i,sorted[i]);

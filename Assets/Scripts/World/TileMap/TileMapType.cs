@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,6 @@ namespace TileMaps.Type {
         Background,
         Object,
         Platform,
-        ColladableObject,
         ItemConduit,
         FluidConduit,
         EnergyConduit,
@@ -19,7 +19,7 @@ namespace TileMaps.Type {
     }
 
     public static class TileMapTypeExtension {
-        public static TileMapLayer toLayer(this TileMapType type) {
+        public static TileMapLayer ToLayer(this TileMapType type) {
             switch (type) {
                 case TileMapType.Block:
                     return TileMapLayer.Base;
@@ -28,8 +28,6 @@ namespace TileMaps.Type {
                 case TileMapType.Object:
                     return TileMapLayer.Base;
                 case TileMapType.Platform:
-                    return TileMapLayer.Base;
-                case TileMapType.ColladableObject:
                     return TileMapLayer.Base;
                 case TileMapType.ItemConduit:
                     return TileMapLayer.Item;
@@ -48,69 +46,34 @@ namespace TileMaps.Type {
                     return TileMapLayer.Base;
             }
         }
-        public static bool hasCollider(this TileMapType tileType) {
+        public static bool HasCollider(this TileMapType tileType) {
             switch (tileType) {
                 case TileMapType.Block:
                 case TileMapType.Object:
                 case TileMapType.Platform:
-                case TileMapType.ColladableObject:
                 case TileMapType.Fluid:
                     return true;
-                case TileMapType.Background:
-                    return false;
-                case TileMapType.MatrixConduit:
-                case TileMapType.ItemConduit:
-                case TileMapType.FluidConduit:
-                case TileMapType.EnergyConduit:
-                case TileMapType.SignalConduit:
                 default:
                     return false;
             }
         }
-        public static bool isTile(this TileMapType tileType) {
+        public static bool IsTile(this TileMapType tileType) {
             switch (tileType) {
                 case TileMapType.Block:
-                    return true;
                 case TileMapType.Background:
-                    return true;
                 case TileMapType.Object:
-                    return true;
                 case TileMapType.Platform:
                     return true;
-                case TileMapType.ColladableObject:
-                    return true;
-                case TileMapType.ItemConduit:
-                    return false;
-                case TileMapType.FluidConduit:
-                    return false;
-                case TileMapType.EnergyConduit:
-                    return false;
-                case TileMapType.SignalConduit:
-                    return false;
                 default:
                     return false;
             }
         }
-        public static bool isConduit(this TileMapType tileType) {
+        public static bool IsConduit(this TileMapType tileType) {
             switch (tileType) {
-                case TileMapType.Block:
-                    return false;
-                case TileMapType.Background:
-                    return false;
-                case TileMapType.Object:
-                    return false;
-                case TileMapType.Platform:
-                    return false;
-                case TileMapType.ColladableObject:
-                    return false;
                 case TileMapType.ItemConduit:
-                    return true;
                 case TileMapType.FluidConduit:
-                    return true;
                 case TileMapType.EnergyConduit:
-                    return true;
                 case TileMapType.SignalConduit:
-                    return true;
                 case TileMapType.MatrixConduit:
                     return true;
                 default:
@@ -118,11 +81,11 @@ namespace TileMaps.Type {
             }
         }
 
-        public static bool isFluid(this TileMapType tileMapType) {
+        public static bool IsFluid(this TileMapType tileMapType) {
             return tileMapType == TileMapType.Fluid;
         }
 
-        public static ConduitType toConduitType(this TileMapType tileMapType) {
+        public static ConduitType ToConduitType(this TileMapType tileMapType) {
             switch (tileMapType) {
                 case TileMapType.ItemConduit:
                     return ConduitType.Item;
@@ -135,11 +98,10 @@ namespace TileMaps.Type {
                 case TileMapType.MatrixConduit:
                     return ConduitType.Matrix;
                 default:
-                    Debug.LogError("Invalid tilemap type provided for converting to conduitytpe");
-                    return ConduitType.Item;
+                    throw new ArgumentOutOfRangeException(nameof(tileMapType), tileMapType, null);
             }
         }
-        public static float getZValue(this TileMapType tileMapType) {
+        public static float GetZValue(this TileMapType tileMapType) {
             switch (tileMapType) {
                 case TileMapType.Block:
                     return 1;
@@ -148,8 +110,6 @@ namespace TileMaps.Type {
                 case TileMapType.Object:
                     return 1.5f;
                 case TileMapType.Platform:
-                    return 1;
-                case TileMapType.ColladableObject:
                     return 1;
                 case TileMapType.MatrixConduit:
                     return 2f;
@@ -164,7 +124,7 @@ namespace TileMaps.Type {
                 case TileMapType.Fluid:
                     return 1.1f;
                 default:
-                    return 9999;
+                    throw new ArgumentOutOfRangeException(nameof(tileMapType), tileMapType, null);
             }
         }
     }

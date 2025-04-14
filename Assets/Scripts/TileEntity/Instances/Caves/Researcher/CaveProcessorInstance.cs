@@ -208,6 +208,7 @@ namespace TileEntity.Instances.Caves.Researcher {
         public float Progress;
         public bool Satisfied;
         public string ResearchId;
+        public bool CompletionActionTriggered;
 
         public ResearchDriveProcess(float progress, bool satisfied, string researchId)
         {

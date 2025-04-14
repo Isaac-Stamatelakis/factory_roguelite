@@ -18,7 +18,7 @@ namespace Player.UI.Inventory
 {
     public class InventoryUtilUI : MonoBehaviour
     {
-        private const string SORT_MODE_LOOKUP = "inventory_sort_mode";
+        public const string SORT_MODE_LOOKUP = "inventory_sort_mode";
         [SerializeField] private InventoryUI trashCanUI;
         [SerializeField] private Button takeAllButton;
         [SerializeField] private Button giveAllButton;

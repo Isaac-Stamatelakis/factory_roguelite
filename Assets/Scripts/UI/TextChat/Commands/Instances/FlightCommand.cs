@@ -27,7 +27,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/flight (optional 'T' or 'F') \nToggles flight mode";
+            return "/flight (on|off)? \nModifies flight mode";
         }
     }
 }
