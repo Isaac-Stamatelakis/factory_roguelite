@@ -63,6 +63,7 @@ namespace Items {
         public int CollisionDominance = 0;
         public TileItem OnCollisionTile;
         public Color ParticleColor;
+        public bool DestroysItems;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;
