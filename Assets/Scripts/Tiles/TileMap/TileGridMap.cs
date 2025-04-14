@@ -125,7 +125,7 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             ITileEntityInstance tileEntity = GetTileEntityAtPosition(position);
             if (tileEntity != null) {
-                TileMapLayer layer = type.toLayer();
+                TileMapLayer layer = type.ToLayer();
                 partition.BreakTileEntity(layer,tilePositionInPartition);
                 DeleteTileEntityFromConduit(position);
             }
@@ -309,7 +309,7 @@ namespace TileMaps {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, TileItem item)
         {
-            partition?.SetTile(positionInPartition,GetTileMapType().toLayer(),item);
+            partition?.SetTile(positionInPartition,GetTileMapType().ToLayer(),item);
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {
@@ -318,7 +318,7 @@ namespace TileMaps {
                 return null;
             }
             Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
-            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().toLayer());
+            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().ToLayer());
             return tileItem;
         }
         
@@ -330,7 +330,7 @@ namespace TileMaps {
                 return null;
             }
             Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
-            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().toLayer());
+            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().ToLayer());
             return tileItem;
         }
         

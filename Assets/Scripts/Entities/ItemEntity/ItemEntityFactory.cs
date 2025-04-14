@@ -29,10 +29,11 @@ namespace Entities {
             ItemEntity itemEntity = tileItemEntity.AddComponent<ItemEntity>();
             itemEntity.itemSlot = itemSlot;
             tileItemEntity.name = itemSlot.itemObject.name + "Entity";
-            itemEntity.transform.position = new Vector3(position.x,position.y,0);
-            itemEntity.transform.parent = entityContainer;
+            
+            itemEntity.transform.SetParent(entityContainer,false);
+            itemEntity.transform.localPosition  = new Vector3(position.x,position.y,0);
             itemEntity.tag = "ItemEntity";
-            itemEntity.initalize();
+            itemEntity.Initialize();
             
             
             if (initialVelocity != null)

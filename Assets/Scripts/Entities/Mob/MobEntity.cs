@@ -39,7 +39,7 @@ namespace Entities.Mobs {
         public MobDeathParticles DeathParticles = MobDeathParticles.None;
         
         private string id;
-        public void Deseralize(SerializedMobEntityData entityData) {
+        public void Deserialize(SerializedMobEntityData entityData) {
             this.id = entityData.Id;
             if (entityData.Health > float.MinValue)
             {
@@ -95,11 +95,7 @@ namespace Entities.Mobs {
             yield return new WaitForSeconds(0.2f);
             renderer.color = Color.white;
         }
-
-        public override void initalize()
-        {
-            
-        }
+        
 
         public SeralizedEntityData serialize() {
             SerializedMobEntityData serializedMobData = new SerializedMobEntityData{
@@ -130,6 +126,11 @@ namespace Entities.Mobs {
                 vector3.z = 0;
                 transform.localPosition = vector3;
             }
+        }
+
+        public override void Initialize()
+        {
+            
         }
     }
 

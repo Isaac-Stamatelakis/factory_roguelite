@@ -30,7 +30,7 @@ namespace Entities {
 
         private const int CAST_RATE = 1;
 
-        public override void initalize()
+        public override void Initialize()
         {
             gameObject.AddComponent<BoxCollider2D>();
             rb = gameObject.AddComponent<Rigidbody2D>();
@@ -172,7 +172,6 @@ namespace Entities {
         {
             if (other.gameObject.tag == "Fluid")
             {
-                Debug.Log("In Fluid!");
                 Vector2 bottomPosition = (Vector2)transform.position + Vector2.down * GetComponent<SpriteRenderer>().bounds.extents.y;
                 Vector2 collisionPoint = other.ClosestPoint(bottomPosition);
                 FluidTileMap fluidTileMap = other.GetComponent<FluidTileMap>();

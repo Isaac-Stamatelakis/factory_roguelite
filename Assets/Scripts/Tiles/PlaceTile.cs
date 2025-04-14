@@ -122,7 +122,7 @@ namespace TileMaps.Place {
             if (!tileItem.tileOptions.placeableInCave && closedChunkSystem.Dim == (int)Dimension.Cave) return false;
             
             TileMapType tileMapType = tileItem.tileType.toTileMapType();
-            TileMapLayer layer = tileMapType.toLayer();
+            TileMapLayer layer = tileMapType.ToLayer();
             switch (layer) {
                 case TileMapLayer.Base:
                     return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation);
@@ -156,7 +156,7 @@ namespace TileMaps.Place {
             if (DevMode.Instance.noPlaceLimit) return true;
             
     
-            HashSet<Direction> adjacentBlocks = GetActivePerimeter(intervalVector, tileItem.tileType.toTileMapType().toLayer());
+            HashSet<Direction> adjacentBlocks = GetActivePerimeter(intervalVector, tileItem.tileType.toTileMapType().ToLayer());
             
             TilePlacementOptions placementOptions = tileItem.tileOptions.placementRequirements;
             
@@ -228,7 +228,7 @@ namespace TileMaps.Place {
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
-                    TileMapLayer.Base.toRaycastLayers()) 
+                    TileMapLayer.Base.ToRaycastLayers()) 
                 || backgroundWithinParameter(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
@@ -240,7 +240,7 @@ namespace TileMaps.Place {
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
-                    TileMapLayer.Base.toRaycastLayers());
+                    TileMapLayer.Base.ToRaycastLayers());
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace TileMaps.Place {
 
         public static void ClearTilesOnPlace(TileItem tileItem, Vector2 worldPosition, int rotation)
         {
-            int layers = TileMapLayer.Base.toRaycastLayers();
+            int layers = TileMapLayer.Base.ToRaycastLayers();
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.getSprite()),rotation);
             for (float x = intervalVector.X.LowerBound; x <= intervalVector.X.UpperBound; x += 0.5f)
             {
@@ -356,7 +356,7 @@ namespace TileMaps.Place {
             if (ReferenceEquals(tileEntity, null)) return;
             
             ITileEntityInstance tileEntityInstance = presetTileEntity ?? TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true, data: initialData);
-            TileMapLayer layer = iWorldTileMap.GetTileMapType().toLayer();
+            TileMapLayer layer = iWorldTileMap.GetTileMapType().ToLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             
             if (tileEntityInstance is IMultiBlockTileAggregate multiBlockTileAggregate) // This has to be called after the tile entity is added to partition
@@ -406,7 +406,7 @@ namespace TileMaps.Place {
 
         private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
             Vector2Int tileMapPosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
-            if (raycastTileInBox(worldPosition, TileMapLayer.Base.toRaycastLayers(), true)) return false;
+            if (raycastTileInBox(worldPosition, TileMapLayer.Base.ToRaycastLayers(), true)) return false;
             return !iWorldTileMap.HasTile(tileMapPosition);
         }
 
@@ -423,20 +423,20 @@ namespace TileMaps.Place {
             Vector2 centered = new Vector2(centeredX,centeredY);
             if (direction == Direction.Center)
             {
-                return raycastTileInBox(centered,layer.toRaycastLayers());  
+                return raycastTileInBox(centered,layer.ToRaycastLayers());  
             }
             if (requireFlat)
             {
-                return RaycastTileInLine(direction,centered,layer.toRaycastLayers());
+                return RaycastTileInLine(direction,centered,layer.ToRaycastLayers());
             }
 
             return direction switch
             {
-                Direction.Down => raycastTileInBox(centered + Vector2.down * Global.TILE_SIZE, layer.toRaycastLayers()),
-                Direction.Up => raycastTileInBox(centered + Vector2.up * Global.TILE_SIZE, layer.toRaycastLayers()),
-                Direction.Left => raycastTileInBox(centered + Vector2.left * Global.TILE_SIZE, layer.toRaycastLayers()),
+                Direction.Down => raycastTileInBox(centered + Vector2.down * Global.TILE_SIZE, layer.ToRaycastLayers()),
+                Direction.Up => raycastTileInBox(centered + Vector2.up * Global.TILE_SIZE, layer.ToRaycastLayers()),
+                Direction.Left => raycastTileInBox(centered + Vector2.left * Global.TILE_SIZE, layer.ToRaycastLayers()),
                 Direction.Right => raycastTileInBox(centered + Vector2.right * Global.TILE_SIZE,
-                    layer.toRaycastLayers()),
+                    layer.ToRaycastLayers()),
                 _ => false
             };
         }
@@ -625,7 +625,7 @@ namespace TileMaps.Place {
                 floatIntervalVector.X.UpperBound,
                 floatIntervalVector.Y.LowerBound,
                 floatIntervalVector.Y.UpperBound,
-                layer.toRaycastLayers(), placeBreakable);
+                layer.ToRaycastLayers(), placeBreakable);
         }
         
         private static bool TileWithinIntervalAreaRangeExclusion(FloatIntervalVector floatIntervalVector, FloatIntervalVector exclusion, TileMapLayer layer, bool ignorePlaceBreakable = false) {
@@ -637,7 +637,7 @@ namespace TileMaps.Place {
             for (float x = minX; x <= maxX; x += 1/2f) {
                 for (float y = minY; y <= maxY; y += 1/2f) {
                     if (x >= exclusion.X.LowerBound && x <= exclusion.X.UpperBound && y >= exclusion.Y.LowerBound && y <= exclusion.Y.UpperBound) continue;
-                    if (raycastTileInBox(new Vector2(x,y), layer.toRaycastLayers(),ignorePlaceBreakable)) {
+                    if (raycastTileInBox(new Vector2(x,y), layer.ToRaycastLayers(),ignorePlaceBreakable)) {
                         return true;
                     }
                 }
@@ -647,7 +647,7 @@ namespace TileMaps.Place {
 
         private static HashSet<Direction> GetActivePerimeter(FloatIntervalVector floatIntervalVector, TileMapLayer layer)
         {
-            int layers = layer.toRaycastLayers();
+            int layers = layer.ToRaycastLayers();
             float minX = floatIntervalVector.X.LowerBound;
             float maxX = floatIntervalVector.X.UpperBound;
             float minY = floatIntervalVector.Y.LowerBound;

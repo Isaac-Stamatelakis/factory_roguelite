@@ -72,11 +72,11 @@ namespace Chunks.Systems {
             container.transform.SetParent(parent);
             container.tag = "Ground";
             container.name = tileType.ToString();
-            if (tileType.hasCollider()) {
+            if (tileType.HasCollider()) {
                 container.layer = LayerMask.NameToLayer(tileType.ToString());
             }
             
-            container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
+            container.transform.localPosition = new Vector3(0,0,tileType.GetZValue());
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
 
@@ -84,7 +84,7 @@ namespace Chunks.Systems {
             tileGridMaps[tileType] = worldTileMap;
             tileGridMaps[tileType].Initialize(tileType);
             
-            if (tileType is TileMapType.Block or TileMapType.Platform or TileMapType.Fluid)
+            if (tileType is TileMapType.Block or TileMapType.Platform or TileMapType.Object or TileMapType.Fluid)
             {
                 GameObject gameObject = worldTileMap.GetTilemap().gameObject;
                 Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
@@ -117,7 +117,7 @@ namespace Chunks.Systems {
                     epsilon *= -1;
                     break;
             }
-            container.transform.localPosition = new Vector3(0, 0, TileMapType.Object.getZValue() + epsilon);
+            container.transform.localPosition = new Vector3(0, 0, TileMapType.Object.GetZValue() + epsilon);
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
             Tilemap tilemap = container.AddComponent<Tilemap>();
@@ -147,7 +147,7 @@ namespace Chunks.Systems {
 
         private static IWorldTileMap CreateTileMap(TileMapType tileType, Transform container)
         {
-            if (tileType.isTile())
+            if (tileType.IsTile())
             {
                 WorldTileMap worldTileMap = tileType switch
                 {
@@ -157,9 +157,9 @@ namespace Chunks.Systems {
                 };
 
                 return worldTileMap;
-            } else if (tileType.isConduit()) {
+            } else if (tileType.IsConduit()) {
                 return container.AddComponent<ConduitTileMap>();
-            } else if (tileType.isFluid()) {
+            } else if (tileType.IsFluid()) {
                 return container.AddComponent<FluidTileMap>();
             }
 
