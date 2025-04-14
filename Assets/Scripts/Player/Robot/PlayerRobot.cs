@@ -905,7 +905,8 @@ namespace Player {
             if (CollisionStateActive(CollisionState.OnSlope))
             {
                 bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
-                return moving ? FREEZE_Z : FREEZE_Y;
+                bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);
+                return moving && !touchingWall ? FREEZE_Z : FREEZE_Y;
             }
             if (CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight)) return FREEZE_Z;
             return IsOnGround() && rb.velocity.y < epilson
