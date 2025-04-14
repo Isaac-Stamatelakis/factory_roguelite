@@ -33,11 +33,11 @@ namespace Robot.Tool.Instances
     }
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool
     {
-        private RobotToolLaserManager laserManager;
-        private int mouseBitMap;
+        private MultiButtonRobotToolLaserManager laserManager;
+        
         public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
-         
+            laserManager = new MultiButtonRobotToolLaserManager(base.playerScript, robotObject.LineRendererPrefab);
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -58,20 +58,13 @@ namespace Robot.Tool.Instances
 
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            mouseBitMap |= (int)mouseButtonKey;
-            laserManager ??= new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
-            laserManager.UpdateLineRenderer(mousePosition,GetColor());
+            laserManager.Update(ref mousePosition, GetColor(), mouseButtonKey);
         }
 
         public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
-            mouseBitMap &= ~(int)mouseButtonKey;
+            laserManager.DeActivate(mouseButtonKey);
             playerScript.TileViewers.TileBreakHighlighter.Clear();
-            if (laserManager != null && mouseBitMap == 0)
-            {
-                laserManager.Terminate();
-                laserManager = null;
-            }
             
             playerScript.PlayerMouse.ClearToolPreview();
         }
@@ -282,7 +275,7 @@ namespace Robot.Tool.Instances
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            laserManager?.UpdateLineRenderer(mousePosition,GetColor());
+            laserManager?.Update(ref mousePosition,GetColor(),mouseButtonKey);
             if (time < 0.25f) return false;
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
