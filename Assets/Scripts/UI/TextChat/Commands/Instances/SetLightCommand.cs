@@ -40,7 +40,8 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/lightmode intensity (r,g,b) \nSets light to intensity in range [0,inf)\nOptional: provide (r,g,b) in range [0,255]";
+            List<string> colors = getAutoFill(1);
+            return $"/lightmode (intensity) {ChatCommandParameterParser.FormatParameters(colors)}?\nSets light to intensity in range [0,inf)\nOptional: provide (r,g,b) in range [0,255]";
         }
     }
 }

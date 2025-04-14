@@ -58,7 +58,9 @@ namespace UI.Chat {
         
         public override string getDescription()
         {
-            return "/give id amount\nGives player amount of item with id";
+            List<string> options = getAutoFill(0);
+            string optionMessage = ChatCommandParameterParser.FormatParameters(options);
+            return $"/camera {optionMessage}\nModifies the camera view";
         }
     }
 }

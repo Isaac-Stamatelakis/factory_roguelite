@@ -47,7 +47,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/spawn id\nSpawns entity with id at player location";
+            return "/spawn (id) (amount)?\nSpawns entity with id at player location";
         }
     }
 }

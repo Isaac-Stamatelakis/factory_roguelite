@@ -28,7 +28,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/setdim dim position\nTeleports player to dimension at position";
+            return "/setdim (-1|0|1) (position)?\nTeleports player to dimension at position";
         }
     }
 }

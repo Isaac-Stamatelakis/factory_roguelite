@@ -10,6 +10,8 @@ using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Machines;
 using TMPro;
 using UI.Chat;
+using UI.PlayerInvUI;
+using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
@@ -42,7 +44,6 @@ namespace TileEntity.Instances.Caves.Researcher
         private int previousMessageIndex;
         private List<string> recordedMessages = new List<string>();
         private CaveObject currentResearchCave;
-
         private const string START_MESSAGE =
             "===============================================\n" +
             "               AVARICE TERMINAL ONLINE\n" +
@@ -88,6 +89,8 @@ namespace TileEntity.Instances.Caves.Researcher
         }
         
 
+        
+
         private IEnumerator LoadCaves()
         {
             var handle = Addressables.LoadAssetsAsync<CaveObject>("cave",null);
@@ -105,6 +108,7 @@ namespace TileEntity.Instances.Caves.Researcher
             }
 
             if (!currentResearchCave) yield break;
+            if (caveProcessorInstance.ResearchDriveProcess == null || caveProcessorInstance.ResearchDriveProcess.Progress > 0) yield break;
             DisplayCaveResearchCost();
         }
 
@@ -138,7 +142,8 @@ namespace TileEntity.Instances.Caves.Researcher
 
             void OnResearchSuccess()
             {
-                SendTerminalMessage($"Researching Cave {currentResearchCave.name}");
+                ToolTipController.Instance.HideToolTip();
+                SendTerminalMessage($"Researching cave '{currentResearchCave.name}'");
                 caveProcessorInstance.ResearchDriveProcess.Satisfied = true;
                 mCostContainer.gameObject.SetActive(false);
             }
@@ -181,11 +186,13 @@ namespace TileEntity.Instances.Caves.Researcher
                     ItemSlot spliced = ItemSlotFactory.Splice(current, amount - requiredAmount);
                     current.amount = requiredAmount;
                     PlayerManager.Instance.GetPlayer().PlayerInventory.Give(spliced);
+                    GetComponentInParent<StackedPlayerInvUIElement>().PlayerInventoryUI.RefreshSlots();
                     amount = requiredAmount;
                 }
                 TextMeshProUGUI textMeshProUGUI = mResearchItemsUI.GetItemSlotUI(index).mBottomText;
                 textMeshProUGUI.text = $"{amount}/{requiredAmount}";
                 textMeshProUGUI.color = color;
+                
             }
 
             string GetToolTip(int index)
@@ -235,14 +242,9 @@ namespace TileEntity.Instances.Caves.Researcher
             if (caveProcessorInstance.ResearchDriveProcess == null)
             {
                 mStatusText.text = "Researching: 'None'";
-                mCostContainer.gameObject.SetActive(false);
             }
             else
             {
-                if (caveProcessorInstance.ResearchDriveProcess.Satisfied)
-                {
-                    mCostContainer.gameObject.SetActive(false);
-                }
                 mStatusText.text = !caveProcessorInstance.ResearchDriveProcess.Satisfied
                     ? $"Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nStatus:Awaiting Items" 
                     : $"<color=green>Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nProgress:{caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>";
@@ -252,6 +254,16 @@ namespace TileEntity.Instances.Caves.Researcher
         public void Update()
         {
             DisplayText();
+            var researchDriveProcessor = caveProcessorInstance.ResearchDriveProcess;
+            if (researchDriveProcessor != null)
+            {
+                if (!researchDriveProcessor.CompletionActionTriggered  && researchDriveProcessor.Progress> 0.99f)
+                {
+                    SendTerminalMessage($"<color=green>Research of '{currentResearchCave?.name}' complete!</color>");
+                    mCostContainer.gameObject.SetActive(false);
+                    researchDriveProcessor.CompletionActionTriggered = true;
+                }
+            }
             if (Input.GetKeyDown(KeyCode.Return) ) {
                 
                 EnterCommand(mTextInput.text);

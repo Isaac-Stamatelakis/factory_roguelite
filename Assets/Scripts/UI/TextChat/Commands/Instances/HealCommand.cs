@@ -22,7 +22,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/heal (amount) \nHeals player robot by amount";
+            return "/heal (amount)\nHeals player robot by amount";
         }
 
         

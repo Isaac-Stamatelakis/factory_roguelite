@@ -47,7 +47,7 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/give id amount\nGives player amount of item with id";
+            return "/give (id) (amount)\nGives player amount of item with id";
         }
     }
 }

@@ -77,8 +77,8 @@ namespace UI.Chat {
                 {
                     List<string> fills = new List<string>
                     {
-                        "false",
-                        "true"
+                        "on",
+                        "off"
                     };
                     fills.AddRange(ChatCommandParameterParser.PresetColors.Keys.ToList());
                     return fills;
@@ -92,7 +92,10 @@ namespace UI.Chat {
 
         public override string getDescription()
         {
-            return "/outline wireframe color \nSets view\nwireframe (bool)\nOptional color (r,g,b)";
+            List<string> first = getAutoFill(0);
+            List<string> second = getAutoFill(1);
+            
+            return $"/outline {ChatCommandParameterParser.FormatParameters(first)}? {ChatCommandParameterParser.FormatParameters(second)}?\nSets state and/or color of outline";
         }
     }
 }
