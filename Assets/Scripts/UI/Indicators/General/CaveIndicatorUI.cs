@@ -1,3 +1,4 @@
+using System;
 using Player;
 using UI.ToolTip;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace UI.Indicators.General
         private Vector2 returnPortalLocation;
         private PlayerScript playerScript;
         private float distance;
+        private bool hovering = false;
         
         public void SyncToSystem(PlayerScript playerScript, Vector2 portalLocation)
         {
@@ -33,14 +35,27 @@ namespace UI.Indicators.General
         {
             return $"Distance From Portal:{distance:F1}m";
         }
-        
-        public void OnPointerEnter(PointerEventData eventData)
+
+        public void FixedUpdate()
+        {
+            if (hovering) Display();
+        }
+
+        public void Display()
         {
             ToolTipController.Instance.ShowToolTip(transform.position, GetDimensionText());
+        }
+        
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            hovering = true;
+            Display();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            hovering = false;
             ToolTipController.Instance.HideToolTip();
         }
         

@@ -159,8 +159,9 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
         protected override void MiddleClick()
         {
+            if (inventoryUI.InventoryInteractMode != InventoryInteractMode.Standard) return; // Coudl cause issues
             InventorySortingMode sortingMode = (InventorySortingMode)PlayerPrefs.GetInt(InventoryUtilUI.SORT_MODE_LOOKUP);
-            List<ItemSlot> sorted = ItemSlotUtils.SortInventory(inventoryUI.GetInventory(), sortingMode);
+            List<ItemSlot> sorted = ItemSlotUtils.SortInventory(inventoryUI.GetInventory(), sortingMode,Global.MAX_SIZE);
             for (int i = 0; i < sorted.Count; i++)
             {
                 inventoryUI.SetItem(i,sorted[i]);

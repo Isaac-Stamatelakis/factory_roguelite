@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Items.Inventory;
 using TileEntity.Instances.Machine.UI;
@@ -15,6 +16,11 @@ namespace TileEntity.Instances.Storage.Chest
             if (tileEntityInstance is not ChestInstance chestInstance) return;
             mTitle.text = tileEntityInstance.GetName();
             mInventoryUI.DisplayInventory(chestInstance.Inventory.Items);
+        }
+
+        public void FixedUpdate()
+        {
+            mInventoryUI.RefreshSlots();
         }
 
         public InventoryUI GetInput()

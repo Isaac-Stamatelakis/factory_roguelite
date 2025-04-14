@@ -469,12 +469,47 @@ namespace Item.Slot
         }
         
 
-        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortingMode sortMode)
+        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortingMode sortMode, uint maxSize)
         {
             IComparer<ItemSlot> comparer = GetInventoryComparer(sortMode);
             List<ItemSlot> sortedCopy = itemSlots
                 .OrderBy(slot => slot, comparer)
                 .ToList();
+            // Merge similar items
+            for (int i = sortedCopy.Count-1; i > 0; i--)
+            {
+                ItemSlot left = sortedCopy[i - 1];
+                if (ItemSlotUtils.IsItemSlotNull(left)) continue;
+                if (left.amount >= maxSize) continue;
+                ItemSlot right = sortedCopy[i];
+                if (ItemSlotUtils.IsItemSlotNull(right)) continue;
+                if (!ItemSlotUtils.AreEqual(left,right)) continue;
+                ItemSlotUtils.InsertIntoSlot(left,right,maxSize);
+            }
+            // Shifts into null slots
+            int currentIndex = 0;
+            while (currentIndex < sortedCopy.Count)
+            {
+                ItemSlot current = sortedCopy[currentIndex];
+
+                if (!IsItemSlotNull(current))
+                {
+                    currentIndex++;
+                    continue;
+                }
+                bool found = false;
+                for (int i = currentIndex + 1; i < sortedCopy.Count; i++)
+                {
+                    ItemSlot next = sortedCopy[i];
+                    if (IsItemSlotNull(next)) continue;
+                    sortedCopy[currentIndex] = next;
+                    sortedCopy[i] = null;
+                    found = true;
+                    break;
+                }
+                if (!found) break;
+                currentIndex++;
+            }
             return sortedCopy;
         }
         
