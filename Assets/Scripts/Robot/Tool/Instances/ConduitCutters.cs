@@ -19,11 +19,12 @@ using UnityEngine;
 
 namespace Robot.Tool.Instances
 {
-    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, ISubModeRobotToolInstance, IDestructiveTool
+    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, IDestructiveTool
     {
-        private RobotToolLaserManager laserManager;
+        private MultiButtonRobotToolLaserManager laserManager;
         public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
+            laserManager = new MultiButtonRobotToolLaserManager(base.playerScript, robotObject.LineRendererPrefab);
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -41,32 +42,27 @@ namespace Robot.Tool.Instances
 
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            if (mouseButtonKey == MouseButtonKey.Right) return;
-            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
-            laserManager.UpdateLineRenderer(mousePosition,GetConduitColor(toolData.Type));
+            laserManager.Update(ref mousePosition,GetConduitColor(toolData.Type), mouseButtonKey);
         }
 
         
         public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
-            if (mouseButtonKey == MouseButtonKey.Right) return;
-            laserManager?.Terminate();
+            laserManager.DeActivate(mouseButtonKey);
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            if (mouseButtonKey != MouseButtonKey.Left) return;
             if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
-            laserManager.UpdateLineRenderer(mousePosition,GetConduitColor(toolData.Type));
-            switch (toolData.CutterMode)
+            laserManager.Update(ref mousePosition,GetConduitColor(toolData.Type), mouseButtonKey);
+            switch (mouseButtonKey)
             {
-                case ConduitCutterMode.Standard:
+                case MouseButtonKey.Left:
                     BreakConduit(mousePosition);
                     break;
-                case ConduitCutterMode.Disconnect:
-                    if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
-                    IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(toolData.Type.ToTileMapType()
-                    );
+                case MouseButtonKey.Right:
+                    if (!Input.GetMouseButtonDown(mouseButtonKey.ToMouseButton())) return;
+                    IWorldTileMap iWorldTileMap = playerScript.CurrentSystem.GetTileMap(toolData.Type.ToTileMapType());
                     if (iWorldTileMap is not ConduitTileMap conduitTileMap) return;
                     conduitTileMap.DisconnectConduits(mousePosition);
                     break;
@@ -116,14 +112,7 @@ namespace Robot.Tool.Instances
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
-            if (!subMode)
-            {
-                toolData.Type = GlobalHelper.ShiftEnum(moveDirection == MoveDirection.Left ? 1 : -1, toolData.Type);
-            }
-            else
-            {
-                toolData.CutterMode = GlobalHelper.ShiftEnum(moveDirection == MoveDirection.Left ? 1 : -1, toolData.CutterMode);
-            }
+            toolData.Type = GlobalHelper.ShiftEnum(moveDirection == MoveDirection.Left ? 1 : -1, toolData.Type);
             
         }
 
@@ -136,25 +125,6 @@ namespace Robot.Tool.Instances
         {
             
         }
-
-        public string GetSubModeName()
-        {
-            return toolData?.CutterMode.ToString();
-        }
-
-        public Sprite GetSubModeSprite()
-        {
-            switch(toolData.CutterMode)
-            {
-                case ConduitCutterMode.Standard:
-                    return robotObject.LaserModeSprite;
-                case ConduitCutterMode.Disconnect:
-                    return robotObject.SpliceModeSprite;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
         
 
         private Color GetConduitColor(ConduitType conduitType)
@@ -180,13 +150,6 @@ namespace Robot.Tool.Instances
     public class ConduitCuttersData : RobotToolData
     {
         public ConduitType Type;
-        public ConduitCutterMode CutterMode;
 
-    }
-
-    public enum ConduitCutterMode
-    {
-        Standard,
-        Disconnect
     }
 }

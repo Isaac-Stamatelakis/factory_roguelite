@@ -512,7 +512,11 @@ namespace Player {
             {
                 if (!moveUpdate)
                 {
-                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
+                    if (!climbing)
+                    {
+                        animator.Play(isUsingTool ? "IdleAction" : "Idle");
+                    }
+                    
                     animator.speed = 1;
                 }
                 else
@@ -807,7 +811,6 @@ namespace Player {
             {
                 Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
                 Vector2 dif = tileCenter - (Vector2)transform.position;
-                Debug.Log(dif.x);
                 bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
                 if (standingOnGround && PlaceTile.tileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
             }
@@ -1165,7 +1168,7 @@ namespace Player {
             }
             bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
             if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
-            animator.Play("Air");
+            
             climbing = true;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
@@ -1229,7 +1232,7 @@ namespace Player {
                 rb.gravityScale = defaultGravityScale;
                 return;
             }
-
+            animator.Play(isUsingTool ? "AirAction" : "Air");
             IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
             platformCollider.enabled = below == null;
             Vector2 velocity = rb.velocity;

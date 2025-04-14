@@ -303,12 +303,27 @@ namespace PlayerModule.Mouse {
         }
         private void RightClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem)
         {
-            if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
+            ItemObject currentPlayerItem = playerInventory.getSelectedItemSlot()?.itemObject;
+            bool placable = currentPlayerItem is IPlacableItem;
+            
+            if (placable)
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
+                    return;
+                }
+                if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
+            }
+            
             if (Input.GetMouseButtonDown(1)) {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
+            
+            if (placable) return;
             ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
+            
         }
 
         private ConduitType? GetPortClickType()
