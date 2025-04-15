@@ -11,9 +11,6 @@ namespace DevTools.ItemImageGenerator
     public class ItemImageGeneratorUI : MonoBehaviour
     {
         [SerializeField] private Button mGenerateButton;
-        [SerializeField] private GameObject mProgressContainer;
-        [SerializeField] private Scrollbar mProgressScrollbar;
-        [SerializeField] private TextMeshProUGUI mProgressText;
         [SerializeField] private ItemImageGenerator mItemImageGeneratorPrefab;
         
         
@@ -24,9 +21,12 @@ namespace DevTools.ItemImageGenerator
 
         public void OnGenerateButtonClicked()
         {
-            //mGenerateButton.interactable = false;
+            mGenerateButton.interactable = false;
             ItemImageGenerator itemImageGenerator = Instantiate(mItemImageGeneratorPrefab);
-            itemImageGenerator.Capture(ItemRegistry.GetInstance().GetAllItems());
+            itemImageGenerator.Capture(ItemRegistry.GetInstance().GetAllItems(), () =>
+            {
+                mGenerateButton.interactable = true;
+            });
 
         }
     }

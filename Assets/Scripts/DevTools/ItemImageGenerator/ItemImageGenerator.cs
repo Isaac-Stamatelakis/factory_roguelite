@@ -14,77 +14,108 @@ namespace DevTools.ItemImageGenerator
 {
     public class ItemImageGenerator : MonoBehaviour
     {
-        private const string SAVE_PATH = "Assets/ToolGen";
-        private const int RESOLUTION = 64;
+        private const string SAVE_PATH = "C:\\Users\\Isaac\\Documents\\Coding\\unity\\CaveTechImages";
         [SerializeField] private Camera mCaptureCamera;
         
-        private int maxCaptures = 100;
-        public bool forceCapture;
 
         public void Awake()
         {
             mCaptureCamera = Camera.main;
         }
 
-        public void Update()
-        {
-            if (maxCaptures < 0) GameObject.Destroy(gameObject);
-            if (forceCapture) Capture(ItemRegistry.GetInstance().GetAllItems());
-            forceCapture = false;
-        }
+       
 
-        public IEnumerator CaptureCoroutine(List<ItemObject> itemObjects)
+        public IEnumerator CaptureCoroutine(List<ItemObject> itemObjects, Action onComplete)
         {
-            maxCaptures--;
+       
             mCaptureCamera.clearFlags = CameraClearFlags.SolidColor;
             Color originalColor = mCaptureCamera.backgroundColor;
             mCaptureCamera.backgroundColor = Color.clear;
             
             int width = mCaptureCamera.pixelWidth;
             int height = mCaptureCamera.pixelHeight;
-
-            GameObject container = new GameObject("ItemContainer");
+            
+            string folder = Path.Combine(SAVE_PATH, "Images");
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, true);
+            }
+            Directory.CreateDirectory(folder);
+            
             float worldHeight = mCaptureCamera.orthographicSize;
             float worldWidth = worldHeight * mCaptureCamera.aspect;
-            container.transform.position = new Vector3(-worldWidth, -worldHeight, 0) + Vector3.one * Global.TILE_SIZE/2f;
             int rows = (int) (2*worldWidth / Global.TILE_SIZE);
             int cols = (int) (2*worldHeight / Global.TILE_SIZE);
-            for (int r = 0; r < rows; r++)
+           
+            int captures = (itemObjects.Count-1)/(rows*cols)+1;
+            for (int capture = 0; capture < captures; capture++)
             {
-                for (int c = 0; c < cols; c++)
+                GameObject container = new GameObject("ItemContainer");
+                container.transform.position = new Vector3(-worldWidth, -worldHeight, 0) + Vector3.one * Global.TILE_SIZE/2f;
+            
+                for (int r = 0; r < rows; r++)
                 {
-                    int idx = r + c*rows;
-                    if (idx >= itemObjects.Count) break;
-                    ItemObject itemObject = itemObjects[r + c * rows];
-                    Display(container.transform,r,c,itemObject);
+                    for (int c = 0; c < cols; c++)
+                    {
+                        int idx = r + c*rows + capture * captures;
+                        if (idx >= itemObjects.Count) break;
+                        ItemObject itemObject = itemObjects[idx];
+                        Display(container.transform,r,c,itemObject);
+                    }
                 }
+
+                yield return new WaitForFixedUpdate();
+                RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+                mCaptureCamera.targetTexture = renderTexture;
+            
+                mCaptureCamera.Render();
+                RenderTexture.active = renderTexture;
+                Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
+                tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+                tex.Apply();
+
+                mCaptureCamera.targetTexture = null;
+                RenderTexture.active = null;
+                
+                int imageSize = 64;
+                for (int r = 0; r < rows; r++)
+                {
+                    for (int c = 0; c < cols; c++)
+                    {
+                        int idx = r + c*rows + capture * captures;
+                        if (idx >= itemObjects.Count) break;
+                        ItemObject itemObject = itemObjects[idx];
+                        Color[] pixels = tex.GetPixels(
+                            r * imageSize, 
+                            c * imageSize, 
+                            imageSize, 
+                            imageSize
+                        );
+                        
+                        Texture2D chunkTex = new Texture2D(imageSize, imageSize, TextureFormat.RGBA32, false);
+                        chunkTex.SetPixels(pixels);
+                        chunkTex.Apply();
+                        
+                        byte[] bytes = chunkTex.EncodeToPNG();
+                        string path = Path.Combine(folder, $"{itemObject?.id}.png");
+                        File.WriteAllBytes(path, bytes);
+                        
+                        UnityEngine.Object.Destroy(chunkTex);
+                    }
+                }
+
+                Destroy(container);
+                Destroy(tex);
+                renderTexture.Release();
             }
-
-            yield return new WaitForFixedUpdate();
-            RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
-            mCaptureCamera.targetTexture = renderTexture;
-            
-            mCaptureCamera.Render();
-            RenderTexture.active = renderTexture;
-            Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
-            tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
-            tex.Apply();
-
-            mCaptureCamera.targetTexture = null;
-            RenderTexture.active = null;
-            
-            byte[] bytes = tex.EncodeToPNG();
-            string path = Path.Combine(SAVE_PATH, $"Capture.png");
-            File.WriteAllBytes(path, bytes);
-            
-            Destroy(tex);
-            renderTexture.Release();
+            Debug.Log($"Generated {itemObjects.Count} Images at {folder}");
             mCaptureCamera.backgroundColor = originalColor;
+            onComplete.Invoke();
         }
 
-        public void Capture(List<ItemObject> itemObjects)
+        public void Capture(List<ItemObject> itemObjects, Action onComplete)
         {
-            StartCoroutine(CaptureCoroutine(itemObjects));
+            StartCoroutine(CaptureCoroutine(itemObjects,onComplete));
         }
 
         public void Display(Transform container, int row, int col, ItemObject itemObject)
