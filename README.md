@@ -1,26 +1,68 @@
 # CaveTech
-CaveTech is a 2D factory game currently being developed in Unity. CaveTech is a fusion of Terraria and Modded Minecraft that is heavily inspired by the minecraft modpack GregTech New Horizons with aspects of GregTech, EnderIO, AE2, BetterQuesting, LootGames, and more. All coding, art, etc are custom built for this project. This is mostly a hobby project although I do have ambitions of delivering an experience similar to GregTech New Horizons but with changes that will make it more accessible to a larger audience.
-
-## Outline
-The player starts off trapped in a cave. This cave serves as their primary base but they have a powerful teleportation tool allowing them to access other caves. These caves contain materials use to upgrade their production lines and eventually unlock other caves, with the goal of eventually upgrading the teleporter enough to teleport out of the cave and return to civilization.
-
-## Features in CaveTech:
-* Cave generation system with a wide variety of generation types, ore veins, decorations, and random structures.
-* Tile system with 4 different tile types: block, background, object and conduit all of which include many subtypes.
-* Item system featuring many item types including crafting, tiles, conduits, and many more. Includes a special transmutable item type for items with many different states.
-* Tile entity system to add behavior to tiles placed in the world including storage, light sources, machines, puzzles, signs, doors, ladders, teleporters,  and many more.
-* Recipe system featuring five recipe types: item, generator, passive, burner, and transmutation.
-* Conduit system featuring 5 different types of conduits. Energy, item and fluid move resources between tile entities. Signal can be interacted with by tile entities and interact with other tile entities. Matrix connects tile entities to a large item system.
-* Entity system supporting item entities, and (In-Progress) various creatures.
-* Item Catalogue for searching up items, viewing recipes for items and item usages in recipes, and item information.
-* Compact machines which "shrink space" allowing players to build inside of them and transfer materials in and out. They support a recursive depth of up to 7.
-* Questbook that guides players through the game and rewards them for completing quests such as item retrieval, visiting a cave, and more.
-* In game text chat and many commands the player can use if their world has cheat mode enabled.
-* (In-Progress) Matrix item system supporting a massive centralized item storage, item IO and auto crafting. 
-* Many Unity editor tools for generating assets as well as in game developer tools for editing questbooks, and building structures. 
+CaveTech is a 2D factory game currently being developed in Unity. It's a fusion of Terraria and Modded Minecraft that is heavily inspired by the minecraft modpack GregTech New Horizons with aspects of GregTech, EnderIO, AE2, BetterQuesting, LootGames, and more. All coding, art, etc are custom made for this project.
 
 ### View Feature Demos
 [Youtube](https://www.youtube.com/@CaveTechDev/videos)
+
+## Game Loop
+In CaveTech you play as a mining Robot named HAPPY that is developed by the company 'CaveTech'. The player spawns in a confined area called 'The HUB' which is their primary base, and contains a powerful teleportation device that allows them to teleport to other dimensions. These dimensions contain materials use to upgrade their production lines and eventually unlock other dimensions, with the goal of eventually completeing their assigned mission.
+
+## Features in CaveTech:
+* 6 Different Types of Tiles:
+  * Blocks: Can be collided with by the player.
+  * Backgrounds: Behind all other tile types and is about 1.5x larger.
+  * Objects: Cannot be collided with by the player, and can be any size.
+  * Platforms: Only collide with the player from above, and be can be fallen through.
+  * Fluids: Simulated with cellular automata rules. Can be moved through, optionally can slow the player and/or damage the player.
+  * Conduits: Five different conduit types which can interact with objects placed in the world. More on them below.
+* Cave generation with a wide variety of generation types and fully customizable distrubtors for:
+  * Ore, tile, fluid, entity, and structures.
+* Many Types of Items:
+  * Tile Items, Conduit Items, and Fluid Items for placing tiles in the world.
+  * Transmutable Items which automatically are automatically generated from a Transmutable Material that defines a list of states [Ingot, Plate, Wire, Ore, etc], color, and optional shaders to be applied to all its child Items.
+  * GameStages which prevent the player from seeing certain items until they have progressed far enough.
+  * Displayable in both the User Interface and World with optional visual options such as overlays, colors, shaders, chemical formulas, and more.
+  * Many Item Tags for storing data in items (Fluids, DimensionData, etc).
+* Tile Entities for adding behavior to Tiles placed in the world such as:
+  * Light Sources, Puzzles, Item/Fluid/Energy Storage, Ladders, Doors, Teleporters, Portals, Auto-Miners, Logic, Workbenches, and more.
+  * Four Different Types of Machines:
+    * Passive Machines which run constantly.
+    * Burner Machines which run off of burnable fuel.
+    * Processing Machines which run off of energy.
+    * Generator Machines which generate energy.
+  * Compact Machines which "shrink space". Players can teleport inside of them and build encapsulated factories within them. Conduits can connect to inside them. They can be copy and pasted by blueprinting. They support a max recursive depth of 5.
+* Five different types of Conduits for interacting between Tile Entities:
+  * Item Conduits that transfer Items.
+  * Fluid Conduits that transfer Fluids.
+  * Energy Conduits that transfer Energy.
+  * Signal Conduits that transfer On/Off Signals.
+  * Matrix Conduits which connect Tile Entities to a larger item system.
+* Five different types of Recipes:
+  * Energy, generator, passive, burner which are used by their respective Machines.
+  * Transmutation Recipes which modify the state of a Transmutable Item [Ingot -> Plate].
+* Two Types of Entities:
+  *  Item Entities which can be picked up by the player.
+  *  Mob Entities can be attacked by the player and may attack the player.
+* Questbook that guides players through the game and rewards them for completing quests such as item retrieval, visiting a dimension, and more.
+* In game text chat and many commands the player can use if their world has cheat mode enabled.
+* Item Catalogue
+* Four types of Robot Tools each with many upgrades:
+  * Laser Drill that breaks blocks, backgrounds, and can suck up fluids. Multi-Hit, Speed, VeinMine, and Magnet Upgrades.
+  * Laser Gun that shoots lasers. Fire Rate, Multi-Shot and Explosion Upgrades.
+  * Laser Cutters that breaks conduits. VeinMine and Magnet Upgrades.
+  * Buildinator which can Rotate, Hammer [Tile -> Slab -> Stair -> etc], and Chisel Tiles. Multi-Hit Upgrades.
+* Player Robot Upgrades:
+  * Speed, Jump Height, Reach, Health, Bonus Jumps, and Energy.
+  * Rocket Boots which push the player upwards.
+  * Teleportation which teleports the player to their cursor.
+  * Nano-Bots which give the player passive healing.
+* Many Unity Editor Tools and In-Game Developer Tools:
+  * Structure Editor for generating and editing randomly occuring structures.
+  * QuestBook Editor for editing and creating QuestBooks.
+  * Upgrade Editor for editing and creating Robot/Tool Upgrades.
+  * Item Generators for all Item Types and Sub-Types. 
+* (In-Progress) Matrix Item System supporting a massive centralized Item storage, Item Input/Output and Auto Crafting. 
+
 
 ## Early Production Images
 ### Image of the Abyssal Caverns
