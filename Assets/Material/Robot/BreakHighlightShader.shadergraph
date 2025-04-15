@@ -1,11 +1,15 @@
 {
     "m_SGVersion": 3,
     "m_Type": "UnityEditor.ShaderGraph.GraphData",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_ObjectId": "15e37efd671341c8861ce1661aca062d",
     "m_Properties": [
         {
             "m_Id": "6d75f16af80a487d8ccd70a33f8a82e0"
+<<<<<<< HEAD
 ========
     "m_ObjectId": "a83cf43a0a1a4dc0ae9233296bd8fccf",
     "m_Properties": [
@@ -15,22 +19,31 @@
         {
             "m_Id": "2562cddeb0be4154b5076395a775c3d6"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "m_Keywords": [],
     "m_Dropdowns": [],
     "m_CategoryData": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
             "m_Id": "f3a38bbe3e274470baac1271276487d0"
 ========
             "m_Id": "98eb3483f0bc4e189b323b1e445e7b0d"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+            "m_Id": "f3a38bbe3e274470baac1271276487d0"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "m_Nodes": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             "m_Id": "41939a27ac334153b93b68c35ae13f4b"
         },
         {
@@ -71,6 +84,7 @@
         },
         {
             "m_Id": "245d33255c97440a9f7c738fbd542a67"
+<<<<<<< HEAD
 ========
             "m_Id": "f03182283cd34189aed4421aa215deef"
         },
@@ -104,6 +118,8 @@
         {
             "m_Id": "b4486437e12940ea95ac5a3b2c88c8c1"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "m_GroupDatas": [],
@@ -112,6 +128,7 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "0cedb1d0a06740d29b65aa82631248b3"
 ========
@@ -145,16 +162,23 @@
                 "m_Node": {
                     "m_Id": "3669895097c64194887d664a4b00dd45"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+                    "m_Id": "0cedb1d0a06740d29b65aa82631248b3"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 },
                 "m_SlotId": 7
             },
             "m_InputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "8bc4e5e568e748c4be10f45b0ec6f2aa"
 ========
                     "m_Id": "5e9d99b983f24369b6c50f3af14edd8c"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+                    "m_Id": "8bc4e5e568e748c4be10f45b0ec6f2aa"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 },
                 "m_SlotId": 0
             }
@@ -162,21 +186,29 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "4126b081794e412886dc54db9b12a3e7"
 ========
                     "m_Id": "86f25b869d8545999393f8da4aaebd74"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+                    "m_Id": "4126b081794e412886dc54db9b12a3e7"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 },
                 "m_SlotId": 0
             },
             "m_InputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "0cedb1d0a06740d29b65aa82631248b3"
 ========
                     "m_Id": "3669895097c64194887d664a4b00dd45"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+                    "m_Id": "0cedb1d0a06740d29b65aa82631248b3"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 },
                 "m_SlotId": 1
             }
@@ -184,16 +216,21 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "998c4e62c55946c099d486742fe5c0f5"
 ========
                     "m_Id": "b4486437e12940ea95ac5a3b2c88c8c1"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+                    "m_Id": "998c4e62c55946c099d486742fe5c0f5"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 },
                 "m_SlotId": 0
             },
             "m_InputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
                     "m_Id": "79db3803abec4beba797b813ba6deaae"
 ========
@@ -201,17 +238,30 @@
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
                 },
                 "m_SlotId": 2
+=======
+                    "m_Id": "79db3803abec4beba797b813ba6deaae"
+                },
+                "m_SlotId": 0
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             }
         }
     ],
     "m_VertexContext": {
         "m_Position": {
+<<<<<<< HEAD
             "x": -268.8000183105469,
             "y": 171.99996948242188
         },
         "m_Blocks": [
             {
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+            "x": 0.0,
+            "y": 0.0
+        },
+        "m_Blocks": [
+            {
+>>>>>>> 662e6624 (Added rainbow laser line shader)
                 "m_Id": "41939a27ac334153b93b68c35ae13f4b"
             },
             {
@@ -219,6 +269,7 @@
             },
             {
                 "m_Id": "e3af6818c02e42e2a6ef694204ba291a"
+<<<<<<< HEAD
 ========
                 "m_Id": "f03182283cd34189aed4421aa215deef"
             },
@@ -228,12 +279,17 @@
             {
                 "m_Id": "a3aee3cf9fb945cc8d1f851fa050cb73"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             }
         ]
     },
     "m_FragmentContext": {
         "m_Position": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             "x": 678.4000244140625,
             "y": 300.0
         },
@@ -261,6 +317,7 @@
             },
             {
                 "m_Id": "245d33255c97440a9f7c738fbd542a67"
+<<<<<<< HEAD
 ========
             "x": -268.8000183105469,
             "y": 343.20001220703127
@@ -278,6 +335,8 @@
             {
                 "m_Id": "5e9d99b983f24369b6c50f3af14edd8c"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             }
         ]
     },
@@ -296,18 +355,25 @@
     },
     "m_ActiveTargets": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
             "m_Id": "e48f7961b50c485ea88f7e0ac3216b52"
 ========
             "m_Id": "93a77d43c87d4e2c94c822a5bd2e5246"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+            "m_Id": "e48f7961b50c485ea88f7e0ac3216b52"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ]
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.SampleTexture2DNode",
     "m_ObjectId": "0cedb1d0a06740d29b65aa82631248b3",
     "m_Group": {
@@ -399,6 +465,7 @@
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.NormalMaterialSlot",
     "m_ObjectId": "2f0c19be03ad43499ff0b25efdac1b83",
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.ColorRGBAMaterialSlot",
     "m_ObjectId": "072c55e0e664462ca4dd6d9a15881e68",
@@ -592,6 +659,15 @@
     "m_ShaderOutputName": "Normal",
     "m_StageCapability": 1,
     "m_Value": {
+=======
+    "m_Id": 0,
+    "m_DisplayName": "Normal (Tangent Space)",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "NormalTS",
+    "m_StageCapability": 2,
+    "m_Value": {
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         "x": 0.0,
         "y": 0.0,
         "z": 0.0
@@ -602,11 +678,16 @@
         "z": 0.0
     },
     "m_Labels": [],
+<<<<<<< HEAD
     "m_Space": 0
+=======
+    "m_Space": 3
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.SampleTexture2DNode",
     "m_ObjectId": "3669895097c64194887d664a4b00dd45",
     "m_Group": {
@@ -659,12 +740,27 @@
     "m_TextureType": 0,
     "m_NormalMapSpace": 0,
     "m_EnableGlobalMipBias": true
+=======
+    "m_Type": "UnityEditor.ShaderGraph.SamplerStateMaterialSlot",
+    "m_ObjectId": "2f8226199eef402d905849fbbaeb5ab9",
+    "m_Id": 3,
+    "m_DisplayName": "Sampler",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Sampler",
+    "m_StageCapability": 3,
+    "m_BareResource": false
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+<<<<<<< HEAD
     "m_ObjectId": "3b7af6276b374d79801c4444f282f29a",
+=======
+    "m_ObjectId": "3c80f9c9776b4d49ae52036ecebcf9d1",
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Id": 0,
     "m_DisplayName": "Alpha",
     "m_SlotType": 0,
@@ -678,6 +774,7 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "440032e1152941c38d5ea761ee532174",
     "m_Id": 0,
@@ -1050,6 +1147,10 @@
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "a3aee3cf9fb945cc8d1f851fa050cb73",
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "4126b081794e412886dc54db9b12a3e7",
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Group": {
         "m_Id": ""
     },
@@ -1066,11 +1167,15 @@
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
             "m_Id": "879adab1e4a84e8eb5bfbdc1350bea3c"
 ========
             "m_Id": "a11042e1c58c41f0a8fe9c1d19a5827f"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+            "m_Id": "879adab1e4a84e8eb5bfbdc1350bea3c"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "synonyms": [],
@@ -1080,6 +1185,7 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     },
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
     "m_Property": {
         "m_Id": "6d75f16af80a487d8ccd70a33f8a82e0"
@@ -1165,11 +1271,16 @@
     },
     "m_Property": {
         "m_Id": "2562cddeb0be4154b5076395a775c3d6"
+=======
+    "m_Property": {
+        "m_Id": "6d75f16af80a487d8ccd70a33f8a82e0"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     }
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "b8c51eaf3b914d78be343198da459baa",
     "m_Id": 3,
@@ -1280,6 +1391,8 @@
 {
     "m_SGVersion": 0,
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "41939a27ac334153b93b68c35ae13f4b",
     "m_Group": {
@@ -1309,6 +1422,7 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "VertexDescription.Position"
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
     "m_ObjectId": "d83fadbc51924319974e85ff0386cc61",
@@ -1336,11 +1450,16 @@
     "m_Modifiable": true,
     "m_DefaultType": 0
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "45bacaa50ce84c9fba40b9efff5f534d",
     "m_Id": 0,
@@ -1456,6 +1575,7 @@
     "m_DisplayName": "A",
     "m_SlotType": 1,
     "m_Hidden": false,
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "d8ad4e0d716f4719baac69b9c80330ca",
@@ -1464,6 +1584,8 @@
     "m_SlotType": 1,
     "m_Hidden": false,
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
     "m_Value": 0.0,
@@ -1473,7 +1595,10 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "6d567bef4c3d43f68bcd1b71a69de310",
     "m_Group": {
@@ -1563,6 +1688,7 @@
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.NormalMaterialSlot",
     "m_ObjectId": "79479f7409f746b8b0304c880bb678c6",
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.NormalMaterialSlot",
     "m_ObjectId": "d9fb6e5b4f57407a98a1aa194d2c081a",
@@ -1573,6 +1699,14 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "NormalTS",
     "m_StageCapability": 2,
+=======
+    "m_Id": 0,
+    "m_DisplayName": "Normal",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Normal",
+    "m_StageCapability": 1,
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Value": {
         "x": 0.0,
         "y": 0.0,
@@ -1584,12 +1718,19 @@
         "z": 0.0
     },
     "m_Labels": [],
+<<<<<<< HEAD
     "m_Space": 3
+=======
+    "m_Space": 0
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "79db3803abec4beba797b813ba6deaae",
     "m_Group": {
@@ -1674,6 +1815,7 @@
         "m_Id": ""
     },
     "m_Name": "SurfaceDescription.Smoothness",
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "e82293e3207e490fb96939c852599c54",
@@ -1697,6 +1839,8 @@
     },
     "m_Name": "VertexDescription.Position",
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -1709,11 +1853,15 @@
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
             "m_Id": "92e8cdf230ad460ea9c42d7a347be26f"
 ========
             "m_Id": "9ee8df11112b4750ade1851c068f1da2"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+            "m_Id": "92e8cdf230ad460ea9c42d7a347be26f"
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "synonyms": [],
@@ -1723,7 +1871,10 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     },
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_SerializedDescriptor": "SurfaceDescription.Smoothness"
 }
 
@@ -1986,19 +2137,26 @@
     },
     "m_Labels": [],
     "m_Channel": 0
+<<<<<<< HEAD
 ========
     "m_SerializedDescriptor": "VertexDescription.Position"
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Texture2DInputMaterialSlot",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
     "m_ObjectId": "dd125dae55f44e3c960a29715134e5fc",
 ========
     "m_ObjectId": "f66a0b96578c4be9a32e4fcc27485d65",
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+    "m_ObjectId": "dd125dae55f44e3c960a29715134e5fc",
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
@@ -2011,7 +2169,10 @@
         "m_Guid": ""
     },
     "m_DefaultType": 0
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BreakHighlightShader.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 
 {
@@ -2152,7 +2313,10 @@
             "m_Id": "6d75f16af80a487d8ccd70a33f8a82e0"
         }
     ]
+<<<<<<< HEAD
 ========
 >>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Tiles/BlackToOther.shadergraph
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
 }
 

@@ -21,11 +21,14 @@
         {
             "m_Id": "980458f0d55d411cb2c574b6a720dcab"
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         {
             "m_Id": "378ef955fe9341cd91dac6d01549c416"
 =======
 >>>>>>> main
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ],
     "m_Keywords": [],
@@ -462,11 +465,14 @@
         {
             "m_Id": "980458f0d55d411cb2c574b6a720dcab"
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         {
             "m_Id": "378ef955fe9341cd91dac6d01549c416"
 =======
 >>>>>>> main
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
         }
     ]
 }
@@ -566,6 +572,7 @@
 {
     "m_SGVersion": 0,
 <<<<<<< HEAD
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.Internal.BooleanShaderProperty",
     "m_ObjectId": "378ef955fe9341cd91dac6d01549c416",
     "m_Guid": {
@@ -590,6 +597,8 @@
     "m_SGVersion": 0,
 =======
 >>>>>>> main
+=======
+>>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "3cb67129d79b44b591c2f4fe04134eac",
     "m_Group": {
@@ -654,6 +663,7 @@
         "m_Position": {
             "serializedVersion": "2",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "x": 507.2000427246094,
             "y": -219.99996948242188,
             "width": 207.99996948242188,
@@ -662,6 +672,11 @@
             "y": -220.0,
             "width": 208.0,
 >>>>>>> main
+=======
+            "x": 621.6000366210938,
+            "y": -220.0,
+            "width": 208.0,
+>>>>>>> 662e6624 (Added rainbow laser line shader)
             "height": 301.5999755859375
         }
     },
