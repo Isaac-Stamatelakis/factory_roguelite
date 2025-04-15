@@ -27,7 +27,6 @@ namespace DevTools.ItemImageGenerator
 
         public IEnumerator CaptureCoroutine(List<ItemObject> itemObjects, Action onComplete)
         {
-       
             mCaptureCamera.clearFlags = CameraClearFlags.SolidColor;
             Color originalColor = mCaptureCamera.backgroundColor;
             mCaptureCamera.backgroundColor = Color.clear;
@@ -70,6 +69,7 @@ namespace DevTools.ItemImageGenerator
             
                 mCaptureCamera.Render();
                 RenderTexture.active = renderTexture;
+                
                 Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
                 tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
                 tex.Apply();
@@ -111,6 +111,7 @@ namespace DevTools.ItemImageGenerator
             Debug.Log($"Generated {itemObjects.Count} Images at {folder}");
             mCaptureCamera.backgroundColor = originalColor;
             onComplete.Invoke();
+            GameObject.Destroy(gameObject);
         }
 
         public void Capture(List<ItemObject> itemObjects, Action onComplete)
