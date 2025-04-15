@@ -69,10 +69,14 @@ namespace UI.Indicators.General
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
 <<<<<<< HEAD
+<<<<<<< HEAD
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
 =======
             conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
 >>>>>>> 82a27c8f (Merged tile rotation and tile state previewer into the same indicator.)
+=======
+            conduitPlacementModeIndicatorUI?.Initialize(playerScript);
+>>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
             tilePlacementIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
             loadOutIndicator.Initialize(playerScript);

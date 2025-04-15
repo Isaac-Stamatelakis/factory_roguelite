@@ -19,7 +19,10 @@ namespace UI.Indicators.General
     {
         [SerializeField] private Image conduitImage;
         [SerializeField] private TextMeshProUGUI placementCounter;
+<<<<<<< HEAD
         [SerializeField] private ConduitLoadOutEditorUI conduitLoadOutEditorUIPrefab;
+=======
+>>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
         private PlayerScript playerScript;
         private ConduitItem current;
         private int placementCount;
@@ -49,6 +52,10 @@ namespace UI.Indicators.General
         public void IterateCounter()
         {
             placementCount++;
+<<<<<<< HEAD
+=======
+            placementCounter.text = placementCount.ToString();
+>>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
             placementCounter.text = playerScript.ConduitPlacementOptions.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
         }
         
@@ -64,6 +71,7 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
+<<<<<<< HEAD
             if (!current) return;
             ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
             
@@ -86,6 +94,11 @@ namespace UI.Indicators.General
                     throw new ArgumentOutOfRangeException();
             }
             
+=======
+            ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
+            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
+            options.PlacementMode = GlobalHelper.ShiftEnum(dir, options.PlacementMode);
+>>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
             placementCount = 0;
             Display();
             OnPointerEnter(eventData);

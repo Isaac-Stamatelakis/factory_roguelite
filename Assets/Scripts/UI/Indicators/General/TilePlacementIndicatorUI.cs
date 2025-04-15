@@ -91,6 +91,7 @@ namespace UI.Indicators.General
                 Sprite sprite = TileItem.GetDefaultSprite(tileBase);
                 tileImage.sprite = sprite;
             }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
             tileImage.color = currentItem.tileOptions.TileColor
@@ -122,6 +123,12 @@ namespace UI.Indicators.General
             {
                 tileImage.color = currentItem.tileOptions.TileColor.GetColor();
             }
+=======
+           
+            tileImage.color = currentItem.tileOptions.TileColor 
+             ? currentItem.tileOptions.TileColor.GetColor()
+                : Color.white;
+>>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
 
             if (!stateRotatable)
             {
@@ -135,7 +142,7 @@ namespace UI.Indicators.General
             string rotationText = playerScript.TilePlacementOptions.Rotation.ToString().Replace("Degrees","");
             if (playerScript.TilePlacementOptions.Rotation != PlayerTileRotation.Auto)
             {
-                rotationText += "deg";
+                rotationText += "DEG";
             }
             string rotationMessage = rotatable ? $"Tile Rotation:{rotationText}" : string.Empty;
             string stateMessage = stateModifiable ? $"Tile State:{GetStateName(playerScript.TilePlacementOptions.State)}" : string.Empty;
