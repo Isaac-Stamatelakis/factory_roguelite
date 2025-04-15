@@ -67,7 +67,7 @@ namespace UI.Indicators.General
         {
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
-            conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
+            conduitPlacementModeIndicatorUI?.Initialize(playerScript);
             tilePlacementIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
             loadOutIndicator.Initialize(playerScript);

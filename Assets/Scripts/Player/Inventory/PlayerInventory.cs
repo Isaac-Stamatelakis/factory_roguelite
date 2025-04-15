@@ -26,6 +26,7 @@ using Robot;
 using Robot.Tool;
 using Robot.Tool.UI;
 using TileEntity;
+using Tiles;
 using UI;
 using UI.Indicators;
 using UI.Indicators.General;
@@ -122,13 +123,14 @@ namespace PlayerModule {
                     IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
                     indicatorManager.RemovePlaceBundles();
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-                    if (itemSlot.itemObject is TileItem tileItem)
+                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTile || tileItem.tileOptions.rotatable))
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
                         indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
-                    } else if (itemSlot.itemObject is ConduitItem)
+                    } else if (itemSlot.itemObject is ConduitItem conduitItem)
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
+                        indicatorManager.conduitPlacementModeIndicatorUI.Display(conduitItem);
                     }
                    
                     break;

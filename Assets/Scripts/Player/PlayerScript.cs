@@ -10,6 +10,7 @@ using Dimensions;
 using Item.GameStage;
 using Item.GrabbedItem;
 using Item.Slot;
+using Items;
 using Newtonsoft.Json;
 using Player.Controls;
 using Player.UI;
@@ -118,7 +119,6 @@ namespace Player
                 CaveController caveController = (CaveController)dimensionManager.GetDimController(dimension);
                 PlayerUIContainer.IndicatorManager.caveIndicatorUI.SyncToSystem(this,caveController.ReturnPortalLocation);
             }
-            
         }
 
         private void InitializeStages()
@@ -155,6 +155,21 @@ namespace Player
 
             var main = particles.main;
             main.startColor = particleOptions.ParticleColor;
+        }
+
+        public void PlaceUpdate()
+        {
+            ItemSlot currentPlayerItem = playerInventory.getSelectedItemSlot();
+            if (currentPlayerItem?.itemObject is ConduitItem)
+            {
+                playerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.IterateCounter();
+            }
+            if (!DevMode.Instance.noPlaceCost)
+            {
+                
+                playerInventory.deiterateInventoryAmount();
+                
+            }
         }
     }
 

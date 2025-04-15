@@ -1,7 +1,10 @@
 using System;
 using Conduits.Systems;
+using Items;
 using Player;
 using Player.Controls;
+using Tiles;
+using TMPro;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,34 +15,43 @@ namespace UI.Indicators.General
     public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image conduitImage;
-
-        [SerializeField] private Sprite anyModeSprite;
-        [SerializeField] private Sprite newModeSprite;
-        private ConduitPlacementOptions conduitPlacementOptions;
-        public void Display(ConduitPlacementOptions conduitPlacementOptions)
+        [SerializeField] private TextMeshProUGUI placementCounter;
+        private PlayerScript playerScript;
+        private ConduitItem current;
+        private int placementCount;
+        public void Initialize(PlayerScript playerScript)
         {
-            this.conduitPlacementOptions = conduitPlacementOptions;
-            Refresh();
+            this.playerScript = playerScript;
         }
 
-        public void Refresh()
+
+        public void Display(ConduitItem conduitItem)
         {
-            switch (conduitPlacementOptions.PlacementMode)
-            {
-                case ConduitPlacementMode.Any:
-                    conduitImage.sprite = anyModeSprite;
-                    break;
-                case ConduitPlacementMode.New:
-                    conduitImage.sprite = newModeSprite;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            current = conduitItem;
+            Display();
+        }
+
+        public void Display()
+        {
+            ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
+            int state = options.PlacementMode == ConduitPlacementMode.Any 
+                ? (int)ConduitDirectionState.Up + (int)ConduitDirectionState.Down + (int)ConduitDirectionState.Left + (int)ConduitDirectionState.Right 
+                : 0;
+            state += (int)ConduitDirectionState.Active; 
+            conduitImage.sprite = TileItem.GetDefaultSprite(current.Tile.getTileAtState(state));
+            placementCounter.text = options.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
+        }
+
+        public void IterateCounter()
+        {
+            placementCount++;
+            placementCounter.text = placementCount.ToString();
+            placementCounter.text = playerScript.ConduitPlacementOptions.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
         }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode: Connect {conduitPlacementOptions?.PlacementMode}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode:Connect {playerScript.ConduitPlacementOptions.PlacementMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -49,18 +61,11 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            switch (eventData.button)
-            {
-                case PointerEventData.InputButton.Left:
-                    conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-                    break;
-                case PointerEventData.InputButton.Right:
-                    conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(-1, conduitPlacementOptions.PlacementMode);
-                    break;
-                default:
-                    return;
-            }
-            Refresh();
+            ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
+            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
+            options.PlacementMode = GlobalHelper.ShiftEnum(dir, options.PlacementMode);
+            placementCount = 0;
+            Display();
             OnPointerEnter(eventData);
            
         }

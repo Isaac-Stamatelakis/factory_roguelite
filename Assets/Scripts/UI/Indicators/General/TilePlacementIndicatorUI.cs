@@ -64,11 +64,10 @@ namespace UI.Indicators.General
                 Sprite sprite = TileItem.GetDefaultSprite(tileBase);
                 tileImage.sprite = sprite;
             }
-
-            if (currentItem.tileOptions.TileColor)
-            {
-                tileImage.color = currentItem.tileOptions.TileColor.GetColor();
-            }
+           
+            tileImage.color = currentItem.tileOptions.TileColor 
+             ? currentItem.tileOptions.TileColor.GetColor()
+                : Color.white;
 
             if (!stateRotatable)
             {
@@ -82,7 +81,7 @@ namespace UI.Indicators.General
             string rotationText = playerScript.TilePlacementOptions.Rotation.ToString().Replace("Degrees","");
             if (playerScript.TilePlacementOptions.Rotation != PlayerTileRotation.Auto)
             {
-                rotationText += "deg";
+                rotationText += "DEG";
             }
             string rotationMessage = rotatable ? $"Tile Rotation:{rotationText}" : string.Empty;
             string stateMessage = stateModifiable ? $"Tile State:{GetStateName(playerScript.TilePlacementOptions.State)}" : string.Empty;
