@@ -43,7 +43,7 @@ public class DoorTileGenerator : EditorWindow {
 
     void createTileItem()
     {
-        ItemEditorFactory.createDirectory(tileName);
+        ItemEditorFactory.CreateDirectory(tileName);
 
         Tile leftClosedTile = ItemEditorFactory.StandardTileCreator(leftClosed,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(leftClosedTile,tileName,"LeftClosed");

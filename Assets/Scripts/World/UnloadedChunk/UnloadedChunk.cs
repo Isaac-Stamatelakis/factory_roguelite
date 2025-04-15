@@ -65,9 +65,9 @@ namespace Chunks {
             return partitions;
         }
 
-        public IChunkPartition GetPartition(Vector2Int position)
+        public IChunkPartition GetPartition(Vector2Int partitionPosition)
         {
-            return partitions[position.x,position.y];
+            return partitions[partitionPosition.x,partitionPosition.y];
         }
 
         public int GetDim()

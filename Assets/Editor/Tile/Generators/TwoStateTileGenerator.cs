@@ -41,7 +41,7 @@ public class TwoStateTileGenerator : EditorWindow
     }
     void createTileItem()
     {
-        ItemEditorFactory.createDirectory(tileName);
+        ItemEditorFactory.CreateDirectory(tileName);
 
         Tile inactiveTile = ItemEditorFactory.StandardTileCreator(inactive,TileColliderType.Tile);
         ItemEditorFactory.saveTileWithName(inactiveTile,tileName,"Inactive");

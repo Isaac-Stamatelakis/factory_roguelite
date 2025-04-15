@@ -28,7 +28,7 @@ namespace Entities {
             GameObject tileItemEntity = new GameObject();
             ItemEntity itemEntity = tileItemEntity.AddComponent<ItemEntity>();
             itemEntity.itemSlot = itemSlot;
-            tileItemEntity.name = itemSlot.itemObject.name + "Entity";
+            tileItemEntity.name = itemSlot.itemObject.name + "(Entity)";
             
             itemEntity.transform.SetParent(entityContainer,false);
             itemEntity.transform.localPosition  = new Vector3(position.x,position.y,0);

@@ -19,7 +19,7 @@ public static class ItemEditorFactory
     public static TileItem GeneratedTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
         string path = savePath + tileName + "/";
         if (createFolder) {
-            createDirectory(tileName,savePath);
+            CreateDirectory(tileName,savePath);
         }
         TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
         tileItem.tileType = tileType;
@@ -57,7 +57,7 @@ public static class ItemEditorFactory
     public static string formatId(string tileName) {
         return tileName.ToLower().Replace(" ","_");
     }
-    public static void createDirectory(string tileName, string savePath = "Assets/EditorCreations/") {
+    public static void CreateDirectory(string tileName, string savePath = "Assets/EditorCreations/") {
         string path = savePath + tileName + "/";
         if (AssetDatabase.IsValidFolder(path)) {
             Debug.LogWarning("Replaced existing content at " + path);

@@ -13,7 +13,7 @@ public class AnimatedItemGenerator : EditorWindow {
     private TileColliderType colliderType;
     private string itemName;
     private string path;
-    [MenuItem("Tools/Item Constructors/Animated")]
+    [MenuItem("Tools/Sprite/Animated")]
     public static void ShowWindow()
     {
         AnimatedItemGenerator window = (AnimatedItemGenerator)EditorWindow.GetWindow(typeof(AnimatedItemGenerator));
@@ -50,6 +50,13 @@ public class AnimatedItemGenerator : EditorWindow {
             Debug.LogError($"{ERROR_PREFIX}Sprite is null");
             return;
         }
+
+        string savePath = Path.Combine(EditorHelper.EDITOR_SAVE_PATH, itemName);
+        if (AssetDatabase.IsValidFolder(savePath)) {
+            Debug.LogWarning("Replaced existing content at " + savePath);
+            Directory.Delete(savePath,true);
+        }
+        AssetDatabase.CreateFolder(EditorHelper.EDITOR_SAVE_PATH, itemName);
         Texture2D texture = sprite.texture;
         string assetPath = AssetDatabase.GetAssetPath(texture);
         TextureImporter textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;
@@ -62,12 +69,10 @@ public class AnimatedItemGenerator : EditorWindow {
             .OfType<Sprite>()
             .ToArray();
         Sprite[] sprites = allSprites;
-        
-        AnimatedCraftingItem animatedCraftingItem = ScriptableObject.CreateInstance<AnimatedCraftingItem>();
-        animatedCraftingItem.name = itemName;
-        animatedCraftingItem.Sprites = sprites;
-        animatedCraftingItem.id = itemName.ToLower().Replace(" ", "_");
-        AssetDatabase.CreateAsset(animatedCraftingItem,Path.Combine(EditorHelper.EDITOR_SAVE_PATH,animatedCraftingItem.name + ".asset"));
-        Debug.Log($"Created new animated item '{animatedCraftingItem.name}' at path {AssetDatabase.GetAssetPath(animatedCraftingItem)}");
+        SpriteCollection spriteCollection = ScriptableObject.CreateInstance<SpriteCollection>();
+        spriteCollection.name = itemName + "Sprites";
+        spriteCollection.Sprites = sprites;
+        AssetDatabase.CreateAsset(spriteCollection,Path.Combine(savePath,spriteCollection.name + ".asset"));
+        Debug.Log($"Created new animated item '{spriteCollection.name}' at path {AssetDatabase.GetAssetPath(spriteCollection)}");
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Item.Slot;
 using Item.Tags.ItemTagManagers;
 using Items;
@@ -9,26 +10,46 @@ using UnityEngine;
 
 namespace Item.Display
 {
+    
     public class ItemWorldDisplay : MonoBehaviour
     {
+        private class WorldSpriteAnimator
+        {
+            public SpriteRenderer Renderer;
+            public Sprite[] AnimatedSprites;
+
+            public WorldSpriteAnimator(SpriteRenderer renderer, Sprite[] animatedSprites)
+            {
+                Renderer = renderer;
+                AnimatedSprites = animatedSprites;
+            }
+            public WorldSpriteAnimator(Transform parent, Sprite[] animatedSprites)
+            {
+                GameObject gameObject = new GameObject("WorldSpriteAnimator");
+                gameObject.transform.SetParent(parent,false);
+                Renderer = gameObject.AddComponent<SpriteRenderer>();
+                gameObject.transform.localPosition = new Vector3(0, 0, -0.01f);
+                AnimatedSprites = animatedSprites;
+            }
+        }
+        private List<WorldSpriteAnimator> spriteAnimators = new();
         private Sprite[] animateSprites;
         public void FixedUpdate()
         {
             if (itemSlot.amount == 0)
             {
-                
                 gameObject.SetActive(false);
             }
-            if (animate)
+            foreach (WorldSpriteAnimator worldSpriteAnimator in spriteAnimators)
             {
-                int index = (int)(Time.fixedTime*10) % animateSprites.Length;
-                spriteRenderer.sprite = animateSprites[index];
+                int index = (int)(Time.fixedTime*10) % worldSpriteAnimator.AnimatedSprites.Length;
+                worldSpriteAnimator.Renderer.sprite = worldSpriteAnimator.AnimatedSprites[index];
             }
         }
 
         private SpriteRenderer spriteRenderer;
         private ItemSlot itemSlot;
-        private bool animate;
+        
         private Material defaultMaterial;
 
         public void Awake()
@@ -40,17 +61,17 @@ namespace Item.Display
         public void Display(ItemSlot displaySlot)
         {
             this.itemSlot = displaySlot;
-            animate = false;
+            
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             Decorate();
         }
         private void Decorate()
         {
             Sprite[] itemSprites = itemSlot.itemObject.getSprites();
+            if (itemSprites == null) return;
             if (itemSprites.Length > 1)
             {
-                animate = true;
-                animateSprites = itemSprites;
+                spriteAnimators.Add(new WorldSpriteAnimator(spriteRenderer, itemSprites));
             }
             spriteRenderer.sprite = itemSlot.itemObject.getSprite();
             spriteRenderer.material = defaultMaterial;
@@ -64,12 +85,13 @@ namespace Item.Display
                     {
                         spriteRenderer.material = material.WorldShaderMaterial;
                     }
-                    
                 }
-                
             } else if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.TileColor)
             {
                 spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
+            } else if (itemSlot.itemObject is IColorableItem colorableItem)
+            {
+                spriteRenderer.color = colorableItem.Color;
             }
             gameObject.transform.localScale = new Vector3(0.5f, 0.5f,1f);
             
@@ -119,6 +141,16 @@ namespace Item.Display
             if (itemSlot.tags?.Dict != null)
             {
                 SpawnTagObjects();
+            }
+
+            if (itemSlot.itemObject is IAnimatedOverlayItem animatedOverlayItem)
+            {
+                SpriteCollection[] spriteCollections = animatedOverlayItem.SpriteCollectionOverlays;
+                foreach (SpriteCollection spriteCollection in spriteCollections)
+                {
+                    if (spriteCollection.Sprites.Length == 0) continue;
+                    spriteAnimators.Add(new WorldSpriteAnimator(transform, spriteCollection.Sprites));
+                }
             }
 
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)

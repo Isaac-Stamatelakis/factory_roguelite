@@ -11,7 +11,7 @@ namespace Player.Controls
         Recall = 6,
         SwitchToolMode = 7,
         OpenConduitOptions = 10,
-        SwitchConduitPlacementMode = 11,
+        SwitchPlacementMode = 11,
         TerminateConduitGroup = 12,
         SwitchConduitPortView = 13,
         ChangeConduitViewMode = 14,
@@ -25,5 +25,8 @@ namespace Player.Controls
         AutoSelect = 22,
         OpenRobotLoadOut = 23,
         OpenToolLoadOut = 24,
+        SwitchPlacementSubMode = 25,
+        PlacePreview = 26,
+        
     }
 }
