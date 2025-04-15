@@ -69,12 +69,14 @@ In CaveTech you play as a mining Robot named HAPPY that is developed by the comp
 ![image](https://github.com/user-attachments/assets/fef3f620-45eb-482a-ab8e-f69cc05e5cf1)
 ### Image of the Icy Caverns
 ![image](https://github.com/user-attachments/assets/799311ae-3807-4c88-ac0a-48dafbd82dbf)
-### Image of "Bending Machine"
-![jan3-1](https://github.com/user-attachments/assets/52af13e4-d946-4a58-8cb2-1d2d54e1dfcc)
-### Images of Catalogue Information
-![jan3-2](https://github.com/user-attachments/assets/cfa85283-ba3a-497d-9cf6-20f07cd01ef1)
-![jan3-3](https://github.com/user-attachments/assets/c4750d08-8f46-4314-8134-df92b5b357b9)
-### Image of Generation Options
+### Image of Transmutable Item Ingots
+![image](https://github.com/user-attachments/assets/143f9a15-e85d-4ec9-8654-bb7f4a42b389)
+### Image of Transmutable Item States
+![image](https://github.com/user-attachments/assets/0112d317-2c8f-44f4-9c52-6e15c73e1e9d)
+![image](https://github.com/user-attachments/assets/6249f37a-0f27-433a-94c1-e699858f208c)
+
+
+
 ![jan3-5](https://github.com/user-attachments/assets/dfef118f-a376-413f-ad4b-24ede81b4d1b)
 
 
