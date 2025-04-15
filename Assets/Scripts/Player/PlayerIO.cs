@@ -102,6 +102,10 @@ namespace PlayerModule.IO {
     public class MiscPlayerData
     {
         public string GrabbedItemData;
+<<<<<<< HEAD
         public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPortPlacementLoadOuts;
+=======
+        public Dictionary<LoadOutConduitType, List<IOConduitPortData>> ConduitPortPlacementLoadOuts;
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
     }
 }

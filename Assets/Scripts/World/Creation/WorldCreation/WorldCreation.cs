@@ -123,7 +123,11 @@ namespace WorldModule {
             return new MiscPlayerData
             {
                 GrabbedItemData = null,
+<<<<<<< HEAD
                 ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, IOConduitPortData>()
+=======
+                ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, List<IOConduitPortData>>()
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
             };
         }
 

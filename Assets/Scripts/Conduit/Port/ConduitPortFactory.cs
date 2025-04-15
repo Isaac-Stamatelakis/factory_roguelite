@@ -308,7 +308,11 @@ namespace Conduits.Ports {
         {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
+<<<<<<< HEAD
             IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
+=======
+            IOConduitPortData ioConduitPortData = GetDefaultIOPortData(conduitType, portType);
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
             Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
@@ -345,6 +349,10 @@ namespace Conduits.Ports {
                         OutputData = itemOutputPortData,
                     };
                 case ConduitType.Energy:
+<<<<<<< HEAD
+=======
+                    
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
                     PriorityConduitPortData energyInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType); 
                     ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
@@ -353,7 +361,11 @@ namespace Conduits.Ports {
                         OutputData = energyOutputData
                     };
                 case ConduitType.Signal:
+<<<<<<< HEAD
                     ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType);
+=======
+                    ConduitPortData signalInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType);
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
                     ConduitPortData signalOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
                     {

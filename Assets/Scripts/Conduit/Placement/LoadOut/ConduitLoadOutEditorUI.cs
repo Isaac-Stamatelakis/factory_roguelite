@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using Conduit.Port.UI;
 using Conduits.Ports;
+<<<<<<< HEAD
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
+=======
+using UnityEngine;
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
 
 namespace Conduit.Placement.LoadOut
 {
@@ -40,6 +44,7 @@ namespace Conduit.Placement.LoadOut
     }
     public class ConduitLoadOutEditorUI : MonoBehaviour
     {
+<<<<<<< HEAD
         [SerializeField] private IOConduitPortUI mConduitPortUI;
         [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private TMP_Dropdown mTypeDropDown;
@@ -88,5 +93,22 @@ namespace Conduit.Placement.LoadOut
             }
         }
         
+=======
+        public enum LoadOutType
+        {
+            ItemFluid,
+            Energy,
+            Signal
+        }
+
+        
+
+        [SerializeField] private IOConduitPortUI mConduitPortUI;
+
+        public void Display(List<IOConduitPortData> portData, LoadOutType loadOutType, int current)
+        {
+            mConduitPortUI.Display(portData[current]);
+        }
+>>>>>>> 7e35609c (Added data structures for conduit loadout)
     }
 }
