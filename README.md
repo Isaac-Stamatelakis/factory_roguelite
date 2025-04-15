@@ -65,10 +65,10 @@ In CaveTech you play as a mining Robot named HAPPY that is developed by the comp
 
 
 ## Early Production Images
-### Image of the Abyssal Caverns
-![nov6-1](https://github.com/user-attachments/assets/4751dd1b-c036-43d9-833c-98bda154ea60)
-### Image of Small Compact Machine
-![jan3-4](https://github.com/user-attachments/assets/410d99eb-ce53-48a2-add1-54484aefcf77)
+### Image of the Fiery Heavens
+![image](https://github.com/user-attachments/assets/fef3f620-45eb-482a-ab8e-f69cc05e5cf1)
+### Image of the Icy Caverns
+![image](https://github.com/user-attachments/assets/799311ae-3807-4c88-ac0a-48dafbd82dbf)
 ### Image of "Bending Machine"
 ![jan3-1](https://github.com/user-attachments/assets/52af13e4-d946-4a58-8cb2-1d2d54e1dfcc)
 ### Images of Catalogue Information
