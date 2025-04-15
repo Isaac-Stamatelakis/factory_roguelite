@@ -97,7 +97,7 @@ namespace Conduit.Port.UI
                     
                     itemConduitOutputPortData.RoundRobin = !itemConduitOutputPortData.RoundRobin;
                     SetRoundRobinColor();
-                    displayedConduit.GetConduitSystem().Rebuild();
+                    displayedConduit?.GetConduitSystem().Rebuild();
                 });
             }
         }

@@ -41,7 +41,7 @@ namespace Conduits.Ports.UI {
                     break;
             }
             portData.Color = color;
-            conduit.GetConduitSystem().Rebuild();
+            conduit?.GetConduitSystem().Rebuild();
             colorImage.color = ConduitPortFactory.GetColorFromInt(color);
         }
     }

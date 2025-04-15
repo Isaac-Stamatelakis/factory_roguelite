@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Tilemaps;
 using Chunks.IO;
+using Conduit.Placement.LoadOut;
 using TileMaps.Layer;
 using PlayerModule.IO;
 using WorldModule.Caves;
@@ -113,8 +114,17 @@ namespace WorldModule {
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
                 sRobotLoadOut: null,
                 playerStatistics: new PlayerStatisticCollection(),
-                grabbedItemData: null
+                miscPlayerData: GetDefaultMiscPlayerData()
             );
+        }
+
+        public static MiscPlayerData GetDefaultMiscPlayerData()
+        {
+            return new MiscPlayerData
+            {
+                GrabbedItemData = null,
+                ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, List<IOConduitPortData>>()
+            };
         }
 
         public static void DeleteWorld(string name)

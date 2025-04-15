@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chunks.Systems;
+using Conduit.Placement.LoadOut;
 using Conduit.View;
 using Conduits;
+using Conduits.Ports;
 using Conduits.PortViewer;
 using Conduits.Systems;
 using Dimensions;
@@ -97,7 +99,7 @@ namespace Player
             playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
             
             playerInventory.InitializeToolDisplay();
-            conduitPlacementOptions = new ConduitPlacementOptions();
+            conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             ControlUtils.LoadBindings();
@@ -219,10 +221,11 @@ namespace Player
     [System.Serializable]
     public class ConduitPlacementOptions
     {
+        public const int LOADOUTS = 3;
         private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
-
+        public Dictionary<LoadOutConduitType, List<IOConduitPortData>> ConduitPlacementLoadOuts;
         public bool CanConnect(IConduit conduit)
         {
             switch (PlacementMode)
@@ -254,6 +257,39 @@ namespace Player
         {
             PlacementPositions.Add(position);
         }
+
+        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, List<IOConduitPortData>> conduitPlacementLoadOuts)
+        {
+            VerifyLoadOut(conduitPlacementLoadOuts);
+            ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
+
+        }
+
+        private void VerifyLoadOut(Dictionary<LoadOutConduitType, List<IOConduitPortData>> conduitPlacementLoadOuts)
+        {
+            LoadOutConduitType[] loadOutConduitTypes = System.Enum.GetValues(typeof(LoadOutConduitType)) as LoadOutConduitType[];
+            foreach (var loadOutConduitType in loadOutConduitTypes)
+            {
+                ConduitType conduitType = loadOutConduitType.ToConduitType();
+                if (!conduitPlacementLoadOuts.ContainsKey(loadOutConduitType))
+                {
+                    conduitPlacementLoadOuts[loadOutConduitType] = new List<IOConduitPortData>();
+                }
+                List<IOConduitPortData> portDataList = conduitPlacementLoadOuts[loadOutConduitType];
+                while (portDataList.Count < LOADOUTS)
+                {
+                    IOConduitPortData portData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
+                    portDataList.Add(portData);
+                }
+
+                while (portDataList.Count > LOADOUTS)
+                {
+                    portDataList.RemoveAt(portDataList.Count - 1);
+                }
+            }
+        }
+        
+        
     }
 
     public enum PlayerTileRotation
