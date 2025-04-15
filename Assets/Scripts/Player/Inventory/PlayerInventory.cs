@@ -122,13 +122,15 @@ namespace PlayerModule {
                     IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
                     indicatorManager.RemovePlaceBundles();
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-                    if (itemSlot.itemObject is TileItem)
+                    if (itemSlot.itemObject is TileItem tileItem)
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
+                        indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
                     } else if (itemSlot.itemObject is ConduitItem)
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
                     }
+                   
                     break;
                 case InteractMode.Tools:
                     ChangeSelectedTool(slot % playerRobot.RobotTools.Count);

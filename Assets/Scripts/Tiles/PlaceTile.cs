@@ -125,7 +125,7 @@ namespace TileMaps.Place {
             TileMapLayer layer = tileMapType.ToLayer();
             switch (layer) {
                 case TileMapLayer.Base:
-                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation);
+                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation.ToValue());
                 case TileMapLayer.Background:
                     return backgroundTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
                 default:
@@ -277,12 +277,22 @@ namespace TileMaps.Place {
             Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
 
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
-            int rotation = placementData?.Rotation ?? 0;
-            
-            if (tileItem.tile is HammerTile)
+            PlayerTileRotation? tileRotation = placementData?.Rotation;
+            int rotation = 0;
+            if (tileRotation.HasValue)
             {
-                int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
-                if (hammerTileRotation > 0) rotation = hammerTileRotation;
+                if (tileRotation.Value == PlayerTileRotation.Auto)
+                {
+                    if (tileItem.tile is HammerTile)
+                    {
+                        int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
+                        if (hammerTileRotation > 0) rotation = hammerTileRotation;
+                    }
+                }
+                else
+                {
+                    rotation = (int)tileRotation.Value;
+                }
             }
             
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);

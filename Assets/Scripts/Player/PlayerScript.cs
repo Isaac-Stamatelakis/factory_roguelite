@@ -241,20 +241,50 @@ namespace Player
         }
     }
 
+    public enum PlayerTileRotation
+    {
+        Degrees0 = 0,
+        Degrees90 = 1,
+        Degrees180 = 2,
+        Degrees270 = 3,
+        Auto = 4
+    }
     [System.Serializable]
     public class PlayerTilePlacementOptions
     {
+        
         public bool Indiciator = true;
-        public int Rotation;
+        public PlayerTileRotation Rotation;
         public int State;
+    }
+
+    public static class PlayerTileRotationExtension
+    {
+        public static int ToValue(this PlayerTileRotation rotation)
+        {
+            switch (rotation)
+            {
+                case PlayerTileRotation.Degrees0:
+                case PlayerTileRotation.Auto: // For most purposes auto rotation can be considered 0
+                    return 0;
+                case PlayerTileRotation.Degrees90:
+                    return 1;
+                case PlayerTileRotation.Degrees180:
+                    return 2;
+                case PlayerTileRotation.Degrees270:
+                    return 3;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(rotation), rotation, null);
+            }
+        }
     }
 
     public class TilePlacementData
     {
-        public int Rotation;
+        public PlayerTileRotation Rotation;
         public int State;
 
-        public TilePlacementData(int rotation, int state)
+        public TilePlacementData(PlayerTileRotation rotation, int state)
         {
             Rotation = rotation;
             State = state;

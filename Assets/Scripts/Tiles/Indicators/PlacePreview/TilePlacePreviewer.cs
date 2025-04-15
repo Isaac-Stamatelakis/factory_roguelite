@@ -155,7 +155,7 @@ namespace TileMaps.Previewer {
                 if (tileOverlay is IShaderTileOverlay shaderTileOverlay)
                 {
                     Material material = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
-                    overlayRenderer.material = material ?? mainMaterial;
+                    overlayRenderer.material = material ? material : mainMaterial;
                 }
                 else
                 {
@@ -183,11 +183,20 @@ namespace TileMaps.Previewer {
                 return;
             }
             
-            int rotation = tilePlacementOptions.Rotation;
-            if (tileBase is HammerTile)
+            PlayerTileRotation tileRotation = tilePlacementOptions.Rotation;
+
+            int rotation = 0;
+            if (tileRotation == PlayerTileRotation.Auto)
             {
-                int hammerRotation = MousePositionUtils.CalculateHammerTileRotation(position,tilePlacementOptions.State);
-                if (hammerRotation > 0) rotation = hammerRotation;
+                if (tileBase is HammerTile)
+                {
+                    int hammerRotation = MousePositionUtils.CalculateHammerTileRotation(position,tilePlacementOptions.State);
+                    if (hammerRotation > 0) rotation = hammerRotation;
+                }
+            }
+            else
+            {
+                rotation = (int)tileRotation;   
             }
 
             if (tileBase is IStateRotationTile stateRotationTile)
