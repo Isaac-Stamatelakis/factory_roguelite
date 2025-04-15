@@ -123,11 +123,19 @@ namespace PlayerModule {
                     IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
                     indicatorManager.RemovePlaceBundles();
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+<<<<<<< HEAD
                     if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTile || tileItem.tileOptions.rotatable))
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
                         indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
                     } else if (itemSlot.itemObject is ConduitItem conduitItem)
+=======
+                    if (itemSlot.itemObject is TileItem tileItem)
+                    {
+                        indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
+                        indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
+                    } else if (itemSlot.itemObject is ConduitItem)
+>>>>>>> 82a27c8f (Merged tile rotation and tile state previewer into the same indicator.)
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
                         indicatorManager.conduitPlacementModeIndicatorUI.Display(conduitItem);

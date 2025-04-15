@@ -68,7 +68,11 @@ namespace UI.Indicators.General
         {
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
+<<<<<<< HEAD
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
+=======
+            conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
+>>>>>>> 82a27c8f (Merged tile rotation and tile state previewer into the same indicator.)
             tilePlacementIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
             loadOutIndicator.Initialize(playerScript);
@@ -171,11 +175,17 @@ namespace UI.Indicators.General
                     keyCodeElement.GetComponent<Image>().enabled = false;
                 }
 
+<<<<<<< HEAD
 
                 if (keyCodeIndicator is IKeyCodeDescriptionIndicator optionalKeyCodeIndicator)
                 {
                     ToolTipUIDisplayer toolTipUIDisplayer = keyCodeElement.AddComponent<ToolTipUIDisplayer>();
                     optionalKeyCodeIndicator.SyncToolTipDisplayer(toolTipUIDisplayer);
+=======
+                if (keyCodeIndicator is IOptionalKeyCodeIndicator optionalKeyCodeIndicator)
+                {
+                    text += $"\n{optionalKeyCodeIndicator.GetOptionalKeyCode()}";
+>>>>>>> 82a27c8f (Merged tile rotation and tile state previewer into the same indicator.)
                 }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
                 idx++;
