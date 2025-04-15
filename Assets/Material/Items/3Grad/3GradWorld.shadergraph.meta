@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Material/Items/3Grad/3GradWorld.shadergraph.meta
 guid: 61fe55eb0b6736543824d6d003c8ad6e
+========
+guid: a66076f591ebe384aa5d74187556d5e8
+>>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Items/3Grad/3GradUI.shadergraph.meta
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}

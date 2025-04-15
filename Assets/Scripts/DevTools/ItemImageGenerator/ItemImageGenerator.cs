@@ -15,16 +15,18 @@ namespace DevTools.ItemImageGenerator
     public class ItemImageGenerator : MonoBehaviour
     {
         private const string SAVE_PATH = "C:\\Users\\Isaac\\Documents\\Coding\\unity\\CaveTechImages";
+        private const int RESOLUTION = 64;
         [SerializeField] private Camera mCaptureCamera;
         
+        private int maxCaptures = 100;
+        public bool forceCapture;
+
 
         public void Awake()
         {
             mCaptureCamera = Camera.main;
         }
-
-       
-
+        
         public IEnumerator CaptureCoroutine(List<ItemObject> itemObjects, Action onComplete)
         {
             mCaptureCamera.clearFlags = CameraClearFlags.SolidColor;
@@ -33,6 +35,7 @@ namespace DevTools.ItemImageGenerator
             
             int width = mCaptureCamera.pixelWidth;
             int height = mCaptureCamera.pixelHeight;
+
             
             string folder = Path.Combine(SAVE_PATH, "Images");
             if (Directory.Exists(folder))
@@ -113,11 +116,7 @@ namespace DevTools.ItemImageGenerator
             onComplete.Invoke();
             GameObject.Destroy(gameObject);
         }
-
-        public void Capture(List<ItemObject> itemObjects, Action onComplete)
-        {
-            StartCoroutine(CaptureCoroutine(itemObjects,onComplete));
-        }
+        
 
         public void Display(Transform container, int row, int col, ItemObject itemObject)
         {
