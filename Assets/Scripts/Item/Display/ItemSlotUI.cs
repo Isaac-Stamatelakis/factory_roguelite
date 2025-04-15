@@ -121,7 +121,6 @@ namespace Items {
         
         public void Display(ItemSlot itemSlot)
         {
-            Debug.Log("HI");
             if (Paused) return;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
@@ -205,16 +204,19 @@ namespace Items {
             if (itemSlot.itemObject is IAnimatedOverlayItem animatedOverlayItem)
             {
                 SpriteCollection[] spriteCollections = animatedOverlayItem.SpriteCollectionOverlays;
-                for (var index = 0; index < spriteCollections.Length; index++)
+                if (spriteCollections != null)
                 {
-                    var spriteCollection = spriteCollections[index];
-                    if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
-                    Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
-                    animatedItemDisplays.Add(new AnimatedItemDisplay
+                    for (var index = 0; index < spriteCollections.Length; index++)
                     {
-                        Image = overlayImage,
-                        Sprites = spriteCollection.Sprites
-                    });
+                        var spriteCollection = spriteCollections[index];
+                        if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
+                        Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
+                        animatedItemDisplays.Add(new AnimatedItemDisplay
+                        {
+                            Image = overlayImage,
+                            Sprites = spriteCollection.Sprites
+                        });
+                    }
                 }
             }
             

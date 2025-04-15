@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DevTools.ItemImageGenerator;
 using DevTools.QuestBook;
 using UnityEngine;
 using TMPro;
@@ -19,12 +20,14 @@ namespace DevTools {
             Title,
             Structure,
             QuestBook,
-            Upgrade
+            Upgrade,
+            ItemImageGen,
         }
 
         [SerializeField] private StructureDevControllerUI structureDevControllerUIPrefab;
         [SerializeField] private DevToolQuestBookListUI questBookListUIPrefab;
         [SerializeField] private DevToolUpgradeSelector upgradeSelectorUIPrefab;
+        [SerializeField] private ItemImageGeneratorUI itemImageGeneratorPrefab;
         private static DevToolPage page = DevToolPage.Title;
         
         public override void EmptyListen()
@@ -46,6 +49,7 @@ namespace DevTools {
         [SerializeField] private Button structureButton;
         [SerializeField] private Button questButton;
         [SerializeField] private Button robotToolButton;
+        [SerializeField] private Button itemImageGenButton;
         private Transform currentUI;
         private string baseText;
         public void SetTitleText(string text) {
@@ -84,6 +88,11 @@ namespace DevTools {
                 page = DevToolPage.QuestBook;
                 Display();
             });
+            itemImageGenButton.onClick.AddListener(() =>
+            {
+                page = DevToolPage.ItemImageGen;
+                Display();
+            });
             Display();
             StartCoroutine(ItemRegistry.LoadItems());
         }
@@ -114,6 +123,12 @@ namespace DevTools {
                     DevToolUpgradeSelector upgradeSelector = GameObject.Instantiate(upgradeSelectorUIPrefab);
                     upgradeSelector.Initialize();
                     DisplayObject(upgradeSelector.gameObject);
+                    break;
+                case DevToolPage.ItemImageGen:
+                    SetTitleText("Item Image Generator");
+                    ItemImageGeneratorUI itemImageGenerator = GameObject.Instantiate(itemImageGeneratorPrefab);
+                    itemImageGenerator.Initialize();
+                    DisplayObject(itemImageGenerator.gameObject);
                     break;
                 default:
                     
