@@ -14,12 +14,12 @@ namespace UI.Indicators.General
 {
     public interface IKeyCodeIndicator
     {
-        public PlayerControl? GetPlayerControl();
+        public PlayerControl GetPlayerControl();
     }
 
-    public interface IOptionalKeyCodeIndicator
+    public interface IKeyCodeDescriptionIndicator
     {
-        public KeyCode GetOptionalKeyCode();
+        public void SyncToolTipDisplayer(ToolTipUIDisplayer toolTipUIDisplayer);
     }
     public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
@@ -75,7 +75,7 @@ namespace UI.Indicators.General
             playerScript.GetComponent<PlayerKeyPress>().ChangePortModePress();
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.SwitchConduitPortView;
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Items;
 using Player;
 using Player.Controls;
@@ -12,7 +13,7 @@ using UnityEngine.Tilemaps;
 
 namespace UI.Indicators.General
 {
-    public class TilePlacementIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
+    public class TilePlacementIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator, IKeyCodeDescriptionIndicator
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
@@ -140,14 +141,20 @@ namespace UI.Indicators.General
             OnPointerEnter(eventData);
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.SwitchPlacementMode;
         }
 
-        public KeyCode GetOptionalKeyCode()
+        public void SyncToolTipDisplayer(ToolTipUIDisplayer toolTipUIDisplayer)
         {
-            return KeyCode.LeftControl;
+            
+            toolTipUIDisplayer.SetAction(() =>
+            {
+                List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(GetPlayerControl());
+                string controlMessage = ControlUtils.KeyCodeListAsString(keyCodes, "+");
+                return $"Press {controlMessage} to Switch Rotation\nPress LCtrl+{controlMessage} to Switch State\nLeft Click to Switch Rotation\nRight Click to Switch State\nHold LCtrl to Reverse";
+            });
         }
     }
 }

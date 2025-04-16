@@ -137,11 +137,14 @@ namespace TileMaps.Place {
         public static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.getSprite()),rotation);
-            if (exclusion == null)
+            if (tileItem.tileType == TileType.Block)
             {
-                // Only check for player when exclusion is null since that means they're probably placing it
                 bool hitPlayer = Physics2D.Raycast(worldPlaceLocation, Vector2.zero, 30f, 1 << LayerMask.NameToLayer("Player")).collider;
                 if (hitPlayer) return false;
+            }
+            
+            if (exclusion == null)
+            {
                 if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;
             }
             else

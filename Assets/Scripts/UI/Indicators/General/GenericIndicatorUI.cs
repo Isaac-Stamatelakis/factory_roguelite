@@ -8,18 +8,18 @@ namespace UI.Indicators.General
 {
     public class GenericIndicatorUI : MonoBehaviour, IKeyCodeIndicator, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        private PlayerControl? playerControl;
+        private PlayerControl playerControl;
         private string highlightText;
         private Func<string> highlightStringAction;
         private Action onClick;
-            public void Initialize(PlayerControl? playerControl, Func<string> highlightStringAction, Action onClick)
+            public void Initialize(PlayerControl playerControl, Func<string> highlightStringAction, Action onClick)
         {
             this.playerControl = playerControl;
             this.highlightStringAction = highlightStringAction;
             this.onClick = onClick;
         }
             
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return playerControl;
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
@@ -13,7 +14,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators.General
 {
-    public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
+    public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator,IKeyCodeDescriptionIndicator
     {
         [SerializeField] private Image conduitImage;
         [SerializeField] private TextMeshProUGUI placementCounter;
@@ -108,9 +109,19 @@ namespace UI.Indicators.General
             }
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.SwitchPlacementMode;
+        }
+
+        public void SyncToolTipDisplayer(ToolTipUIDisplayer toolTipUIDisplayer)
+        {
+            toolTipUIDisplayer.SetAction(() =>
+            {
+                List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(GetPlayerControl());
+                string controlMessage = ControlUtils.KeyCodeListAsString(keyCodes, "+");
+                return $"Press {controlMessage} to Toggle Conduit Placement Mode\nPress LCtrl+{controlMessage} to Terminate Placement Group\nLeft Click to Switch Conduit Mode\nRight Click to Modify Default Conduit Ports";
+            });
         }
     }
 }
