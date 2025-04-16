@@ -63,7 +63,7 @@ namespace PlayerModule.KeyPress {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
                 conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-                playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Refresh();
+                playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Display();
             }
 
             if (ControlUtils.GetControlKeyDown(PlayerControl.TerminateConduitGroup))

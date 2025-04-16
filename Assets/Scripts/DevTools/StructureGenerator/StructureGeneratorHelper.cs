@@ -90,7 +90,7 @@ namespace DevTools.Structures {
                 sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData),
                 sRobotLoadOut: null,
                 playerStatistics: new PlayerStatisticCollection(),
-                grabbedItemData: null
+                miscPlayerData: WorldCreation.GetDefaultMiscPlayerData()
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);

@@ -60,7 +60,7 @@ namespace Conduit.Port.UI
             {
                 portData.Enabled = !portData.Enabled;
                 SetEnabledImage(portData.Enabled);
-                conduit.GetConduitSystem().Rebuild(); // TODO make this more efficent
+                conduit?.GetConduitSystem().Rebuild(); // TODO make this more efficent
             });
             colorButton.Initialize(portData,displayedConduit);
             if (portData is PriorityConduitPortData priorityConduitPortData)
@@ -69,7 +69,7 @@ namespace Conduit.Port.UI
                 SetPriorityText(priorityConduitPortData.Priority);
             }
 
-            if (portData is IFilterConduitPort filterConduitPort)
+            if (conduit != null && portData is IFilterConduitPort filterConduitPort)
             {
                 InitializeFilterInventory(filterConduitPort);
                 mEditFilterButton.onClick.AddListener(EditFilterButtonPress);
@@ -80,16 +80,20 @@ namespace Conduit.Port.UI
 
             if (portData is ItemConduitOutputPortData itemConduitOutputPortData)
             {
-                mUpgradeInventory.gameObject.SetActive(true);
-                // All we have to consider is the number of upgrades in the slot
+                if (conduit != null)
+                {
+                    mUpgradeInventory.gameObject.SetActive(true);
+                    // All we have to consider is the number of upgrades in the slot
                 
-                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(ItemTileEntityPort.UPGRADE_ID);
-                ItemSlot itemSlot = new ItemSlot(itemObject, itemConduitOutputPortData.SpeedUpgrades, null);
+                    ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(ItemTileEntityPort.UPGRADE_ID);
+                    ItemSlot itemSlot = new ItemSlot(itemObject, itemConduitOutputPortData.SpeedUpgrades, null);
                 
-                mUpgradeInventory.DisplayInventory(new List<ItemSlot>{itemSlot});
-                mUpgradeInventory.SetItemRestriction(itemObject);
+                    mUpgradeInventory.DisplayInventory(new List<ItemSlot>{itemSlot});
+                    mUpgradeInventory.SetItemRestriction(itemObject);
                 
-                mUpgradeInventory.AddCallback(OnUpgradeInventoryChange);
+                    mUpgradeInventory.AddCallback(OnUpgradeInventoryChange);
+                }
+                
                 SetRoundRobinColor();
                 roundRobinImage.gameObject.SetActive(true);
                 roundRobinButton.onClick.AddListener(() =>
@@ -97,7 +101,7 @@ namespace Conduit.Port.UI
                     
                     itemConduitOutputPortData.RoundRobin = !itemConduitOutputPortData.RoundRobin;
                     SetRoundRobinColor();
-                    displayedConduit.GetConduitSystem().Rebuild();
+                    displayedConduit?.GetConduitSystem().Rebuild();
                 });
             }
         }

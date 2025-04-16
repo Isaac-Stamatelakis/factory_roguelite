@@ -16,6 +16,11 @@ namespace UI.Indicators.General
     {
         public PlayerControl? GetPlayerControl();
     }
+
+    public interface IOptionalKeyCodeIndicator
+    {
+        public KeyCode GetOptionalKeyCode();
+    }
     public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image portImage;

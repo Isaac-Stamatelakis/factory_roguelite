@@ -4,6 +4,7 @@ using TMPro;
 using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI.Indicators.General
@@ -22,8 +23,7 @@ namespace UI.Indicators.General
         public ConduitPortIndicatorUI conduitPortIndicatorUI;
         public ConduitViewIndicatorUI conduitViewIndicatorUI;
         public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
-        public TileRotationIndicatorUI tileRotationIndicatorUI;
-        public TileStateIndicatorUI tileStateIndicatorUI;
+        public TilePlacementIndicatorUI tilePlacementIndicatorUI;
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
@@ -67,9 +67,8 @@ namespace UI.Indicators.General
         {
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
-            conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
-            tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
-            tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
+            conduitPlacementModeIndicatorUI?.Initialize(playerScript);
+            tilePlacementIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
             loadOutIndicator.Initialize(playerScript);
             autoSelectIndicator.Initialize(playerScript.PlayerMouse);
@@ -119,8 +118,7 @@ namespace UI.Indicators.General
             if (ViewBundleActive(IndicatorDisplayBundle.TilePlace))
             {
                 tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                tileRotationIndicatorUI.gameObject.SetActive(true);
-                tileStateIndicatorUI.gameObject.SetActive(true);
+                tilePlacementIndicatorUI.gameObject.SetActive(true);
             }
             
             if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
@@ -170,6 +168,11 @@ namespace UI.Indicators.General
                 if (string.IsNullOrEmpty(text))
                 {
                     keyCodeElement.GetComponent<Image>().enabled = false;
+                }
+
+                if (keyCodeIndicator is IOptionalKeyCodeIndicator optionalKeyCodeIndicator)
+                {
+                    text += $"\n{optionalKeyCodeIndicator.GetOptionalKeyCode()}";
                 }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
                 idx++;

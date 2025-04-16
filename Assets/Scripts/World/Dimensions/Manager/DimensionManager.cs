@@ -100,7 +100,7 @@ namespace Dimensions {
             
             if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
             yield return SetPlayerSystem(playerScript, playerData.dimensionData);
-            playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.grabbedItemData));
+            playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.miscPlayerData?.GrabbedItemData));
             
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Chunks;
 using Chunks.Partitions;
+using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ using TileEntity;
 using Items;
 using TileMaps.Layer;
 using Tiles;
+using Unity.IO.LowLevel.Unsafe;
 
 namespace Conduits.Ports {
     public enum PortDataType
@@ -87,6 +89,33 @@ namespace Conduits.Ports {
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+        }
+
+        public static IOConduitPortData DeepCopy(IOConduitPortData conduitPortData)
+        {
+            return new IOConduitPortData
+            {
+                InputData = DeepCopy(conduitPortData.InputData),
+                OutputData = DeepCopy(conduitPortData.OutputData),
+            };
+        }
+
+        public static ConduitPortData DeepCopy(ConduitPortData conduitPortData)
+        {
+            return conduitPortData switch
+            {
+                ItemConduitInputPortData itemConduitInputPortData => new ItemConduitInputPortData(
+                    itemConduitInputPortData.Color, itemConduitInputPortData.Enabled, itemConduitInputPortData.Priority,
+                    itemConduitInputPortData.Filter),
+                ItemConduitOutputPortData itemConduitOutputPortData => new ItemConduitOutputPortData(
+                    itemConduitOutputPortData.Color, itemConduitOutputPortData.Enabled,
+                    itemConduitOutputPortData.Priority, itemConduitOutputPortData.ItemFilter,
+                    itemConduitOutputPortData.RoundRobin, itemConduitOutputPortData.RoundRobinIndex,
+                    itemConduitOutputPortData.SpeedUpgrades),
+                PriorityConduitPortData priorityConduitPortData => new PriorityConduitPortData(
+                    priorityConduitPortData.Color, priorityConduitPortData.Enabled, priorityConduitPortData.Priority),
+                _ => new ConduitPortData(conduitPortData.Color, conduitPortData.Enabled)
+            };
         }
 
         public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
@@ -275,11 +304,11 @@ namespace Conduits.Ports {
             return GetDefaultConduitPortData(portDataType);
         }
 
-        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntityInstance, ConduitItem conduitItem, Vector2Int conduitPosition)
+        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntityInstance, ConduitItem conduitItem, Vector2Int conduitPosition, IOConduitPortData conduitPortData = null)
         {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
-            
+            IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
             Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
@@ -287,53 +316,66 @@ namespace Conduits.Ports {
                     if (interactable is not IItemConduitInteractable itemConduitInteractable || conduitItem is not ResourceConduitItem itemConduitItem) {
                         return null;
                     }
-
-                    ItemConduitInputPortData itemInputPortData =
-                        (ItemConduitInputPortData)GetDefaultConduitPortData(PortDataType.ItemInput,
-                            PortConnectionType.Input, portType);
-                    ItemConduitOutputPortData itemOutputPortData =
-                        (ItemConduitOutputPortData)GetDefaultConduitPortData(PortDataType.ItemOutput,
-                            PortConnectionType.Output, portType);
-                    return new ItemTileEntityPort(itemConduitInteractable, position, itemInputPortData, itemOutputPortData, itemConduitItem);
+                    return new ItemTileEntityPort(itemConduitInteractable, position, (ItemConduitInputPortData)ioConduitPortData.InputData, (ItemConduitOutputPortData)ioConduitPortData.OutputData, itemConduitItem);
                 case ConduitType.Energy:
                     if (interactable is not IEnergyConduitInteractable energyConduitInteractable || conduitItem is not ResourceConduitItem energyConduitItem) {
                         return null;
                     }
-
-                    PriorityConduitPortData energyInputPortData =
-                        (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority,
-                            PortConnectionType.Input, portType); 
-                    ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
-                    return new EnergyTileEntityPort(energyConduitInteractable, position, energyInputPortData, energyOutputData, energyConduitItem);
+                    return new EnergyTileEntityPort(energyConduitInteractable, position, (PriorityConduitPortData)ioConduitPortData.InputData, ioConduitPortData.OutputData, energyConduitItem);
                 case ConduitType.Signal:
                     if (interactable is not ISignalConduitInteractable signalConduitInteractable || conduitItem is not SignalConduitItem signalConduitItem) {
                         return null;
                     }
+                    return new SignalTileEntityPort(signalConduitInteractable, position, ioConduitPortData.InputData, ioConduitPortData.OutputData, signalConduitItem);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
+            }
+        }
 
-                    ConduitPortData signalInputPortData =
-                        (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority,
-                            PortConnectionType.Input, portType);
+        public static IOConduitPortData GetDefaultIOPortData(ConduitType conduitType, EntityPortType portType)
+        {
+            switch (conduitType) {
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    ItemConduitInputPortData itemInputPortData = (ItemConduitInputPortData)GetDefaultConduitPortData(PortDataType.ItemInput, PortConnectionType.Input, portType);
+                    ItemConduitOutputPortData itemOutputPortData = (ItemConduitOutputPortData)GetDefaultConduitPortData(PortDataType.ItemOutput, PortConnectionType.Output, portType);
+                    return new IOConduitPortData
+                    {
+                        InputData = itemInputPortData,
+                        OutputData = itemOutputPortData,
+                    };
+                case ConduitType.Energy:
+                    PriorityConduitPortData energyInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType); 
+                    ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
+                    return new IOConduitPortData
+                    {
+                        InputData = energyInputPortData,
+                        OutputData = energyOutputData
+                    };
+                case ConduitType.Signal:
+                    ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType);
                     ConduitPortData signalOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
-                    return new SignalTileEntityPort(signalConduitInteractable, position, signalInputPortData, signalOutputData, signalConduitItem);
+                    return new IOConduitPortData
+                    {
+                        InputData = signalInputPortData,
+                        OutputData = signalOutputData
+                    };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
             }
         }
         
-        public static Color GetConduitPortColor(ConduitType conduitType) {
-            switch (conduitType) {
-                case ConduitType.Item:
-                    return Color.green;
-                case ConduitType.Fluid:
-                    return Color.blue;
-                case ConduitType.Energy:
-                    return Color.yellow;
-                case ConduitType.Signal:
-                    return Color.red;
-                case ConduitType.Matrix:
-                    return Color.magenta;
-            }
-            throw new System.Exception($"Did not cover case for ConduitType {conduitType}");
+        public static Color GetConduitPortColor(ConduitType conduitType)
+        {
+            return conduitType switch
+            {
+                ConduitType.Item => Color.green,
+                ConduitType.Fluid => Color.blue,
+                ConduitType.Energy => Color.yellow,
+                ConduitType.Signal => Color.red,
+                ConduitType.Matrix => Color.magenta,
+                _ => throw new System.Exception($"Did not cover case for ConduitType {conduitType}")
+            };
         }
         public static Color GetColorFromInt(int index)
         {

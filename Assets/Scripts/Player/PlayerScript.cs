@@ -2,14 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chunks.Systems;
+using Conduit.Placement.LoadOut;
 using Conduit.View;
 using Conduits;
+using Conduits.Ports;
 using Conduits.PortViewer;
 using Conduits.Systems;
 using Dimensions;
 using Item.GameStage;
 using Item.GrabbedItem;
 using Item.Slot;
+using Items;
 using Newtonsoft.Json;
 using Player.Controls;
 using Player.UI;
@@ -96,7 +99,7 @@ namespace Player
             playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
             
             playerInventory.InitializeToolDisplay();
-            conduitPlacementOptions = new ConduitPlacementOptions();
+            conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             ControlUtils.LoadBindings();
@@ -118,7 +121,6 @@ namespace Player
                 CaveController caveController = (CaveController)dimensionManager.GetDimController(dimension);
                 PlayerUIContainer.IndicatorManager.caveIndicatorUI.SyncToSystem(this,caveController.ReturnPortalLocation);
             }
-            
         }
 
         private void InitializeStages()
@@ -155,6 +157,21 @@ namespace Player
 
             var main = particles.main;
             main.startColor = particleOptions.ParticleColor;
+        }
+
+        public void PlaceUpdate()
+        {
+            ItemSlot currentPlayerItem = playerInventory.getSelectedItemSlot();
+            if (currentPlayerItem?.itemObject is ConduitItem)
+            {
+                playerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.IterateCounter();
+            }
+            if (!DevMode.Instance.noPlaceCost)
+            {
+                
+                playerInventory.deiterateInventoryAmount();
+                
+            }
         }
     }
 
@@ -204,10 +221,11 @@ namespace Player
     [System.Serializable]
     public class ConduitPlacementOptions
     {
+        public const int LOADOUTS = 3;
         private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
-
+        public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPlacementLoadOuts;
         public bool CanConnect(IConduit conduit)
         {
             switch (PlacementMode)
@@ -239,22 +257,85 @@ namespace Player
         {
             PlacementPositions.Add(position);
         }
+
+        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
+        {
+            VerifyLoadOut(conduitPlacementLoadOuts);
+            
+        }
+
+        private void VerifyLoadOut(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
+        {
+            conduitPlacementLoadOuts ??= new Dictionary<LoadOutConduitType, IOConduitPortData>();
+            LoadOutConduitType[] loadOutConduitTypes = System.Enum.GetValues(typeof(LoadOutConduitType)) as LoadOutConduitType[];
+            foreach (var loadOutConduitType in loadOutConduitTypes)
+            {
+                ConduitType conduitType = loadOutConduitType.ToConduitType();
+                IOConduitPortData defaultData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
+
+                if (conduitPlacementLoadOuts.TryAdd(loadOutConduitType, defaultData)) continue;
+                
+                IOConduitPortData currentData = conduitPlacementLoadOuts[loadOutConduitType];
+                if (currentData.InputData.GetType() != defaultData.InputData.GetType())
+                {
+                    currentData.InputData = defaultData.InputData;
+                }
+                if (currentData.OutputData.GetType() != defaultData.OutputData.GetType())
+                {
+                    currentData.OutputData = defaultData.OutputData;
+                }
+            }
+        
+            this.ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
+        }
+        
+        
     }
 
+    public enum PlayerTileRotation
+    {
+        Degrees0 = 0,
+        Degrees90 = 1,
+        Degrees180 = 2,
+        Degrees270 = 3,
+        Auto = 4
+    }
     [System.Serializable]
     public class PlayerTilePlacementOptions
     {
+        
         public bool Indiciator = true;
-        public int Rotation;
+        public PlayerTileRotation Rotation;
         public int State;
+    }
+
+    public static class PlayerTileRotationExtension
+    {
+        public static int ToValue(this PlayerTileRotation rotation)
+        {
+            switch (rotation)
+            {
+                case PlayerTileRotation.Degrees0:
+                case PlayerTileRotation.Auto: // For most purposes auto rotation can be considered 0
+                    return 0;
+                case PlayerTileRotation.Degrees90:
+                    return 1;
+                case PlayerTileRotation.Degrees180:
+                    return 2;
+                case PlayerTileRotation.Degrees270:
+                    return 3;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(rotation), rotation, null);
+            }
+        }
     }
 
     public class TilePlacementData
     {
-        public int Rotation;
+        public PlayerTileRotation Rotation;
         public int State;
 
-        public TilePlacementData(int rotation, int state)
+        public TilePlacementData(PlayerTileRotation rotation, int state)
         {
             Rotation = rotation;
             State = state;

@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Tilemaps;
 using Chunks.IO;
+using Conduit.Placement.LoadOut;
 using TileMaps.Layer;
 using PlayerModule.IO;
 using WorldModule.Caves;
@@ -113,8 +114,17 @@ namespace WorldModule {
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
                 sRobotLoadOut: null,
                 playerStatistics: new PlayerStatisticCollection(),
-                grabbedItemData: null
+                miscPlayerData: GetDefaultMiscPlayerData()
             );
+        }
+
+        public static MiscPlayerData GetDefaultMiscPlayerData()
+        {
+            return new MiscPlayerData
+            {
+                GrabbedItemData = null,
+                ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, IOConduitPortData>()
+            };
         }
 
         public static void DeleteWorld(string name)
@@ -155,21 +165,6 @@ namespace WorldModule {
                 new Interval<int>(-3, 3)
             );
         }
-
-        public static IntervalVector GetTileMapChunkBounds(GameObject prefab)
-        {
-            Tilemap baseTileMap = Global.FindChild(prefab.transform, "Base").GetComponent<Tilemap>();
-            BoundsInt baseBounds = baseTileMap.cellBounds;
-            int xSize = (baseBounds.xMax - baseBounds.xMin) / Global.CHUNK_SIZE;
-            int ySize = (baseBounds.yMax - baseBounds.yMin) / Global.CHUNK_SIZE;
-            int xLower = (xSize - 1) / 2;
-            int xUpper = xSize / 2;
-            int yLower = (ySize - 1) / 2;
-            int yUpper = ySize / 2;
-            return new IntervalVector(new Interval<int>(xLower, xUpper), new Interval<int>(yLower, yUpper));
-        }
-
-
         public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds)
         {
             Vector2Int size = bounds.getSize() * Global.CHUNK_SIZE;

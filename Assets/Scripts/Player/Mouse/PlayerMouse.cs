@@ -433,8 +433,8 @@ namespace PlayerModule.Mouse {
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
             
             bool placed = PlaceTile.PlaceFromWorldPosition(playerScript,selectedSlot,mousePosition,closedChunkSystem);
-            if (placed && !DevMode.Instance.noPlaceCost) {
-                playerInventory.deiterateInventoryAmount();
+            if (placed) {
+                playerScript.PlaceUpdate();
             }
             return placed;
         }
