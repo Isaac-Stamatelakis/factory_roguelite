@@ -145,6 +145,9 @@ namespace TileMaps.Place {
             
             if (exclusion == null)
             {
+                // Only check for player when exclusion is null since that means they're probably placing it
+                bool hitPlayer = Physics2D.Raycast(worldPlaceLocation, Vector2.zero, 30f, 1 << LayerMask.NameToLayer("Player")).collider;
+                if (hitPlayer) return false;
                 if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;
             }
             else
