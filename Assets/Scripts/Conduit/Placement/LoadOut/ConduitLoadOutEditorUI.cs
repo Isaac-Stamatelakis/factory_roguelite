@@ -78,20 +78,7 @@ namespace Conduit.Placement.LoadOut
 
                 mTypeDropDown.options = GlobalHelper.StringListToDropDown(options);
                 mTypeDropDown.value = (int)loadOutType;
-<<<<<<< HEAD
-                LayoutRebuilder.ForceRebuildLayoutImmediate(mTypeDropDown.transform as RectTransform);
-=======
-                /*
-                VerticalLayoutGroup verticalLayoutGroup = mTypeDropDown.GetComponentInChildren<VerticalLayoutGroup>();
-                for (int i = 0; i < verticalLayoutGroup.transform.childCount; i++)
-                {
-                    Transform child = verticalLayoutGroup.transform.GetChild(i);
-                    ConduitType conduitType = ((LoadOutConduitType)i).ToConduitType();
-                    child.GetComponentInChildren<Image>().color = ConduitPortFactory.GetConduitPortColor(conduitType);
-                }
-                */
->>>>>>> main
-                
+
                 mTypeDropDown.onValueChanged.AddListener((value) =>
                 {
                     LoadOutConduitType newLoadOut = (LoadOutConduitType)value;

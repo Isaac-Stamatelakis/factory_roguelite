@@ -1,8 +1,6 @@
 using System;
-<<<<<<< HEAD
 using System.Collections.Generic;
-=======
->>>>>>> main
+
 using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
@@ -96,7 +94,6 @@ namespace UI.Indicators.General
 
         private LoadOutConduitType? GetLoadOutType(ConduitType conduitType)
         {
-<<<<<<< HEAD
             switch (conduitType)
             {
                 case ConduitType.Item:
@@ -113,11 +110,9 @@ namespace UI.Indicators.General
             }
         }
 
-<<<<<<< HEAD
+
         public PlayerControl GetPlayerControl()
-=======
-        public PlayerControl? GetPlayerControl()
->>>>>>> main
+
         {
             return PlayerControl.SwitchPlacementMode;
         }
@@ -130,9 +125,6 @@ namespace UI.Indicators.General
                 string controlMessage = ControlUtils.KeyCodeListAsString(keyCodes, "+");
                 return $"Press {controlMessage} to Toggle Conduit Placement Mode\nPress LCtrl+{controlMessage} to Terminate Placement Group\nLeft Click to Switch Conduit Mode\nRight Click to Modify Default Conduit Ports";
             });
-=======
-            return PlayerControl.SwitchPlacementMode;
->>>>>>> 9efde0c8 (Added animated overlay support for world and ui item display. Refactored UI animated display to be cleanier)
         }
     }
 }

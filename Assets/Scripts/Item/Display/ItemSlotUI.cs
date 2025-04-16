@@ -62,11 +62,6 @@ namespace Items {
             if (Paused) return;
             counter ++;
             if (!displaying) return;
-            
-<<<<<<< HEAD
-=======
-            
->>>>>>> 9efde0c8 (Added animated overlay support for world and ui item display. Refactored UI animated display to be cleanier)
             RefreshDisplay();
         }
 
@@ -208,32 +203,20 @@ namespace Items {
             if (itemSlot.itemObject is IAnimatedOverlayItem animatedOverlayItem)
             {
                 SpriteCollection[] spriteCollections = animatedOverlayItem.SpriteCollectionOverlays;
-<<<<<<< HEAD
                 if (spriteCollections != null)
                 {
                     for (var index = 0; index < spriteCollections.Length; index++)
                     {
                         var spriteCollection = spriteCollections[index];
                         if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
-                        Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
+                        Image overlayImage =
+                            AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
                         animatedItemDisplays.Add(new AnimatedItemDisplay
                         {
                             Image = overlayImage,
                             Sprites = spriteCollection.Sprites
                         });
                     }
-=======
-                for (var index = 0; index < spriteCollections.Length; index++)
-                {
-                    var spriteCollection = spriteCollections[index];
-                    if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
-                    Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
-                    animatedItemDisplays.Add(new AnimatedItemDisplay
-                    {
-                        Image = overlayImage,
-                        Sprites = spriteCollection.Sprites
-                    });
->>>>>>> 9efde0c8 (Added animated overlay support for world and ui item display. Refactored UI animated display to be cleanier)
                 }
             }
             
@@ -305,29 +288,16 @@ namespace Items {
         {
             GlobalHelper.DeleteAllChildren(TagBehindContainer);
             GlobalHelper.DeleteAllChildren(TagFrontContainer);
-<<<<<<< HEAD
         }
         public void Unload()
         {
             displaying = false;
             animatedItemDisplays.Clear();
-=======
-            
-     
-        }
-        public void Unload()
-        {
->>>>>>> 9efde0c8 (Added animated overlay support for world and ui item display. Refactored UI animated display to be cleanier)
             GlobalHelper.DeleteAllChildren(ItemImage.transform);
-            animatedItemDisplays.Clear();
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
             if (!lockTopText && !ReferenceEquals(mTopText,null)) mTopText.text = string.Empty;
             if (!lockBottomText) mBottomText.text = string.Empty;
-<<<<<<< HEAD
-=======
-            displaying = false;
->>>>>>> 9efde0c8 (Added animated overlay support for world and ui item display. Refactored UI animated display to be cleanier)
         }
         
 
