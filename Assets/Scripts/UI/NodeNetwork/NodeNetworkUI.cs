@@ -167,7 +167,6 @@ namespace UI.NodeNetwork {
             node.SetPosition(position+changeVector);
             RectTransform rectTransform = (RectTransform)nodeUI.GetGameObject().transform;
             Vector3 nodeUIPosition = rectTransform.anchoredPosition;
-            //nodeUIPosition += changeVector * transform.localScale.x;
             nodeUIPosition += changeVector;
             ((RectTransform)nodeUI.GetGameObject().transform).anchoredPosition = nodeUIPosition;
             DisplayLines();
@@ -314,6 +313,7 @@ namespace UI.NodeNetwork {
 
         private void HandleRightClick() {
             if (lockHorizontalMovement && lockVerticalMovement) return;
+            
             if (Input.GetMouseButtonDown(1))
             {
                 Vector2 mouseWorldPosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -333,6 +333,7 @@ namespace UI.NodeNetwork {
                 {
                     newPosition.y = transform.position.y;
                 }
+                
                 transform.position = newPosition;
             }
 
