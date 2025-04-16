@@ -1,9 +1,13 @@
 using System.IO;
+<<<<<<< HEAD
 using DevTools.CraftingTrees.Network;
 using DevTools.Structures;
 using DevTools.Upgrades;
 using Newtonsoft.Json;
 using UI;
+=======
+using DevTools.Structures;
+>>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Selector
@@ -12,7 +16,11 @@ namespace DevTools.CraftingTrees.Selector
     {
         [SerializeField] private CraftingTreeSelectorUIElement elementPrefab;
         [SerializeField] private NewCraftingTreePopUpUI newCraftingTreePopUpPrefab;
+<<<<<<< HEAD
         [SerializeField] private CraftingTreeGeneratorUI craftingTreeGeneratorPrefab;
+=======
+
+>>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
         protected override void OnAddButtonClick()
         {
             NewCraftingTreePopUpUI newUpgradePopUp = Instantiate(newCraftingTreePopUpPrefab, transform, false);
@@ -28,6 +36,7 @@ namespace DevTools.CraftingTrees.Selector
             void OnSelect(int index)
             {
                 string file = files[index];
+<<<<<<< HEAD
                 SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = GlobalHelper.DeserializeCompressedJson<SerializedCraftingTreeNodeNetwork>(file);
                 CraftingTreeNodeNetwork craftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.DeserializeNodeNetwork(serializedCraftingTreeNodeNetwork);
                 if (craftingTreeNodeNetwork == null)
@@ -38,6 +47,9 @@ namespace DevTools.CraftingTrees.Selector
                 CraftingTreeGeneratorUI craftingTreeGeneratorUI = Instantiate(craftingTreeGeneratorPrefab,mList.transform);
                 craftingTreeGeneratorUI.Initialize(craftingTreeNodeNetwork,file);
                 CanvasController.Instance.DisplayObject(craftingTreeGeneratorUI.gameObject);
+=======
+                Debug.Log(file);
+>>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
             }
 
             for (var index = 0; index < files.Length; index++)
