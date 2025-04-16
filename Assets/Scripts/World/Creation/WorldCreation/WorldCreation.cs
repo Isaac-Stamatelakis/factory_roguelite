@@ -124,10 +124,14 @@ namespace WorldModule {
             {
                 GrabbedItemData = null,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, IOConduitPortData>()
 =======
                 ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, List<IOConduitPortData>>()
 >>>>>>> 7e35609c (Added data structures for conduit loadout)
+=======
+                ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, IOConduitPortData>()
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
             };
         }
 

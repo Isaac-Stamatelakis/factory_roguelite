@@ -93,6 +93,7 @@ namespace Conduits.Ports {
 
         public static IOConduitPortData DeepCopy(IOConduitPortData conduitPortData)
         {
+<<<<<<< HEAD
             return new IOConduitPortData
             {
                 InputData = DeepCopy(conduitPortData.InputData),
@@ -116,6 +117,10 @@ namespace Conduits.Ports {
                     priorityConduitPortData.Color, priorityConduitPortData.Enabled, priorityConduitPortData.Priority),
                 _ => new ConduitPortData(conduitPortData.Color, conduitPortData.Enabled)
             };
+=======
+            // TODO
+            return null;
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
         }
 
         public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
@@ -309,10 +314,14 @@ namespace Conduits.Ports {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
 <<<<<<< HEAD
+<<<<<<< HEAD
             IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
 =======
             IOConduitPortData ioConduitPortData = GetDefaultIOPortData(conduitType, portType);
 >>>>>>> 7e35609c (Added data structures for conduit loadout)
+=======
+            IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
             Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
@@ -350,9 +359,12 @@ namespace Conduits.Ports {
                     };
                 case ConduitType.Energy:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                     
 >>>>>>> 7e35609c (Added data structures for conduit loadout)
+=======
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
                     PriorityConduitPortData energyInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType); 
                     ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
@@ -362,10 +374,14 @@ namespace Conduits.Ports {
                     };
                 case ConduitType.Signal:
 <<<<<<< HEAD
+<<<<<<< HEAD
                     ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType);
 =======
                     ConduitPortData signalInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType);
 >>>>>>> 7e35609c (Added data structures for conduit loadout)
+=======
+                    ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType);
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
                     ConduitPortData signalOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
                     {

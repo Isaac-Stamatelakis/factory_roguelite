@@ -1,6 +1,9 @@
 using System;
+<<<<<<< HEAD
 using System.Collections.Generic;
 
+=======
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
 using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
@@ -20,9 +23,13 @@ namespace UI.Indicators.General
         [SerializeField] private Image conduitImage;
         [SerializeField] private TextMeshProUGUI placementCounter;
 <<<<<<< HEAD
+<<<<<<< HEAD
         [SerializeField] private ConduitLoadOutEditorUI conduitLoadOutEditorUIPrefab;
 =======
 >>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
+=======
+        [SerializeField] private ConduitLoadOutEditorUI conduitLoadOutEditorUIPrefab;
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
         private PlayerScript playerScript;
         private ConduitItem current;
         private int placementCount;
@@ -53,9 +60,12 @@ namespace UI.Indicators.General
         {
             placementCount++;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
             placementCounter.text = placementCount.ToString();
 >>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
+=======
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
             placementCounter.text = playerScript.ConduitPlacementOptions.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
         }
         
@@ -71,6 +81,7 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
             if (!current) return;
             ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
@@ -99,6 +110,30 @@ namespace UI.Indicators.General
             int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
             options.PlacementMode = GlobalHelper.ShiftEnum(dir, options.PlacementMode);
 >>>>>>> 31655611 (Conduit placement mode improvements, now has a counter for new connections, displays specific conduit type)
+=======
+            if (!current) return;
+            ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
+            
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    options.PlacementMode = GlobalHelper.ShiftEnum(1, options.PlacementMode);
+                    break;
+                case PointerEventData.InputButton.Right:
+                    LoadOutConduitType? loadOutConduitType = GetLoadOutType(current.GetConduitType());
+                    if (!loadOutConduitType.HasValue) return;
+                    
+                    ConduitLoadOutEditorUI loadOutEditorUI = Instantiate(conduitLoadOutEditorUIPrefab);
+                    loadOutEditorUI.Display(playerScript.ConduitPlacementOptions.ConduitPlacementLoadOuts,loadOutConduitType.Value);
+                    CanvasController.Instance.DisplayObject(loadOutEditorUI.gameObject);
+                    break;
+                case PointerEventData.InputButton.Middle:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
             placementCount = 0;
             Display();
             OnPointerEnter(eventData);
@@ -123,9 +158,13 @@ namespace UI.Indicators.General
             }
         }
 
+<<<<<<< HEAD
 
         public PlayerControl GetPlayerControl()
 
+=======
+        public PlayerControl? GetPlayerControl()
+>>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
         {
             return PlayerControl.SwitchPlacementMode;
         }
