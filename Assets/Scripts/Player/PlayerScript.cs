@@ -225,15 +225,8 @@ namespace Player
         private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPlacementLoadOuts;
-=======
-        public Dictionary<LoadOutConduitType, List<IOConduitPortData>> ConduitPlacementLoadOuts;
->>>>>>> 7e35609c (Added data structures for conduit loadout)
-=======
-        public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPlacementLoadOuts;
->>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
         public bool CanConnect(IConduit conduit)
         {
             switch (PlacementMode)
@@ -266,8 +259,6 @@ namespace Player
             PlacementPositions.Add(position);
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         public ConduitPlacementOptions(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
         {
             VerifyLoadOut(conduitPlacementLoadOuts);
@@ -276,30 +267,13 @@ namespace Player
 
         private void VerifyLoadOut(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
         {
-            conduitPlacementLoadOuts ??= new Dictionary<LoadOutConduitType, IOConduitPortData>();
-=======
-        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, List<IOConduitPortData>> conduitPlacementLoadOuts)
-=======
-        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
->>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
-        {
-            VerifyLoadOut(conduitPlacementLoadOuts);
-            
-        }
 
-        private void VerifyLoadOut(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
-        {
-<<<<<<< HEAD
->>>>>>> 7e35609c (Added data structures for conduit loadout)
-=======
             conduitPlacementLoadOuts ??= new Dictionary<LoadOutConduitType, IOConduitPortData>();
->>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
+
             LoadOutConduitType[] loadOutConduitTypes = System.Enum.GetValues(typeof(LoadOutConduitType)) as LoadOutConduitType[];
             foreach (var loadOutConduitType in loadOutConduitTypes)
             {
                 ConduitType conduitType = loadOutConduitType.ToConduitType();
-<<<<<<< HEAD
-<<<<<<< HEAD
                 IOConduitPortData defaultData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
 
                 if (conduitPlacementLoadOuts.TryAdd(loadOutConduitType, defaultData)) continue;
@@ -316,39 +290,6 @@ namespace Player
             }
         
             this.ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
-=======
-                if (!conduitPlacementLoadOuts.ContainsKey(loadOutConduitType))
-                {
-                    conduitPlacementLoadOuts[loadOutConduitType] = new List<IOConduitPortData>();
-                }
-                List<IOConduitPortData> portDataList = conduitPlacementLoadOuts[loadOutConduitType];
-                while (portDataList.Count < LOADOUTS)
-                {
-                    IOConduitPortData portData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
-                    portDataList.Add(portData);
-                }
-=======
-                IOConduitPortData defaultData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
->>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
-
-                if (conduitPlacementLoadOuts.TryAdd(loadOutConduitType, defaultData)) continue;
-                
-                IOConduitPortData currentData = conduitPlacementLoadOuts[loadOutConduitType];
-                if (currentData.InputData.GetType() != defaultData.InputData.GetType())
-                {
-                    currentData.InputData = defaultData.InputData;
-                }
-                if (currentData.OutputData.GetType() != defaultData.OutputData.GetType())
-                {
-                    currentData.OutputData = defaultData.OutputData;
-                }
-            }
-<<<<<<< HEAD
->>>>>>> 7e35609c (Added data structures for conduit loadout)
-=======
-        
-            this.ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
->>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
         }
         
         

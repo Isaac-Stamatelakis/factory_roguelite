@@ -1,9 +1,17 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Tiles/BreakHighlightShader.shadergraph.meta
 guid: 6c3e7c9d669afcd4bbf3929574610a90
 ========
 guid: 8d387f362ddba594aa853989369d096d
 >>>>>>>> main:Assets/Material/Robot/Laser/BreakHighlightShader.shadergraph.meta
+=======
+<<<<<<< HEAD
+guid: 78f4732fafeb0bf428a0f72bb3fa771e
+=======
+guid: 6c3e7c9d669afcd4bbf3929574610a90
+>>>>>>> c2517d86 (merge fix)
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}

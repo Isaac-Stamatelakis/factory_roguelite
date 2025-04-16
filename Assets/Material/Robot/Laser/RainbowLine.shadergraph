@@ -44,6 +44,7 @@
             "m_Id": "980458f0d55d411cb2c574b6a720dcab"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         {
             "m_Id": "4298276e0e1649498f764906b9e617c1"
@@ -54,6 +55,11 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+        },
+        {
+            "m_Id": "4298276e0e1649498f764906b9e617c1"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     ],
     "m_Keywords": [],
@@ -179,6 +185,7 @@
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "m_Id": "cda82b5b6d2f4d72bec987aa608675e3"
         },
         {
@@ -235,16 +242,53 @@
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
             "m_Id": "3cb1b81f771941d4b33c39af7299e6d9"
+=======
+            "m_Id": "cda82b5b6d2f4d72bec987aa608675e3"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         },
         {
-            "m_Id": "bf3887ad9b124150891a89b14c800ea1"
+            "m_Id": "362966060fbd4efc9be66cc2cc8ba4e1"
         },
         {
+<<<<<<< HEAD
             "m_Id": "3eab9a40a4b7423db7a5aa338a874187"
 <<<<<<< HEAD
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+            "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+        },
+        {
+            "m_Id": "27b4f688032240a9a7d21ed0aa0e7a73"
+        },
+        {
+            "m_Id": "c7e5aaddd8ff4482971d937df8ea942f"
+        },
+        {
+            "m_Id": "a189accd928d4f6eb3eb39fba142617a"
+        },
+        {
+            "m_Id": "33a3874f64664cdba39eca1b3a85cbea"
+        },
+        {
+            "m_Id": "d180747673604582a2f343b99684d30d"
+        },
+        {
+            "m_Id": "69dd20117561415aa35e77458d60ae2c"
+        },
+        {
+            "m_Id": "77e6eec334a24ce6bec4cbfb5776daa4"
+        },
+        {
+            "m_Id": "8307d91757b34f458d0d52f5265efe9f"
+        },
+        {
+            "m_Id": "f588032b6e524951a161db27d411485b"
+        },
+        {
+            "m_Id": "bd3875f5159b4f719d0c6135241e2003"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     ],
     "m_GroupDatas": [],
@@ -373,13 +417,13 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "3cb1b81f771941d4b33c39af7299e6d9"
+                    "m_Id": "27b4f688032240a9a7d21ed0aa0e7a73"
                 },
                 "m_SlotId": 2
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "bf3887ad9b124150891a89b14c800ea1"
+                    "m_Id": "c7e5aaddd8ff4482971d937df8ea942f"
                 },
                 "m_SlotId": 0
             }
@@ -387,13 +431,69 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "3eab9a40a4b7423db7a5aa338a874187"
+                    "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
                 },
                 "m_SlotId": 2
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "c70b701d63ff46e59a3274943bd0e714"
+                    "m_Id": "27b4f688032240a9a7d21ed0aa0e7a73"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+                },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "8307d91757b34f458d0d52f5265efe9f"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+                },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "a189accd928d4f6eb3eb39fba142617a"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "362966060fbd4efc9be66cc2cc8ba4e1"
+                },
+                "m_SlotId": 1
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "362966060fbd4efc9be66cc2cc8ba4e1"
+                },
+                "m_SlotId": 1
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "69dd20117561415aa35e77458d60ae2c"
                 },
                 "m_SlotId": 1
 <<<<<<< HEAD
@@ -434,21 +534,35 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
                     "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+=======
+                    "m_Id": "69dd20117561415aa35e77458d60ae2c"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
                 "m_SlotId": 2
             },
             "m_InputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
                     "m_Id": "27b4f688032240a9a7d21ed0aa0e7a73"
                 },
                 "m_SlotId": 0
+=======
+                    "m_Id": "77e6eec334a24ce6bec4cbfb5776daa4"
+                },
+                "m_SlotId": 1
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             }
         },
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
                     "m_Id": "3187a1a1db074a358a2a9ffc49c5435b"
+=======
+                    "m_Id": "77e6eec334a24ce6bec4cbfb5776daa4"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
                 "m_SlotId": 2
             },
@@ -456,6 +570,7 @@
                 "m_Node": {
                     "m_Id": "8307d91757b34f458d0d52f5265efe9f"
                 },
+<<<<<<< HEAD
                 "m_SlotId": 0
             }
         },
@@ -596,12 +711,15 @@
                     "m_Id": "62689f5564c14d0dbcb6b644bd5165bd"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
                 },
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 "m_SlotId": 1
             }
         },
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
                     "m_Id": "77e6eec334a24ce6bec4cbfb5776daa4"
 ========
@@ -673,6 +791,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                     "m_Id": "79b218e2dfe9493c912ca3b31adeaea2"
                 },
                 "m_SlotId": 1
@@ -689,20 +809,28 @@
                 "m_Node": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "m_Id": "8307d91757b34f458d0d52f5265efe9f"
 ========
                     "m_Id": "b6073a875800448f9c6f8d45deb9c556"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+                    "m_Id": "8307d91757b34f458d0d52f5265efe9f"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
                 "m_SlotId": 2
             },
             "m_InputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
                     "m_Id": "c70b701d63ff46e59a3274943bd0e714"
 ========
                     "m_Id": "92b188de97704861a619a6098b88e619"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+                    "m_Id": "c70b701d63ff46e59a3274943bd0e714"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
                 "m_SlotId": 1
             }
@@ -710,7 +838,10 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                     "m_Id": "87ae0417753c442ea007aeb4932b2e06"
 ========
                     "m_Id": "bb7ca72aedaf4cf886ca2f112b2433d5"
@@ -838,6 +969,7 @@
                 "m_Node": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
                     "m_Id": "a189accd928d4f6eb3eb39fba142617a"
                 },
@@ -870,18 +1002,38 @@
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
                     "m_Id": "bf3887ad9b124150891a89b14c800ea1"
+=======
+                    "m_Id": "a189accd928d4f6eb3eb39fba142617a"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
-                "m_SlotId": 1
+                "m_SlotId": 2
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "3eab9a40a4b7423db7a5aa338a874187"
+                    "m_Id": "33a3874f64664cdba39eca1b3a85cbea"
+                },
+                "m_SlotId": 1
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "bd3875f5159b4f719d0c6135241e2003"
                 },
                 "m_SlotId": 0
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "f588032b6e524951a161db27d411485b"
+                },
+                "m_SlotId": 1
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             }
         },
         {
@@ -924,6 +1076,20 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+                    "m_Id": "c7e5aaddd8ff4482971d937df8ea942f"
+                },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "77e6eec334a24ce6bec4cbfb5776daa4"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
                     "m_Id": "eb2942f986c54aac8b976de471fa8e27"
                 },
                 "m_SlotId": 0
@@ -932,6 +1098,9 @@
                 "m_Node": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                     "m_Id": "f588032b6e524951a161db27d411485b"
                 },
                 "m_SlotId": 0
@@ -961,12 +1130,15 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "69dd20117561415aa35e77458d60ae2c"
+<<<<<<< HEAD
 =======
                     "m_Id": "3cb1b81f771941d4b33c39af7299e6d9"
 >>>>>>> main
 =======
                     "m_Id": "3cb1b81f771941d4b33c39af7299e6d9"
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
                 },
                 "m_SlotId": 0
             }
@@ -1072,10 +1244,14 @@
             "serializedVersion": "2",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "x": 74.00016021728516,
             "y": 321.9999694824219,
             "width": 208.00003051757813,
             "height": 104.0
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
@@ -1087,6 +1263,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
@@ -1111,6 +1289,7 @@
             "z": 0.8780174255371094,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "w": 0.10000763088464737
 =======
             "w": 0.050003815442323688
@@ -1118,6 +1297,9 @@
 =======
             "w": 0.050003815442323688
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+            "w": 0.10000763088464737
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         },
         {
             "x": 0.9764705896377564,
@@ -1143,6 +1325,7 @@
             "z": 1.0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "w": 0.9000076055526733
 =======
             "w": 0.9499961733818054
@@ -1150,6 +1333,9 @@
 =======
             "w": 0.9499961733818054
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+            "w": 0.9000076055526733
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     ],
     "m_SerializableAlphaKeys": [
@@ -1199,6 +1385,7 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
@@ -1230,6 +1417,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "123e1fa3d78e47b69871f0f9bcdc521b",
     "m_Id": 2,
@@ -1304,6 +1493,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "18b3bbeab2994b0a819d0d5b47e59593",
     "m_Id": 1,
@@ -1328,10 +1520,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "196d59dccd0c48c58c62e058c9a33ca6",
     "m_Group": {
@@ -1456,6 +1651,9 @@
             "m_Id": "980458f0d55d411cb2c574b6a720dcab"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         },
         {
             "m_Id": "4298276e0e1649498f764906b9e617c1"
@@ -1515,8 +1713,12 @@
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "m_SGVersion": 0,
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+    "m_SGVersion": 0,
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.MultiplyNode",
     "m_ObjectId": "27b4f688032240a9a7d21ed0aa0e7a73",
     "m_Group": {
@@ -1622,10 +1824,13 @@
 }
 
 {
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 1,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "31ba2ec1319d4c5491ae91778feb204e",
@@ -1656,6 +1861,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "32a092db5f4044d985de0aaf1055bce6",
     "m_Id": 1,
@@ -1704,10 +1912,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.GradientInputMaterialSlot",
     "m_ObjectId": "332f4f3345334a559ee7b505a28e5ca4",
     "m_Id": 0,
@@ -1862,6 +2073,7 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.AddNode",
     "m_ObjectId": "33a3874f64664cdba39eca1b3a85cbea",
     "m_Group": {
@@ -1881,16 +2093,28 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+    "m_Type": "UnityEditor.ShaderGraph.AddNode",
+    "m_ObjectId": "33a3874f64664cdba39eca1b3a85cbea",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Add",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "x": -977.5626220703125,
             "y": 124.4373550415039,
             "width": 208.0,
             "height": 302.0
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
@@ -1902,10 +2126,13 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             "m_Id": "a0284d3a9e624eeb8c4482eda37b8904"
@@ -1925,15 +2152,19 @@
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
             "m_Id": "ead712da5e8c43a4904518a86faaae98"
+=======
+            "m_Id": "a0284d3a9e624eeb8c4482eda37b8904"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         },
         {
-            "m_Id": "65e4b26144a4463dabfd36a606c810f3"
+            "m_Id": "4e214a61ba734151933078151a0e0291"
         },
         {
-            "m_Id": "e2a68b6e7a0a42ce8c78a389265b3396"
+            "m_Id": "4b7399f5ef934fbc832c27dccd6e51ea"
         }
     ],
     "synonyms": [
+<<<<<<< HEAD
         "multiplication",
         "times",
         "x"
@@ -1941,6 +2172,11 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+        "addition",
+        "sum",
+        "plus"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
@@ -1954,6 +2190,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.CeilingNode",
     "m_ObjectId": "362966060fbd4efc9be66cc2cc8ba4e1",
     "m_Group": {
@@ -1987,6 +2226,7 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     }
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "05bdc5d8ac594806bb61b6dbe23ec8d7",
@@ -2000,12 +2240,17 @@
     "m_DefaultValue": 0.0,
     "m_Labels": []
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
 }
 
 {
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_ObjectId": "373b56e6f5ce462f9c9858262f6d8ad3",
     "m_Id": 0,
     "m_DisplayName": "A",
@@ -2077,10 +2322,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "3cb67129d79b44b591c2f4fe04134eac",
     "m_Group": {
@@ -2116,11 +2364,16 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "41c561ed1eb34b0fa70d675414f0fae6",
 ========
     "m_ObjectId": "0704e6763fab4c04b0786462fff97791",
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "41c561ed1eb34b0fa70d675414f0fae6",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
@@ -2128,12 +2381,16 @@
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_Value": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
 ========
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         "x": 0.0,
         "y": 0.0,
         "z": 0.0,
         "w": 0.0
+<<<<<<< HEAD
     },
     "m_DefaultValue": {
         "x": 0.0,
@@ -2301,11 +2558,41 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "4298276e0e1649498f764906b9e617c1",
+    "m_Guid": {
+        "m_GuidSerialized": "f2fcd607-b6d4-4d00-a241-ebbf990960a4"
+    },
+    "m_Name": "RainbowSpeed",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "RainbowSpeed",
+    "m_DefaultReferenceName": "_RainbowSpeed",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Precision": 0,
-    "m_PreviewExpanded": true,
-    "m_PreviewMode": 0,
-    "m_CustomColors": {
-        "m_SerializableColors": []
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": 0.10000000149011612,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
     }
 }
 
@@ -2633,8 +2920,13 @@
 <<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+<<<<<<< HEAD
     "m_ObjectId": "21b11f631b4e47888a30a05fcafd6a94",
     "m_Id": 1,
+=======
+    "m_ObjectId": "4b7399f5ef934fbc832c27dccd6e51ea",
+    "m_Id": 2,
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_DisplayName": "Out",
     "m_SlotType": 1,
     "m_Hidden": false,
@@ -2661,6 +2953,7 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
@@ -2714,6 +3007,8 @@
 <<<<<<< HEAD
     "m_SGVersion": 0,
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "4e214a61ba734151933078151a0e0291",
     "m_Id": 1,
@@ -2743,6 +3038,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "28ac6a1bafcc4564aaeb8e13a9e12be8",
@@ -2770,6 +3066,28 @@
         "e31": 0.0,
         "e32": 0.0,
         "e33": 0.0
+=======
+    "m_Hidden": false,
+    "m_ShaderOutputName": "B",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": 2.0,
+        "e01": 2.0,
+        "e02": 2.0,
+        "e03": 2.0,
+        "e10": 2.0,
+        "e11": 2.0,
+        "e12": 2.0,
+        "e13": 2.0,
+        "e20": 2.0,
+        "e21": 2.0,
+        "e22": 2.0,
+        "e23": 2.0,
+        "e30": 2.0,
+        "e31": 2.0,
+        "e32": 2.0,
+        "e33": 2.0
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     },
     "m_DefaultValue": {
         "e00": 1.0,
@@ -2792,7 +3110,10 @@
 }
 
 {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "4f518800608943d7b2e6ad29b38b421d",
@@ -2817,10 +3138,13 @@
 }
 
 {
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 1,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "576fa01e737a4b048abdbb7f362f63b8",
@@ -2852,10 +3176,14 @@
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_ObjectId": "5771952201584863aed6c7626f0c527a",
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+<<<<<<< HEAD
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -2888,10 +3216,13 @@
 >>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Hidden": false,
-    "m_ShaderOutputName": "Out",
+    "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
     "m_Value": {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         "e00": 0.0,
@@ -2935,6 +3266,12 @@
         "y": 0.0,
         "z": 0.0,
         "w": 0.0
+=======
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0,
+        "w": 1.0
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     },
     "m_DefaultValue": {
         "x": 0.0,
@@ -2950,14 +3287,15 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
-    "m_ObjectId": "5c9ee78a5a124a189879ca45196f1e35",
-    "m_Id": 0,
-    "m_DisplayName": "XBias",
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "587db81356b0437eb20b6181ada944ab",
+    "m_Id": 2,
+    "m_DisplayName": "Out",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
+<<<<<<< HEAD
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
@@ -3025,6 +3363,9 @@
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_Value": {
+=======
+    "m_Value": {
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         "e00": 0.0,
         "e01": 0.0,
         "e02": 0.0,
@@ -3041,6 +3382,7 @@
         "e31": 0.0,
         "e32": 0.0,
         "e33": 0.0
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
@@ -3064,6 +3406,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     },
     "m_DefaultValue": {
         "e00": 1.0,
@@ -3131,6 +3475,45 @@
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "5c9ee78a5a124a189879ca45196f1e35",
+    "m_Id": 0,
+    "m_DisplayName": "XBias",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "64f8e4f3b886428fa99ecfbcb5f2ccec",
+    "m_Id": 1,
+    "m_DisplayName": "B",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "B",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0,
+        "w": 1.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "65f4b9791e8645bda2cd6f3ab7c65c5e",
     "m_Id": 4,
     "m_DisplayName": "Smooth Delta",
@@ -3145,13 +3528,119 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
-    "m_ObjectId": "67b54fb2dc39429b846374406f3ebbcf",
-    "m_Id": 0,
-    "m_DisplayName": "In",
-    "m_SlotType": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "660d23f3059d41869ed68b04318748f5",
+    "m_Id": 2,
+    "m_DisplayName": "Out",
+    "m_SlotType": 1,
     "m_Hidden": false,
-    "m_ShaderOutputName": "In",
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": 0.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 0.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 0.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 0.0
+    },
+    "m_DefaultValue": {
+        "e00": 1.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 1.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.SubtractNode",
+    "m_ObjectId": "69dd20117561415aa35e77458d60ae2c",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Subtract",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -1467.6444091796875,
+            "y": 556.6402587890625,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "e17c9749e1bb4eb89987db41db932669"
+        },
+        {
+            "m_Id": "4f518800608943d7b2e6ad29b38b421d"
+        },
+        {
+            "m_Id": "c1d58b8754ec4eebb59521e7aa5debcf"
+        }
+    ],
+    "synonyms": [
+        "subtraction",
+        "remove",
+        "minus",
+        "take away"
+    ],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "6b36d64ae29f48cdad14b6c364890e55",
+    "m_Id": 0,
+    "m_DisplayName": "YBias",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "6bcd38af336046da8ecff8cb1047beb2",
+    "m_Id": 2,
+    "m_DisplayName": "Out",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_Value": {
         "x": 0.0,
@@ -3173,17 +3662,81 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
-    "m_ObjectId": "6b36d64ae29f48cdad14b6c364890e55",
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "71b4d387b4574e6a85f65665bbcfd1a0",
+    "m_Id": 1,
+    "m_DisplayName": "B",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "B",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 2.0,
+        "y": 1.0,
+        "z": 1.0,
+        "w": 1.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Texture2DMaterialSlot",
+    "m_ObjectId": "74ddf3bf4ac7431a859ee4a15e8c855f",
     "m_Id": 0,
-    "m_DisplayName": "YBias",
+    "m_DisplayName": "_MainTex",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
-    "m_Value": 0.0,
-    "m_DefaultValue": 0.0,
-    "m_Labels": []
+    "m_BareResource": false
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.MultiplyNode",
+    "m_ObjectId": "77e6eec334a24ce6bec4cbfb5776daa4",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Multiply",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -1082.0,
+            "y": 556.9999389648438,
+            "width": 208.0,
+            "height": 302.00006103515627
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "7c86eec58d3b47e9b74897672415e80e"
+        },
+        {
+            "m_Id": "32a092db5f4044d985de0aaf1055bce6"
+        },
+        {
+            "m_Id": "ef79d255fc814993a7be03f0f7a83604"
+        }
+    ],
+    "synonyms": [
+        "multiplication",
+        "times",
+        "x"
+    ],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    }
 }
 
 {
@@ -3358,6 +3911,7 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
@@ -3389,6 +3943,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "7b24bda1a0fe40c98223f337fe168be6",
     "m_Id": 0,
@@ -3405,6 +3961,9 @@
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "7c86eec58d3b47e9b74897672415e80e",
@@ -3453,6 +4012,7 @@
 }
 
 {
+<<<<<<< HEAD
 ========
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
     "m_SGVersion": 1,
@@ -3463,6 +4023,8 @@
 =======
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 1,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "7edf6e6addf4482ba76b3a0be4ddc994",
@@ -3587,13 +4149,17 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.AddNode",
     "m_ObjectId": "8307d91757b34f458d0d52f5265efe9f",
     "m_Group": {
         "m_Id": ""
     },
     "m_Name": "Add",
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "37cbec0166c9446ca61ca06c30cc73bd",
@@ -3617,26 +4183,37 @@
     },
     "m_Name": "Float",
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "x": -679.2470092773438,
             "y": 556.7529296875,
             "width": 208.0,
             "height": 302.0
+<<<<<<< HEAD
 ========
             "x": -1635.199951171875,
             "y": -249.6000213623047,
             "width": 125.5999755859375,
             "height": 76.79998779296875
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "m_Id": "31320d6dce7d454bb198b755172ae277"
         },
         {
@@ -3650,6 +4227,7 @@
         "addition",
         "sum",
         "plus"
+<<<<<<< HEAD
 ========
             "m_Id": "3c517bc652e54e3e8e63850bfa088a10"
         },
@@ -3664,12 +4242,15 @@
         "vec1",
         "scalar"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
+<<<<<<< HEAD
     },
     "m_Value": 0.0
 }
@@ -3695,16 +4276,21 @@
         "y": 0.0,
         "z": 0.0,
         "w": 0.0
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     }
 }
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "87ae0417753c442ea007aeb4932b2e06",
     "m_Group": {
@@ -3742,6 +4328,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "8cae39d1f74745c99ad90cd038f3ba2b",
     "m_Id": 1,
@@ -3766,10 +4355,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "8f4dd370d8ca490da54d137659cef0b8",
     "m_Group": {
@@ -3926,6 +4518,78 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "915dd67a788c46c8a552f329c7889264",
+    "m_Id": 0,
+    "m_DisplayName": "A",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "9781bbb1028f45bfa0e158db6df788c8",
+    "m_Id": 1,
+    "m_DisplayName": "B",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "B",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": -1.0,
+        "e01": 2.0,
+        "e02": 2.0,
+        "e03": 2.0,
+        "e10": 2.0,
+        "e11": 2.0,
+        "e12": 2.0,
+        "e13": 2.0,
+        "e20": 2.0,
+        "e21": 2.0,
+        "e22": 2.0,
+        "e23": 2.0,
+        "e30": 2.0,
+        "e31": 2.0,
+        "e32": 2.0,
+        "e33": 2.0
+    },
+    "m_DefaultValue": {
+        "e00": 1.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 1.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 1.0
+    }
 }
 
 {
@@ -4238,6 +4902,323 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "9bc7a37301874362980d288351e6364e",
+    "m_Id": 0,
+    "m_DisplayName": "A",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": 0.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 0.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 0.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 0.0
+    },
+    "m_DefaultValue": {
+        "e00": 1.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 1.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
+    "m_ObjectId": "9c5717483f804da9bd1619d3dea17c0d",
+    "m_Id": 2,
+    "m_DisplayName": "Out",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "a0284d3a9e624eeb8c4482eda37b8904",
+    "m_Id": 0,
+    "m_DisplayName": "A",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.MultiplyNode",
+    "m_ObjectId": "a189accd928d4f6eb3eb39fba142617a",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Multiply",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -1244.5626220703125,
+            "y": 113.4373550415039,
+            "width": 208.0,
+            "height": 302.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "b2785277d1fd476798355d460bbd7214"
+        },
+        {
+            "m_Id": "9781bbb1028f45bfa0e158db6df788c8"
+        },
+        {
+            "m_Id": "660d23f3059d41869ed68b04318748f5"
+        }
+    ],
+    "synonyms": [
+        "multiplication",
+        "times",
+        "x"
+    ],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "a27317c6dc7843ed8099b10bf3006825",
+    "m_Id": 0,
+    "m_DisplayName": "Speed",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "a274f1652a794376a6cbfb3803982bf5",
+    "m_Id": 0,
+    "m_DisplayName": "A",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": 0.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 0.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 0.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 0.0
+    },
+    "m_DefaultValue": {
+        "e00": 1.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 1.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "a7fbc19f301841b59c0813ac8feb4705",
+    "m_Id": 0,
+    "m_DisplayName": "Time",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Time",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "b2785277d1fd476798355d460bbd7214",
+    "m_Id": 0,
+    "m_DisplayName": "A",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "e00": 0.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 0.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 0.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 0.0
+    },
+    "m_DefaultValue": {
+        "e00": 1.0,
+        "e01": 0.0,
+        "e02": 0.0,
+        "e03": 0.0,
+        "e10": 0.0,
+        "e11": 1.0,
+        "e12": 0.0,
+        "e13": 0.0,
+        "e20": 0.0,
+        "e21": 0.0,
+        "e22": 1.0,
+        "e23": 0.0,
+        "e30": 0.0,
+        "e31": 0.0,
+        "e32": 0.0,
+        "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "b6e6f0e1f49f494dab863fb719ff9bf2",
+    "m_Id": 1,
+    "m_DisplayName": "B",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "B",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
+    "m_ObjectId": "b9470db0d7554995a8bfb36bd6468b32",
+    "m_Id": 1,
+    "m_DisplayName": "Out_Vector4",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "OutVector4",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "5be640d9502a421e8f3f7f4a49c070eb",
     "m_Id": 0,
@@ -4301,24 +5282,41 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.AddNode",
     "m_ObjectId": "62689f5564c14d0dbcb6b644bd5165bd",
     "m_Group": {
         "m_Id": ""
     },
     "m_Name": "Add",
+=======
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "bd3875f5159b4f719d0c6135241e2003",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Property",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
+<<<<<<< HEAD
             "x": -897.5999145507813,
             "y": -1060.800048828125,
             "width": 207.9998779296875,
             "height": 301.60003662109377
+=======
+            "x": -2142.0,
+            "y": 754.9999389648438,
+            "width": 154.0,
+            "height": 34.0
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
             "m_Id": "0dd8c223c9764c3cb51ef1282ad337e0"
         },
         {
@@ -4996,6 +5994,9 @@
     "m_Slots": [
         {
             "m_Id": "0a9f816e95e3422bb06e69c403daeb00"
+=======
+            "m_Id": "d151137338d04678bcd5c7fea3403a61"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     ],
     "synonyms": [],
@@ -5005,6 +6006,7 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     },
+<<<<<<< HEAD
     "IsFirstSlotValid": true
 }
 
@@ -5920,6 +6922,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
     },
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Property": {
         "m_Id": "4298276e0e1649498f764906b9e617c1"
     }
@@ -5946,10 +6950,13 @@
         "y": 0.0,
         "z": 0.0,
         "w": 0.0
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     }
 }
 
@@ -6005,11 +7012,15 @@
             "serializedVersion": "2",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "x": 297.9999694824219,
             "y": 341.99993896484377,
             "width": 208.00003051757813,
             "height": 302.00006103515627
+<<<<<<< HEAD
 ========
             "x": -1756.351806640625,
             "y": -155.66160583496095,
@@ -6027,6 +7038,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
@@ -6099,6 +7112,9 @@
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.SubtractNode",
     "m_ObjectId": "c7e5aaddd8ff4482971d937df8ea942f",
@@ -6106,6 +7122,7 @@
         "m_Id": ""
     },
     "m_Name": "Subtract",
+<<<<<<< HEAD
 ========
     "m_Type": "UnityEditor.ShaderGraph.Vector1Node",
     "m_ObjectId": "f983ca6062fa4c0fa615392e62d835ce",
@@ -6114,26 +7131,37 @@
     },
     "m_Name": "Float",
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "x": -427.99993896484377,
             "y": 112.99999237060547,
             "width": 207.99990844726563,
             "height": 301.9999694824219
+<<<<<<< HEAD
 ========
             "x": -1301.5999755859375,
             "y": -1182.4000244140625,
             "width": 125.5999755859375,
             "height": 76.800048828125
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "m_Id": "5771952201584863aed6c7626f0c527a"
         },
         {
@@ -6148,6 +7176,7 @@
         "remove",
         "minus",
         "take away"
+<<<<<<< HEAD
 ========
             "m_Id": "3772b353ddac44df983bdeb155a97678"
         },
@@ -6162,28 +7191,38 @@
         "vec1",
         "scalar"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
     }
 ========
     },
     "m_Value": 0.0
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+    }
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
 }
 
 {
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
     "m_ObjectId": "cda82b5b6d2f4d72bec987aa608675e3",
 ========
     "m_ObjectId": "fbf499a4871245c7bd78dc05abda4452",
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+    "m_ObjectId": "cda82b5b6d2f4d72bec987aa608675e3",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Group": {
         "m_Id": ""
     },
@@ -6192,6 +7231,7 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
             "x": 43.90703201293945,
             "y": -563.1204833984375,
@@ -6199,17 +7239,25 @@
             "x": -1474.640380859375,
             "y": -1068.870849609375,
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+            "x": 43.90703201293945,
+            "y": -563.1204833984375,
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
             "width": 0.0,
             "height": 0.0
         }
     },
     "m_Slots": [
         {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
             "m_Id": "74ddf3bf4ac7431a859ee4a15e8c855f"
 ========
             "m_Id": "0323810361f84a28a336ee1a3b7e082d"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+            "m_Id": "74ddf3bf4ac7431a859ee4a15e8c855f"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
         }
     ],
     "synonyms": [],
@@ -6220,19 +7268,26 @@
         "m_SerializableColors": []
     },
     "m_Property": {
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
         "m_Id": "d1973e0a34ff4d42ad6791f9470716d8"
 ========
         "m_Id": "9ccf7cb8bc8f48be894d0d71da028c31"
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+        "m_Id": "d1973e0a34ff4d42ad6791f9470716d8"
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     }
 }
 
 {
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_SGVersion": 3,
     "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
     "m_ObjectId": "cfbdd06043854126a210f8fd4ee86b2d",
@@ -6265,6 +7320,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "cfefb8c60eea4f2492c4a5fdb0fdbd29",
     "m_Id": 2,
@@ -6346,10 +7404,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
     "m_ObjectId": "d1973e0a34ff4d42ad6791f9470716d8",
     "m_Guid": {
@@ -6396,12 +7457,17 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
     "m_ObjectId": "d77ef26c8269485aa5220b95a9b78f82",
 ========
     "m_ObjectId": "fcf1eb9a44ad43f89654dd30e57caeff",
 >>>>>>>> main:Assets/Material/Robot/Laser/LaserPattern.shadersubgraph
+=======
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "d77ef26c8269485aa5220b95a9b78f82",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
@@ -6446,6 +7512,7 @@
     }
 }
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLine.shadergraph
 {
     "m_SGVersion": 0,
@@ -6453,6 +7520,10 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+{
+    "m_SGVersion": 0,
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "da6de842744844c49b2d55f2284e71ed",
     "m_Id": -1366191709,
@@ -6494,6 +7565,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "e17c9749e1bb4eb89987db41db932669",
     "m_Id": 0,
@@ -6611,6 +7685,7 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "ef79d255fc814993a7be03f0f7a83604",
 =======
@@ -6621,6 +7696,10 @@
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "e2a68b6e7a0a42ce8c78a389265b3396",
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+    "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
+    "m_ObjectId": "ef79d255fc814993a7be03f0f7a83604",
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
@@ -6667,6 +7746,7 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -6793,6 +7873,8 @@
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "f2904c79f452489c87c701c319d615d7",
     "m_Id": 1667951893,
@@ -6810,6 +7892,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.MultiplyNode",
     "m_ObjectId": "f588032b6e524951a161db27d411485b",
     "m_Group": {
@@ -6852,10 +7937,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.GradientMaterialSlot",
     "m_ObjectId": "fa59eb7c2e324ef699e948b9a2c1820c",
     "m_Id": 0,
@@ -6870,6 +7958,9 @@
     "m_SGVersion": 0,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "fa878e2f900246779d77135852572021",
     "m_Id": 0,
@@ -6894,10 +7985,13 @@
 
 {
     "m_SGVersion": 0,
+<<<<<<< HEAD
 =======
 >>>>>>> main
 =======
 >>>>>>> 662e6624 (Added rainbow laser line shader)
+=======
+>>>>>>> ecb3008d (Added conduit cutter break all mode with custom rainbow shader)
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "fdb7d3f8a3bc4ff7a03c77ea0a69db78",
     "m_Group": {
