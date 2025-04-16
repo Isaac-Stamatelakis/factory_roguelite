@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Items;
 using RecipeModule;
 using TileEntity.Instances.Machine;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace Recipe.Processor {
         public RecipeType RecipeType;
         public List<RecipeModeCollection> RecipeCollections;
         public List<ModeNameKVP> ModeNamesMap;
-        public Sprite Sprite;
+        public ItemObject DisplayImage;
         public TileEntityLayoutObject LayoutObject;
         public RecipeProcessorRestrictionObject ProcessorRestrictionObject;
     }

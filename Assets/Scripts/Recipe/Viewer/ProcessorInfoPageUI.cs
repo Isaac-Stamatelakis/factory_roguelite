@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Items;
 using Player;
 using Recipe.Objects.Restrictions;
 using Recipe.Processor;
@@ -80,9 +81,9 @@ namespace Recipe.Viewer
             return RecipeProcessorInstance.RecipeProcessorObject.name;
         }
 
-        public Sprite GetSprite()
+        public ItemObject GetDisplayItem()
         {
-            return RecipeProcessorInstance.RecipeProcessorObject.Sprite;
+            return RecipeProcessorInstance.RecipeProcessorObject.DisplayImage;
         }
 
         public string GetPageIndicatorString(int pageIndex)

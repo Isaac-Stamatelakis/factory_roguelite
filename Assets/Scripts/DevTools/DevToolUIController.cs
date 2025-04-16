@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DevTools.CraftingTrees;
+using DevTools.CraftingTrees.Selector;
 using DevTools.ItemImageGenerator;
 using DevTools.QuestBook;
 using UnityEngine;
@@ -21,6 +23,7 @@ namespace DevTools {
             Structure,
             QuestBook,
             Upgrade,
+            CraftingTree,
             ItemImageGen,
         }
 
@@ -28,6 +31,7 @@ namespace DevTools {
         [SerializeField] private DevToolQuestBookListUI questBookListUIPrefab;
         [SerializeField] private DevToolUpgradeSelector upgradeSelectorUIPrefab;
         [SerializeField] private ItemImageGeneratorUI itemImageGeneratorPrefab;
+        [SerializeField] private CraftingTreeSelectorUI craftingTreeSelectorUIPrefab;
         private static DevToolPage page = DevToolPage.Title;
         
         public override void EmptyListen()
@@ -50,6 +54,7 @@ namespace DevTools {
         [SerializeField] private Button questButton;
         [SerializeField] private Button robotToolButton;
         [SerializeField] private Button itemImageGenButton;
+        [SerializeField] private Button craftingTreeSelectorButton;
         private Transform currentUI;
         private string baseText;
         public void SetTitleText(string text) {
@@ -66,32 +71,38 @@ namespace DevTools {
         }
 
         public void Start() {
+
+            void SwitchPage(DevToolPage newPage)
+            {
+                page = newPage;
+                Display();
+            }
+
             homeButton.onClick.AddListener(() =>
             {
-                page = DevToolPage.Title;
-                Display();
+                SwitchPage(DevToolPage.Title);
             });
             
             structureButton.onClick.AddListener(() =>
             {
-                page = DevToolPage.Structure;
-                Display();
+                SwitchPage(DevToolPage.Structure);
             });
             
             robotToolButton.onClick.AddListener(() =>
             {
-                page = DevToolPage.Upgrade;
-                Display();
+                SwitchPage(DevToolPage.Upgrade);
             });
             questButton.onClick.AddListener(() =>
             {
-                page = DevToolPage.QuestBook;
-                Display();
+                SwitchPage(DevToolPage.QuestBook);
             });
             itemImageGenButton.onClick.AddListener(() =>
             {
-                page = DevToolPage.ItemImageGen;
-                Display();
+                SwitchPage(DevToolPage.ItemImageGen);
+            });
+            craftingTreeSelectorButton.onClick.AddListener(() =>
+            {
+                SwitchPage(DevToolPage.CraftingTree);
             });
             Display();
             StartCoroutine(ItemRegistry.LoadItems());
@@ -129,6 +140,12 @@ namespace DevTools {
                     ItemImageGeneratorUI itemImageGenerator = GameObject.Instantiate(itemImageGeneratorPrefab);
                     itemImageGenerator.Initialize();
                     DisplayObject(itemImageGenerator.gameObject);
+                    break;
+                case DevToolPage.CraftingTree:
+                    SetTitleText("Crafting Trees");
+                    CraftingTreeSelectorUI craftingTreeSelectorUI = GameObject.Instantiate(craftingTreeSelectorUIPrefab);
+                    craftingTreeSelectorUI.Initialize();
+                    DisplayObject(craftingTreeSelectorUI.gameObject);
                     break;
                 default:
                     

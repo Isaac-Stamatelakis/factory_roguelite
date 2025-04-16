@@ -56,9 +56,9 @@ namespace World.Cave.InfoUI
             return caveName;
         }
 
-        public Sprite GetSprite()
+        public ItemObject GetDisplayItem()
         {
-            return ItemRegistry.GetInstance().GetItemObject(baseId)?.getSprite();
+            return ItemRegistry.GetInstance().GetItemObject(baseId);
         }
 
         public string GetPageIndicatorString(int pageIndex)
