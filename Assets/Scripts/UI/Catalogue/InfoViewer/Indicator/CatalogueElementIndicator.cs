@@ -29,15 +29,8 @@ namespace UI.Catalogue.InfoViewer.Indicator
                 switch (inputButton)
                 {
                     case PointerEventData.InputButton.Left:
-<<<<<<< HEAD
-<<<<<<< HEAD
                         infoViewerParent.MoveDisplayElement(displayOffset);
-=======
-                        infoViewerParent.MoveDisplayElement(index);
->>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
-=======
-                        infoViewerParent.MoveDisplayElement(displayOffset);
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
+
                         break;
                     case PointerEventData.InputButton.Right:
                         catalogueElement.DisplayAllElements(infoViewerParent.GameStageCollection);
