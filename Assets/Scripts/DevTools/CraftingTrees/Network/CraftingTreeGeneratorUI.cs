@@ -29,6 +29,11 @@ namespace DevTools.CraftingTrees.Network
             SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.SerializeNodeNetwork(nodeNetwork);
             GlobalHelper.SerializeCompressedJson(serializedCraftingTreeNodeNetwork,filePath);
         }
+
+        public void Rebuild()
+        {
+            
+        }
     }
 
     internal class CraftingTreeGenerator
