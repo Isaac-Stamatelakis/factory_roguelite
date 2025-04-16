@@ -1,5 +1,4 @@
 using System;
-
 using System.Collections.Generic;
 using Items;
 using Player;
@@ -15,7 +14,7 @@ using UnityEngine.Tilemaps;
 namespace UI.Indicators.General
 {
 
-    public class TilePlacementIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
+    public class TilePlacementIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator, IKeyCodeDescriptionIndicator
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
@@ -143,7 +142,7 @@ namespace UI.Indicators.General
             Display();
             OnPointerEnter(eventData);
         }
-        
+
         public PlayerControl GetPlayerControl()
         {
             return PlayerControl.SwitchPlacementMode;

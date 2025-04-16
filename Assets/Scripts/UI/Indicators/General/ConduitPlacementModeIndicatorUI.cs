@@ -108,9 +108,9 @@ namespace UI.Indicators.General
                     throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
             }
         }
-        
+
+
         public PlayerControl GetPlayerControl()
-        
         {
             return PlayerControl.SwitchPlacementMode;
         }

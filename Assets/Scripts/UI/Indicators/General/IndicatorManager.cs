@@ -171,7 +171,6 @@ namespace UI.Indicators.General
                 {
                     keyCodeElement.GetComponent<Image>().enabled = false;
                 }
-                
                 if (keyCodeIndicator is IKeyCodeDescriptionIndicator optionalKeyCodeIndicator)
                 {
                     ToolTipUIDisplayer toolTipUIDisplayer = keyCodeElement.AddComponent<ToolTipUIDisplayer>();
