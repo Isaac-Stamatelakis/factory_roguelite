@@ -12,15 +12,8 @@ namespace DevTools.CraftingTrees.Network
     internal class CraftingTreeGeneratorNode : INode
     {
         public CraftingTreeNodeType NodeType;
-<<<<<<< HEAD
-<<<<<<< HEAD
         public CraftingTreeNodeData NodeData;
-=======
-        public CraftingTreeGeneratorNodeData NodeData;
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-        public CraftingTreeNodeData NodeData;
->>>>>>> 1420320e (Added basic ui for crafting trees)
+
         public Vector3 GetPosition()
         {
             return new Vector3(NodeData.X, NodeData.Y, 0);
@@ -54,15 +47,9 @@ namespace DevTools.CraftingTrees.Network
         Transmutation,
         Processor
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
+    
     internal abstract class CraftingTreeNodeData
-=======
-    internal abstract class CraftingTreeGeneratorNodeData
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-    internal abstract class CraftingTreeNodeData
->>>>>>> 1420320e (Added basic ui for crafting trees)
+
     {
         public int Id;
         public float X;
@@ -70,41 +57,17 @@ namespace DevTools.CraftingTrees.Network
         public List<int> InputIds;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     internal class ItemNodeData : CraftingTreeNodeData
-=======
-    internal class ItemNodeData : CraftingTreeGeneratorNodeData
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-    internal class ItemNodeData : CraftingTreeNodeData
->>>>>>> 1420320e (Added basic ui for crafting trees)
     {
         public SerializedItemSlot SerializedItemSlot;
     }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
+    
     internal class TransmutationNodeData : CraftingTreeNodeData
-=======
-    internal class TransmutationNodeData : CraftingTreeGeneratorNodeData
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-    internal class TransmutationNodeData : CraftingTreeNodeData
->>>>>>> 1420320e (Added basic ui for crafting trees)
     {
         public TransmutableItemState OutputState;
     }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
+    
     internal class ProcessorNodeData : CraftingTreeNodeData
-=======
-    internal class ProcessorNodeData : CraftingTreeGeneratorNodeData
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-    internal class ProcessorNodeData : CraftingTreeNodeData
->>>>>>> 1420320e (Added basic ui for crafting trees)
     {
         public string ProcessorGuid;
         public string RecipeGuid;
@@ -168,15 +131,7 @@ namespace DevTools.CraftingTrees.Network
         {
             try
             {
-<<<<<<< HEAD
-<<<<<<< HEAD
                 CraftingTreeNodeData nodeData;
-=======
-                CraftingTreeGeneratorNodeData nodeData;
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-                CraftingTreeNodeData nodeData;
->>>>>>> 1420320e (Added basic ui for crafting trees)
                 switch (serializedData.NodeType)
                 {
                     case CraftingTreeNodeType.Item:
@@ -213,8 +168,6 @@ namespace DevTools.CraftingTrees.Network
             return Nodes;
         }
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     
     internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
@@ -229,74 +182,29 @@ namespace DevTools.CraftingTrees.Network
             this.nodeNetwork = craftingTreeNodeNetwork;
             craftingTreeGenerator = generator;
         }
+
         protected override INodeUI GenerateNode(CraftingTreeGeneratorNode node)
         {
             CraftingTreeNodeUI robotUpgradeNodeUI = GameObject.Instantiate(mCraftingTreeNodeUIPrefab);
-            robotUpgradeNodeUI.Initialize(node,this);
+            robotUpgradeNodeUI.Initialize(node, this);
             RectTransform nodeRectTransform = (RectTransform)robotUpgradeNodeUI.transform;
-            robotUpgradeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
+            robotUpgradeNodeUI.transform.SetParent(nodeContainer,
+                false); // Even though rider suggests changing this, it is wrong to
             return robotUpgradeNodeUI;
-=======
-=======
-
-    
->>>>>>> 1420320e (Added basic ui for crafting trees)
-    internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
-    {
-        [SerializeField] private CraftingTreeNodeUI mCraftingTreeNodeUIPrefab;
-        private readonly Dictionary<int, CraftingTreeGeneratorNode> nodes = new();
-        private CraftingTreeGenerator craftingTreeGenerator;
-
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork,
-            CraftingTreeGenerator generator)
-        {
-            this.nodeNetwork = craftingTreeNodeNetwork;
-            craftingTreeGenerator = generator;
-        }
-        protected override INodeUI GenerateNode(CraftingTreeGeneratorNode node)
-        {
-<<<<<<< HEAD
-            throw new System.NotImplementedException();
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-            CraftingTreeNodeUI robotUpgradeNodeUI = GameObject.Instantiate(mCraftingTreeNodeUIPrefab);
-            robotUpgradeNodeUI.Initialize(node,this);
-            RectTransform nodeRectTransform = (RectTransform)robotUpgradeNodeUI.transform;
-            robotUpgradeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
-            return robotUpgradeNodeUI;
->>>>>>> 1420320e (Added basic ui for crafting trees)
         }
 
         public override bool ShowAllComplete()
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
             return false;
-=======
-            throw new System.NotImplementedException();
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-            return false;
->>>>>>> 1420320e (Added basic ui for crafting trees)
         }
 
         public override void OnDeleteSelectedNode()
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
             // TODO Hide side view
-=======
-            throw new System.NotImplementedException();
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-            // TODO Hide side view
->>>>>>> 1420320e (Added basic ui for crafting trees)
         }
         
         public override CraftingTreeGeneratorNode LookUpNode(int id)
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
             return nodes.GetValueOrDefault(id);
         }
         public override void PlaceNewNode(Vector2 position)
@@ -305,38 +213,12 @@ namespace DevTools.CraftingTrees.Network
             if (node == null) return;
             node.SetPosition(position);
             nodeNetwork.Nodes.Add(node);
-=======
-            throw new System.NotImplementedException();
-        }
-        public override void PlaceNewNode(Vector2 position)
-        {
-            throw new System.NotImplementedException();
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-            return nodes.GetValueOrDefault(id);
-        }
-        public override void PlaceNewNode(Vector2 position)
-        {
-            CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(0);
-            if (node == null) return;
-            node.SetPosition(position);
-            nodeNetwork.Nodes.Add(node);
->>>>>>> 1420320e (Added basic ui for crafting trees)
         }
 
         public override GameObject GenerateNewNodeObject()
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
             if (craftingTreeGenerator == null) return null;
             return GameObject.Instantiate(mCraftingTreeNodeUIPrefab).gameObject;
-=======
-            throw new System.NotImplementedException();
->>>>>>> 56642417 (Added crafting tree data structures, item slot uis now constantly update tooltip when focused)
-=======
-            if (craftingTreeGenerator == null) return null;
-            return GameObject.Instantiate(mCraftingTreeNodeUIPrefab).gameObject;
->>>>>>> 1420320e (Added basic ui for crafting trees)
         }
     }
 }
