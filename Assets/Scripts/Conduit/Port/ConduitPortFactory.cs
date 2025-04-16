@@ -11,6 +11,7 @@ using TileEntity;
 using Items;
 using TileMaps.Layer;
 using Tiles;
+using Unity.IO.LowLevel.Unsafe;
 
 namespace Conduits.Ports {
     public enum PortDataType
@@ -92,8 +93,29 @@ namespace Conduits.Ports {
 
         public static IOConduitPortData DeepCopy(IOConduitPortData conduitPortData)
         {
-            // TODO
-            return null;
+            return new IOConduitPortData
+            {
+                InputData = DeepCopy(conduitPortData.InputData),
+                OutputData = DeepCopy(conduitPortData.OutputData),
+            };
+        }
+
+        public static ConduitPortData DeepCopy(ConduitPortData conduitPortData)
+        {
+            return conduitPortData switch
+            {
+                ItemConduitInputPortData itemConduitInputPortData => new ItemConduitInputPortData(
+                    itemConduitInputPortData.Color, itemConduitInputPortData.Enabled, itemConduitInputPortData.Priority,
+                    itemConduitInputPortData.Filter),
+                ItemConduitOutputPortData itemConduitOutputPortData => new ItemConduitOutputPortData(
+                    itemConduitOutputPortData.Color, itemConduitOutputPortData.Enabled,
+                    itemConduitOutputPortData.Priority, itemConduitOutputPortData.ItemFilter,
+                    itemConduitOutputPortData.RoundRobin, itemConduitOutputPortData.RoundRobinIndex,
+                    itemConduitOutputPortData.SpeedUpgrades),
+                PriorityConduitPortData priorityConduitPortData => new PriorityConduitPortData(
+                    priorityConduitPortData.Color, priorityConduitPortData.Enabled, priorityConduitPortData.Priority),
+                _ => new ConduitPortData(conduitPortData.Color, conduitPortData.Enabled)
+            };
         }
 
         public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
