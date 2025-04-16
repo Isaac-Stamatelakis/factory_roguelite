@@ -29,7 +29,7 @@ namespace UI.Catalogue.InfoViewer.Indicator
                 switch (inputButton)
                 {
                     case PointerEventData.InputButton.Left:
-                        infoViewerParent.MoveDisplayElement(index);
+                        infoViewerParent.MoveDisplayElement(displayOffset);
                         break;
                     case PointerEventData.InputButton.Right:
                         catalogueElement.DisplayAllElements(infoViewerParent.GameStageCollection);
