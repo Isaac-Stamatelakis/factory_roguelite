@@ -74,6 +74,7 @@ namespace Conduit.Placement.LoadOut
                 {
                     options.Add(GetLoadOutText(loadOutConduitType));
                 }
+                
 
                 mTypeDropDown.options = GlobalHelper.StringListToDropDown(options);
                 mTypeDropDown.value = (int)loadOutType;
