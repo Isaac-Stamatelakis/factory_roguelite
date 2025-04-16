@@ -22,7 +22,6 @@ namespace DevTools.CraftingTrees.Selector
         [SerializeField] private Button mBackButton;
         
         // Test1
-        // Test2
         internal void Initialize(CraftingTreeSelectorUI craftingTreeSelectorUI)
         {
             mBackButton.onClick.AddListener(() =>
