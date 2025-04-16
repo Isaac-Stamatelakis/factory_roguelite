@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Conduits;
 using Dimensions;
 using Item.Slot;
@@ -22,20 +24,23 @@ namespace Robot.Tool.Instances
     public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, IDestructiveTool
     {
         private MultiButtonRobotToolLaserManager laserManager;
+        private List<ConduitType> targets = new List<ConduitType>(5);
         public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
             laserManager = new MultiButtonRobotToolLaserManager(base.playerScript, robotObject.LineRendererPrefab);
+            SetTargets();
         }
         
         public override Sprite GetPrimaryModeSprite()
         {
             return toolData.Type switch
             {
-                ConduitType.Item => robotObject.ItemLayerSprite,
-                ConduitType.Fluid => robotObject.FluidLayerSprite,
-                ConduitType.Energy => robotObject.EnergyLayerSprite,
-                ConduitType.Signal => robotObject.SignalLayerSprite,
-                ConduitType.Matrix => robotObject.MatrixLayerSprite,
+                ConduitCutterMode.Item => robotObject.ItemLayerSprite,
+                ConduitCutterMode.Fluid => robotObject.FluidLayerSprite,
+                ConduitCutterMode.Energy => robotObject.EnergyLayerSprite,
+                ConduitCutterMode.Signal => robotObject.SignalLayerSprite,
+                ConduitCutterMode.Matrix => robotObject.MatrixLayerSprite,
+                ConduitCutterMode.All => robotObject.SignalLayerSprite,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -43,6 +48,7 @@ namespace Robot.Tool.Instances
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             laserManager.Update(ref mousePosition,GetConduitColor(toolData.Type), mouseButtonKey);
+            laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
 
         
@@ -62,9 +68,7 @@ namespace Robot.Tool.Instances
                     break;
                 case MouseButtonKey.Right:
                     if (!Input.GetMouseButtonDown(mouseButtonKey.ToMouseButton())) return;
-                    IWorldTileMap iWorldTileMap = playerScript.CurrentSystem.GetTileMap(toolData.Type.ToTileMapType());
-                    if (iWorldTileMap is not ConduitTileMap conduitTileMap) return;
-                    conduitTileMap.DisconnectConduits(mousePosition);
+                    DisconnectConduits(mousePosition);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -72,35 +76,49 @@ namespace Robot.Tool.Instances
             
         }
 
+        private void DisconnectConduits(Vector2 mousePosition)
+        {
+            foreach (ConduitType target in targets)
+            {
+                IWorldTileMap iWorldTileMap = playerScript.CurrentSystem.GetTileMap(target.ToTileMapType());
+                if (iWorldTileMap is not ConduitTileMap conduitTileMap) continue;
+                conduitTileMap.DisconnectConduits(mousePosition);
+            }
+        }
+
         private void BreakConduit(Vector2 mousePosition)
         {
             float veinMine = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.VeinMine);
-            int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMine);
-            ConduitTileMap conduitTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(toolData.Type.ToTileMapType()) as ConduitTileMap;
-            if (!conduitTileMap) return;
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
-            IConduit conduit = conduitTileMap.ConduitSystemManager.GetConduitAtCellPosition(cellPosition);
-            if (conduit == null) return;
-            bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.Item_Magnet) == 0;
             
-            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().ToLayer(), mousePosition,drop,0,true);
-            if (!drop)
+            foreach (ConduitType target in targets)
             {
-                PlayerInventory playerInventory = playerScript.PlayerInventory;
-                playerInventory.Give(new ItemSlot(conduit?.GetConduitItem(),1,null));
-            }
-            if (veinMinePower <= 1) return;
+                int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMine);
+                ConduitTileMap conduitTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(target.ToTileMapType()) as ConduitTileMap;
+                if (!conduitTileMap) continue;
+                Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
+                IConduit conduit = conduitTileMap.ConduitSystemManager.GetConduitAtCellPosition(cellPosition);
+                if (conduit == null) continue;
+                bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.Item_Magnet) == 0;
+            
+                MouseUtils.HitTileLayer(target.ToTileMapType().ToLayer(), mousePosition,drop,0,true);
+                if (!drop)
+                {
+                    PlayerInventory playerInventory = playerScript.PlayerInventory;
+                    playerInventory.Give(new ItemSlot(conduit?.GetConduitItem(),1,null));
+                }
+                if (veinMinePower <= 1) continue;
 
-            bool EnergyCostFunction()
-            {
-                return playerRobot.TryConsumeEnergy(32, 0.1f);
-            }
-            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, false, EnergyCostFunction,conduit);
-            veinMineEvent.Execute(cellPosition,veinMinePower);
-            if (!drop)
-            {
-                PlayerInventory playerInventory = playerScript.PlayerInventory;
-                playerInventory.GiveItems(veinMineEvent.GetCollectedItems());
+                bool EnergyCostFunction()
+                {
+                    return playerRobot.TryConsumeEnergy(32, 0.1f);
+                }
+                ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, false, EnergyCostFunction,conduit);
+                veinMineEvent.Execute(cellPosition,veinMinePower);
+                if (!drop)
+                {
+                    PlayerInventory playerInventory = playerScript.PlayerInventory;
+                    playerInventory.GiveItems(veinMineEvent.GetCollectedItems());
+                }
             }
         }
 
@@ -113,7 +131,15 @@ namespace Robot.Tool.Instances
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
             toolData.Type = GlobalHelper.ShiftEnum(moveDirection == MoveDirection.Left ? 1 : -1, toolData.Type);
-            
+            SetTargets();
+            laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
+        }
+
+        private void SetTargets()
+        {
+            targets = toolData.Type == ConduitCutterMode.All 
+                ? Enum.GetValues(typeof(ConduitType)).Cast<ConduitType>().ToList() 
+                : new List<ConduitType> { (ConduitType)toolData.Type };
         }
 
         public override string GetModeName()
@@ -127,29 +153,40 @@ namespace Robot.Tool.Instances
         }
         
 
-        private Color GetConduitColor(ConduitType conduitType)
+        private Color GetConduitColor(ConduitCutterMode conduitCutterMode)
         {
-            switch (conduitType)
+            switch (conduitCutterMode)
             {
-                case ConduitType.Item:
+                case ConduitCutterMode.Item:
                     return Color.green;
-                case ConduitType.Fluid:
+                case ConduitCutterMode.Fluid:
                     return Color.blue;
-                case ConduitType.Energy:
+                case ConduitCutterMode.Energy:
                     return Color.yellow;
-                case ConduitType.Signal:
+                case ConduitCutterMode.Signal:
                     return Color.red;
-                case ConduitType.Matrix:
+                case ConduitCutterMode.Matrix:
                     return Color.magenta;
+                case ConduitCutterMode.All:
+                    return Color.white;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
+                    throw new ArgumentOutOfRangeException(nameof(conduitCutterMode), conduitCutterMode, null);
             }
         }
     }
 
+    public enum ConduitCutterMode
+    {
+        Item = ConduitType.Item,
+        Fluid = ConduitType.Fluid,
+        Energy = ConduitType.Energy,
+        Signal = ConduitType.Signal,
+        Matrix = ConduitType.Matrix,
+        All = 5
+    }
+
     public class ConduitCuttersData : RobotToolData
     {
-        public ConduitType Type;
-
+        public ConduitCutterMode Type;
     }
 }

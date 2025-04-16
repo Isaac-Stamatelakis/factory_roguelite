@@ -7,6 +7,7 @@ namespace Robot.Tool
     {
         private static readonly int ColorKey = Shader.PropertyToID("_Color");
         private LineRenderer lineRenderer;
+        private Material defaultMaterial;
     
         public void UpdateLineRenderer(Vector2 mousePosition, Color color)
         {
@@ -14,13 +15,15 @@ namespace Robot.Tool
             Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
             
-            lineRenderer.materials[0].SetColor(ColorKey,color);
+            lineRenderer.material.SetColor(ColorKey,color);
+            
             
         }
 
         public RobotToolLaserManager(LineRenderer lineRenderer)
         {
             this.lineRenderer = lineRenderer;
+            defaultMaterial = lineRenderer.sharedMaterials[0];
         }
 
         public void Terminate()
@@ -28,6 +31,12 @@ namespace Robot.Tool
             if (!lineRenderer) return;
             GameObject.Destroy(lineRenderer.gameObject);
             lineRenderer = null;
+        }
+
+        public void SetMaterial(Material material)
+        {
+            if (!lineRenderer) return;
+            lineRenderer.material = material ? material : defaultMaterial;
         }
     }
 
@@ -58,6 +67,11 @@ namespace Robot.Tool
                 laserManager.Terminate();
                 laserManager = null;
             }
+        }
+
+        public void SetMaterial(Material material)
+        {
+            laserManager?.SetMaterial(material);
         }
 
         
