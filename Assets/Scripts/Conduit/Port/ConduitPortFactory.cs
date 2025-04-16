@@ -94,6 +94,9 @@ namespace Conduits.Ports {
         public static IOConduitPortData DeepCopy(IOConduitPortData conduitPortData)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b9eeef5 (Conduit port data now deep copies when player applies it)
             return new IOConduitPortData
             {
                 InputData = DeepCopy(conduitPortData.InputData),
@@ -117,10 +120,13 @@ namespace Conduits.Ports {
                     priorityConduitPortData.Color, priorityConduitPortData.Enabled, priorityConduitPortData.Priority),
                 _ => new ConduitPortData(conduitPortData.Color, conduitPortData.Enabled)
             };
+<<<<<<< HEAD
 =======
             // TODO
             return null;
 >>>>>>> 99e49d51 (Conduit port editor UI implemented. Player default port data is now applied on place)
+=======
+>>>>>>> 1b9eeef5 (Conduit port data now deep copies when player applies it)
         }
 
         public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
