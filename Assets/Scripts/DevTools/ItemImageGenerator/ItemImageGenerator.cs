@@ -15,15 +15,17 @@ namespace DevTools.ItemImageGenerator
     public class ItemImageGenerator : MonoBehaviour
     {
         private const string SAVE_PATH = "C:\\Users\\Isaac\\Documents\\Coding\\unity\\CaveTechImages";
+        private const int RESOLUTION = 64;
+
         [SerializeField] private Camera mCaptureCamera;
         
+
 
         public void Awake()
         {
             mCaptureCamera = Camera.main;
         }
 
-       
 
         public IEnumerator CaptureCoroutine(List<ItemObject> itemObjects, Action onComplete)
         {
@@ -114,10 +116,7 @@ namespace DevTools.ItemImageGenerator
             GameObject.Destroy(gameObject);
         }
 
-        public void Capture(List<ItemObject> itemObjects, Action onComplete)
-        {
-            StartCoroutine(CaptureCoroutine(itemObjects,onComplete));
-        }
+       
 
         public void Display(Transform container, int row, int col, ItemObject itemObject)
         {

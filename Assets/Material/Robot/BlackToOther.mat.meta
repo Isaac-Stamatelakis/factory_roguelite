@@ -1,12 +1,23 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Material/Robot/BlackToOther.mat.meta
 guid: 493395339d6ace94b8451974b8a9a55b
 ========
 guid: af258a7bd29b56c4b8915a56a745dc1a
 >>>>>>>> main:Assets/Material/Robot/Laser/BlackToOther.mat.meta
+=======
+guid: 493395339d6ace94b8451974b8a9a55b
+>>>>>>> c2517d86 (merge fix)
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000
+=======
+guid: 6c03e4fe3289d2d4c89335b8dc0b8e28
+folderAsset: yes
+DefaultImporter:
+  externalObjects: {}
+>>>>>>> 662e6624 (Added rainbow laser line shader)
   userData: 
   assetBundleName: 
   assetBundleVariant: 

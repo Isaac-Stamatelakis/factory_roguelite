@@ -124,6 +124,7 @@ namespace WorldModule {
             {
                 GrabbedItemData = null,
                 ConduitPortPlacementLoadOuts = new Dictionary<LoadOutConduitType, IOConduitPortData>()
+
             };
         }
 

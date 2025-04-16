@@ -68,6 +68,7 @@ namespace UI.Indicators.General
         {
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
+
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
             tilePlacementIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
@@ -170,18 +171,12 @@ namespace UI.Indicators.General
                 {
                     keyCodeElement.GetComponent<Image>().enabled = false;
                 }
-
-<<<<<<< HEAD
                 if (keyCodeIndicator is IKeyCodeDescriptionIndicator optionalKeyCodeIndicator)
                 {
                     ToolTipUIDisplayer toolTipUIDisplayer = keyCodeElement.AddComponent<ToolTipUIDisplayer>();
                     optionalKeyCodeIndicator.SyncToolTipDisplayer(toolTipUIDisplayer);
-=======
-                if (keyCodeIndicator is IOptionalKeyCodeIndicator optionalKeyCodeIndicator)
-                {
-                    text += $"\n{optionalKeyCodeIndicator.GetOptionalKeyCode()}";
->>>>>>> main
                 }
+
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
                 idx++;
             }

@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Material/Items/3Grad/Prismarine/AstralGoldUI.mat.meta
 guid: bf2ad7be8fc9fbc479fc26f93232b8f3
+========
+guid: f25dd0fcebfe7f047a152cf91cf56d82
+>>>>>>>> de1c97c7 (Added item image capturer to dev tools):Assets/Material/Items/3Grad/Dread/DreadUI.mat.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000

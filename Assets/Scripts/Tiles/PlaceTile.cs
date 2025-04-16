@@ -143,6 +143,8 @@ namespace TileMaps.Place {
                 if (hitPlayer) return false;
             }
             
+   
+            
             if (exclusion == null)
             {
                 if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;

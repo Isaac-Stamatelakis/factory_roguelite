@@ -21,12 +21,14 @@ namespace DevTools.ItemImageGenerator
 
         public void OnGenerateButtonClicked()
         {
+
             mGenerateButton.interactable = false;
             ItemImageGenerator itemImageGenerator = Instantiate(mItemImageGeneratorPrefab);
-            itemImageGenerator.Capture(ItemRegistry.GetInstance().GetAllItems(), () =>
+            StartCoroutine(itemImageGenerator.CaptureCoroutine(ItemRegistry.GetInstance().GetAllItems(), () =>
             {
                 mGenerateButton.interactable = true;
-            });
+            }));
+
 
         }
     }

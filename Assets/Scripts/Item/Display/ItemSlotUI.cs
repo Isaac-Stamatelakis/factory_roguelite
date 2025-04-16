@@ -62,7 +62,6 @@ namespace Items {
             if (Paused) return;
             counter ++;
             if (!displaying) return;
-            
             RefreshDisplay();
         }
 
@@ -210,7 +209,9 @@ namespace Items {
                     {
                         var spriteCollection = spriteCollections[index];
                         if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
+
                         Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
+
                         animatedItemDisplays.Add(new AnimatedItemDisplay
                         {
                             Image = overlayImage,

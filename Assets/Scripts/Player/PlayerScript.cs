@@ -225,6 +225,7 @@ namespace Player
         private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
+
         public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPlacementLoadOuts;
         public bool CanConnect(IConduit conduit)
         {
@@ -266,7 +267,9 @@ namespace Player
 
         private void VerifyLoadOut(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
         {
+
             conduitPlacementLoadOuts ??= new Dictionary<LoadOutConduitType, IOConduitPortData>();
+
             LoadOutConduitType[] loadOutConduitTypes = System.Enum.GetValues(typeof(LoadOutConduitType)) as LoadOutConduitType[];
             foreach (var loadOutConduitType in loadOutConduitTypes)
             {

@@ -308,7 +308,9 @@ namespace Conduits.Ports {
         {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
+
             IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
+
             Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:

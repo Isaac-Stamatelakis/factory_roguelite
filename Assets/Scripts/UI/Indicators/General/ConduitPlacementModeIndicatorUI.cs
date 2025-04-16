@@ -1,8 +1,5 @@
 using System;
-<<<<<<< HEAD
 using System.Collections.Generic;
-=======
->>>>>>> main
 using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
@@ -20,8 +17,8 @@ namespace UI.Indicators.General
     public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator,IKeyCodeDescriptionIndicator
     {
         [SerializeField] private Image conduitImage;
-        [SerializeField] private TextMeshProUGUI placementCounter;
         [SerializeField] private ConduitLoadOutEditorUI conduitLoadOutEditorUIPrefab;
+        [SerializeField] private TextMeshProUGUI placementCounter;
         private PlayerScript playerScript;
         private ConduitItem current;
         private int placementCount;
@@ -66,6 +63,7 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
+
             if (!current) return;
             ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
             
@@ -87,7 +85,6 @@ namespace UI.Indicators.General
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
             placementCount = 0;
             Display();
             OnPointerEnter(eventData);
@@ -112,11 +109,8 @@ namespace UI.Indicators.General
             }
         }
 
-<<<<<<< HEAD
+
         public PlayerControl GetPlayerControl()
-=======
-        public PlayerControl? GetPlayerControl()
->>>>>>> main
         {
             return PlayerControl.SwitchPlacementMode;
         }

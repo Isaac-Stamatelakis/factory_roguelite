@@ -1,9 +1,13 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Scripts/Conduit/Placement/LoadOut/ConduitDropDownColorerUI.cs.meta
 guid: 732387df5ce77dd42a90ad08bee3f24e
 ========
 guid: 344fc600ca97d714bb009a1024be1e7a
 >>>>>>>> main:Assets/Scripts/Conduit/Placement/LoadOut/ConduitLoadOutEditorUI.cs.meta
+=======
+guid: 732387df5ce77dd42a90ad08bee3f24e
+>>>>>>> 0e580eba (Added tooltip support for certain keycode indicators, conduit port editor dropdown now color coded nicely)
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

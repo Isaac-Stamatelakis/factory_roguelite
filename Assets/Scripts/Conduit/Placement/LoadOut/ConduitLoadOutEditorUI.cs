@@ -4,9 +4,8 @@ using Conduit.Port.UI;
 using Conduits.Ports;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
+
 
 namespace Conduit.Placement.LoadOut
 {
@@ -78,20 +77,6 @@ namespace Conduit.Placement.LoadOut
 
                 mTypeDropDown.options = GlobalHelper.StringListToDropDown(options);
                 mTypeDropDown.value = (int)loadOutType;
-<<<<<<< HEAD
-                LayoutRebuilder.ForceRebuildLayoutImmediate(mTypeDropDown.transform as RectTransform);
-=======
-                /*
-                VerticalLayoutGroup verticalLayoutGroup = mTypeDropDown.GetComponentInChildren<VerticalLayoutGroup>();
-                for (int i = 0; i < verticalLayoutGroup.transform.childCount; i++)
-                {
-                    Transform child = verticalLayoutGroup.transform.GetChild(i);
-                    ConduitType conduitType = ((LoadOutConduitType)i).ToConduitType();
-                    child.GetComponentInChildren<Image>().color = ConduitPortFactory.GetConduitPortColor(conduitType);
-                }
-                */
->>>>>>> main
-                
                 mTypeDropDown.onValueChanged.AddListener((value) =>
                 {
                     LoadOutConduitType newLoadOut = (LoadOutConduitType)value;
@@ -101,5 +86,11 @@ namespace Conduit.Placement.LoadOut
             }
         }
         
+        public enum LoadOutType
+        {
+            ItemFluid,
+            Energy,
+            Signal
+        }
     }
 }
