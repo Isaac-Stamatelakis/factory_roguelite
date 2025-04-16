@@ -109,7 +109,7 @@ namespace UI.Indicators.General
             playerScript.TileViewers.ConduitViewController?.DisplayRadialMenu();
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.ChangeConduitViewMode;
         }

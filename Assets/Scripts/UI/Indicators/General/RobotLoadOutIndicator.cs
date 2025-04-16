@@ -66,7 +66,7 @@ namespace UI.Indicators.General
             if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.OpenRobotLoadOut;
         }

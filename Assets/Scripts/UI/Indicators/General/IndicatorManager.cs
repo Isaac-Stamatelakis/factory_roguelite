@@ -3,6 +3,7 @@ using Player.Controls;
 using TMPro;
 using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
+using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -154,10 +155,10 @@ namespace UI.Indicators.General
             int idx = 0;
             for (int i = 0; i < indicatorTransform.childCount; i++)
             {
-                GameObject keyCodeObject = indicatorTransform.GetChild(i).gameObject;
-                if (!keyCodeObject.activeInHierarchy) continue;
+                GameObject indicatorObject = indicatorTransform.GetChild(i).gameObject;
+                if (!indicatorObject.activeInHierarchy) continue;
                 
-                IKeyCodeIndicator keyCodeIndicator = keyCodeObject.GetComponent<IKeyCodeIndicator>();
+                IKeyCodeIndicator keyCodeIndicator = indicatorObject.GetComponent<IKeyCodeIndicator>();
                 PlayerControl? nullableControl = keyCodeIndicator?.GetPlayerControl();
                 string text = nullableControl.HasValue
                     ? ControlUtils.KeyCodeListAsString(ControlUtils.GetKeyCodes(nullableControl.Value),"\n")
@@ -170,9 +171,16 @@ namespace UI.Indicators.General
                     keyCodeElement.GetComponent<Image>().enabled = false;
                 }
 
+<<<<<<< HEAD
+                if (keyCodeIndicator is IKeyCodeDescriptionIndicator optionalKeyCodeIndicator)
+                {
+                    ToolTipUIDisplayer toolTipUIDisplayer = keyCodeElement.AddComponent<ToolTipUIDisplayer>();
+                    optionalKeyCodeIndicator.SyncToolTipDisplayer(toolTipUIDisplayer);
+=======
                 if (keyCodeIndicator is IOptionalKeyCodeIndicator optionalKeyCodeIndicator)
                 {
                     text += $"\n{optionalKeyCodeIndicator.GetOptionalKeyCode()}";
+>>>>>>> main
                 }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
                 idx++;

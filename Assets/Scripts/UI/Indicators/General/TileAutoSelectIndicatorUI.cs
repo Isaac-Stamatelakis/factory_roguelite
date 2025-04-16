@@ -42,7 +42,7 @@ namespace UI.Indicators.General
             Display(autoSelectActive);
         }
 
-        public PlayerControl? GetPlayerControl()
+        public PlayerControl GetPlayerControl()
         {
             return PlayerControl.AutoSelect;
         }

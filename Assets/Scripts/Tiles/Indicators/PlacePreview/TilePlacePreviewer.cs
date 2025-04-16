@@ -120,7 +120,8 @@ namespace TileMaps.Previewer {
 
         private Color GetPlaceColor(Vector2 position, ItemObject itemObject)
         {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            ClosedChunkSystem closedChunkSystem = playerScript.CurrentSystem;
+            if (!closedChunkSystem) return Color.white;
             switch (itemObject)
             {
                 case TileItem tileItem:

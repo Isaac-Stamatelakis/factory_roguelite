@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/Conduit/Placement/LoadOut/ConduitDropDownColorerUI.cs.meta
+guid: 732387df5ce77dd42a90ad08bee3f24e
+========
+guid: 344fc600ca97d714bb009a1024be1e7a
+>>>>>>>> main:Assets/Scripts/Conduit/Placement/LoadOut/ConduitLoadOutEditorUI.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
