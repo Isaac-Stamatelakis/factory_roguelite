@@ -70,6 +70,19 @@ namespace Robot.Tool.UI
                         throw new ArgumentOutOfRangeException(nameof(inputButton), inputButton, null);
                 }
             }
+
+            string ToolTipOverride(int index)
+            {
+                RobotToolType robotToolType = playerScript.PlayerRobot.ToolTypes[index];
+                string message = GlobalHelper.AddSpaces(robotToolType.ToString());
+                int loadOut = playerScript.PlayerRobot.RobotUpgradeLoadOut.ToolLoadOuts[robotToolType].Current;
+                message += $"\nCurrent LoadOut {RobotUpgradeUtils.FormatLoadOut(loadOut)}";
+                //message += $"\nLeft Click to Select";
+                //message += $"\nRight Click to Modify LoadOut";
+                return message;
+
+            }
+            mToolCollectionUI.SetToolTipOverride(ToolTipOverride);
         
             void DisplayIndicators(int index)
             {

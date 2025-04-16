@@ -8,7 +8,6 @@ using TileEntity.Instances.CompactMachines;
 
 public static class Global
 {
-    public const bool FORCE_ENABLE_CHEATS = false;
     public const float TILE_SIZE = 0.5f;
     private const float PIXELS_PER_BLOCK = 16;
     public const int PARTITIONS_PER_CHUNK = 6;
@@ -22,15 +21,6 @@ public static class Global
     public const int PLAYER_LAYER = 8;
     public const int BLOCK_LAYER = 512;
     
-    public static GameObject FindChild(Transform transform, string childName) {
-        for (int n = 0; n < transform.childCount; n ++) {
-            if (transform.GetChild(n).name == childName) {
-                return transform.GetChild(n).gameObject;
-            }
-        }
-        return null;
-    }
-
     public static float Mod(float x, float m) {
     return (x%m + m)%m;
     }

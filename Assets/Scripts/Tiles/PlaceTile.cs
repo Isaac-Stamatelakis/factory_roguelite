@@ -139,8 +139,8 @@ namespace TileMaps.Place {
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.getSprite()),rotation);
             if (tileItem.tileType == TileType.Block)
             {
-                bool hitPlayer = Physics2D.Raycast(worldPlaceLocation, Vector2.zero, 30f, 1 << LayerMask.NameToLayer("Player")).collider;
-                if (hitPlayer) return false;
+                Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
+                if (raycastTileInBox(centeredWorld, 1 << LayerMask.NameToLayer("Player"))) return false;
             }
             
    
