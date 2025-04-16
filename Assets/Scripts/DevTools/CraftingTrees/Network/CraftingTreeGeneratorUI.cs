@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -36,19 +37,28 @@ namespace DevTools.CraftingTrees.Network
 
         public CraftingTreeGeneratorNode GenerateNewNode(int nextId)
         {
+            NodeNetworkData nodeNetworkData = new NodeNetworkData
+            {
+                Id = nextId,
+                InputIds = new List<int>()
+            };
+            CraftingTreeNodeData data;
             switch (nodeGenerationType)
             {
                 case CraftingTreeNodeType.Item:
+                    data = new ItemNodeData();
                     break;
                 case CraftingTreeNodeType.Transmutation:
+                    data = new TransmutationNodeData();
                     break;
                 case CraftingTreeNodeType.Processor:
+                    data = new ProcessorNodeData();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            return null;
+            return new CraftingTreeGeneratorNode(nodeGenerationType, nodeNetworkData, data);
         }
     }
 }

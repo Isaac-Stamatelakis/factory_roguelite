@@ -172,6 +172,7 @@ public static class ItemSlotFactory
         return deseralizeItemSlot(serializedItemSlot);
     }
     public static ItemSlot deseralizeItemSlot(SerializedItemSlot serializedItemSlot) {
+        if (serializedItemSlot == null) return null;
         ItemRegistry itemRegistry = ItemRegistry.GetInstance();
         if (serializedItemSlot.id == null) {
             return new ItemSlot(
