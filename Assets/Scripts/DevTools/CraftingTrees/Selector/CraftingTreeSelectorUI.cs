@@ -1,13 +1,19 @@
 using System.IO;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1420320e (Added basic ui for crafting trees)
 using DevTools.CraftingTrees.Network;
 using DevTools.Structures;
 using DevTools.Upgrades;
 using Newtonsoft.Json;
 using UI;
+<<<<<<< HEAD
 =======
 using DevTools.Structures;
 >>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
+=======
+>>>>>>> 1420320e (Added basic ui for crafting trees)
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Selector
@@ -17,10 +23,14 @@ namespace DevTools.CraftingTrees.Selector
         [SerializeField] private CraftingTreeSelectorUIElement elementPrefab;
         [SerializeField] private NewCraftingTreePopUpUI newCraftingTreePopUpPrefab;
 <<<<<<< HEAD
+<<<<<<< HEAD
         [SerializeField] private CraftingTreeGeneratorUI craftingTreeGeneratorPrefab;
 =======
 
 >>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
+=======
+        [SerializeField] private CraftingTreeGeneratorUI craftingTreeGeneratorPrefab;
+>>>>>>> 1420320e (Added basic ui for crafting trees)
         protected override void OnAddButtonClick()
         {
             NewCraftingTreePopUpUI newUpgradePopUp = Instantiate(newCraftingTreePopUpPrefab, transform, false);
@@ -37,6 +47,9 @@ namespace DevTools.CraftingTrees.Selector
             {
                 string file = files[index];
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1420320e (Added basic ui for crafting trees)
                 SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = GlobalHelper.DeserializeCompressedJson<SerializedCraftingTreeNodeNetwork>(file);
                 CraftingTreeNodeNetwork craftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.DeserializeNodeNetwork(serializedCraftingTreeNodeNetwork);
                 if (craftingTreeNodeNetwork == null)
@@ -47,9 +60,12 @@ namespace DevTools.CraftingTrees.Selector
                 CraftingTreeGeneratorUI craftingTreeGeneratorUI = Instantiate(craftingTreeGeneratorPrefab,mList.transform);
                 craftingTreeGeneratorUI.Initialize(craftingTreeNodeNetwork,file);
                 CanvasController.Instance.DisplayObject(craftingTreeGeneratorUI.gameObject);
+<<<<<<< HEAD
 =======
                 Debug.Log(file);
 >>>>>>> 286e87ab (Added crafting tree dev tool prep, catalgoue control navigator now displays itemslots instead of images)
+=======
+>>>>>>> 1420320e (Added basic ui for crafting trees)
             }
 
             for (var index = 0; index < files.Length; index++)
