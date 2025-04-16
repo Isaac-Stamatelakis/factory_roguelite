@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Material/Tiles/BreakHighlightShader.shadergraph.meta
 guid: 6c3e7c9d669afcd4bbf3929574610a90
-========
-guid: 8d387f362ddba594aa853989369d096d
->>>>>>>> main:Assets/Material/Robot/Laser/BreakHighlightShader.shadergraph.meta
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}

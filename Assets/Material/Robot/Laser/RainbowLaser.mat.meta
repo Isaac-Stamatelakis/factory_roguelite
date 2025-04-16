@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Material/Robot/Laser/RainbowLaser.mat.meta
 guid: e758a4d871f8620418e81b3479972872
+========
+guid: 493395339d6ace94b8451974b8a9a55b
+>>>>>>>> main:Assets/Material/Robot/BlackToOther.mat.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000

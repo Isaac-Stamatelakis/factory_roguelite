@@ -21,6 +21,11 @@ namespace UI.Indicators.General
     {
         public void SyncToolTipDisplayer(ToolTipUIDisplayer toolTipUIDisplayer);
     }
+
+    public interface IOptionalKeyCodeIndicator
+    {
+        public KeyCode GetOptionalKeyCode();
+    }
     public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image portImage;

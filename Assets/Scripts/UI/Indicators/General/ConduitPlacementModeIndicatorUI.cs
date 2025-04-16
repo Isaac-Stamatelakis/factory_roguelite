@@ -1,5 +1,8 @@
 using System;
+<<<<<<< HEAD
 using System.Collections.Generic;
+=======
+>>>>>>> main
 using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
@@ -109,7 +112,11 @@ namespace UI.Indicators.General
             }
         }
 
+<<<<<<< HEAD
         public PlayerControl GetPlayerControl()
+=======
+        public PlayerControl? GetPlayerControl()
+>>>>>>> main
         {
             return PlayerControl.SwitchPlacementMode;
         }
