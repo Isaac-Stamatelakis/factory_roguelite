@@ -12,7 +12,7 @@ namespace DevTools.CraftingTrees.Network
     internal class CraftingTreeGeneratorNode : INode
     {
         public CraftingTreeNodeType NodeType;
-        public CraftingTreeGeneratorNodeData NodeData;
+        public CraftingTreeNodeData NodeData;
         public Vector3 GetPosition()
         {
             return new Vector3(NodeData.X, NodeData.Y, 0);
@@ -46,7 +46,7 @@ namespace DevTools.CraftingTrees.Network
         Transmutation,
         Processor
     }
-    internal abstract class CraftingTreeGeneratorNodeData
+    internal abstract class CraftingTreeNodeData
     {
         public int Id;
         public float X;
@@ -54,17 +54,17 @@ namespace DevTools.CraftingTrees.Network
         public List<int> InputIds;
     }
 
-    internal class ItemNodeData : CraftingTreeGeneratorNodeData
+    internal class ItemNodeData : CraftingTreeNodeData
     {
         public SerializedItemSlot SerializedItemSlot;
     }
 
-    internal class TransmutationNodeData : CraftingTreeGeneratorNodeData
+    internal class TransmutationNodeData : CraftingTreeNodeData
     {
         public TransmutableItemState OutputState;
     }
 
-    internal class ProcessorNodeData : CraftingTreeGeneratorNodeData
+    internal class ProcessorNodeData : CraftingTreeNodeData
     {
         public string ProcessorGuid;
         public string RecipeGuid;
@@ -128,7 +128,7 @@ namespace DevTools.CraftingTrees.Network
         {
             try
             {
-                CraftingTreeGeneratorNodeData nodeData;
+                CraftingTreeNodeData nodeData;
                 switch (serializedData.NodeType)
                 {
                     case CraftingTreeNodeType.Item:
@@ -165,35 +165,55 @@ namespace DevTools.CraftingTrees.Network
             return Nodes;
         }
     }
+
+    
     internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
     {
+        [SerializeField] private CraftingTreeNodeUI mCraftingTreeNodeUIPrefab;
+        private readonly Dictionary<int, CraftingTreeGeneratorNode> nodes = new();
+        private CraftingTreeGenerator craftingTreeGenerator;
+
+        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork,
+            CraftingTreeGenerator generator)
+        {
+            this.nodeNetwork = craftingTreeNodeNetwork;
+            craftingTreeGenerator = generator;
+        }
         protected override INodeUI GenerateNode(CraftingTreeGeneratorNode node)
         {
-            throw new System.NotImplementedException();
+            CraftingTreeNodeUI robotUpgradeNodeUI = GameObject.Instantiate(mCraftingTreeNodeUIPrefab);
+            robotUpgradeNodeUI.Initialize(node,this);
+            RectTransform nodeRectTransform = (RectTransform)robotUpgradeNodeUI.transform;
+            robotUpgradeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
+            return robotUpgradeNodeUI;
         }
 
         public override bool ShowAllComplete()
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public override void OnDeleteSelectedNode()
         {
-            throw new System.NotImplementedException();
+            // TODO Hide side view
         }
         
         public override CraftingTreeGeneratorNode LookUpNode(int id)
         {
-            throw new System.NotImplementedException();
+            return nodes.GetValueOrDefault(id);
         }
         public override void PlaceNewNode(Vector2 position)
         {
-            throw new System.NotImplementedException();
+            CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(0);
+            if (node == null) return;
+            node.SetPosition(position);
+            nodeNetwork.Nodes.Add(node);
         }
 
         public override GameObject GenerateNewNodeObject()
         {
-            throw new System.NotImplementedException();
+            if (craftingTreeGenerator == null) return null;
+            return GameObject.Instantiate(mCraftingTreeNodeUIPrefab).gameObject;
         }
     }
 }

@@ -1,5 +1,9 @@
 using System.IO;
+using DevTools.CraftingTrees.Network;
 using DevTools.Structures;
+using DevTools.Upgrades;
+using Newtonsoft.Json;
+using UI;
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Selector
@@ -8,7 +12,7 @@ namespace DevTools.CraftingTrees.Selector
     {
         [SerializeField] private CraftingTreeSelectorUIElement elementPrefab;
         [SerializeField] private NewCraftingTreePopUpUI newCraftingTreePopUpPrefab;
-
+        [SerializeField] private CraftingTreeGeneratorUI craftingTreeGeneratorPrefab;
         protected override void OnAddButtonClick()
         {
             NewCraftingTreePopUpUI newUpgradePopUp = Instantiate(newCraftingTreePopUpPrefab, transform, false);
@@ -24,7 +28,16 @@ namespace DevTools.CraftingTrees.Selector
             void OnSelect(int index)
             {
                 string file = files[index];
-                Debug.Log(file);
+                SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = GlobalHelper.DeserializeCompressedJson<SerializedCraftingTreeNodeNetwork>(file);
+                CraftingTreeNodeNetwork craftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.DeserializeNodeNetwork(serializedCraftingTreeNodeNetwork);
+                if (craftingTreeNodeNetwork == null)
+                {
+                    Debug.LogError($"Crafting tree data at path '{file}' is corrupted :(");
+                    return;
+                }
+                CraftingTreeGeneratorUI craftingTreeGeneratorUI = Instantiate(craftingTreeGeneratorPrefab,mList.transform);
+                craftingTreeGeneratorUI.Initialize(craftingTreeNodeNetwork,file);
+                CanvasController.Instance.DisplayObject(craftingTreeGeneratorUI.gameObject);
             }
 
             for (var index = 0; index < files.Length; index++)
