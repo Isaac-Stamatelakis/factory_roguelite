@@ -21,9 +21,6 @@ namespace DevTools.CraftingTrees.Selector
         [SerializeField] private DynamicColorTextUI mDynamicColorTextUI;
         [SerializeField] private Button mBackButton;
         
-        // Test1
-        // Test2
-        // Test3
         internal void Initialize(CraftingTreeSelectorUI craftingTreeSelectorUI)
         {
             mBackButton.onClick.AddListener(() =>
@@ -53,6 +50,7 @@ namespace DevTools.CraftingTrees.Selector
                 string path = Path.Combine(folderPath,upgradeName) + ".bin";
                 GlobalHelper.SerializeCompressedJson(nodeNetwork, path);
                 craftingTreeSelectorUI.DisplayList();
+                GameObject.Destroy(gameObject);
 
             }
             

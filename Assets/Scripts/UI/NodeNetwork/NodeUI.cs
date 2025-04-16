@@ -22,6 +22,7 @@ namespace UI.NodeNetwork {
         private LongClickHandler holdClickInstance;
         protected TNode node;
         protected TNetworkUI nodeNetwork;
+        private bool instantiated = true;
         
         public virtual void Initialize(TNode node, TNetworkUI nodeNetwork) {
             this.node = node;
@@ -48,7 +49,9 @@ namespace UI.NodeNetwork {
             nodeNetwork.SelectNode(this);
         }
 
-        public void OnDestroy() {
+        public void OnDestroy()
+        {
+            instantiated = false;
             button.onClick.RemoveAllListeners();
         }
         public void OnPointerClick(PointerEventData eventData)
@@ -86,6 +89,7 @@ namespace UI.NodeNetwork {
 
         public GameObject GetGameObject()
         {
+            if (!instantiated) return null;
             return gameObject;
         }
     }
