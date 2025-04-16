@@ -225,7 +225,7 @@ namespace Player
         private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
-        public Dictionary<LoadOutConduitType, List<IOConduitPortData>> ConduitPlacementLoadOuts;
+        public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPlacementLoadOuts;
         public bool CanConnect(IConduit conduit)
         {
             switch (PlacementMode)
@@ -258,35 +258,35 @@ namespace Player
             PlacementPositions.Add(position);
         }
 
-        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, List<IOConduitPortData>> conduitPlacementLoadOuts)
+        public ConduitPlacementOptions(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
         {
             VerifyLoadOut(conduitPlacementLoadOuts);
-            ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
-
+            
         }
 
-        private void VerifyLoadOut(Dictionary<LoadOutConduitType, List<IOConduitPortData>> conduitPlacementLoadOuts)
+        private void VerifyLoadOut(Dictionary<LoadOutConduitType, IOConduitPortData> conduitPlacementLoadOuts)
         {
+            conduitPlacementLoadOuts ??= new Dictionary<LoadOutConduitType, IOConduitPortData>();
             LoadOutConduitType[] loadOutConduitTypes = System.Enum.GetValues(typeof(LoadOutConduitType)) as LoadOutConduitType[];
             foreach (var loadOutConduitType in loadOutConduitTypes)
             {
                 ConduitType conduitType = loadOutConduitType.ToConduitType();
-                if (!conduitPlacementLoadOuts.ContainsKey(loadOutConduitType))
-                {
-                    conduitPlacementLoadOuts[loadOutConduitType] = new List<IOConduitPortData>();
-                }
-                List<IOConduitPortData> portDataList = conduitPlacementLoadOuts[loadOutConduitType];
-                while (portDataList.Count < LOADOUTS)
-                {
-                    IOConduitPortData portData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
-                    portDataList.Add(portData);
-                }
+                IOConduitPortData defaultData = ConduitPortFactory.GetDefaultIOPortData(conduitType, EntityPortType.All); // Use EntityPort.All since loadouts modify ALL
 
-                while (portDataList.Count > LOADOUTS)
+                if (conduitPlacementLoadOuts.TryAdd(loadOutConduitType, defaultData)) continue;
+                
+                IOConduitPortData currentData = conduitPlacementLoadOuts[loadOutConduitType];
+                if (currentData.InputData.GetType() != defaultData.InputData.GetType())
                 {
-                    portDataList.RemoveAt(portDataList.Count - 1);
+                    currentData.InputData = defaultData.InputData;
+                }
+                if (currentData.OutputData.GetType() != defaultData.OutputData.GetType())
+                {
+                    currentData.OutputData = defaultData.OutputData;
                 }
             }
+        
+            this.ConduitPlacementLoadOuts = conduitPlacementLoadOuts;
         }
         
         

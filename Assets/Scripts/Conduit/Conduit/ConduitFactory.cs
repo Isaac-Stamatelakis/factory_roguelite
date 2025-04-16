@@ -8,8 +8,10 @@ using Chunks.Partitions;
 using TileEntity;
 using Items;
 using Chunks.Systems;
+using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Newtonsoft.Json;
+using Player;
 using UnityEditor.Hardware;
 
 namespace Conduits {
@@ -108,7 +110,7 @@ namespace Conduits {
         /// <summary>
         /// Sets the portData of given conduit to default portData
         /// </summary
-        public static IConduit CreateNew(ConduitItem conduitItem, EntityPortType portType, int x, int y, int state, ITileEntityInstance tileEntity) {
+        public static IConduit CreateNew(ConduitItem conduitItem, EntityPortType portType, int x, int y, int state, ITileEntityInstance tileEntity, ConduitPlacementOptions conduitPlacementOptions) {
             ConduitType conduitType = conduitItem.GetConduitType();
             switch (conduitType)
             {
@@ -116,12 +118,30 @@ namespace Conduits {
                 case ConduitType.Fluid:
                 case ConduitType.Energy:
                 case ConduitType.Signal:
-                    IConduitPort port = ConduitPortFactory.CreateDefault(conduitType, portType, tileEntity, conduitItem, new Vector2Int(x,y));
+                    LoadOutConduitType loadOutConduitType = FromConduitType(conduitItem.GetConduitType());
+                    IOConduitPortData deepCopy = ConduitPortFactory.DeepCopy(conduitPlacementOptions.ConduitPlacementLoadOuts[loadOutConduitType]);
+                    IConduitPort port = ConduitPortFactory.CreateDefault(conduitType, portType, tileEntity, conduitItem, new Vector2Int(x,y),deepCopy);
                     return CreatePortConduit(conduitItem, x, y, state, tileEntity, port);
                 case ConduitType.Matrix:
                     return CreateMatrix(conduitItem, portType, x, y, state, tileEntity);
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static LoadOutConduitType FromConduitType(ConduitType conduitType)
+        {
+            switch (conduitType)
+            {
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    return LoadOutConduitType.ItemFluid;
+                case ConduitType.Energy:
+                    return LoadOutConduitType.Energy;
+                case ConduitType.Signal:
+                    return LoadOutConduitType.Signal;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
             }
         }
 

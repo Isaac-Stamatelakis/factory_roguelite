@@ -30,7 +30,17 @@ namespace PlayerModule.IO {
                 return WorldCreation.GetDefaultPlayerData();
             }
             string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Player);
-            PlayerData playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+            PlayerData playerData;
+            try
+            {
+                playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogError($"Resetting Player Inventory: {e.Message}");
+                playerData = WorldCreation.GetDefaultPlayerData();
+            }
+            
             return playerData;
         }
 
@@ -38,6 +48,7 @@ namespace PlayerModule.IO {
         {
             playerData.playerStatistics ??= new PlayerStatisticCollection();
             PlayerStatisticsUtils.VerifyStaticsCollection(playerData.playerStatistics);
+            playerData.miscPlayerData ??= WorldCreation.GetDefaultMiscPlayerData();
         }
 
         public void Serialize()
@@ -91,6 +102,6 @@ namespace PlayerModule.IO {
     public class MiscPlayerData
     {
         public string GrabbedItemData;
-        public Dictionary<LoadOutConduitType, List<IOConduitPortData>> ConduitPortPlacementLoadOuts;
+        public Dictionary<LoadOutConduitType, IOConduitPortData> ConduitPortPlacementLoadOuts;
     }
 }

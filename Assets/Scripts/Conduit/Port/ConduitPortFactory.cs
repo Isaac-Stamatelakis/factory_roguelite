@@ -90,6 +90,12 @@ namespace Conduits.Ports {
             }
         }
 
+        public static IOConduitPortData DeepCopy(IOConduitPortData conduitPortData)
+        {
+            // TODO
+            return null;
+        }
+
         public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
         {
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
@@ -276,11 +282,11 @@ namespace Conduits.Ports {
             return GetDefaultConduitPortData(portDataType);
         }
 
-        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntityInstance, ConduitItem conduitItem, Vector2Int conduitPosition)
+        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntityInstance, ConduitItem conduitItem, Vector2Int conduitPosition, IOConduitPortData conduitPortData = null)
         {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
-            IOConduitPortData ioConduitPortData = GetDefaultIOPortData(conduitType, portType);
+            IOConduitPortData ioConduitPortData = conduitPortData ?? GetDefaultIOPortData(conduitType, portType);
             Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
@@ -317,7 +323,6 @@ namespace Conduits.Ports {
                         OutputData = itemOutputPortData,
                     };
                 case ConduitType.Energy:
-                    
                     PriorityConduitPortData energyInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType); 
                     ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
@@ -326,7 +331,7 @@ namespace Conduits.Ports {
                         OutputData = energyOutputData
                     };
                 case ConduitType.Signal:
-                    ConduitPortData signalInputPortData = (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType);
+                    ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType);
                     ConduitPortData signalOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new IOConduitPortData
                     {
@@ -338,20 +343,17 @@ namespace Conduits.Ports {
             }
         }
         
-        public static Color GetConduitPortColor(ConduitType conduitType) {
-            switch (conduitType) {
-                case ConduitType.Item:
-                    return Color.green;
-                case ConduitType.Fluid:
-                    return Color.blue;
-                case ConduitType.Energy:
-                    return Color.yellow;
-                case ConduitType.Signal:
-                    return Color.red;
-                case ConduitType.Matrix:
-                    return Color.magenta;
-            }
-            throw new System.Exception($"Did not cover case for ConduitType {conduitType}");
+        public static Color GetConduitPortColor(ConduitType conduitType)
+        {
+            return conduitType switch
+            {
+                ConduitType.Item => Color.green,
+                ConduitType.Fluid => Color.blue,
+                ConduitType.Energy => Color.yellow,
+                ConduitType.Signal => Color.red,
+                ConduitType.Matrix => Color.magenta,
+                _ => throw new System.Exception($"Did not cover case for ConduitType {conduitType}")
+            };
         }
         public static Color GetColorFromInt(int index)
         {

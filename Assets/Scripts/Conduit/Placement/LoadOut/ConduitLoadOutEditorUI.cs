@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using Conduit.Port.UI;
 using Conduits.Ports;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace Conduit.Placement.LoadOut
 {
@@ -36,20 +40,62 @@ namespace Conduit.Placement.LoadOut
     }
     public class ConduitLoadOutEditorUI : MonoBehaviour
     {
-        public enum LoadOutType
-        {
-            ItemFluid,
-            Energy,
-            Signal
-        }
-
-        
-
         [SerializeField] private IOConduitPortUI mConduitPortUI;
+        [SerializeField] private TextMeshProUGUI mTitleText;
+        [SerializeField] private TMP_Dropdown mTypeDropDown;
 
-        public void Display(List<IOConduitPortData> portData, LoadOutType loadOutType, int current)
+        public void Display(Dictionary<LoadOutConduitType, IOConduitPortData> loadOutData, LoadOutConduitType loadOutType)
         {
-            mConduitPortUI.Display(portData[current]);
+            void SetDisplayElements(LoadOutConduitType loadOutConduitType)
+            {
+                mTypeDropDown.GetComponent<Image>().color = ConduitPortFactory.GetConduitPortColor(loadOutConduitType.ToConduitType());
+                
+                mTitleText.text = GetLoadOutText(loadOutConduitType) + " Port Placement";
+            }
+
+            string GetLoadOutText(LoadOutConduitType loadOutConduitType)
+            {
+                return loadOutConduitType switch
+                {
+                    LoadOutConduitType.ItemFluid => "Item & Fluid",
+                    LoadOutConduitType.Energy => "Energy",
+                    LoadOutConduitType.Signal => "Signal",
+                    _ => throw new ArgumentOutOfRangeException(nameof(loadOutConduitType), loadOutConduitType, null)
+                };
+            }
+            mConduitPortUI.Display(loadOutData[loadOutType]);
+            SetDisplayElements(loadOutType);
+            InitializeDropDown();
+            
+            return;
+            void InitializeDropDown()
+            {
+                List<string> options = new List<string>();
+                foreach (LoadOutConduitType loadOutConduitType in System.Enum.GetValues(typeof(LoadOutConduitType)))
+                {
+                    options.Add(GetLoadOutText(loadOutConduitType));
+                }
+
+                mTypeDropDown.options = GlobalHelper.StringListToDropDown(options);
+                mTypeDropDown.value = (int)loadOutType;
+                /*
+                VerticalLayoutGroup verticalLayoutGroup = mTypeDropDown.GetComponentInChildren<VerticalLayoutGroup>();
+                for (int i = 0; i < verticalLayoutGroup.transform.childCount; i++)
+                {
+                    Transform child = verticalLayoutGroup.transform.GetChild(i);
+                    ConduitType conduitType = ((LoadOutConduitType)i).ToConduitType();
+                    child.GetComponentInChildren<Image>().color = ConduitPortFactory.GetConduitPortColor(conduitType);
+                }
+                */
+                
+                mTypeDropDown.onValueChanged.AddListener((value) =>
+                {
+                    LoadOutConduitType newLoadOut = (LoadOutConduitType)value;
+                    mConduitPortUI.Display(loadOutData[newLoadOut]);
+                    SetDisplayElements(newLoadOut);
+                });
+            }
         }
+        
     }
 }

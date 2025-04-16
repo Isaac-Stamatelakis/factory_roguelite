@@ -391,7 +391,7 @@ namespace TileMaps.Place {
             placementOptions.UpdatePlacementType(conduitItem.GetConduitType());
             int state = conduitSystemManager.GetNewState(placePosition,placementOptions,conduitItem.id);
             placementOptions.AddPlacementPosition(placePosition);
-            IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
+            IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity,playerScript.ConduitPlacementOptions);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
             iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             

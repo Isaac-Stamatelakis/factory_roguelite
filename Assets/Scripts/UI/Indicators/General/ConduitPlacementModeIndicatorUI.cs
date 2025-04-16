@@ -1,4 +1,5 @@
 using System;
+using Conduit.Placement.LoadOut;
 using Conduits.Systems;
 using Items;
 using Player;
@@ -16,6 +17,7 @@ namespace UI.Indicators.General
     {
         [SerializeField] private Image conduitImage;
         [SerializeField] private TextMeshProUGUI placementCounter;
+        [SerializeField] private ConduitLoadOutEditorUI conduitLoadOutEditorUIPrefab;
         private PlayerScript playerScript;
         private ConduitItem current;
         private int placementCount;
@@ -45,7 +47,6 @@ namespace UI.Indicators.General
         public void IterateCounter()
         {
             placementCount++;
-            placementCounter.text = placementCount.ToString();
             placementCounter.text = playerScript.ConduitPlacementOptions.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
         }
         
@@ -61,13 +62,50 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (!current) return;
             ConduitPlacementOptions options = playerScript.ConduitPlacementOptions;
-            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
-            options.PlacementMode = GlobalHelper.ShiftEnum(dir, options.PlacementMode);
+            
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    options.PlacementMode = GlobalHelper.ShiftEnum(1, options.PlacementMode);
+                    break;
+                case PointerEventData.InputButton.Right:
+                    LoadOutConduitType? loadOutConduitType = GetLoadOutType(current.GetConduitType());
+                    if (!loadOutConduitType.HasValue) return;
+                    
+                    ConduitLoadOutEditorUI loadOutEditorUI = Instantiate(conduitLoadOutEditorUIPrefab);
+                    loadOutEditorUI.Display(playerScript.ConduitPlacementOptions.ConduitPlacementLoadOuts,loadOutConduitType.Value);
+                    CanvasController.Instance.DisplayObject(loadOutEditorUI.gameObject);
+                    break;
+                case PointerEventData.InputButton.Middle:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             placementCount = 0;
             Display();
             OnPointerEnter(eventData);
            
+        }
+
+        private LoadOutConduitType? GetLoadOutType(ConduitType conduitType)
+        {
+            switch (conduitType)
+            {
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    return LoadOutConduitType.ItemFluid;
+                case ConduitType.Energy:
+                    return LoadOutConduitType.Energy;
+                case ConduitType.Signal:
+                    return LoadOutConduitType.Signal;
+                case ConduitType.Matrix:
+                    return null;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
+            }
         }
 
         public PlayerControl? GetPlayerControl()
