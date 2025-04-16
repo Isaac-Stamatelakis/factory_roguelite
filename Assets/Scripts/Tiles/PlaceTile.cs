@@ -28,14 +28,7 @@ using UnityEngine.Tilemaps;
 namespace TileMaps.Place {
     public static class PlaceTile
     {
-        private const float BLOCK_SIZE = 0.5f;
-        private enum GridLocation {
-            UpLeft,
-            UpRight,
-            DownRight,
-            DownLeft,
-            Center
-        }
+        
         
         public static void RotateTileInMap(Tilemap tilemap, TileBase tileBase, Vector3Int cellPosition, int rotation, bool mirror)
         {
@@ -146,6 +139,9 @@ namespace TileMaps.Place {
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.getSprite()),rotation);
             if (exclusion == null)
             {
+                // Only check for player when exclusion is null since that means they're probably placing it
+                bool hitPlayer = Physics2D.Raycast(worldPlaceLocation, Vector2.zero, 30f, 1 << LayerMask.NameToLayer("Player")).collider;
+                if (hitPlayer) return false;
                 if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;
             }
             else
@@ -608,24 +604,25 @@ namespace TileMaps.Place {
                     if (!ReferenceEquals(tile, null)) return true;
                 }
             }
+            
             return false;
         }
 
         
         private static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, int layers) {
             return (
-                tileWithinRange(minX-BLOCK_SIZE,minX-BLOCK_SIZE,minY,maxY,layers) ||
-                tileWithinRange(maxX+BLOCK_SIZE,maxX+BLOCK_SIZE,minY,maxY,layers) ||
-                tileWithinRange(minX,maxX,minY-BLOCK_SIZE,minY-BLOCK_SIZE,layers) ||
-                tileWithinRange(minX,maxX,maxY+BLOCK_SIZE,maxY+BLOCK_SIZE,layers));
+                tileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,layers) ||
+                tileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,layers) ||
+                tileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,layers) ||
+                tileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers));
         }
         
         private static bool backgroundWithinParameter(float minX, float maxX, float minY, float maxY, IWorldTileMap worldTileMap) {
             return (
-                backgroundTileWithinRange(minX-BLOCK_SIZE,minX-BLOCK_SIZE,minY,maxY,worldTileMap) ||
-                backgroundTileWithinRange(maxX+BLOCK_SIZE,maxX+BLOCK_SIZE,minY,maxY,worldTileMap) ||
-                backgroundTileWithinRange(minX,maxX,minY-BLOCK_SIZE,minY-BLOCK_SIZE,worldTileMap) ||
-                backgroundTileWithinRange(minX,maxX,maxY+BLOCK_SIZE,maxY+BLOCK_SIZE,worldTileMap));
+                backgroundTileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,worldTileMap) ||
+                backgroundTileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,worldTileMap) ||
+                backgroundTileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,worldTileMap) ||
+                backgroundTileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,worldTileMap));
         }
 
         private static bool TileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer,
@@ -663,14 +660,14 @@ namespace TileMaps.Place {
             float minY = floatIntervalVector.Y.LowerBound;
             float maxY = floatIntervalVector.Y.UpperBound;
             HashSet<Direction> directions = new HashSet<Direction>();
-            if (tileWithinRange(minX - BLOCK_SIZE, minX - BLOCK_SIZE, minY, maxY, layers))
+            if (tileWithinRange(minX - Global.TILE_SIZE, minX - Global.TILE_SIZE, minY, maxY, layers))
                 directions.Add(Direction.Left);
-            if (tileWithinRange(maxX + BLOCK_SIZE, maxX + BLOCK_SIZE, minY, maxY, layers))
+            if (tileWithinRange(maxX + Global.TILE_SIZE, maxX + Global.TILE_SIZE, minY, maxY, layers))
                 directions.Add(Direction.Right);
-            if (tileWithinRange(minX, maxX, minY - BLOCK_SIZE, minY - BLOCK_SIZE, layers))
+            if (tileWithinRange(minX, maxX, minY - Global.TILE_SIZE, minY - Global.TILE_SIZE, layers))
                 directions.Add(Direction.Down);
             
-            if (tileWithinRange(minX,maxX,maxY+BLOCK_SIZE,maxY+BLOCK_SIZE,layers))
+            if (tileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers))
                 directions.Add(Direction.Up);
             return directions;
 
