@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Item.Burnables;
+using Items;
 using Player;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace UI.Catalogue.InfoViewer
     public interface ICatalogueElement
     {
         public abstract string GetName();
-        public abstract Sprite GetSprite();
+        public abstract ItemObject GetDisplayItem();
         public string GetPageIndicatorString(int pageIndex);
         public int GetPageCount();
         public void DisplayAllElements(PlayerGameStageCollection gameStageCollection);

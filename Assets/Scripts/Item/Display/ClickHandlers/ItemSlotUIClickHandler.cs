@@ -17,6 +17,7 @@ namespace Item.Display.ClickHandlers
         protected int index;
         public int Index => index;
         [NonSerialized] public ItemSlotUI ItemSlotUI;
+        private bool focused = false;
         public void Initialize(InventoryUI parent, int index) {
             this.inventoryUI = parent;
             this.index = index;
@@ -105,8 +106,16 @@ namespace Item.Display.ClickHandlers
         protected abstract void RightClick();
         protected abstract void MiddleClick();
         public abstract void MiddleMouseScroll();
-    
-        public void OnPointerEnter(PointerEventData eventData)
+
+        public void FixedUpdate()
+        {
+            if (focused)
+            {
+                DisplayTooltip();
+            }
+        }
+
+        private void DisplayTooltip()
         {
             if (ReferenceEquals(inventoryUI, null) || !inventoryUI.EnableToolTip) return;
             if (inventoryUI.ToolTipOverride != null)
@@ -116,12 +125,23 @@ namespace Item.Display.ClickHandlers
                 return;
             }
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot))
+            {
+                ToolTipController.Instance.HideToolTip();
+                return;
+            }
             ToolTipController.Instance.ShowToolTip(transform.position,itemSlot);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            focused = true;
+            DisplayTooltip();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            focused = false;
             if (inventoryUI is not { EnableToolTip: true }) return; 
             ToolTipController.Instance.HideToolTip();
         }

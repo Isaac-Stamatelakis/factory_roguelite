@@ -219,25 +219,10 @@ namespace Player.Controls
         
         public static string FormatKeyText(PlayerControl key)
         {
-            return AddSpaces(key.ToString());
+            return GlobalHelper.AddSpaces(key.ToString());
         }
 
-        private static string AddSpaces(string text)
-        {
-            string result = string.Empty;
-            for (var i = 0; i < text.Length-1; i++)
-            {
-                var c = text[i];
-                result += c;
-                if (char.IsLower(text[i]) && char.IsUpper(text[i+1]))
-                {
-                    result += " ";
-                }
-            }
-
-            result += text[^1];
-            return result;
-        }
+        
         public static void SetDefault()
         {
             Dictionary<string, ControlBindingCollection> sections = GetKeyBindingSections();

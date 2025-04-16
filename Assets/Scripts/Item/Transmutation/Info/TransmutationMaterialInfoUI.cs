@@ -60,7 +60,7 @@ namespace Item.Transmutation.Info
         
     }
 
-    public class TransmutationMaterialInfo : ICatalogueElement, IColorableCatalogueElement
+    public class TransmutationMaterialInfo : ICatalogueElement
     {
         public TransmutableItemMaterial Material;
         public string GetName()
@@ -68,11 +68,10 @@ namespace Item.Transmutation.Info
             return Material.name + " Info";
         }
 
-        public Sprite GetSprite()
+        public ItemObject GetDisplayItem()
         {
             var baseState = Material.MaterialOptions.BaseState;
-            ItemObject itemObject = TransmutableItemUtils.GetMaterialItem(Material, baseState);
-            return itemObject.getSprite();
+            return TransmutableItemUtils.GetMaterialItem(Material, baseState);
         }
 
         public string GetPageIndicatorString(int pageIndex)
@@ -95,11 +94,7 @@ namespace Item.Transmutation.Info
         {
             return gameStageCollection.HasStage(Material?.gameStageObject);
         }
-
-        public Color GetColor()
-        {
-            return Material.color;
-        }
+        
 
         public TransmutationMaterialInfo(TransmutableItemMaterial material)
         {

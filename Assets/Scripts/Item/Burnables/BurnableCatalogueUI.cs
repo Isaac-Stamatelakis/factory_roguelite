@@ -86,7 +86,7 @@ namespace Item.Burnables
             return "Burnable Info";
         }
 
-        public Sprite GetSprite()
+        public ItemObject GetDisplayItem()
         {
             return RecipeRegistry.BurnableItemRegistry.BurnableRegistryImage;
         }

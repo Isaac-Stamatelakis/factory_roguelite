@@ -23,7 +23,7 @@ namespace Item.ItemObjects.Instances.Tiles.Chisel
             return "Chisel Info";
         }
 
-        public Sprite GetSprite()
+        public ItemObject GetDisplayItem()
         {
             return null;
         }

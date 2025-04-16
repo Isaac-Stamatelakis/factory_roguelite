@@ -82,7 +82,8 @@ namespace PlayerModule.KeyPress {
                 IRobotToolInstance current = playerInventory?.CurrentTool;
                 if (current != null)
                 {
-                    current.ModeSwitch(Robot.Tool.MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
+                    Robot.Tool.MoveDirection moveDirection = Input.GetKey(KeyCode.LeftShift) ? Robot.Tool.MoveDirection.Right : Robot.Tool.MoveDirection.Left;
+                    current.ModeSwitch(moveDirection,Input.GetKey(KeyCode.LeftControl));
                     playerScript.PlayerMouse.UpdateOnToolChange();
                     playerScript.PlayerInventory.PlayerRobotToolUI.UpdateIndicators();
                 }

@@ -11,7 +11,7 @@ namespace Recipe.Collection
     [CreateAssetMenu(fileName = "RecipeCollection", menuName = "Crafting/Burnables")]
     public class BurnableItemCollection : ScriptableObject
     {
-        public Sprite BurnableRegistryImage;
+        public ItemObject BurnableRegistryImage;
         public List<EditorKVP<ItemObject, uint>> ItemBurnDurations;
         public List<EditorKVP<TransmutableItemMaterial, uint>> MaterialBurnDurations;
     }
@@ -19,7 +19,7 @@ namespace Recipe.Collection
     public class BurnableItemRegistry
     {
         public static readonly int RANDOM_SAMPLE_AMOUNT = 10;
-        public Sprite BurnableRegistryImage;
+        public ItemObject BurnableRegistryImage;
         private Dictionary<string, uint> itemBurnDurations;
         private Dictionary<TransmutableItemMaterial, uint> materialBurnDurations;
         

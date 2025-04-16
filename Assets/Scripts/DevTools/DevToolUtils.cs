@@ -10,6 +10,8 @@ namespace DevTools {
         Structure = 0,
         QuestBook = 1,
         Upgrade = 2,
+        ImageGenerator = 3,
+        CraftingTree = 4,
         
     }
     public static class DevToolUtils

@@ -130,7 +130,21 @@ namespace Robot.Tool.Instances
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
-            toolData.Type = GlobalHelper.ShiftEnum(moveDirection == MoveDirection.Left ? 1 : -1, toolData.Type);
+            List<ConduitCutterMode> orderedModes = new List<ConduitCutterMode>
+            {
+                ConduitCutterMode.Matrix,
+                ConduitCutterMode.Energy,
+                ConduitCutterMode.Signal,
+                ConduitCutterMode.Item,
+                ConduitCutterMode.Fluid,
+                ConduitCutterMode.All
+            };
+            int index = orderedModes.IndexOf(toolData.Type);
+            int dir = moveDirection == MoveDirection.Left ? 1 : -1;
+            index += dir;
+            if (index < 0) index = orderedModes.Count - 1;
+            if (index >= orderedModes.Count) index = 0;
+            toolData.Type = orderedModes[index];
             SetTargets();
             laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
