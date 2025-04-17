@@ -12,14 +12,12 @@ namespace UI.NodeNetwork {
         public GameObject GetGameObject();
         public void DisplayImage();
     }
-    public abstract class NodeUI<TNode, TNetworkUI> : MonoBehaviour, IPointerClickHandler, IPointerDownHandler,
-        IPointerUpHandler, ILongClickable, INodeUI
+    public abstract class NodeUI<TNode, TNetworkUI> : MonoBehaviour, IPointerClickHandler, INodeUI
     where TNode : INode where TNetworkUI : INodeNetworkUI
     {
         [SerializeField] protected ItemSlotUI mItemSlotUI;
         [SerializeField] protected Button button;
         [SerializeField] protected Image panel;
-        private LongClickHandler holdClickInstance;
         protected TNode node;
         protected TNetworkUI nodeNetwork;
         private bool instantiated = true;
@@ -27,28 +25,17 @@ namespace UI.NodeNetwork {
         public virtual void Initialize(TNode node, TNetworkUI nodeNetwork) {
             this.node = node;
             this.nodeNetwork = nodeNetwork;
-            holdClickInstance = new LongClickHandler(this);
             DisplayImage();
             transform.position = node.GetPosition();
             
         }
 
         public abstract void DisplayImage();
-        public void Update()
-        {
-            holdClickInstance?.checkHoldStatus();
-        }
 
         public void SetSelect(bool val) {
             panel.color = val == false ? new Color(192f/255f,192f/255f,192f/255f,1f) : Color.magenta;
         }
-
-        public void longClick()
-        {
-            if (nodeNetwork.GetMode() != NodeNetworkUIMode.EditConnection) return;
-            nodeNetwork.SelectNode(this);
-        }
-
+        
         public void OnDestroy()
         {
             instantiated = false;
@@ -56,30 +43,16 @@ namespace UI.NodeNetwork {
         }
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left) {
-                switch (nodeNetwork.GetMode()) {
-                    case NodeNetworkUIMode.View:
-                        openContent();
-                        break;
-                    case NodeNetworkUIMode.EditConnection:
-                        nodeNetwork.ModifyConnection(node);
-                        break;
-                }
-                
-            } else if (eventData.button == PointerEventData.InputButton.Right) {
-
+            if (nodeNetwork?.GetSelectedNode() == null)
+            {
+                openContent();
+            }
+            else
+            {
+                nodeNetwork?.ModifyConnection(node);
             }
         }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            holdClickInstance?.click();
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            holdClickInstance?.release();
-        }
+        
         protected abstract void openContent();
 
         public INode GetNode()

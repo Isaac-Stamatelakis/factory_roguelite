@@ -231,5 +231,54 @@ public static class RecipeUtils {
             hash += HashItemInputs(second, included);
             return hash;
         }
+        public static bool CurrentValid(RecipeObject recipeObject, RecipeType recipeType)
+        {
+            if (!recipeObject) return false;
+            switch (recipeType)
+            {
+                case RecipeType.Item:
+                    return recipeObject is ItemRecipeObject;
+                case RecipeType.Passive:
+                    return recipeObject is PassiveItemRecipeObject;
+                case RecipeType.Generator:
+                    return recipeObject is GeneratorItemRecipeObject;
+                case RecipeType.Machine:
+                    return recipeObject is ItemEnergyRecipeObject;
+                case RecipeType.Burner:
+                    return recipeObject is BurnerRecipeObject;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
+            }
+        }
+        public static ItemRecipeObject GetNewRecipeObject(RecipeType recipeType, RecipeObject template)
+        {
+            switch (recipeType)
+            {
+                case RecipeType.Item:
+                    return ScriptableObject.CreateInstance<ItemRecipeObject>();
+                case RecipeType.Passive:
+                    if (template is PassiveItemRecipeObject)
+                    {
+                        return ScriptableObject.Instantiate(template) as ItemRecipeObject;
+                    }
+                    return ScriptableObject.CreateInstance<PassiveItemRecipeObject>();
+                case RecipeType.Generator:
+                    if (template is GeneratorItemRecipeObject)
+                    {
+                        return ScriptableObject.Instantiate(template) as GeneratorItemRecipeObject;
+                    }
+                    return ScriptableObject.CreateInstance<GeneratorItemRecipeObject>();
+                case RecipeType.Machine:
+                    if (template is ItemEnergyRecipeObject)
+                    {
+                        return ScriptableObject.Instantiate(template) as ItemEnergyRecipeObject;
+                    }
+                    return ScriptableObject.CreateInstance<ItemEnergyRecipeObject>();
+                case RecipeType.Burner:
+                    return ScriptableObject.CreateInstance<BurnerRecipeObject>();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
+            }
+        }
     }
 }

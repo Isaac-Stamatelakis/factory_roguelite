@@ -14,6 +14,7 @@ namespace DevTools.CraftingTrees.Selector
 
         public void Display(CraftingTreeSelectorUI.CraftingTreeInfo craftingTreeInfo, Action<int> onClick, int index)
         {
+            this.index = index;
             mTextElement.text = Path.GetFileName(craftingTreeInfo.Path).Replace(".bin","");
             this.onClick = onClick;
         }

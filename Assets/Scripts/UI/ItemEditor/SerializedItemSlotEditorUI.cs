@@ -31,7 +31,15 @@ namespace UI {
             return;
             void OnSelect(ItemObject itemObject)
             {
-                serializedItemSlot.id = itemObject?.id;
+                if (serializedItemSlot == null)
+                {
+                    serializedItemSlot = new SerializedItemSlot(itemObject?.id, 1, null);
+                }
+                else
+                {
+                    serializedItemSlot.id = itemObject?.id;
+                }
+                
                 callback?.Invoke(serializedItemSlot);
                 if (parameters == null) CanvasController.Instance.PopStack();
             }

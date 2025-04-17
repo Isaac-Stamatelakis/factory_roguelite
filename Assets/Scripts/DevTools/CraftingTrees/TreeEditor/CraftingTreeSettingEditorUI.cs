@@ -1,8 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using DevTools.CraftingTrees.Network;
+using Items;
 using Recipe.Objects;
+using Recipe.Processor;
+using RecipeModule;
 using TileEntity;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,9 +24,12 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private TMP_Dropdown mTierDropDown;
         [SerializeField] private TMP_Dropdown mTransmutationEfficiencyDropDown;
         [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
+        [SerializeField] private Button mGenerateButton;
+        [SerializeField] private Button mDeleteButton;
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
         private CraftingTreeGenerator craftingTreeGenerator;
+        private CraftingTreeNodeNetwork network;
 
         public void Update()
         {
@@ -53,6 +62,7 @@ namespace DevTools.CraftingTrees.TreeEditor
 
         public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator)
         {
+            this.network = craftingTreeNodeNetwork;
             craftingTreeGenerator = treeGenerator;
             void InitializeNodeButton(Button button, CraftingTreeNodeType type)
             {
@@ -73,6 +83,166 @@ namespace DevTools.CraftingTrees.TreeEditor
             InitializeNodeButton(mProcessorButton, CraftingTreeNodeType.Processor);
             mTierDropDown.options = GlobalHelper.EnumToDropDown<Tier>();
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
+            mGenerateButton.onClick.AddListener(GenerateRecipes);
+            mDeleteButton.onClick.AddListener(DeleteRecipes);
         }
+
+        private void GenerateRecipes()
+        {
+#if UNITY_EDITOR
+            int generateCount = 0;
+            int modifyCount = 0;
+            int deleteCount = 0;
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            Dictionary<int, CraftingTreeGeneratorNode> nodeDictionary = new Dictionary<int, CraftingTreeGeneratorNode>();
+            foreach (var node in network.Nodes)
+            {
+                nodeDictionary[node.GetId()] = node;
+            }
+            
+            foreach (var node in network.Nodes)
+            {
+                if (node == null || node.NodeType != CraftingTreeNodeType.Processor) continue;
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
+                RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                if (recipeProcessor == null) continue;
+                int mode = processorNodeData.Mode;
+                if (mode >= recipeProcessor.RecipeCollections.Count)
+                {
+                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{mode}'");
+                    continue;
+                }
+                
+                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
+                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
+                
+                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[mode].RecipeCollection.Recipes;
+                if (recipeObject && !RecipeUtils.CurrentValid(recipeObject, recipeProcessor.RecipeType))
+                {
+                    if (recipes.Contains(recipeObject))
+                    {
+                        recipes.Remove(recipeObject);
+                    }
+                    UnityEditor.AssetDatabase.DeleteAsset(recipePath);
+                    deleteCount++;
+                    recipeObject = null;
+                }
+
+                bool newRecipe = false;
+                if (!recipeObject)
+                {
+                    recipeObject = RecipeUtils.GetNewRecipeObject(recipeProcessor.RecipeType, null);
+                    if (recipeObject is not ItemRecipeObject)
+                    {
+                        Debug.LogWarning($"Generated invalid recipe {recipeObject.name}");
+                        GameObject.Destroy(recipeObject);
+                        continue;
+                    }
+                    newRecipe = true;
+                    generateCount++;
+                }
+
+                if (newRecipe)
+                {
+                    recipes.Add(recipeObject);
+                    var recipeModeCollection = recipeProcessor.RecipeCollections[mode].RecipeCollection;
+                    string collectionPath = AssetDatabase.GetAssetPath(recipeModeCollection);
+                    string folder = Path.GetDirectoryName(collectionPath);
+                    string randomSuffix = Guid.NewGuid().ToString("N"); // "N" removes hyphens
+                    string recipeName = recipeModeCollection.name + "_" + randomSuffix;
+                    recipeObject.name = recipeName;
+                    AssetDatabase.CreateAsset(recipeObject, Path.Combine(folder, recipeName + ".asset"));
+                    recipeModeCollection.Recipes.Add(recipeObject);
+                    string recipeObjectPath = AssetDatabase.GetAssetPath(recipeObject);
+                    string recipeGuid = AssetDatabase.AssetPathToGUID(recipeObjectPath);
+                    processorNodeData.RecipeGuid = recipeGuid;
+                }
+                else
+                {
+                    modifyCount++;
+                }
+                
+                ItemRecipeObject itemRecipeObject = (ItemRecipeObject)recipeObject;
+                itemRecipeObject.Inputs.Clear();
+                itemRecipeObject.Outputs.Clear();
+                List<int> inputIds = node.NetworkData.InputIds;
+                foreach (int inputId in inputIds)
+                {
+                    var inputNode = nodeDictionary.GetValueOrDefault(inputId);
+                    if (inputNode == null || inputNode.NodeType != CraftingTreeNodeType.Item) continue;
+                    ItemNodeData itemNodeData = (ItemNodeData)inputNode.NodeData;
+                    if (itemNodeData.SerializedItemSlot == null) continue;
+                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (!itemObject) continue;
+                    EditorItemSlot editorItemSlot = new EditorItemSlot
+                    {
+                        ItemObject = itemObject,
+                        Amount = itemNodeData.SerializedItemSlot.amount
+                    };
+                    itemRecipeObject.Inputs.Add(editorItemSlot);
+                }
+                
+                int currentId = node.GetId();
+                foreach (var otherNode in network.Nodes)
+                {
+                    if (otherNode == null || otherNode.NodeType != CraftingTreeNodeType.Item || !otherNode.NetworkData.InputIds.Contains(currentId)) continue;
+                    ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                    if (itemNodeData.SerializedItemSlot == null) continue;
+                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (!itemObject) continue;
+                    RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot
+                    {
+                        ItemObject = itemObject,
+                        Amount = itemNodeData.SerializedItemSlot.amount,
+                        Chance = itemNodeData.Odds
+                    };
+                    itemRecipeObject.Outputs.Add(editorItemSlot);
+                }
+            }
+            Debug.Log($"Generated {generateCount} new recipes, modified {modifyCount} recipes & deleted {deleteCount} recipes.");
+#endif
+        }
+
+        private void DeleteRecipes()
+        {
+#if UNITY_EDITOR
+            int deleteCount = 0;
+            foreach (var node in network.Nodes)
+            {
+                if (node.NodeType != CraftingTreeNodeType.Processor) continue;
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                if (processorNodeData.RecipeGuid == null) continue;
+                
+                string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
+                RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                if (recipeProcessor == null) continue;
+                
+                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
+                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
+                if (!recipeObject) continue;
+                
+                int mode = processorNodeData.Mode;
+                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[mode].RecipeCollection.Recipes;
+                if (mode >= recipeProcessor.RecipeCollections.Count)
+                {
+                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{mode}'");
+                    continue;
+                }
+                if (recipeObject)
+                {
+                    if (recipes.Contains(recipeObject))
+                    {
+                        recipes.Remove(recipeObject);
+                    }
+                    UnityEditor.AssetDatabase.DeleteAsset(recipePath);
+                    deleteCount++;
+                }
+            }
+            Debug.Log($"Deleted {deleteCount} recipes");
+#endif
+        }
+        
+
     }
 }

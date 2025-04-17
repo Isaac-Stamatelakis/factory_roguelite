@@ -60,6 +60,8 @@ namespace DevTools.CraftingTrees.Network
         public float X;
         public float Y;
         public List<int> InputIds;
+        
+        
     }
 
     internal abstract class CraftingTreeNodeData
@@ -71,6 +73,7 @@ namespace DevTools.CraftingTrees.Network
     internal class ItemNodeData : CraftingTreeNodeData {
         
         public SerializedItemSlot SerializedItemSlot;
+        public float Odds = 1f;
     }
 
     
@@ -85,6 +88,7 @@ namespace DevTools.CraftingTrees.Network
 
     internal class ProcessorNodeData : CraftingTreeNodeData
     {
+        public int Mode;
         public string ProcessorGuid;
         public string RecipeGuid;
         public ItemRecipe RecipeData;
