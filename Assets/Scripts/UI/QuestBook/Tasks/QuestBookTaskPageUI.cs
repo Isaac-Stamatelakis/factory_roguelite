@@ -111,7 +111,7 @@ namespace UI.QuestBook {
                         questBookPageUI.Display();
                     }
 
-                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.NodeData.ImageSeralizedItemSlot},0,null,
+                    serializedItemSlotEditor.Initialize(new List<SerializedItemSlot>{node.NodeData.ImageSeralizedItemSlot},0,null,
                         gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 

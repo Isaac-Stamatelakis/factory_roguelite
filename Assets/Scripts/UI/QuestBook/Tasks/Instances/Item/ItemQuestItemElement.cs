@@ -46,7 +46,7 @@ namespace UI.QuestBook {
         private void NavigateToEditMode() {
             UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-            serializedItemSlotEditorUI.Init(itemQuestTask.Items,index,this,gameObject);
+            serializedItemSlotEditorUI.Initialize(itemQuestTask.Items,index,this,gameObject);
             serializedItemSlotEditorUI.transform.SetParent(taskUI.QuestBookTaskPageUI.transform,false);
         }
 

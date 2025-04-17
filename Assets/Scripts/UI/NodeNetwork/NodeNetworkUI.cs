@@ -30,6 +30,7 @@ namespace UI.NodeNetwork {
         [SerializeField] protected Transform lineContainer;
         [SerializeField] protected Transform contentMaskContainer;
         [SerializeField] protected NodeNetworkEditorUI editController;
+        [SerializeField] private Color color = Color.yellow;
         
         [SerializeField] private GameObject linePrefab;
         public Transform NodeContainer { get => nodeContainer;}
@@ -201,7 +202,7 @@ namespace UI.NodeNetwork {
                     TNode otherNode = LookUpNode(id);
                     if (otherNode == null) continue;
                     bool complete = ShowAllComplete() || otherNode.IsCompleted();
-                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),node.GetPosition(),LineContainer,complete,linePrefab);
+                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),node.GetPosition(),LineContainer,complete,linePrefab,ref color);
                 }
             }
         }

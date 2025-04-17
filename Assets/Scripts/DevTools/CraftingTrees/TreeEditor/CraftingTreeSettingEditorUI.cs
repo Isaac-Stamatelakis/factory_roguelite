@@ -20,6 +20,7 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
+        private CraftingTreeGenerator craftingTreeGenerator;
 
         public void Update()
         {
@@ -47,15 +48,19 @@ namespace DevTools.CraftingTrees.TreeEditor
             }
             currentHighlightButton = button;
             currentHighlightButton.GetComponent<Image>().color = highlightColor;
+            craftingTreeGenerator.SetType(type);
         }
 
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork)
+        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator)
         {
+            craftingTreeGenerator = treeGenerator;
             void InitializeNodeButton(Button button, CraftingTreeNodeType type)
             {
                 if (generateNodeType == type)
                 {
                     button.GetComponent<Image>().color = highlightColor;
+                    currentHighlightButton = button;
+                    treeGenerator.SetType(type);
                 }
                 button.onClick.AddListener(() =>
                 {

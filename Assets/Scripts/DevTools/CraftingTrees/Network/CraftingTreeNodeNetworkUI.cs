@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
 using Newtonsoft.Json;
 using Recipe.Data;
@@ -180,7 +181,7 @@ namespace DevTools.CraftingTrees.Network
             foreach (CraftingTreeGeneratorNode node in craftingTreeNodeNetwork.Nodes)
             {
                 if (node == null) continue;
-                if (node.GetId() < largestNode)
+                if (node.GetId() > largestNode)
                 {
                     largestNode = node.GetId();
                 }
@@ -203,16 +204,23 @@ namespace DevTools.CraftingTrees.Network
         [SerializeField] private CraftingTreeNodeUI mCraftingTreeNodeUIPrefab;
         private readonly Dictionary<int, CraftingTreeGeneratorNode> nodes = new();
         private CraftingTreeGenerator craftingTreeGenerator;
+        private CraftingTreeGeneratorUI craftingTreeGeneratorUI;
+        public CraftingTreeGeneratorUI CraftingTreeGeneratorUI => craftingTreeGeneratorUI;
 
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork,
-            CraftingTreeGenerator generator)
+        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator generator, CraftingTreeGeneratorUI craftingTreeGeneratorUI)
         {
+            this.craftingTreeGeneratorUI = craftingTreeGeneratorUI;
             this.nodeNetwork = craftingTreeNodeNetwork;
             craftingTreeGenerator = generator;
             bool inDevTools = DevToolUtils.OnDevToolScene;
             editController.gameObject.SetActive(inDevTools);
             editController.Initialize(this);
+            foreach (CraftingTreeGeneratorNode node in craftingTreeNodeNetwork.Nodes)
+            {
+                nodes[node.GetId()] = node;
+            }
             Display();
+            
         }
         protected override INodeUI GenerateNode(CraftingTreeGeneratorNode node)
         {
@@ -244,6 +252,7 @@ namespace DevTools.CraftingTrees.Network
             if (node == null) return;
             node.SetPosition(position);
             nodeNetwork.Nodes.Add(node);
+            nodes[node.GetId()] = node;
         }
 
         public override GameObject GenerateNewNodeObject()

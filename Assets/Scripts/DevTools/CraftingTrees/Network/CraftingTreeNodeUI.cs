@@ -28,7 +28,7 @@ namespace DevTools.CraftingTrees.Network
 
         protected override void openContent()
         {
-            
+            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork);
         }
     }
 }

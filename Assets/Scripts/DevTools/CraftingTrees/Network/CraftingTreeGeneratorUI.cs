@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DevTools.CraftingTrees.TreeEditor;
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -7,16 +8,20 @@ namespace DevTools.CraftingTrees.Network
     internal class CraftingTreeGeneratorUI : MonoBehaviour
     {
         [SerializeField] private CraftingTreeNodeNetworkUI mNodeNetworkUI;
-
+        [SerializeField] private CraftingTreeNodeEditorUI mNodeEditorUI;
+        [SerializeField] private CraftingTreeSettingEditorUI mSettingEditorUI;
         private CraftingTreeGenerator craftingTreeGenerator;
         private string filePath;
         private CraftingTreeNodeNetwork nodeNetwork;
+        public CraftingTreeNodeEditorUI NodeEditorUI => mNodeEditorUI;
+        public CraftingTreeSettingEditorUI SettingEditorUI => mSettingEditorUI;
         public void Initialize(CraftingTreeNodeNetwork nodeNetwork, string filePath)
         {
             this.nodeNetwork = nodeNetwork;
             this.filePath = filePath;
             craftingTreeGenerator = new CraftingTreeGenerator();
-            mNodeNetworkUI.Initialize(nodeNetwork,craftingTreeGenerator);
+            mNodeNetworkUI.Initialize(nodeNetwork,craftingTreeGenerator,this);
+            mSettingEditorUI.Initialize(nodeNetwork,craftingTreeGenerator);
         }
 
         public void OnDestroy()
@@ -32,7 +37,7 @@ namespace DevTools.CraftingTrees.Network
 
         public void Rebuild()
         {
-            
+            mNodeNetworkUI.Display();
         }
     }
 
@@ -40,6 +45,10 @@ namespace DevTools.CraftingTrees.Network
     {
         private CraftingTreeNodeType nodeGenerationType;
 
+        public void SetType(CraftingTreeNodeType nodeType)
+        {
+            nodeGenerationType = nodeType;
+        }
         public CraftingTreeGeneratorNode GenerateNewNode(int nextId)
         {
             NodeNetworkData nodeNetworkData = new NodeNetworkData

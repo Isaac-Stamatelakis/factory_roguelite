@@ -141,7 +141,8 @@ namespace UI.Chat {
             string parsedWhiteSpace = message.Replace(" ", "");
             if (parsedWhiteSpace.Length <= 0) return;
             RecordMessage(message);
-            SendChatMessage(message);
+            string signedMessage = $"<color=blue>[HAPPY]: </color>" + message; 
+            SendChatMessage(signedMessage);
         }
         public void RecordMessage(string message) {
             if (recordedMessages.Count > 50) {

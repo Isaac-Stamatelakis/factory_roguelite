@@ -45,7 +45,7 @@ namespace Robot.Upgrades
         {
             if (SceneManager.GetActiveScene().name != DevToolUtils.SCENE_NAME) return;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(robotUpgradeNodeContentUI.ItemSlotEditorUIPrefab);
-            serializedItemSlotEditorUI.Init(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,this,gameObject,displayTags:false);
+            serializedItemSlotEditorUI.Initialize(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,this,gameObject,displayTags:false);
             serializedItemSlotEditorUI.transform.SetParent(robotUpgradeNodeContentUI.transform.parent,false);
         }
 
