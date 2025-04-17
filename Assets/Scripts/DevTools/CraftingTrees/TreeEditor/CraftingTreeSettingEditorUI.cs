@@ -25,6 +25,7 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private TMP_Dropdown mTransmutationEfficiencyDropDown;
         [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
         [SerializeField] private Button mGenerateButton;
+        [SerializeField] private Button mDeleteButton;
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
         private CraftingTreeGenerator craftingTreeGenerator;
@@ -83,6 +84,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             mTierDropDown.options = GlobalHelper.EnumToDropDown<Tier>();
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
             mGenerateButton.onClick.AddListener(GenerateRecipes);
+            mDeleteButton.onClick.AddListener(DeleteRecipes);
         }
 
         private void GenerateRecipes()
@@ -105,22 +107,24 @@ namespace DevTools.CraftingTrees.TreeEditor
                 string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
                 RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
                 if (recipeProcessor == null) continue;
-                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
-                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
-                const int MODE = 0; // TODO LET USER ASSIGN MODE
-                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[MODE].RecipeCollection.Recipes;
-                if (recipeProcessor.RecipeCollections.Count < MODE)
+                int mode = processorNodeData.Mode;
+                if (mode >= recipeProcessor.RecipeCollections.Count)
                 {
-                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{MODE}'");
+                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{mode}'");
                     continue;
                 }
+                
+                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
+                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
+                
+                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[mode].RecipeCollection.Recipes;
                 if (recipeObject && !RecipeUtils.CurrentValid(recipeObject, recipeProcessor.RecipeType))
                 {
                     if (recipes.Contains(recipeObject))
                     {
                         recipes.Remove(recipeObject);
                     }
-                    GameObject.Destroy(recipeObject);
+                    UnityEditor.AssetDatabase.DeleteAsset(recipePath);
                     deleteCount++;
                     recipeObject = null;
                 }
@@ -142,7 +146,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                 if (newRecipe)
                 {
                     recipes.Add(recipeObject);
-                    var recipeModeCollection = recipeProcessor.RecipeCollections[MODE].RecipeCollection;
+                    var recipeModeCollection = recipeProcessor.RecipeCollections[mode].RecipeCollection;
                     string collectionPath = AssetDatabase.GetAssetPath(recipeModeCollection);
                     string folder = Path.GetDirectoryName(collectionPath);
                     string randomSuffix = Guid.NewGuid().ToString("N"); // "N" removes hyphens
@@ -191,7 +195,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                     {
                         ItemObject = itemObject,
                         Amount = itemNodeData.SerializedItemSlot.amount,
-                        Chance = 1f // TODO CHANCE
+                        Chance = itemNodeData.Odds
                     };
                     itemRecipeObject.Outputs.Add(editorItemSlot);
                 }
@@ -199,5 +203,46 @@ namespace DevTools.CraftingTrees.TreeEditor
             Debug.Log($"Generated {generateCount} new recipes, modified {modifyCount} recipes & deleted {deleteCount} recipes.");
 #endif
         }
+
+        private void DeleteRecipes()
+        {
+#if UNITY_EDITOR
+            int deleteCount = 0;
+            foreach (var node in network.Nodes)
+            {
+                if (node.NodeType != CraftingTreeNodeType.Processor) continue;
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                if (processorNodeData.RecipeGuid == null) continue;
+                
+                string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
+                RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                if (recipeProcessor == null) continue;
+                
+                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
+                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
+                if (!recipeObject) continue;
+                
+                int mode = processorNodeData.Mode;
+                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[mode].RecipeCollection.Recipes;
+                if (mode >= recipeProcessor.RecipeCollections.Count)
+                {
+                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{mode}'");
+                    continue;
+                }
+                if (recipeObject)
+                {
+                    if (recipes.Contains(recipeObject))
+                    {
+                        recipes.Remove(recipeObject);
+                    }
+                    UnityEditor.AssetDatabase.DeleteAsset(recipePath);
+                    deleteCount++;
+                }
+            }
+            Debug.Log($"Deleted {deleteCount} recipes");
+#endif
+        }
+        
+
     }
 }

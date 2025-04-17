@@ -3,6 +3,7 @@ using DevTools.CraftingTrees.Network;
 using DevTools.CraftingTrees.TreeEditor.NodeEditors;
 using TMPro;
 using TMPro.Examples;
+using UI.GeneralUIElements;
 using UI.NodeNetwork;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -19,6 +20,7 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private Transform nodeContentContainer;
         
         [SerializeField] private CraftingNodeItemEditorUI mItemEditorPrefab;
+        [SerializeField] private FormattedInputFieldUI mFormattedInputFieldPrefab;
 
         public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI)
         {
@@ -32,7 +34,29 @@ namespace DevTools.CraftingTrees.TreeEditor
             
             CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
             craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI);
-            
+
+            switch (node.NodeType)
+            {
+                case CraftingTreeNodeType.Item:
+                    if (node.NetworkData.InputIds.Count > 0)
+                    {
+                        ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
+                        FormattedInputFieldUI chanceInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        chanceInput.DisplayFloat("Chance",itemNodeData.Odds, (value) =>
+                        {
+                            itemNodeData.Odds = value;
+                        },min:0,max:1);
+                    }
+                    break;
+                case CraftingTreeNodeType.Transmutation:
+                    break;
+                case CraftingTreeNodeType.Processor:
+                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                  
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             return;
 
             void DeletePress()

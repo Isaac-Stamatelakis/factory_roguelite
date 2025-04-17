@@ -35,6 +35,7 @@ namespace Recipe.Processor
             {
                 foreach (RecipeObject recipeObject in recipeModeCollection.RecipeCollection.Recipes)
                 {
+                    if (!recipeObject) continue;
                     tempRecipes.Add(new RecipeData(recipeModeCollection.Mode,recipeObject,recipeProcessorInstance));
                     ushort recipeIndex = (ushort)(tempRecipes.Count - 1);
                     switch (recipeObject)
