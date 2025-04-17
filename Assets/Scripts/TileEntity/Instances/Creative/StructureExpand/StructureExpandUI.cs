@@ -31,9 +31,14 @@ namespace TileEntity.Instances.Creative.CreativeChest
             });
             mSelectSerializedItemUI.onClick.AddListener(() =>
             {
-                SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(serializedItemSlotEditorUIPrefab, transform, false);
-                List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(structureExpandInstance.StructureExpandData.Id,1,null)};
-                serializedItemSlotEditorUI.Initialize(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
+                SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(serializedItemSlotEditorUIPrefab);
+                SerializedItemSlot serializedItemSlot = new(structureExpandInstance.StructureExpandData.Id, 1, null);
+                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                {
+                    OnValueChange = CallBack
+                };
+                serializedItemSlotEditorUI.Initialize(serializedItemSlot,parameters);
+                CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             });
            
             mMaxSizeField.text = structureExpandInstance.StructureExpandData.MaxSize.ToString();

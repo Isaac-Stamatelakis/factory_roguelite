@@ -7,6 +7,8 @@ using UI;
 using WorldModule.Caves;
 using Items;
 using System;
+using Item.Inventory.ClickHandlers.Instances;
+using Item.Slot;
 
 namespace DevTools.Structures {
     public class NewStructurePopUpUI : MonoBehaviour
@@ -29,7 +31,7 @@ namespace DevTools.Structures {
         private IntervalVector bounds;
         private StructureGenOptionType genOption = StructureGenOptionType.Empty;
 
-        public void init(StructureDevControllerUI controllerUI) {
+        public void Init(StructureDevControllerUI controllerUI) {
             if (!ItemRegistry.IsLoaded) {
                 StartCoroutine(ItemRegistry.LoadItems());
             }
@@ -73,13 +75,17 @@ namespace DevTools.Structures {
                 controllerUI.DisplayList();
                 GameObject.Destroy(gameObject);
             });
-            itemSlots = new List<SerializedItemSlot>{new SerializedItemSlot("stone",0,null)};
+            SerializedItemSlot serializedItemSlot = new SerializedItemSlot("stone", 1, null);
             
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
-                itemSlotEditorUI.transform.SetParent(transform.parent,false);
                 
-                itemSlotEditorUI.Initialize(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
+                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                {
+                    OnValueChange = Display
+                };
+                itemSlotEditorUI.Initialize(serializedItemSlot,parameters);
+                CanvasController.Instance.DisplayObject(itemSlotEditorUI.gameObject,hideParent:false);
             });
 
             editIntervalVectorButton.onClick.AddListener(() => {
@@ -87,17 +93,19 @@ namespace DevTools.Structures {
                 intervalVectorUI.transform.SetParent(transform.parent,false);
                 intervalVectorUI.display(bounds,reloadIntervalVector);
             });
-            
+            Display(serializedItemSlot);
+
         }
 
         public void reloadIntervalVector() {
             boundsText.text = bounds.ToString();
         }
 
-        public void reload()
+        public void Display(SerializedItemSlot serializedItemSlot)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            ItemObject itemObject = itemRegistry.GetItemObject(itemSlots[0].id);
+            ItemObject itemObject = itemRegistry.GetItemObject(serializedItemSlot.id);
+           
             if (itemObject == null) {
                 itemImage.gameObject.SetActive(false);
             } else {
@@ -105,11 +113,6 @@ namespace DevTools.Structures {
                 itemImage.sprite = itemObject.getSprite();
             }
             
-        }
-
-        public void reloadAll()
-        {
-            reload();
         }
     }
 }

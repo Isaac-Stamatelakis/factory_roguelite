@@ -48,16 +48,15 @@ namespace UI.Catalogue.ItemSearch
         {
             this.searchItems = itemObjects;
             this.onSelectOverride = onSelect;
+            Display();
         }
 
-        public void Initialize(PlayerScript playerScript)
+        public void Display()
         {
-            this.playerScript = playerScript;
             GlobalHelper.DeleteAllChildren(mVerticalLayoutGroup.transform);
             searchField.onValueChanged.AddListener(OnSearchChange);
             
             editButton.onClick.AddListener(OnEditButtonClick);
-            mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
             SetEditButtonColor();
             
             leftButton.onClick.AddListener(OnLeftButtonPress);
@@ -84,6 +83,12 @@ namespace UI.Catalogue.ItemSearch
             }
 
             OnSearchChange("");
+        }
+        public void Initialize(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
+            mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
+            Display();
         }
 
         void OnItemClick(PointerEventData.InputButton input, int col, int row)

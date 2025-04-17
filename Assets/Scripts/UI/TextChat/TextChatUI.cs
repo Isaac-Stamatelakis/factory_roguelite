@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
 using Player;
+using Player.Controls;
 using PlayerModule.KeyPress;
 
 namespace UI.Chat {
@@ -48,10 +49,11 @@ namespace UI.Chat {
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<RecordedMessage>();
-            string title = "<color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
-            string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
+            string title = "<color=purple>HAPPY Go Mine</color>";
+            string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback. Thanks!";
             SendAndRecordMessage(message);
-            SendAndRecordMessage("Press [<b>L</b>] to open your quest book!");
+            string questBookKey = ControlUtils.FormatKeyText(PlayerControl.OpenQuestBook);
+            SendAndRecordMessage($"Press [<b>{questBookKey}</b>] to open your quest book!");
             CanvasController.Instance.AddTypingListener(inputField);
             defaultTextListPosition = textList.transform.localPosition.y;
         }

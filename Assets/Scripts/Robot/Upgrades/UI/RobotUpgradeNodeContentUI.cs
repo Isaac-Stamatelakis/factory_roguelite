@@ -127,9 +127,12 @@ namespace Robot.Upgrades
                 mItemSlotUI.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SerializedItemSlotEditorUI itemSlotEditorUI = Instantiate(ItemSlotEditorUIPrefab);
-                    List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot> { new(robotUpgradeNode.NodeData.IconItemId,1,null) };
-                    itemSlotEditorUI.Initialize(serializedItemSlots,0,null,gameObject,displayTags:false,displayAmount:false,displayTrash:false,displayArrows:false,callback:OnIconChange);
-                    itemSlotEditorUI.transform.SetParent(transform.parent,false);
+                    SerializedItemSlot serializedItemSlot = new(robotUpgradeNode.NodeData.IconItemId, 1, null);
+                    SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                    {
+                        OnValueChange = OnIconChange
+                    };
+                    CanvasController.Instance.DisplayObject(itemSlotEditorUI.gameObject,hideParent:false);
                 });
             }
             

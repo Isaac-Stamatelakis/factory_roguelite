@@ -49,13 +49,11 @@ namespace Robot.Upgrades
            SerializedItemSlotEditorParameters displayParameters = new SerializedItemSlotEditorParameters
             {
                 DisplayAmount = true,
-                ListChangeCallback = reloadAll,
-                ChangeCallback = Reload,
-                ItemSlots = robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,
-                Index = index
+                ListChangeCallback = ReloadAll,
+                IndexValueChange = Reload
             };
-            serializedItemSlotEditorUI.Initialize(displayParameters);
-            serializedItemSlotEditorUI.transform.SetParent(robotUpgradeNodeContentUI.transform.parent,false);
+            serializedItemSlotEditorUI.InitializeList(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,displayParameters);
+            CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
         }
 
         public void Reload()
@@ -73,7 +71,7 @@ namespace Robot.Upgrades
             Display(itemSlot);
         }
 
-        public void reloadAll()
+        public void ReloadAll()
         {
             robotUpgradeNodeContentUI.DisplayItemCost();
         }

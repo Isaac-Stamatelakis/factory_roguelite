@@ -19,33 +19,48 @@ namespace UI.ItemEditor
         private Action changeCallback;
         private Action listChangeCallback;
         private int index;
-        
-        public void DisplayArrows(List<SerializedItemSlot> itemSlots, int itemIndex)
+
+        public void Display(List<SerializedItemSlot> itemSlots, int index,
+            SerializedItemSlotEditorParameters parameters)
         {
-            index = itemIndex;
-            upButton.onClick.AddListener(() => {
-                int newIndex = Global.ModInt(index-1,itemSlots.Count);
-                (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
-                index = newIndex;
+            Display(itemSlots[index],parameters);
+            upButton.gameObject.SetActive(parameters.EnableArrows);
+            downButton.gameObject.SetActive(parameters.EnableArrows);
+            deleteButton.gameObject.SetActive(parameters.EnableDelete);
+            if (parameters.EnableArrows)
+            {
+                downButton.onClick.AddListener(() =>
+                {
+                    ShiftValue(1);
+                });
+                upButton.onClick.AddListener(() =>
+                {
+                    ShiftValue(-1);
+                });
+            }
+            deleteButton.onClick.AddListener(() =>
+            {
+                itemSlots.RemoveAt(index);
                 listChangeCallback.Invoke();
+                CanvasController.Instance.PopStack();
             });
-            downButton.onClick.AddListener(() => {
+            void ShiftValue(int dir)
+            {
                 int newIndex = Global.ModInt(index+1,itemSlots.Count);
                 (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 listChangeCallback.Invoke();
-            });
+            }
         }
-
-        public void Display(SerializedItemSlot serializedItemSlot, DisplayParameters parameters)
+        public void Display(SerializedItemSlot serializedItemSlot, SerializedItemSlotEditorParameters parameters)
         {
-            this.changeCallback = parameters.ChangeCallback;
             this.listChangeCallback = parameters.ListChangeCallback;
-            upButton.gameObject.SetActive(parameters.EnableArrows);
-            downButton.gameObject.SetActive(parameters.EnableArrows);
+            
             tagInput.gameObject.SetActive(parameters.DisplayTags);
             amountField.gameObject.SetActive(parameters.DisplayAmount);
-            deleteButton.gameObject.SetActive(parameters.EnableDelete && parameters.ItemSlots != null);
+            upButton.gameObject.SetActive(false);
+            downButton.gameObject.SetActive(false);
+            deleteButton.gameObject.SetActive(false);
             
             tagInput.onValueChanged.AddListener((string value) => {
                 serializedItemSlot.tags = value;
@@ -53,13 +68,6 @@ namespace UI.ItemEditor
             amountField.text = serializedItemSlot?.amount.ToString();
             amountField.onValueChanged.AddListener(OnAmountChange);
             
-            deleteButton.onClick.AddListener(() =>
-            {
-                parameters.ItemSlots.RemoveAt(parameters.Index);
-                listChangeCallback.Invoke();
-                CanvasController.Instance.PopStack();
-            });
-             
             return;
             void OnAmountChange(string value)
             {
@@ -89,6 +97,8 @@ namespace UI.ItemEditor
                     }
                 }
             }
+
+            
         }
     }
 }

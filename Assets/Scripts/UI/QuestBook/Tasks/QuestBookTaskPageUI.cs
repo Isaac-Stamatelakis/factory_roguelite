@@ -110,10 +110,12 @@ namespace UI.QuestBook {
                         node.NodeData.ImageSeralizedItemSlot = itemSlot;
                         questBookPageUI.Display();
                     }
-
-                    serializedItemSlotEditor.Initialize(new List<SerializedItemSlot>{node.NodeData.ImageSeralizedItemSlot},0,null,
-                        gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
-                    serializedItemSlotEditor.transform.SetParent(transform,false);
+                    SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                    {
+                        OnValueChange = Callback
+                    };
+                    serializedItemSlotEditor.Initialize(node.NodeData.ImageSeralizedItemSlot,parameters);
+                    CanvasController.Instance.DisplayObject(serializedItemSlotEditor.gameObject,hideParent:false);
                 }); 
                 
                 mEditSizeButton.onClick.AddListener(() =>

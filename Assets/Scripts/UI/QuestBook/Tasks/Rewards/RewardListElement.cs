@@ -10,9 +10,10 @@ using UI;
 using Items;
 using Items.Inventory;
 using UI.QuestBook.Tasks.Rewards;
+using UnityEditor.Rendering;
 
 namespace UI.QuestBook {
-    public class RewardListElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
+    public class RewardListElement : ItemSlotUI, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mNameText;
         private List<SerializedItemSlot> itemSlots;
@@ -28,8 +29,17 @@ namespace UI.QuestBook {
                 {
                     QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    serializedItemSlotEditorUI.Initialize(itemSlots,index,this,taskPageUI.gameObject);
-                    serializedItemSlotEditorUI.transform.SetParent(taskPageUI.transform,false);
+                    SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                    {
+                        DisplayAmount = true,
+                        DisplayTags = true,
+                        EnableArrows = true,
+                        EnableDelete = true,
+                        IndexValueChange = reload,
+                        ListChangeCallback = reloadAll
+                    };
+                    serializedItemSlotEditorUI.InitializeList(itemSlots,index,parameters);
+                    CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
                     break;
                 }
                 case PointerEventData.InputButton.Left when questBookRewardUI.ParentUI.Content.ItemRewards.LimitOne:

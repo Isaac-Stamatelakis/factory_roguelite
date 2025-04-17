@@ -16,46 +16,47 @@ namespace UI {
         [SerializeField] private ItemSearchUI mItemSearchUI;
         [SerializeField] private SlotValueEditorUI mSlotValueEditorUI;
         private Action<SerializedItemSlot> callback;
-        
+
         public void Initialize(SerializedItemSlot serializedItemSlot, SerializedItemSlotEditorParameters parameters)
         {
-            mItemSearchUI.Initialize(parameters.RestrictedItems,OnSelect);
-            
+            mItemSearchUI.Initialize(parameters.RestrictedItems, OnSelect);
             return;
-
             void OnSelect(ItemObject itemObject)
             {
-                if (parameters.ItemSlots != null)
-                {
-                    List<SerializedItemSlot> itemSlots = parameters.ItemSlots;
-                    SerializedItemSlot newSlot = new SerializedItemSlot(
-                        itemObject?.id,
-                        itemSlots[parameters.Index]?.amount ?? 1,
-                        itemSlots[parameters.Index]?.tags
-                    );
-                    itemSlots[parameters.Index] = newSlot;
-                }
-                else
-                {
-                    serializedItemSlot.id = itemObject?.id;
-                }
-                
+                serializedItemSlot.id = itemObject?.id;
                 callback?.Invoke(serializedItemSlot);
             }
+
         }
+
+        public void InitializeList(List<SerializedItemSlot> itemSlots, int index, SerializedItemSlotEditorParameters parameters)
+        {
+            mItemSearchUI.Initialize(parameters.RestrictedItems, OnSelect);
+            return;
+            void OnSelect(ItemObject itemObject)
+            {
+                SerializedItemSlot newSlot = new SerializedItemSlot(
+                    itemObject?.id,
+                    itemSlots[index]?.amount ?? 1,
+                    itemSlots[index]?.tags
+                );
+                itemSlots[index] = newSlot;
+                callback?.Invoke(newSlot);
+            }
+        }
+
+        
     }
+
     public class SerializedItemSlotEditorParameters
     {
         public List<ItemObject> RestrictedItems;
-        public List<SerializedItemSlot> ItemSlots;
-        
-        public int Index;
         public bool EnableDelete;
         public bool EnableArrows;
         public bool DisplayTags;
         public bool DisplayAmount;
-        public Action<SerializedItemSlot> OnItemChange;
-        public Action ChangeCallback;
+        public Action<SerializedItemSlot> OnValueChange;
+        public Action IndexValueChange;
         public Action ListChangeCallback;
     }
     

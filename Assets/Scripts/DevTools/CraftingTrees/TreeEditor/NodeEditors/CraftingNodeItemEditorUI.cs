@@ -26,7 +26,12 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             void ClickOverride(PointerEventData.InputButton inputButton, int index)
             {
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(mItemSlotEditorUI);
-                serializedItemSlotEditorUI.Initialize(new List<SerializedItemSlot>{itemNodeData.SerializedItemSlot},index,null,null,callback:OnItemChange);
+                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                {
+                    OnValueChange = OnItemChange
+                };
+                serializedItemSlotEditorUI.Initialize(itemNodeData.SerializedItemSlot,parameters);
+                
                 CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             }
 

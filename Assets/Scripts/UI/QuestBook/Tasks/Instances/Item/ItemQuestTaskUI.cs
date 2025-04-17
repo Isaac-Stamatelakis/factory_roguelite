@@ -57,7 +57,7 @@ namespace UI.QuestBook {
             bool allComplete = true;
             foreach (ItemQuestItemElement itemUIElement in itemUIElements)
             {
-                itemUIElement.reload();
+                itemUIElement.Reload();
                 if (!itemUIElement.Complete)
                 {
                     allComplete = false;

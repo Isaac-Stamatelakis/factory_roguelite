@@ -12,7 +12,7 @@ using Items.Inventory;
 using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
+    public class ItemQuestItemElement : ItemSlotUI, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mItemName;
         private ItemQuestTask itemQuestTask;
@@ -30,7 +30,7 @@ namespace UI.QuestBook {
             this.taskUI = taskUI;
             this.index = index;
             this.questBookTaskData = questBookTaskData;
-            reload();
+            Reload();
         }
         
         public void OnPointerClick(PointerEventData eventData)
@@ -46,11 +46,21 @@ namespace UI.QuestBook {
         private void NavigateToEditMode() {
             UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-            serializedItemSlotEditorUI.Initialize(itemQuestTask.Items,index,this,gameObject);
-            serializedItemSlotEditorUI.transform.SetParent(taskUI.QuestBookTaskPageUI.transform,false);
+            SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+            {
+                DisplayAmount = true,
+                DisplayTags = true,
+                EnableArrows = true,
+                EnableDelete = true,
+                IndexValueChange = Reload,
+                ListChangeCallback =  taskUI.Display
+            };
+            serializedItemSlotEditorUI.InitializeList(itemQuestTask.Items,index,parameters);
+            CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
+            
         }
 
-        public void reload()
+        public void Reload()
         {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
             
@@ -70,10 +80,7 @@ namespace UI.QuestBook {
                               ItemDisplayUtils.FormatAmountText(ItemSlot?.amount ?? 0,oneInvisible:false);
         }
 
-        public void reloadAll()
-        {
-            taskUI.Display();
-        }
+        
 
         
     }
