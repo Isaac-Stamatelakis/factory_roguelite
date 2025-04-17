@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DevTools.CraftingTrees.Network;
+using Items;
 using Recipe.Objects;
 using Recipe.Processor;
 using RecipeModule;
@@ -86,6 +88,10 @@ namespace DevTools.CraftingTrees.TreeEditor
         private void GenerateRecipes()
         {
 #if UNITY_EDITOR
+            int generateCount = 0;
+            int modifyCount = 0;
+            int deleteCount = 0;
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Dictionary<int, CraftingTreeGeneratorNode> nodeDictionary = new Dictionary<int, CraftingTreeGeneratorNode>();
             foreach (var node in network.Nodes)
             {
@@ -115,22 +121,82 @@ namespace DevTools.CraftingTrees.TreeEditor
                         recipes.Remove(recipeObject);
                     }
                     GameObject.Destroy(recipeObject);
+                    deleteCount++;
                     recipeObject = null;
                 }
+
+                bool newRecipe = false;
                 if (!recipeObject)
                 {
                     recipeObject = RecipeUtils.GetNewRecipeObject(recipeProcessor.RecipeType, null);
+                    if (recipeObject is not ItemRecipeObject)
+                    {
+                        Debug.LogWarning($"Generated invalid recipe {recipeObject.name}");
+                        GameObject.Destroy(recipeObject);
+                        continue;
+                    }
+                    newRecipe = true;
+                    generateCount++;
+                }
+
+                if (newRecipe)
+                {
+                    recipes.Add(recipeObject);
+                    var recipeModeCollection = recipeProcessor.RecipeCollections[MODE].RecipeCollection;
+                    string collectionPath = AssetDatabase.GetAssetPath(recipeModeCollection);
+                    string folder = Path.GetDirectoryName(collectionPath);
+                    string randomSuffix = Guid.NewGuid().ToString("N"); // "N" removes hyphens
+                    string recipeName = recipeModeCollection.name + "_" + randomSuffix;
+                    recipeObject.name = recipeName;
+                    AssetDatabase.CreateAsset(recipeObject, Path.Combine(folder, recipeName + ".asset"));
+                    recipeModeCollection.Recipes.Add(recipeObject);
+                    string recipeObjectPath = AssetDatabase.GetAssetPath(recipeObject);
+                    string recipeGuid = AssetDatabase.AssetPathToGUID(recipeObjectPath);
+                    processorNodeData.RecipeGuid = recipeGuid;
+                }
+                else
+                {
+                    modifyCount++;
                 }
                 
+                ItemRecipeObject itemRecipeObject = (ItemRecipeObject)recipeObject;
+                itemRecipeObject.Inputs.Clear();
+                itemRecipeObject.Outputs.Clear();
                 List<int> inputIds = node.NetworkData.InputIds;
                 foreach (int inputId in inputIds)
                 {
                     var inputNode = nodeDictionary.GetValueOrDefault(inputId);
                     if (inputNode == null || inputNode.NodeType != CraftingTreeNodeType.Item) continue;
-                    
+                    ItemNodeData itemNodeData = (ItemNodeData)inputNode.NodeData;
+                    if (itemNodeData.SerializedItemSlot == null) continue;
+                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (!itemObject) continue;
+                    EditorItemSlot editorItemSlot = new EditorItemSlot
+                    {
+                        ItemObject = itemObject,
+                        Amount = itemNodeData.SerializedItemSlot.amount
+                    };
+                    itemRecipeObject.Inputs.Add(editorItemSlot);
                 }
-
+                
+                int currentId = node.GetId();
+                foreach (var otherNode in network.Nodes)
+                {
+                    if (otherNode == null || otherNode.NodeType != CraftingTreeNodeType.Item || !otherNode.NetworkData.InputIds.Contains(currentId)) continue;
+                    ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                    if (itemNodeData.SerializedItemSlot == null) continue;
+                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (!itemObject) continue;
+                    RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot
+                    {
+                        ItemObject = itemObject,
+                        Amount = itemNodeData.SerializedItemSlot.amount,
+                        Chance = 1f // TODO CHANCE
+                    };
+                    itemRecipeObject.Outputs.Add(editorItemSlot);
+                }
             }
+            Debug.Log($"Generated {generateCount} new recipes, modified {modifyCount} recipes & deleted {deleteCount} recipes.");
 #endif
         }
     }
