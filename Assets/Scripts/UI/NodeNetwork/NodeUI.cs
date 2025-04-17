@@ -56,18 +56,13 @@ namespace UI.NodeNetwork {
         }
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left) {
-                switch (nodeNetwork.GetMode()) {
-                    case NodeNetworkUIMode.View:
-                        openContent();
-                        break;
-                    case NodeNetworkUIMode.EditConnection:
-                        nodeNetwork.ModifyConnection(node);
-                        break;
-                }
-                
-            } else if (eventData.button == PointerEventData.InputButton.Right) {
-
+            if (nodeNetwork.GetSelectedNode() == null)
+            {
+                openContent();
+            }
+            else
+            {
+                nodeNetwork.ModifyConnection(node);
             }
         }
 

@@ -241,11 +241,10 @@ namespace Items {
                     break;
                 }
                 if (!itemObject.name.ToLower().Contains(search.ToLower())) continue;
-                if (playerScript && !playerScript.GameStageCollection.HasStage(itemObject?.GetGameStageObject()))
+                if (playerScript && enforceGameStages && !playerScript.GameStageCollection.HasStage(itemObject?.GetGameStageObject()))
                 {
                     continue;
                 }
-                if (enforceGameStages) continue;
                 queried.Add(new ItemSlot(itemObject,1,null));
                 i ++;
             }

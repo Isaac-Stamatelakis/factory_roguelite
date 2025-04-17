@@ -14,19 +14,34 @@ namespace Items.Transmutable
         {
             return GetStateName(material,state).Replace(" ", "_").ToLower();
         }
+        
 
         public static string GetStateName(TransmutableItemMaterial material, TransmutableItemState state)
+        {
+            return GetStateName(material.name, state);
+        }
+        
+        public static string GetStateName(string materialName, TransmutableItemState state)
         {
             string stateName = state.ToString();
             string[] split = stateName.Split("_");
             if (split.Length == 1)
             {
-                return $"{material.name} {stateName}";
+                return $"{materialName} {stateName}";
             }
             
             string prefix = split[0];
             string suffix = split[1];
-            return $"{prefix} {material.name} {suffix}";
+            return $"{prefix} {materialName} {suffix}";
+        }
+        
+        public static TransmutableItemObject GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
+        {
+            const string DEFAULT_MATERIAL = "Iron";
+            string name = GetStateName(DEFAULT_MATERIAL, transmutableItemState);
+
+            string id = name.ToLower().Replace(" ", "_");
+            return ItemRegistry.GetInstance().GetTransmutableItemObject(id);
         }
 
         public static bool CanTransmute(TransmutableItemMaterial material, TransmutableItemState state)

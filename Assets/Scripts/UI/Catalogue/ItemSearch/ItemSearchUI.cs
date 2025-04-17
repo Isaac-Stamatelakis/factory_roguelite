@@ -78,7 +78,6 @@ namespace UI.Catalogue.ItemSearch
                 {
                     OnItemClick(input, index, row1);
                 }
-                
                 inventory.OverrideClickAction(OnClick);
             }
 

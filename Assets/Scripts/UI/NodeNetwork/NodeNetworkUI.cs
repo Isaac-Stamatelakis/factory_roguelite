@@ -18,6 +18,7 @@ namespace UI.NodeNetwork {
         public void PlaceNewNode(Vector2 position);
         public GameObject GenerateNewNodeObject();
         public Transform GetNodeContainer();
+        public INodeUI GetSelectedNode();
     }
     public enum NodeNetworkUIMode {
         View,
@@ -395,6 +396,11 @@ namespace UI.NodeNetwork {
         public Transform GetNodeContainer()
         {
             return nodeContainer;
+        }
+
+        public INodeUI GetSelectedNode()
+        {
+            return selectedNode;
         }
 
         private class RightClickEvent

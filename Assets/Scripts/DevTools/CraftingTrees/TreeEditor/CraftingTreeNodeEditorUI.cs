@@ -3,6 +3,7 @@ using DevTools.CraftingTrees.Network;
 using DevTools.CraftingTrees.TreeEditor.NodeEditors;
 using TMPro;
 using TMPro.Examples;
+using UI.NodeNetwork;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
@@ -21,39 +22,35 @@ namespace DevTools.CraftingTrees.TreeEditor
 
         public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI)
         {
+            mDeleteButton.onClick.RemoveAllListeners();
             gameObject.SetActive(true);
             mDeleteButton.onClick.AddListener(DeletePress);
             mTitleText.text = GlobalHelper.AddSpaces(node.NodeType.ToString());
-            mOutputText.text = $"Outputs:{node.NetworkData.InputIds.Count}";
-            mInputText.text = $"Input:?";
+            mOutputText.text = $"Outputs:{GetOutputs()}";
+            mInputText.text = $"Input:{node.NetworkData.InputIds.Count}";
             GlobalHelper.DeleteAllChildren(nodeContentContainer);
-            switch (node.NodeType)
-            {
-                case CraftingTreeNodeType.Item:
-                    CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
-                    craftingTreeNodeEditorUI.Display((ItemNodeData)node.NodeData,nodeNetworkUI.CraftingTreeGeneratorUI);
-                    break;
-                case CraftingTreeNodeType.Transmutation:
-                    break;
-                case CraftingTreeNodeType.Processor:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            
+            CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
+            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI);
+            
             return;
 
             void DeletePress()
             {
-                int nodeId = node.GetId();
-                for (var index = 0; index < nodeNetwork.Nodes.Count; index++)
+                nodeNetworkUI.DeleteNode(node);
+            }
+
+            int GetOutputs()
+            {
+                int count = 0;
+                int currentId = node.GetId();
+                foreach (CraftingTreeGeneratorNode otherNode in nodeNetwork.Nodes)
                 {
-                    var otherNode = nodeNetwork.Nodes[index];
-                    if (nodeId != otherNode.GetId()) continue;
-                    nodeNetwork.Nodes.RemoveAt(index);
-                    nodeNetworkUI.CraftingTreeGeneratorUI.Rebuild();
-                    gameObject.SetActive(false);
-                    break;
+                    if (otherNode.GetId() == currentId) continue;
+                    if (otherNode.NetworkData.InputIds.Contains(currentId)) count++;
                 }
+
+                return count;
             }
         }
     }

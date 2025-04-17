@@ -60,6 +60,8 @@ namespace DevTools.CraftingTrees.Network
         public float X;
         public float Y;
         public List<int> InputIds;
+        
+        
     }
 
     internal abstract class CraftingTreeNodeData
