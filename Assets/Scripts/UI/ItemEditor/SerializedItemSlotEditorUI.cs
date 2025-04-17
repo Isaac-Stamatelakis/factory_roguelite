@@ -17,21 +17,38 @@ namespace UI {
         [SerializeField] private SlotValueEditorUI mSlotValueEditorUI;
         private Action<SerializedItemSlot> callback;
 
-        public void Initialize(SerializedItemSlot serializedItemSlot, SerializedItemSlotEditorParameters parameters)
+        public void Initialize(SerializedItemSlot serializedItemSlot, Action<SerializedItemSlot> callback, SerializedItemSlotEditorParameters parameters,List<ItemObject> itemRestrictions = null)
         {
-            mItemSearchUI.Initialize(parameters.RestrictedItems, OnSelect);
+            mItemSearchUI.Initialize(itemRestrictions, OnSelect);
+            if (parameters == null)
+            {
+                mSlotValueEditorUI.gameObject.SetActive(false);
+            }
+            else
+            {
+                mSlotValueEditorUI.Display(serializedItemSlot,parameters);
+            }
             return;
             void OnSelect(ItemObject itemObject)
             {
                 serializedItemSlot.id = itemObject?.id;
                 callback?.Invoke(serializedItemSlot);
+                if (parameters == null) CanvasController.Instance.PopStack();
             }
 
         }
 
-        public void InitializeList(List<SerializedItemSlot> itemSlots, int index, SerializedItemSlotEditorParameters parameters)
+        public void InitializeList(List<SerializedItemSlot> itemSlots, int index, SerializedItemSlotEditorParameters parameters,List<ItemObject> itemRestrictions = null)
         {
-            mItemSearchUI.Initialize(parameters.RestrictedItems, OnSelect);
+            mItemSearchUI.Initialize(itemRestrictions, OnSelect);
+            if (parameters == null)
+            {
+                mSlotValueEditorUI.gameObject.SetActive(false);
+            }
+            else
+            {
+                mSlotValueEditorUI.Display(itemSlots,index,parameters);
+            }
             return;
             void OnSelect(ItemObject itemObject)
             {
@@ -44,13 +61,12 @@ namespace UI {
                 callback?.Invoke(newSlot);
             }
         }
-
-        
     }
+    
+    
 
     public class SerializedItemSlotEditorParameters
     {
-        public List<ItemObject> RestrictedItems;
         public bool EnableDelete;
         public bool EnableArrows;
         public bool DisplayTags;

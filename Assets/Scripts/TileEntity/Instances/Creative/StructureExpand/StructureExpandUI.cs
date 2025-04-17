@@ -33,11 +33,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             {
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(serializedItemSlotEditorUIPrefab);
                 SerializedItemSlot serializedItemSlot = new(structureExpandInstance.StructureExpandData.Id, 1, null);
-                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
-                {
-                    OnValueChange = CallBack
-                };
-                serializedItemSlotEditorUI.Initialize(serializedItemSlot,parameters);
+                serializedItemSlotEditorUI.Initialize(serializedItemSlot,CallBack,null);
                 CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             });
            

@@ -110,11 +110,7 @@ namespace UI.QuestBook {
                         node.NodeData.ImageSeralizedItemSlot = itemSlot;
                         questBookPageUI.Display();
                     }
-                    SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
-                    {
-                        OnValueChange = Callback
-                    };
-                    serializedItemSlotEditor.Initialize(node.NodeData.ImageSeralizedItemSlot,parameters);
+                    serializedItemSlotEditor.Initialize(node.NodeData.ImageSeralizedItemSlot, Callback,null);
                     CanvasController.Instance.DisplayObject(serializedItemSlotEditor.gameObject,hideParent:false);
                 }); 
                 

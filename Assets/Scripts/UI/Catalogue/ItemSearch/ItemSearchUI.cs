@@ -97,7 +97,7 @@ namespace UI.Catalogue.ItemSearch
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             if (onSelectOverride != null)
             {
-                onSelectOverride(itemSlot.itemObject);
+                onSelectOverride.Invoke(itemSlot.itemObject);
                 return;
             }
             switch (input)
@@ -142,7 +142,20 @@ namespace UI.Catalogue.ItemSearch
         }
         private void OnSearchChange(string search) {
             page = 1;
-            queriedItems = ItemRegistry.GetInstance().QuerySlots(search,int.MaxValue);
+            if (searchItems == null)
+            {
+                queriedItems = ItemRegistry.GetInstance().QuerySlots(search,int.MaxValue);
+            }
+            else
+            {
+                queriedItems = new List<ItemSlot>();
+                foreach (ItemObject item in searchItems)
+                {
+                    if (!item.name.ToLower().Contains(search.ToLower())) continue;
+                    queriedItems.Add(new ItemSlot(item,1,null));
+                }
+            }
+            
             maxPages = Mathf.CeilToInt(queriedItems.Count/ITEMS_PER_PAGE)+1;
             PopulateResults();
         }

@@ -30,7 +30,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                 {
                     OnValueChange = OnItemChange
                 };
-                serializedItemSlotEditorUI.Initialize(itemNodeData.SerializedItemSlot,parameters);
+                serializedItemSlotEditorUI.Initialize(itemNodeData.SerializedItemSlot,OnItemChange,null);
                 
                 CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             }

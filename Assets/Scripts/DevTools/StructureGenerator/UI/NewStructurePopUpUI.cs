@@ -79,13 +79,10 @@ namespace DevTools.Structures {
             
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
-                
-                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
-                {
-                    OnValueChange = Display
-                };
-                itemSlotEditorUI.Initialize(serializedItemSlot,parameters);
+                List<ItemObject> tileItems = ItemRegistry.GetInstance().GetAllItemsOfTypeAsItem<TileItem>();
+                itemSlotEditorUI.Initialize(serializedItemSlot,Display,null,tileItems);
                 CanvasController.Instance.DisplayObject(itemSlotEditorUI.gameObject,hideParent:false);
+                
             });
 
             editIntervalVectorButton.onClick.AddListener(() => {
