@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using JetBrains.Annotations;
 using TMPro;
@@ -46,7 +47,7 @@ namespace UI.ItemEditor
             });
             void ShiftValue(int dir)
             {
-                int newIndex = Global.ModInt(index+1,itemSlots.Count);
+                int newIndex = Global.ModInt(index+dir,itemSlots.Count);
                 (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 listChangeCallback.Invoke();
@@ -67,7 +68,8 @@ namespace UI.ItemEditor
             });
             amountField.text = serializedItemSlot?.amount.ToString();
             amountField.onValueChanged.AddListener(OnAmountChange);
-            
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
+            itemSlotUI.Display(itemSlot);
             return;
             void OnAmountChange(string value)
             {
@@ -88,7 +90,8 @@ namespace UI.ItemEditor
                     } else {
                         serializedItemSlot.amount = amount;
                     }
-                    changeCallback?.Invoke();
+                    parameters.IndexValueChange?.Invoke();
+                    parameters.OnValueChange?.Invoke(serializedItemSlot);
                 } catch (FormatException) {
                     if (value.Length <= 1) {
                         amountField.text = "";

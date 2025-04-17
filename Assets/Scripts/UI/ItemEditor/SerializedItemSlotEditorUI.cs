@@ -58,7 +58,9 @@ namespace UI {
                     itemSlots[index]?.tags
                 );
                 itemSlots[index] = newSlot;
+                parameters.IndexValueChange?.Invoke();
                 callback?.Invoke(newSlot);
+                mSlotValueEditorUI.Display(itemSlots,index,parameters);
             }
         }
     }
