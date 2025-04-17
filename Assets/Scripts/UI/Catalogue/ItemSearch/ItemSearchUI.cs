@@ -41,6 +41,14 @@ namespace UI.Catalogue.ItemSearch
         private int page = 1;
         private int maxPages = 1;
         private PlayerScript playerScript;
+        private Action<ItemObject> onSelectOverride;
+        private List<ItemObject> searchItems;
+
+        public void Initialize(List<ItemObject> itemObjects, Action<ItemObject> onSelect)
+        {
+            this.searchItems = itemObjects;
+            this.onSelectOverride = onSelect;
+        }
 
         public void Initialize(PlayerScript playerScript)
         {
@@ -82,6 +90,11 @@ namespace UI.Catalogue.ItemSearch
         {
             ItemSlot itemSlot = horizontalInventories[row].GetItemSlot(col);
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            if (onSelectOverride != null)
+            {
+                onSelectOverride(itemSlot.itemObject);
+                return;
+            }
             switch (input)
             {
                 case PointerEventData.InputButton.Left:

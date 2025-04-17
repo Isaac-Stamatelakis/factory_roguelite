@@ -40,6 +40,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             void DisplayInventory()
             {
                 ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
+                mTitleText.text = ItemSlotUtils.IsItemSlotNull(itemSlot) ? "Null" : itemSlot.itemObject.name;
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
             }
         }

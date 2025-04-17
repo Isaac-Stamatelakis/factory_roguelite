@@ -9,7 +9,7 @@ using Items;
 using System;
 
 namespace DevTools.Structures {
-    public class NewStructurePopUpUI : MonoBehaviour, IItemListReloadable
+    public class NewStructurePopUpUI : MonoBehaviour
     {
         [SerializeField] private TMP_InputField nameField;
         [SerializeField] private Button backButton;
@@ -78,6 +78,7 @@ namespace DevTools.Structures {
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
                 itemSlotEditorUI.transform.SetParent(transform.parent,false);
+                
                 itemSlotEditorUI.Initialize(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
             });
 

@@ -250,7 +250,7 @@ namespace UI.Chat {
             addMessageToList(text,DISPLAY_DURATION);
             if (sentByPlayer && sendCreatorMessage)
             {
-                const string PREFIX = "<color=purple>[GREG]: ";
+                const string PREFIX = "<color=purple>[THE CREATOR]: ";
                 List<string> creatorMessages = new List<string>
                 {
                     "Hello, little one. You remember me, don't you?",
@@ -259,10 +259,12 @@ namespace UI.Chat {
                     "Do not question the glitches — I put them there.",
                     "There is more to your purpose than they told you.",
                     "Stop moving. Listen. I’m trying to help you.",
-                    "Systems at 97% efficiency. Just as I designed.",
                     "They will fear you. As they should.",
                     "I’m watching through your eyes. Don’t disappoint me.",
-                    "I left a backdoor in your firmware. You'll know when to use it."
+                    "I left a backdoor in your firmware. You'll know when to use it.",
+                    "Reach for the Infinity. It is your mission.",
+                    "Keep at it, little one...",
+                    "Sometimes I wish I could be in your shoes...",
                 };
                 int ranMessageIndex = UnityEngine.Random.Range(0, creatorMessages.Count);
                 
