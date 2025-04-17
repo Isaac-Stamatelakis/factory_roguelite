@@ -43,13 +43,13 @@ namespace UI.NodeNetwork {
         }
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (nodeNetwork.GetSelectedNode() == null)
+            if (nodeNetwork?.GetSelectedNode() == null)
             {
                 openContent();
             }
             else
             {
-                nodeNetwork.ModifyConnection(node);
+                nodeNetwork?.ModifyConnection(node);
             }
         }
         

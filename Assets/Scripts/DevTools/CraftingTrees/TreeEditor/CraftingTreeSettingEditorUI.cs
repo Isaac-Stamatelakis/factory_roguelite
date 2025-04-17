@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using DevTools.CraftingTrees.Network;
 using Recipe.Objects;
+using Recipe.Processor;
+using RecipeModule;
 using TileEntity;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,9 +22,11 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private TMP_Dropdown mTierDropDown;
         [SerializeField] private TMP_Dropdown mTransmutationEfficiencyDropDown;
         [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
+        [SerializeField] private Button mGenerateButton;
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
         private CraftingTreeGenerator craftingTreeGenerator;
+        private CraftingTreeNodeNetwork network;
 
         public void Update()
         {
@@ -53,6 +59,7 @@ namespace DevTools.CraftingTrees.TreeEditor
 
         public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator)
         {
+            this.network = craftingTreeNodeNetwork;
             craftingTreeGenerator = treeGenerator;
             void InitializeNodeButton(Button button, CraftingTreeNodeType type)
             {
@@ -73,6 +80,58 @@ namespace DevTools.CraftingTrees.TreeEditor
             InitializeNodeButton(mProcessorButton, CraftingTreeNodeType.Processor);
             mTierDropDown.options = GlobalHelper.EnumToDropDown<Tier>();
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
+            mGenerateButton.onClick.AddListener(GenerateRecipes);
+        }
+
+        private void GenerateRecipes()
+        {
+#if UNITY_EDITOR
+            Dictionary<int, CraftingTreeGeneratorNode> nodeDictionary = new Dictionary<int, CraftingTreeGeneratorNode>();
+            foreach (var node in network.Nodes)
+            {
+                nodeDictionary[node.GetId()] = node;
+            }
+            
+            foreach (var node in network.Nodes)
+            {
+                if (node == null || node.NodeType != CraftingTreeNodeType.Processor) continue;
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
+                RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                if (recipeProcessor == null) continue;
+                string recipePath = AssetDatabase.GUIDToAssetPath(processorNodeData.RecipeGuid);
+                RecipeObject recipeObject = AssetDatabase.LoadAssetAtPath<RecipeObject>(recipePath);
+                const int MODE = 0; // TODO LET USER ASSIGN MODE
+                List<RecipeObject> recipes = recipeProcessor.RecipeCollections[MODE].RecipeCollection.Recipes;
+                if (recipeProcessor.RecipeCollections.Count < MODE)
+                {
+                    Debug.LogWarning($"Recipe Processor {recipeProcessor.name} does not have a mode '{MODE}'");
+                    continue;
+                }
+                if (recipeObject && !RecipeUtils.CurrentValid(recipeObject, recipeProcessor.RecipeType))
+                {
+                    if (recipes.Contains(recipeObject))
+                    {
+                        recipes.Remove(recipeObject);
+                    }
+                    GameObject.Destroy(recipeObject);
+                    recipeObject = null;
+                }
+                if (!recipeObject)
+                {
+                    recipeObject = RecipeUtils.GetNewRecipeObject(recipeProcessor.RecipeType, null);
+                }
+                
+                List<int> inputIds = node.NetworkData.InputIds;
+                foreach (int inputId in inputIds)
+                {
+                    var inputNode = nodeDictionary.GetValueOrDefault(inputId);
+                    if (inputNode == null || inputNode.NodeType != CraftingTreeNodeType.Item) continue;
+                    
+                }
+
+            }
+#endif
         }
     }
 }

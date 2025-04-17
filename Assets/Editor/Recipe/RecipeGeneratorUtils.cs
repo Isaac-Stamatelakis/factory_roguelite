@@ -6,6 +6,7 @@ using Items.Transmutable;
 using Recipe;
 using Recipe.Objects;
 using Recipe.Objects.Generation;
+using RecipeModule;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -60,7 +61,7 @@ public static class RecipeGeneratorUtils
             }
             
             
-            bool currentValid = recipeGenerator.GeneratedRecipes[i] && CurrentValid(recipeGenerator.GeneratedRecipes[i],recipeGenerator.RecipeType);
+            bool currentValid = recipeGenerator.GeneratedRecipes[i] && RecipeUtils.CurrentValid(recipeGenerator.GeneratedRecipes[i],recipeGenerator.RecipeType);
             if (!currentValid)
             {
                 DeleteRecipe(recipeGenerator, recipeGenerator.GeneratedRecipes[i],log);
@@ -76,25 +77,7 @@ public static class RecipeGeneratorUtils
         }
     }
 
-    private static bool CurrentValid(RecipeObject recipeObject, RecipeType recipeType)
-    {
-        if (!recipeObject) return false;
-        switch (recipeType)
-        {
-            case RecipeType.Item:
-                return recipeObject is ItemRecipeObject;
-            case RecipeType.Passive:
-                return recipeObject is PassiveItemRecipeObject;
-            case RecipeType.Generator:
-                return recipeObject is GeneratorItemRecipeObject;
-            case RecipeType.Machine:
-                return recipeObject is ItemEnergyRecipeObject;
-            case RecipeType.Burner:
-                return recipeObject is BurnerRecipeObject;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
-        }
-    }
+    
 
     public static void DeleteRecipes(RecipeGenerator recipeGenerator)
     {
@@ -173,7 +156,7 @@ public static class RecipeGeneratorUtils
 
     private static ItemRecipeObject GenerateRecipe(RecipeGenerator recipeGenerator, int index, bool log, string saveFolder, int multiplier)
     {
-        ItemRecipeObject recipeObject = GetNewRecipeObject(recipeGenerator.RecipeType,recipeGenerator.Template);
+        ItemRecipeObject recipeObject = RecipeUtils.GetNewRecipeObject(recipeGenerator.RecipeType,recipeGenerator.Template);
         if (!recipeObject)
         {
             if (log) Debug.LogError($"Could not generate recipe at index {index}");
@@ -203,37 +186,6 @@ public static class RecipeGeneratorUtils
                 };
             default:
                 throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    private static ItemRecipeObject GetNewRecipeObject(RecipeType recipeType, RecipeObject template)
-    {
-        switch (recipeType)
-        {
-            case RecipeType.Item:
-                return ScriptableObject.CreateInstance<ItemRecipeObject>();
-            case RecipeType.Passive:
-                if (template is PassiveItemRecipeObject)
-                {
-                    return Object.Instantiate(template) as ItemRecipeObject;
-                }
-                return ScriptableObject.CreateInstance<PassiveItemRecipeObject>();
-            case RecipeType.Generator:
-                if (template is GeneratorItemRecipeObject)
-                {
-                    return Object.Instantiate(template) as GeneratorItemRecipeObject;
-                }
-                return ScriptableObject.CreateInstance<GeneratorItemRecipeObject>();
-            case RecipeType.Machine:
-                if (template is ItemEnergyRecipeObject)
-                {
-                    return Object.Instantiate(template) as ItemEnergyRecipeObject;
-                }
-                return ScriptableObject.CreateInstance<ItemEnergyRecipeObject>();
-            case RecipeType.Burner:
-                return ScriptableObject.CreateInstance<BurnerRecipeObject>();
-            default:
-                throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
         }
     }
 }

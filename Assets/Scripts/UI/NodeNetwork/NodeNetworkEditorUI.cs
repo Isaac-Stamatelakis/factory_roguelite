@@ -23,8 +23,8 @@ namespace UI.NodeNetwork {
             addNode.onClick.AddListener(AddButtonClick);
             ToolTipUIDisplayer toolTipUIDisplayer = helpHover.gameObject.AddComponent<ToolTipUIDisplayer>();
             toolTipUIDisplayer.SetMessage("You are in Developer Mode\nClick on nodes whilst holding LShift to select them\nMove selected nodes with WASD\\Arrow Keys\nClick on nodes to connect them to the selected node\nClick LShift to deselect nodes");
-
         }
+        
         
         public void OnDestroy() {
             addNode.onClick.RemoveAllListeners();
@@ -36,6 +36,15 @@ namespace UI.NodeNetwork {
         }
 
         public void Update() {
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                AddButtonClick();
+            }
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                nodeNetworkUI.DeleteNode(nodeNetworkUI.GetSelectedNode()?.GetNode());
+            }
             SpawnNodePlacement();
         }
 
@@ -54,6 +63,7 @@ namespace UI.NodeNetwork {
             if (Input.GetMouseButton(0)) {
                 nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
                 nodeNetworkUI.Display();
+                //nodeNetworkUI.SelectNode(spawnedNodeObject.GetComponent<INodeUI>());
                 spawnedNodeObject = null;
             }
         }

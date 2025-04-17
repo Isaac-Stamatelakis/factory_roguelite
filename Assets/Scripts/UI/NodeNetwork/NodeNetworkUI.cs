@@ -17,6 +17,7 @@ namespace UI.NodeNetwork {
         public GameObject GenerateNewNodeObject();
         public Transform GetNodeContainer();
         public INodeUI GetSelectedNode();
+        public void DeleteNode(INode node);
     }
     public abstract class NodeNetworkUI<TNode,TNetwork> : MonoBehaviour, INodeNetworkUI 
         where TNode : INode where TNetwork : INodeNetwork<TNode>
@@ -133,15 +134,17 @@ namespace UI.NodeNetwork {
             
         }
 
-        public void DeleteNode(TNode node)
+        public void DeleteNode(INode node)
         {
+            if (node == null) return;
             if (ReferenceEquals(CurrentSelected?.GetNode(),node))
             {
                 OnDeleteSelectedNode();
             }
             CurrentSelected = null;
-            nodeNetwork.GetNodes().Remove(node);
-            INodeUI nodeUI = nodeUIDict[node];
+            TNode typeNode = (TNode)node;
+            nodeNetwork.GetNodes().Remove(typeNode);
+            INodeUI nodeUI = nodeUIDict[typeNode];
             GameObject.Destroy(nodeUI.GetGameObject());
             DisplayLines();
         }
