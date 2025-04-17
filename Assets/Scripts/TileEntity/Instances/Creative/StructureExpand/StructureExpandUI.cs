@@ -33,7 +33,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             {
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(serializedItemSlotEditorUIPrefab, transform, false);
                 List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(structureExpandInstance.StructureExpandData.Id,1,null)};
-                serializedItemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
+                serializedItemSlotEditorUI.Initialize(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
             });
            
             mMaxSizeField.text = structureExpandInstance.StructureExpandData.MaxSize.ToString();

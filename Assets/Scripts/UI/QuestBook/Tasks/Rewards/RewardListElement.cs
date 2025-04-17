@@ -28,7 +28,7 @@ namespace UI.QuestBook {
                 {
                     QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    serializedItemSlotEditorUI.Init(itemSlots,index,this,taskPageUI.gameObject);
+                    serializedItemSlotEditorUI.Initialize(itemSlots,index,this,taskPageUI.gameObject);
                     serializedItemSlotEditorUI.transform.SetParent(taskPageUI.transform,false);
                     break;
                 }

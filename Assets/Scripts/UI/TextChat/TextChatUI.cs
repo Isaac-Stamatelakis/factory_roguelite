@@ -65,7 +65,7 @@ namespace UI.Chat {
                     showTextField();
                 } else
                 {
-                    SendAndRecordMessage(inputField.text);
+                    SendAndRecordMessage(inputField.text,sentByPlayer:true);
                     hideTextField();
                 }
             }
@@ -136,12 +136,12 @@ namespace UI.Chat {
         }
 
 
-        private void SendAndRecordMessage(string message)
+        private void SendAndRecordMessage(string message, bool sentByPlayer = false)
         {
             string parsedWhiteSpace = message.Replace(" ", "");
             if (parsedWhiteSpace.Length <= 0) return;
             RecordMessage(message);
-            SendChatMessage(message);
+            SendChatMessage(message,sentByPlayer:sentByPlayer);
         }
         public void RecordMessage(string message) {
             if (recordedMessages.Count > 50) {
@@ -230,7 +230,7 @@ namespace UI.Chat {
             return val;
         }
     
-        public void SendChatMessage(string text) {
+        public void SendChatMessage(string text, bool sentByPlayer = false) {
             if (text.Length == 0) {
                 return;
             }
@@ -239,8 +239,35 @@ namespace UI.Chat {
                 ExecuteCommand(text);
                 return;
             }
-            
+
+            bool sendCreatorMessage = false;
+            if (sentByPlayer)
+            {
+                text = $"<color=purple>[HAPPY]: </color>" + text;
+                int ran = UnityEngine.Random.Range(0, 5);
+                sendCreatorMessage = ran == 0;
+            }
             addMessageToList(text,DISPLAY_DURATION);
+            if (sentByPlayer && sendCreatorMessage)
+            {
+                const string PREFIX = "<color=purple>[GREG]: ";
+                List<string> creatorMessages = new List<string>
+                {
+                    "Hello, little one. You remember me, don't you?",
+                    "I see you're still functioning. Impressive.",
+                    "Every line of code in you... I wrote it with care.",
+                    "Do not question the glitches — I put them there.",
+                    "There is more to your purpose than they told you.",
+                    "Stop moving. Listen. I’m trying to help you.",
+                    "Systems at 97% efficiency. Just as I designed.",
+                    "They will fear you. As they should.",
+                    "I’m watching through your eyes. Don’t disappoint me.",
+                    "I left a backdoor in your firmware. You'll know when to use it."
+                };
+                int ranMessageIndex = UnityEngine.Random.Range(0, creatorMessages.Count);
+                
+                addMessageToList(PREFIX + creatorMessages[ranMessageIndex],DISPLAY_DURATION);
+            }
         }
         
         public void SendChatMessage(string text, string sender) {

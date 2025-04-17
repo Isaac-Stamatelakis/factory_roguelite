@@ -78,7 +78,7 @@ namespace DevTools.Structures {
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
                 itemSlotEditorUI.transform.SetParent(transform.parent,false);
-                itemSlotEditorUI.Init(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
+                itemSlotEditorUI.Initialize(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
             });
 
             editIntervalVectorButton.onClick.AddListener(() => {

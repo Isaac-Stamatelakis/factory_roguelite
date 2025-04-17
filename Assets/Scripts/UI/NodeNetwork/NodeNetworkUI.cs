@@ -30,6 +30,7 @@ namespace UI.NodeNetwork {
         [SerializeField] protected Transform lineContainer;
         [SerializeField] protected Transform contentMaskContainer;
         [SerializeField] protected NodeNetworkEditorUI editController;
+        [SerializeField] private Color color = Color.yellow;
         
         [SerializeField] private GameObject linePrefab;
         public Transform NodeContainer { get => nodeContainer;}
@@ -167,7 +168,6 @@ namespace UI.NodeNetwork {
             node.SetPosition(position+changeVector);
             RectTransform rectTransform = (RectTransform)nodeUI.GetGameObject().transform;
             Vector3 nodeUIPosition = rectTransform.anchoredPosition;
-            //nodeUIPosition += changeVector * transform.localScale.x;
             nodeUIPosition += changeVector;
             ((RectTransform)nodeUI.GetGameObject().transform).anchoredPosition = nodeUIPosition;
             DisplayLines();
@@ -202,7 +202,7 @@ namespace UI.NodeNetwork {
                     TNode otherNode = LookUpNode(id);
                     if (otherNode == null) continue;
                     bool complete = ShowAllComplete() || otherNode.IsCompleted();
-                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),node.GetPosition(),LineContainer,complete,linePrefab);
+                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),node.GetPosition(),LineContainer,complete,linePrefab,ref color);
                 }
             }
         }
@@ -314,6 +314,7 @@ namespace UI.NodeNetwork {
 
         private void HandleRightClick() {
             if (lockHorizontalMovement && lockVerticalMovement) return;
+            
             if (Input.GetMouseButtonDown(1))
             {
                 Vector2 mouseWorldPosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -333,6 +334,7 @@ namespace UI.NodeNetwork {
                 {
                     newPosition.y = transform.position.y;
                 }
+                
                 transform.position = newPosition;
             }
 

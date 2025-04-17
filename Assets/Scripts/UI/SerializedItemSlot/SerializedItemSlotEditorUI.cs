@@ -42,10 +42,14 @@ namespace UI {
         private float timeSinceLastDeletePress = 2f;
         private Type itemType;
         private Action<SerializedItemSlot> callback;
-        public void Init(
+
+        public void Initialize(
             List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo, 
-            Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true, bool displayTrash = true, Action<SerializedItemSlot> callback = null
-        ) {
+            Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true, bool displayTrash = true, Action<SerializedItemSlot> callback = null,
+            List<ItemObject> searchItems = null
+        )
+        {
+            this.currentItems = searchItems;
             this.itemSlots = serializedItemSlots;
             this.initalSize = scrollRect.content.sizeDelta.y;
             this.index = index;
@@ -61,10 +65,10 @@ namespace UI {
             SetImage();
             
             backButton.onClick.AddListener(() => {
-                if (gameObject != null) {
+                if (gameObject) {
                     GameObject.Destroy(gameObject);
                 }
-                if (goBackTo != null) {
+                if (goBackTo) {
                     goBackTo.SetActive(true);
                 }
                 
@@ -85,7 +89,7 @@ namespace UI {
             tagInput.onValueChanged.AddListener((string value) => {
                 SerializedItemSlot.tags = value;
             });
-            amountField.text = SerializedItemSlot.amount.ToString();
+            amountField.text = SerializedItemSlot?.amount.ToString();
             amountField.onValueChanged.AddListener((string value) => {
                 if (value.Length == 0) {
                     return;
@@ -102,7 +106,8 @@ namespace UI {
                     } else {
                         SerializedItemSlot.amount = amount;
                     }
-                    reloadable.reload();
+                    callback?.Invoke(SerializedItemSlot);
+                    reloadable?.reload();
                 } catch (FormatException) {
                     if (value.Length <= 1) {
                         amountField.text = "";
@@ -134,20 +139,16 @@ namespace UI {
             
         }
 
-        private void SetImage() {
+        private void SetImage()
+        {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
-            if (itemSlot.itemObject != null) {
-                selectedItemImage.sprite = itemSlot.itemObject.getSprite();
-            } else {
-                selectedItemImage.sprite = null;
-            }
-            
+            selectedItemImage.sprite = itemSlot?.itemObject ? itemSlot?.itemObject.getSprite() : null;
         }
         public void SelectItem(ItemObject itemObject) {
             SerializedItemSlot serializedItemSlot = new SerializedItemSlot(
-                itemObject.id,
-                itemSlots[index].amount,
-                itemSlots[index].tags
+                itemObject?.id,
+                itemSlots[index]?.amount ?? 1,
+                itemSlots[index]?.tags
             );
             itemSlots[index] = serializedItemSlot;
             callback?.Invoke(serializedItemSlot);
@@ -170,9 +171,7 @@ namespace UI {
             }
         }
         private void LoadItems(string value) {
-            if (itemType != null) {
-                
-            } else {
+            if (itemType == null) {
                 currentItems = ItemRegistry.GetInstance().Query(value,int.MaxValue);
             }
             

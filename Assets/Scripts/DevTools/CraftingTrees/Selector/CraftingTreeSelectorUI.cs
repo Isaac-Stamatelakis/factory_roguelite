@@ -5,8 +5,6 @@ using DevTools.Upgrades;
 using Newtonsoft.Json;
 using UI;
 
-using DevTools.Structures;
-
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Selector

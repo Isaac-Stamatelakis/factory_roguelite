@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
 using Newtonsoft.Json;
 using Recipe.Data;
@@ -12,34 +13,40 @@ namespace DevTools.CraftingTrees.Network
     internal class CraftingTreeGeneratorNode : INode
     {
         public CraftingTreeNodeType NodeType;
-
+        public NodeNetworkData NetworkData;
         public CraftingTreeNodeData NodeData;
         public Vector3 GetPosition()
         {
-            return new Vector3(NodeData.X, NodeData.Y, 0);
+            return new Vector3(NetworkData.X, NetworkData.Y, 0);
         }
 
         public void SetPosition(Vector3 pos)
         {
-            NodeData.X = pos.x;
-            NodeData.Y = pos.y;
+            NetworkData.X = pos.x;
+            NetworkData.Y = pos.y;
         }
 
         public int GetId()
         {
-            return NodeData.Id;
+            return NetworkData.Id;
         }
 
         public List<int> GetPrerequisites()
         {
-            return NodeData.InputIds;
+            return NetworkData.InputIds;
         }
 
         public bool IsCompleted()
         {
             return true;
         }
-        
+
+        public CraftingTreeGeneratorNode(CraftingTreeNodeType nodeType, NodeNetworkData networkData, CraftingTreeNodeData nodeData)
+        {
+            NodeType = nodeType;
+            NetworkData = networkData;
+            NodeData = nodeData;
+        }
     }
     internal enum CraftingTreeNodeType
     {
@@ -47,12 +54,17 @@ namespace DevTools.CraftingTrees.Network
         Transmutation,
         Processor
     }
-    internal abstract class CraftingTreeNodeData
+    internal class NodeNetworkData
     {
         public int Id;
         public float X;
         public float Y;
         public List<int> InputIds;
+    }
+
+    internal abstract class CraftingTreeNodeData
+    {
+        
     }
 
 
@@ -80,6 +92,7 @@ namespace DevTools.CraftingTrees.Network
 
     internal class SerializedNodeData
     {
+        public NodeNetworkData NodeNetworkData;
         public CraftingTreeNodeType NodeType;
         public string Data;
     }
@@ -127,6 +140,7 @@ namespace DevTools.CraftingTrees.Network
             return new SerializedNodeData
             {
                 NodeType = node.NodeType,
+                NodeNetworkData = node.NetworkData,
                 Data = serializedData
             };
         }
@@ -152,17 +166,28 @@ namespace DevTools.CraftingTrees.Network
                         throw new ArgumentOutOfRangeException();
                 }
 
-                return new CraftingTreeGeneratorNode
-                {
-                    NodeType = serializedData.NodeType,
-                    NodeData = nodeData,
-                };
+                return new CraftingTreeGeneratorNode(serializedData.NodeType, serializedData.NodeNetworkData, nodeData);
             }
             catch (JsonSerializationException e)
             {
                 Debug.LogError($"Failed to deserialize node data {e.Message}");
                 return null;
             }
+        }
+
+        public static int GetNextId(CraftingTreeNodeNetwork craftingTreeNodeNetwork)
+        {
+            int largestNode = -1;
+            foreach (CraftingTreeGeneratorNode node in craftingTreeNodeNetwork.Nodes)
+            {
+                if (node == null) continue;
+                if (node.GetId() > largestNode)
+                {
+                    largestNode = node.GetId();
+                }
+            }
+
+            return largestNode + 1;
         }
     }
     internal class CraftingTreeNodeNetwork : INodeNetwork<CraftingTreeGeneratorNode>
@@ -179,20 +204,31 @@ namespace DevTools.CraftingTrees.Network
         [SerializeField] private CraftingTreeNodeUI mCraftingTreeNodeUIPrefab;
         private readonly Dictionary<int, CraftingTreeGeneratorNode> nodes = new();
         private CraftingTreeGenerator craftingTreeGenerator;
+        private CraftingTreeGeneratorUI craftingTreeGeneratorUI;
+        public CraftingTreeGeneratorUI CraftingTreeGeneratorUI => craftingTreeGeneratorUI;
 
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork,
-            CraftingTreeGenerator generator)
+        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator generator, CraftingTreeGeneratorUI craftingTreeGeneratorUI)
         {
+            this.craftingTreeGeneratorUI = craftingTreeGeneratorUI;
             this.nodeNetwork = craftingTreeNodeNetwork;
             craftingTreeGenerator = generator;
+            bool inDevTools = DevToolUtils.OnDevToolScene;
+            editController.gameObject.SetActive(inDevTools);
+            editController.Initialize(this);
+            foreach (CraftingTreeGeneratorNode node in craftingTreeNodeNetwork.Nodes)
+            {
+                nodes[node.GetId()] = node;
+            }
+            Display();
+            
         }
         protected override INodeUI GenerateNode(CraftingTreeGeneratorNode node)
         {
-            CraftingTreeNodeUI robotUpgradeNodeUI = GameObject.Instantiate(mCraftingTreeNodeUIPrefab);
-            robotUpgradeNodeUI.Initialize(node,this);
-            RectTransform nodeRectTransform = (RectTransform)robotUpgradeNodeUI.transform;
-            robotUpgradeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
-            return robotUpgradeNodeUI;
+            CraftingTreeNodeUI craftingTreeNodeUI = GameObject.Instantiate(mCraftingTreeNodeUIPrefab);
+            craftingTreeNodeUI.Initialize(node,this);
+            RectTransform nodeRectTransform = (RectTransform)craftingTreeNodeUI.transform;
+            craftingTreeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
+            return craftingTreeNodeUI;
         }
 
         public override bool ShowAllComplete() {
@@ -211,10 +247,12 @@ namespace DevTools.CraftingTrees.Network
         }
         public override void PlaceNewNode(Vector2 position)
         {
-            CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(0);
+            int id = SerializedCraftingTreeNodeNetworkUtils.GetNextId(nodeNetwork);
+            CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(id);
             if (node == null) return;
             node.SetPosition(position);
             nodeNetwork.Nodes.Add(node);
+            nodes[node.GetId()] = node;
         }
 
         public override GameObject GenerateNewNodeObject()
