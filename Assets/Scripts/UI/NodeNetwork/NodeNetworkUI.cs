@@ -9,8 +9,6 @@ using UI.QuestBook;
 namespace UI.NodeNetwork {
     public interface INodeNetworkUI {
         public void SelectNode(INodeUI nodeUI);
-        public NodeNetworkUIMode GetMode();
-        public void SetMode(NodeNetworkUIMode mode);
         public void ModifyConnection(INode node);
         public void Display();
         public void DisplayLines();
@@ -19,10 +17,6 @@ namespace UI.NodeNetwork {
         public GameObject GenerateNewNodeObject();
         public Transform GetNodeContainer();
         public INodeUI GetSelectedNode();
-    }
-    public enum NodeNetworkUIMode {
-        View,
-        EditConnection
     }
     public abstract class NodeNetworkUI<TNode,TNetwork> : MonoBehaviour, INodeNetworkUI 
         where TNode : INode where TNetwork : INodeNetwork<TNode>
@@ -39,10 +33,8 @@ namespace UI.NodeNetwork {
         public Transform ContentContainer {get => transform;}
         public Transform ContentMaskContainer {get => contentMaskContainer;}
         public TNetwork NodeNetwork { get => nodeNetwork; set => nodeNetwork = value; }
-        public NodeNetworkUIMode Mode { get => mode; set => mode = value; }
         public INodeUI CurrentSelected { get => selectedNode; set => selectedNode = value; }
         protected TNetwork nodeNetwork;
-        private NodeNetworkUIMode mode = NodeNetworkUIMode.View;
         private INodeUI selectedNode;
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
@@ -233,6 +225,10 @@ namespace UI.NodeNetwork {
             HandleRightClick();
             bool selectingNode = selectedNode != null;
             if (!selectingNode) KeyPressMoveUpdate();
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                SelectNode(null);
+            }
             ClampPosition();
             if (!selectingNode) return;
             
@@ -344,11 +340,7 @@ namespace UI.NodeNetwork {
                 rightClickEvent = null;
             }
         }
-
-        public NodeNetworkUIMode GetMode()
-        {
-            return mode;
-        }
+        
         public void ModifyConnection(INode clickedNode)
         {
             INode selectedNodeElement = CurrentSelected?.GetNode();
@@ -374,16 +366,6 @@ namespace UI.NodeNetwork {
             }
             
             DisplayLines();
-        }
-        public void SetMode(NodeNetworkUIMode mode)
-        {
-            this.mode = mode;
-            switch (mode) {
-                case NodeNetworkUIMode.View:
-                    break;
-                case NodeNetworkUIMode.EditConnection:
-                    break;
-            }
         }
 
         public Transform GetContentContainer()
