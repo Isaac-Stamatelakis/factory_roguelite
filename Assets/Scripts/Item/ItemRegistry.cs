@@ -234,17 +234,39 @@ namespace Items {
             // TODO options to put certain tag items in here
             List<ItemSlot> queried = new List<ItemSlot>();
             int i = 0;
-            bool enforceGameStages = DevMode.Instance.EnableGameStages;
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            bool enforceGameStages = DevMode.Instance?.EnableGameStages ?? false;
+            PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();
             foreach (ItemObject itemObject in items.Values) {
                 if (i >= limit) {
                     break;
                 }
                 if (!itemObject.name.ToLower().Contains(search.ToLower())) continue;
-                
-                if (enforceGameStages && !playerScript.GameStageCollection.HasStage(itemObject?.GetGameStageObject())) continue;
+                if (playerScript && !playerScript.GameStageCollection.HasStage(itemObject?.GetGameStageObject()))
+                {
+                    continue;
+                }
+                if (enforceGameStages) continue;
                 queried.Add(new ItemSlot(itemObject,1,null));
                 i ++;
+            }
+            return queried;
+        }
+
+        public List<T> GetAllItemsOfType<T>() where T : ItemObject
+        {
+            List<T> queried = new List<T>();
+            foreach (ItemObject itemObject in items.Values)
+            {
+                if (itemObject is T item) queried.Add(item);
+            }
+            return queried;
+        }
+        public List<ItemObject> GetAllItemsOfTypeAsItem<T>() where T : ItemObject
+        {
+            List<ItemObject> queried = new List<ItemObject>();
+            foreach (ItemObject itemObject in items.Values)
+            {
+                if (itemObject is T item) queried.Add(item);
             }
             return queried;
         }

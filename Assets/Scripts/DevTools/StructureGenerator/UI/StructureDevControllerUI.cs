@@ -37,7 +37,7 @@ namespace DevTools.Structures {
         protected override void OnAddButtonClick()
         {
             NewStructurePopUpUI newStructurePopUpUI = GameObject.Instantiate(newStructurePopUpUIPrefab);
-            newStructurePopUpUI.init(this);
+            newStructurePopUpUI.Init(this);
             newStructurePopUpUI.transform.SetParent(transform,false);
         }
 

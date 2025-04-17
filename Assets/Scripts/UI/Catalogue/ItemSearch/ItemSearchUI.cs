@@ -41,15 +41,22 @@ namespace UI.Catalogue.ItemSearch
         private int page = 1;
         private int maxPages = 1;
         private PlayerScript playerScript;
+        private Action<ItemObject> onSelectOverride;
+        private List<ItemObject> searchItems;
 
-        public void Initialize(PlayerScript playerScript)
+        public void Initialize(List<ItemObject> itemObjects, Action<ItemObject> onSelect)
         {
-            this.playerScript = playerScript;
+            this.searchItems = itemObjects;
+            this.onSelectOverride = onSelect;
+            Display();
+        }
+
+        public void Display()
+        {
             GlobalHelper.DeleteAllChildren(mVerticalLayoutGroup.transform);
             searchField.onValueChanged.AddListener(OnSearchChange);
             
             editButton.onClick.AddListener(OnEditButtonClick);
-            mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
             SetEditButtonColor();
             
             leftButton.onClick.AddListener(OnLeftButtonPress);
@@ -77,11 +84,22 @@ namespace UI.Catalogue.ItemSearch
 
             OnSearchChange("");
         }
+        public void Initialize(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
+            mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
+            Display();
+        }
 
         void OnItemClick(PointerEventData.InputButton input, int col, int row)
         {
             ItemSlot itemSlot = horizontalInventories[row].GetItemSlot(col);
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            if (onSelectOverride != null)
+            {
+                onSelectOverride.Invoke(itemSlot.itemObject);
+                return;
+            }
             switch (input)
             {
                 case PointerEventData.InputButton.Left:
@@ -124,7 +142,20 @@ namespace UI.Catalogue.ItemSearch
         }
         private void OnSearchChange(string search) {
             page = 1;
-            queriedItems = ItemRegistry.GetInstance().QuerySlots(search,int.MaxValue);
+            if (searchItems == null)
+            {
+                queriedItems = ItemRegistry.GetInstance().QuerySlots(search,int.MaxValue);
+            }
+            else
+            {
+                queriedItems = new List<ItemSlot>();
+                foreach (ItemObject item in searchItems)
+                {
+                    if (!item.name.ToLower().Contains(search.ToLower())) continue;
+                    queriedItems.Add(new ItemSlot(item,1,null));
+                }
+            }
+            
             maxPages = Mathf.CeilToInt(queriedItems.Count/ITEMS_PER_PAGE)+1;
             PopulateResults();
         }

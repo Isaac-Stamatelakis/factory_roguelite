@@ -7,18 +7,20 @@ using UI;
 using WorldModule.Caves;
 using Items;
 using System;
+using Item.Inventory.ClickHandlers.Instances;
+using Item.Slot;
+using Items.Inventory;
 
 namespace DevTools.Structures {
-    public class NewStructurePopUpUI : MonoBehaviour, IItemListReloadable
+    public class NewStructurePopUpUI : MonoBehaviour
     {
         [SerializeField] private TMP_InputField nameField;
         [SerializeField] private Button backButton;
         [SerializeField] private Button createButton;
         [SerializeField] private Transform dynamicTextContainer;
         [SerializeField] private DynamicColorTextUI dynamicColorTextPrefab;
-        [SerializeField] private Button tileSelector;
         [SerializeField] private SerializedItemSlotEditorUI itemSelectorUIPrefab;
-        [SerializeField] private Image itemImage;
+        [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private TMP_Dropdown optionDropdown;
         [SerializeField] private TextMeshProUGUI boundsText;
         [SerializeField] private IntervalVectorUI intervalVectorUIPrefab;
@@ -28,8 +30,9 @@ namespace DevTools.Structures {
         private List<SerializedItemSlot> itemSlots;
         private IntervalVector bounds;
         private StructureGenOptionType genOption = StructureGenOptionType.Empty;
+        private SerializedItemSlot selectedItem;
 
-        public void init(StructureDevControllerUI controllerUI) {
+        public void Init(StructureDevControllerUI controllerUI) {
             if (!ItemRegistry.IsLoaded) {
                 StartCoroutine(ItemRegistry.LoadItems());
             }
@@ -45,7 +48,17 @@ namespace DevTools.Structures {
                 "CREATE",
                 10
             );
-            tileSelector.gameObject.SetActive(false);
+            mInventoryUI.SetInteractMode(InventoryInteractMode.OverrideAction);
+            selectedItem = new SerializedItemSlot("stone", 1, null);
+            mInventoryUI.OverrideClickAction((button,index) =>
+            {
+                SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
+                List<ItemObject> tileItems = ItemRegistry.GetInstance().GetAllItemsOfTypeAsItem<TileItem>();
+                itemSlotEditorUI.Initialize(selectedItem,Display,null,tileItems);
+                CanvasController.Instance.DisplayObject(itemSlotEditorUI.gameObject,hideParent:false);
+            });
+            
+            mInventoryUI.gameObject.SetActive(false);
 
             StructureGenOptionType[] options = (StructureGenOptionType[])Enum.GetValues(typeof(StructureGenOptionType));
             List<TMP_Dropdown.OptionData> dropDownOptions = new List<TMP_Dropdown.OptionData>();
@@ -55,7 +68,7 @@ namespace DevTools.Structures {
             optionDropdown.options = dropDownOptions;
             optionDropdown.onValueChanged.AddListener((int index) => {
                 genOption = (StructureGenOptionType) index;
-                tileSelector.gameObject.SetActive(index!=0);
+                mInventoryUI.gameObject.SetActive(index!=0);
             });
             
             dynamicTextContainer.localScale = new Vector3(1.5f,1.5f,1f);
@@ -68,17 +81,10 @@ namespace DevTools.Structures {
                     nameField.placeholder.color = Color.red;
                     return;
                 }
-                StructureGenerationOption generationOption = StructureGeneratorOptionFactory.createOption(genOption,itemSlots[0].id);
+                StructureGenerationOption generationOption = StructureGeneratorOptionFactory.createOption(genOption,selectedItem.id);
                 StructureGeneratorHelper.NewStructure(nameField.text,generationOption,bounds);
                 controllerUI.DisplayList();
                 GameObject.Destroy(gameObject);
-            });
-            itemSlots = new List<SerializedItemSlot>{new SerializedItemSlot("stone",0,null)};
-            
-            tileSelector.onClick.AddListener(() => {
-                SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
-                itemSlotEditorUI.transform.SetParent(transform.parent,false);
-                itemSlotEditorUI.Initialize(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
             });
 
             editIntervalVectorButton.onClick.AddListener(() => {
@@ -86,29 +92,19 @@ namespace DevTools.Structures {
                 intervalVectorUI.transform.SetParent(transform.parent,false);
                 intervalVectorUI.display(bounds,reloadIntervalVector);
             });
-            
+            Display(selectedItem);
+
         }
 
         public void reloadIntervalVector() {
             boundsText.text = bounds.ToString();
         }
 
-        public void reload()
+        public void Display(SerializedItemSlot serializedItemSlot)
         {
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            ItemObject itemObject = itemRegistry.GetItemObject(itemSlots[0].id);
-            if (itemObject == null) {
-                itemImage.gameObject.SetActive(false);
-            } else {
-                itemImage.gameObject.SetActive(true);
-                itemImage.sprite = itemObject.getSprite();
-            }
-            
-        }
-
-        public void reloadAll()
-        {
-            reload();
+            selectedItem = serializedItemSlot;
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
+            mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
         }
     }
 }

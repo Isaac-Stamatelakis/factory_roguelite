@@ -4,13 +4,14 @@ using Items;
 using Items.Inventory;
 using Robot.Upgrades.Network;
 using UI;
+using UI.ItemEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 namespace Robot.Upgrades
 {
-    internal class UpgradeCostItemUI : ItemSlotUI, IPointerClickHandler, IItemListReloadable
+    internal class UpgradeCostItemUI : ItemSlotUI, IPointerClickHandler
     {
         private RobotUpgradeNodeContentUI robotUpgradeNodeContentUI;
         private uint gottenAmount;
@@ -20,7 +21,7 @@ namespace Robot.Upgrades
             this.robotUpgradeNodeContentUI = robotUpgradeNodeContentUI;
             this.robotUpgradeNode = robotUpgradeNode;
             this.index = index;
-            reload();
+            Reload();
         }
         public override void SetAmountText()
         {
@@ -45,11 +46,17 @@ namespace Robot.Upgrades
         {
             if (SceneManager.GetActiveScene().name != DevToolUtils.SCENE_NAME) return;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(robotUpgradeNodeContentUI.ItemSlotEditorUIPrefab);
-            serializedItemSlotEditorUI.Initialize(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,this,gameObject,displayTags:false);
-            serializedItemSlotEditorUI.transform.SetParent(robotUpgradeNodeContentUI.transform.parent,false);
+           SerializedItemSlotEditorParameters displayParameters = new SerializedItemSlotEditorParameters
+            {
+                DisplayAmount = true,
+                ListChangeCallback = ReloadAll,
+                IndexValueChange = Reload
+            };
+            serializedItemSlotEditorUI.InitializeList(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,displayParameters);
+            CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
         }
 
-        public void reload()
+        public void Reload()
         {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(robotUpgradeNode.NodeData.Cost[index]);
             
@@ -64,7 +71,7 @@ namespace Robot.Upgrades
             Display(itemSlot);
         }
 
-        public void reloadAll()
+        public void ReloadAll()
         {
             robotUpgradeNodeContentUI.DisplayItemCost();
         }

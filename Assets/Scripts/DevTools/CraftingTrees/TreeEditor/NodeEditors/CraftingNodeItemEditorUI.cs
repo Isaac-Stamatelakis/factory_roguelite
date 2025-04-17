@@ -26,7 +26,12 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             void ClickOverride(PointerEventData.InputButton inputButton, int index)
             {
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(mItemSlotEditorUI);
-                serializedItemSlotEditorUI.Initialize(new List<SerializedItemSlot>{itemNodeData.SerializedItemSlot},index,null,null,callback:OnItemChange);
+                SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
+                {
+                    OnValueChange = OnItemChange
+                };
+                serializedItemSlotEditorUI.Initialize(itemNodeData.SerializedItemSlot,OnItemChange,null);
+                
                 CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             }
 
@@ -40,6 +45,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             void DisplayInventory()
             {
                 ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
+                mTitleText.text = ItemSlotUtils.IsItemSlotNull(itemSlot) ? "Null" : itemSlot.itemObject.name;
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
             }
         }
