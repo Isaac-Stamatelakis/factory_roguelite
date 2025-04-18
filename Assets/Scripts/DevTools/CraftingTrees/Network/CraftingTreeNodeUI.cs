@@ -8,13 +8,16 @@ using UI.NodeNetwork;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.Network
 {
     internal class CraftingTreeNodeUI : NodeUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetworkUI>
     {
+        [SerializeField] private NodeSprites nodeSprites;
         public override void DisplayImage()
         {
+            Image image = GetComponent<Image>();
             switch (node.NodeType)
             {
                 case CraftingTreeNodeType.Item:
@@ -22,6 +25,7 @@ namespace DevTools.CraftingTrees.Network
                     ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
                     ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
                     mItemSlotUI.Display(itemSlot);
+                    image.sprite = nodeSprites.ItemBackground;
                     break;
                 }
                     
@@ -31,6 +35,7 @@ namespace DevTools.CraftingTrees.Network
                     TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(transmutationNodeData.OutputState);
                     ItemSlot itemSlot = new ItemSlot(transmutableItemObject, 1, null);
                     mItemSlotUI.Display(itemSlot);
+                    image.sprite = nodeSprites.TransmutableBackground;
                     break;
                 }
                 case CraftingTreeNodeType.Processor:
@@ -41,6 +46,7 @@ namespace DevTools.CraftingTrees.Network
                     RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
                     ItemSlot itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
                     mItemSlotUI.Display(itemSlot);
+                    image.sprite = nodeSprites.ProcessorBackground;
                 }
 #endif
                     break;
@@ -48,6 +54,7 @@ namespace DevTools.CraftingTrees.Network
                     throw new ArgumentOutOfRangeException();
             }
         }
+        
 
         protected override void openContent()
         {
@@ -58,6 +65,14 @@ namespace DevTools.CraftingTrees.Network
             }
             
             nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork);
+        }
+
+        [System.Serializable]
+        private class NodeSprites
+        {
+            public Sprite ItemBackground;
+            public Sprite TransmutableBackground;
+            public Sprite ProcessorBackground;
         }
     }
 }

@@ -62,9 +62,10 @@ namespace UI.NodeNetwork {
             rectTransform.anchoredPosition = gridPosition;
             if (Input.GetMouseButton(0)) {
                 nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
+                nodeNetworkUI.SelectNode(spawnedNodeObject.GetComponent<INodeUI>());
                 nodeNetworkUI.Display();
-                //nodeNetworkUI.SelectNode(spawnedNodeObject.GetComponent<INodeUI>());
                 spawnedNodeObject = null;
+                
             }
         }
 

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
+using Items;
+using Items.Transmutable;
 using Newtonsoft.Json;
 using Recipe.Data;
 using Recipe.Viewer;
@@ -202,6 +204,59 @@ namespace DevTools.CraftingTrees.Network
             return Nodes;
         }
     }
+
+    internal class CraftingTreeTypeEnforcer : NodeConnectionFilterer
+    {
+        public CraftingTreeTypeEnforcer(INodeNetworkUI nodeNetworkUI) : base(nodeNetworkUI)
+        {
+        }
+
+        public override bool CanConnect(INode input, INode output)
+        {
+            if (input is not CraftingTreeGeneratorNode craftingInput || output is not CraftingTreeGeneratorNode craftingOutput) return false;
+            
+            if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
+
+            // Transmutation nodes only allow one input and one output, which must be item nodes.
+            // Transmutation states must be different. Transmutation states must be transmutable. EG No dust to screw.
+
+            bool IsTransmutationValid(CraftingTreeGeneratorNode transmutationNode, CraftingTreeGeneratorNode otherNode)
+            {
+                if (otherNode.NodeType != CraftingTreeNodeType.Item) return false;
+                ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
+                if (!transmutableItemObject) return false;
+                TransmutationNodeData transmutationNodeData = (TransmutationNodeData)transmutationNode.NodeData;
+                return transmutableItemObject.getState() != transmutationNodeData.OutputState;
+            }
+            if (craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                if (!IsTransmutationValid(craftingOutput, craftingInput)) return false;
+                return craftingOutput.NetworkData.InputIds.Count > 0;
+            }
+
+            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                if (!IsTransmutationValid(craftingInput, craftingOutput)) return false;
+                int outputs = nodeNetworkUI.GetNodeOutputs(craftingOutput);
+                return outputs == 0;
+            }
+
+            // Processors can only connect to item nodes.
+            if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
+            {
+                return craftingOutput.NodeType == CraftingTreeNodeType.Item;
+            }
+
+            if (craftingOutput.NodeType == CraftingTreeNodeType.Processor)
+            {
+                return craftingInput.NodeType == CraftingTreeNodeType.Item;
+            }
+
+            return false;
+        }
+        
+    }
     
     internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
     {
@@ -223,6 +278,8 @@ namespace DevTools.CraftingTrees.Network
             {
                 nodes[node.GetId()] = node;
             }
+            connectionFilterer = new CraftingTreeTypeEnforcer(this);
+            
             Display();
             
         }

@@ -18,12 +18,15 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private TextMeshProUGUI mOutputText;
         [SerializeField] private Button mDeleteButton;
         [SerializeField] private Transform nodeContentContainer;
-        
+        [SerializeField] private Transform emptyContent;
+        [SerializeField] private GameObject baseNodeContent;
         [SerializeField] private CraftingNodeItemEditorUI mItemEditorPrefab;
         [SerializeField] private FormattedInputFieldUI mFormattedInputFieldPrefab;
 
         public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI)
         {
+            baseNodeContent.SetActive(true);
+            emptyContent.gameObject.SetActive(false);
             mDeleteButton.onClick.RemoveAllListeners();
             gameObject.SetActive(true);
             mDeleteButton.onClick.AddListener(DeletePress);
@@ -62,6 +65,9 @@ namespace DevTools.CraftingTrees.TreeEditor
             void DeletePress()
             {
                 nodeNetworkUI.DeleteNode(node);
+                baseNodeContent.SetActive(false);
+                emptyContent.gameObject.SetActive(true);
+                GlobalHelper.DeleteAllChildren(nodeContentContainer);
             }
 
             int GetOutputs()
