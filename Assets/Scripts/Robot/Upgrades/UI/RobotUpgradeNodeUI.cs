@@ -4,13 +4,14 @@ using Microsoft.Unity.VisualStudio.Editor;
 using Robot.Upgrades.Network;
 using UI.NodeNetwork;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Image = UnityEngine.UI.Image;
 
 namespace Robot.Upgrades
 {
     public class RobotUpgradeNodeUI : NodeUI<RobotUpgradeNode,RobotUpgradeNetworkUI>
     {
-        protected override void openContent()
+        protected override void openContent(PointerEventData eventData)
         {
             nodeNetwork.RobotUpgradeUI.DisplayNodeContent(node);
         }

@@ -23,7 +23,7 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private CraftingNodeItemEditorUI mItemEditorPrefab;
         [SerializeField] private FormattedInputFieldUI mFormattedInputFieldPrefab;
 
-        public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI)
+        public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI, bool openSearchInstantly)
         {
             baseNodeContent.SetActive(true);
             emptyContent.gameObject.SetActive(false);
@@ -36,7 +36,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             GlobalHelper.DeleteAllChildren(nodeContentContainer);
             
             CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
-            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI);
+            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI,openSearchInstantly);
 
             switch (node.NodeType)
             {

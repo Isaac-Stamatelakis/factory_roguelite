@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
 using Items;
 using Items.Transmutable;
 using Newtonsoft.Json;
 using Recipe.Data;
+using Recipe.Processor;
 using Recipe.Viewer;
 using UI.NodeNetwork;
+#if  UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -68,7 +73,7 @@ namespace DevTools.CraftingTrees.Network
 
     internal abstract class CraftingTreeNodeData
     {
-        
+        public abstract ItemSlot GetDisplaySlot();
     }
 
 
@@ -76,6 +81,10 @@ namespace DevTools.CraftingTrees.Network
         
         public SerializedItemSlot SerializedItemSlot;
         public float Odds = 1f;
+        public override ItemSlot GetDisplaySlot()
+        {
+            return ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
+        }
     }
 
     
@@ -84,6 +93,11 @@ namespace DevTools.CraftingTrees.Network
 
     {
         public TransmutableItemState OutputState;
+        public override ItemSlot GetDisplaySlot()
+        {
+            TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(OutputState);
+            return new ItemSlot(transmutableItemObject, 1, null);
+        }
     }
 
 
@@ -94,6 +108,16 @@ namespace DevTools.CraftingTrees.Network
         public string ProcessorGuid;
         public string RecipeGuid;
         public ItemRecipe RecipeData;
+        public override ItemSlot GetDisplaySlot()
+        {
+            ItemSlot itemSlot = null;
+#if  UNITY_EDITOR
+            string path = AssetDatabase.GUIDToAssetPath(ProcessorGuid);
+            RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
+            itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
+#endif
+            return itemSlot;
+        }
     }
 
     internal class SerializedNodeData
@@ -220,26 +244,28 @@ namespace DevTools.CraftingTrees.Network
             // Transmutation nodes only allow one input and one output, which must be item nodes.
             // Transmutation states must be different. Transmutation states must be transmutable. EG No dust to screw.
 
-            bool IsTransmutationValid(CraftingTreeGeneratorNode transmutationNode, CraftingTreeGeneratorNode otherNode)
+            bool IsTransmutationValid(CraftingTreeGeneratorNode transmutationNode, CraftingTreeGeneratorNode otherNode, bool same)
             {
                 if (otherNode.NodeType != CraftingTreeNodeType.Item) return false;
                 ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject) return false;
                 TransmutationNodeData transmutationNodeData = (TransmutationNodeData)transmutationNode.NodeData;
-                return transmutableItemObject.getState() != transmutationNodeData.OutputState;
+                return same != (transmutableItemObject.getState() != transmutationNodeData.OutputState);
             }
             if (craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
             {
-                if (!IsTransmutationValid(craftingOutput, craftingInput)) return false;
-                return craftingOutput.NetworkData.InputIds.Count > 0;
+                if (!IsTransmutationValid(craftingOutput, craftingInput,false)) return false;
+                if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
+                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
             }
 
             if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation)
             {
-                if (!IsTransmutationValid(craftingInput, craftingOutput)) return false;
-                int outputs = nodeNetworkUI.GetNodeOutputs(craftingOutput);
-                return outputs == 0;
+                if (!IsTransmutationValid(craftingInput, craftingOutput,true)) return false;
+                int outputs = nodeNetworkUI.GetNodeOutputs(craftingInput);
+                if (outputs == 0) return true;
+                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
             }
 
             // Processors can only connect to item nodes.

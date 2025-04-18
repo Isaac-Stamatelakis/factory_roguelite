@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -158,6 +159,14 @@ namespace UI.NodeNetwork {
             TNode typeNode = (TNode)node;
             nodeNetwork.GetNodes().Remove(typeNode);
             INodeUI nodeUI = nodeUIDict[typeNode];
+            int nodeId = node.GetId();
+            foreach (var otherNode in nodeNetwork.GetNodes())
+            {
+                if (otherNode.GetPrerequisites().Contains(nodeId))
+                {
+                    otherNode.GetPrerequisites().Remove(nodeId);
+                }
+            }
             GameObject.Destroy(nodeUI.GetGameObject());
             DisplayLines();
         }
