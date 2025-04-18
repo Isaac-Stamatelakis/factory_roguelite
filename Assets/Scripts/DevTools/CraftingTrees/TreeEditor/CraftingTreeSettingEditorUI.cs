@@ -13,6 +13,7 @@ using UI;
 using UI.ToolTip;
 using Unity.VisualScripting;
 #if UNITY_EDITOR
+using Items.Transmutable;
 using UnityEditor;
 #endif
 using UnityEngine;
@@ -311,8 +312,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                 if (node.NodeType == CraftingTreeNodeType.Transmutation)
                 {
                     TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-                    // TODO RATIO
-                    return new SerializedItemSlot(transmutationNodeData.OutputItemId, 1, null);
+                    return new SerializedItemSlot(transmutationNodeData.OutputItemId, transmutationNodeData.GetOutputAmount(), null);
                 }
                 return null;
             }

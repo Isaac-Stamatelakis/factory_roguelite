@@ -92,6 +92,13 @@ namespace DevTools.CraftingTrees.Network
         public TransmutableItemState InputState;
         public uint InputAmount;
         public string OutputItemId;
+
+        public uint GetOutputAmount()
+        {
+            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
+            if (!transmutableItemObject) return 0;
+            return (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), 1f));
+        }
     }
 
 

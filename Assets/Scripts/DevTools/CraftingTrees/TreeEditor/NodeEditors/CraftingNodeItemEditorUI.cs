@@ -252,6 +252,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     itemObjects = itemRegistry.GetAllItems();
                     break;
                 case CraftingTreeNodeType.Transmutation:
+                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
                     itemObjects = new List<ItemObject>();
                     List<TransmutableItemObject> transmutableItemObjects = itemRegistry.GetAllItemsOfType<TransmutableItemObject>();
                     TransmutableItemMaterial material = GetMaterial(node);
@@ -259,6 +260,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     foreach (TransmutableItemObject transmutable in transmutableItemObjects)
                     {
                         if (transmutable?.getMaterial()?.name != materialName) continue;
+                        if (transmutable.getState() == transmutationNodeData.InputState) continue;
                         itemObjects.Add(transmutable);
                     }
                     break;
