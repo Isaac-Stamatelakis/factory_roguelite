@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DevTools.CraftingTrees.Network;
+using Item.GameStage;
 using Items;
 using Recipe;
 using Recipe.Objects;
@@ -12,9 +14,10 @@ using TMPro;
 using UI;
 using UI.ToolTip;
 using Unity.VisualScripting;
-#if UNITY_EDITOR
 using Item.Slot;
 using Items.Transmutable;
+#if UNITY_EDITOR
+
 using UnityEditor;
 #endif
 using UnityEngine;
@@ -38,6 +41,8 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private Button mGenerateButton;
         [SerializeField] private Button mDeleteButton;
         [SerializeField] private Image mStatusIcon;
+        [SerializeField] private TextMeshProUGUI mTierText;
+        
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
         private CraftingTreeGenerator craftingTreeGenerator;
@@ -111,6 +116,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             mDeleteButton.onClick.AddListener(DeleteRecipes);
             InitializeStatusIcon();
             SetInteractablity();
+            CalculateEnergyBalance();
 
             return;
             void InitializeStatusIcon()
@@ -135,6 +141,62 @@ namespace DevTools.CraftingTrees.TreeEditor
             }
         }
 
+        public void CalculateEnergyBalance()
+        {
+            long balance = 0;
+            ulong mostExpensiveEnergyCost = 0;
+            ulong highEnergyGeneration = 0;
+            bool calculateTransmutationNodes = network.TransmutationEfficency == TransmutationEfficency.Max;
+            foreach (var node in network.Nodes)
+            {
+                if (node.NodeType == CraftingTreeNodeType.Item) continue;
+                if (node.NodeType == CraftingTreeNodeType.Transmutation)
+                {
+                    if (!calculateTransmutationNodes) continue;
+                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
+                    ItemSlot itemSlot = transmutationNodeData.GetItemSlot(network.TransmutationEfficency);
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                    if (itemSlot.itemObject is not TransmutableItemObject transmutableItemObject) continue;
+                    TransmutableItemMaterial material = transmutableItemObject.getMaterial();
+                    if (!material) continue;
+                    GameStageObject gameStageObject = material.gameStageObject;
+                    if (gameStageObject is not TieredGameStage tieredGameStage) continue;
+                    Tier tier = tieredGameStage.Tier;
+                    ulong energyUsage = tier.GetMaxEnergyUsage();
+                    if (energyUsage > mostExpensiveEnergyCost) mostExpensiveEnergyCost = energyUsage;
+                    //float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState,transmutableItemObject.getState(),TransmutationEfficency.Max.Value());
+                    uint baseTicks = TransmutableItemUtils.TRANSMUTATION_TICKS; // Want this to scale more
+                    balance += baseTicks * (long)energyUsage;
+                    continue;
+                }
+
+                if (node.NodeType == CraftingTreeNodeType.Processor)
+                {
+                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                    RecipeMetaData recipeMetaData = processorNodeData.RecipeData;
+                    if (recipeMetaData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
+                    {
+                        balance -= (long)itemEnergyRecipeMetaData.TotalInputEnergy;
+                        if (itemEnergyRecipeMetaData.MinimumEnergyPerTick > mostExpensiveEnergyCost) mostExpensiveEnergyCost = itemEnergyRecipeMetaData.MinimumEnergyPerTick;
+                    } else if (recipeMetaData is GeneratorItemRecipeMetaData generatorItemRecipeMetaData)
+                    {
+                        balance += (long)generatorItemRecipeMetaData.EnergyPerTick * generatorItemRecipeMetaData.Ticks;
+                        if (generatorItemRecipeMetaData.EnergyPerTick > highEnergyGeneration) highEnergyGeneration = generatorItemRecipeMetaData.EnergyPerTick;
+                    }
+                }
+            }
+            mEnergyBalanceText.text = balance.ToString() + "J/t";
+            ulong highestValue = highEnergyGeneration > mostExpensiveEnergyCost ? highEnergyGeneration : mostExpensiveEnergyCost;
+            Tier highestTier = Tier.Infinity;
+            Tier[] tiers = System.Enum.GetValues(typeof(Tier)).Cast<Tier>().ToArray();
+            foreach (Tier tier in tiers)
+            {
+                if (highestValue >= tier.GetMaxEnergyUsage()) continue;
+                highestTier = tier;
+                break;
+            }
+            mTierText.text = highestTier.ToString();
+        }
         private void SetInteractablity()
         {
             bool generated = network.HasGeneratedRecipes();

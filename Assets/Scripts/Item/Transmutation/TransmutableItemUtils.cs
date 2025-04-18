@@ -10,6 +10,7 @@ namespace Items.Transmutable
 {
     public static class TransmutableItemUtils
     {
+        public const uint TRANSMUTATION_TICKS = 100; // 2 seconds to go from ingot to plate, can change this later
         public static string GetStateId(TransmutableItemMaterial material, TransmutableItemState state)
         {
             return GetStateName(material,state).Replace(" ", "_").ToLower();

@@ -43,6 +43,7 @@ namespace DevTools.CraftingTrees.Network
         public void Rebuild()
         {
             mNodeNetworkUI.Display();
+            mSettingEditorUI.CalculateEnergyBalance();
         }
     }
 

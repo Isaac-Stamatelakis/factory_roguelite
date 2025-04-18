@@ -29,5 +29,6 @@ namespace TileEntity{
             const uint baseStorage = 8192;
             return baseStorage << (2*(int)tier);
         }
+        
     }
 }
