@@ -24,6 +24,7 @@ namespace UI
         public bool IsActive => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
         private bool canTerminate;
         private AudioSource audioSource;
+        public bool IsTyping => isTyping;
         public void Awake()
         {
             instance = this;

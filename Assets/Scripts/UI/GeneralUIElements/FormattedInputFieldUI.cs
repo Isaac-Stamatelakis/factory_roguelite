@@ -10,6 +10,7 @@ namespace UI.GeneralUIElements
     
         [SerializeField] private TMP_InputField mInputField;
         [SerializeField] private TextMeshProUGUI mTitleText;
+        public TMP_InputField InputField => mInputField;
 
 
         public void DisplayUInt(string title, uint value, Action<uint> callback)

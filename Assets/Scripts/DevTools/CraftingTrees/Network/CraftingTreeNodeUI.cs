@@ -1,4 +1,5 @@
 using System;
+using DevTools.CraftingTrees.TreeEditor.NodeEditors;
 using Item.Slot;
 using Items;
 using Items.Transmutable;
@@ -13,13 +14,18 @@ using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.Network
 {
-    internal class CraftingTreeNodeUI : NodeUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetworkUI>
+    public interface IOnSelectActionNodeUI
+    {
+        public void OnSelect();
+    }
+    internal class CraftingTreeNodeUI : NodeUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetworkUI>, IOnSelectActionNodeUI
     {
         [SerializeField] private NodeSprites nodeSprites;
         public override void DisplayImage()
         {
             Image image = GetComponent<Image>();
-            mItemSlotUI.Display(node.NodeData.GetDisplaySlot());
+            ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(node);
+            mItemSlotUI.Display(itemSlot);
             image.sprite = node.NodeType switch
             {
                 CraftingTreeNodeType.Item => nodeSprites.ItemBackground,
@@ -30,14 +36,22 @@ namespace DevTools.CraftingTrees.Network
         }
         
 
-        protected override void openContent(PointerEventData eventData)
+        public override void OpenContent(NodeUIContentOpenMode contentOpenMode)
         {
-            bool leftClick = eventData.button == PointerEventData.InputButton.Left;
-            if (leftClick && Input.GetKey(KeyCode.LeftShift))
+            bool generated = nodeNetwork.NodeNetwork.HasGeneratedRecipes();
+            if (contentOpenMode == NodeUIContentOpenMode.Click && Input.GetKey(KeyCode.LeftShift) && !generated)
             {
                 nodeNetwork.SelectNode(this);
+                return;
             }
-            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork,openSearchInstantly: !leftClick);
+
+            OpenSideView(contentOpenMode == NodeUIContentOpenMode.KeyPress && !generated);
+
+        }
+
+        private void OpenSideView(bool openInstantly)
+        {
+            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork,openSearchInstantly: openInstantly);
         }
 
         [System.Serializable]
@@ -46,6 +60,11 @@ namespace DevTools.CraftingTrees.Network
             public Sprite ItemBackground;
             public Sprite TransmutableBackground;
             public Sprite ProcessorBackground;
+        }
+
+        public void OnSelect()
+        {
+            OpenSideView(false);
         }
     }
 }

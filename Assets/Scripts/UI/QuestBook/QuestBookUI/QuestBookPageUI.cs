@@ -105,7 +105,7 @@ namespace UI.QuestBook {
         }
         
 
-        public override void PlaceNewNode(Vector2 position)
+        public override INode PlaceNewNode(Vector2 position)
         {
             SerializedItemSlot defaultItemImage = new SerializedItemSlot("stone", 1, null);
             QuestBookNodeContent defaultContent = new QuestBookNodeContent(
@@ -132,6 +132,7 @@ namespace UI.QuestBook {
             questBookData.IDCounter++;
             nodeNetwork.Nodes.Add(node);
             idNodeDictionary[node.Id] = node;
+            return node;
         }
 
         public override GameObject GenerateNewNodeObject()

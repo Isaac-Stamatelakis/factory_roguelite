@@ -27,7 +27,7 @@ namespace UI.QuestBook {
             mItemSlotUI.Display(new ItemSlot(itemObject,1,null));
         }
         
-        protected override void openContent(PointerEventData eventData)
+        public override void OpenContent(NodeUIContentOpenMode contentOpenMode)
         {
             UIAssetManager assetManager = nodeNetwork.QuestBookUI.AssetManager;
             QuestBookTaskPageUI pageUI = assetManager.cloneElement<QuestBookTaskPageUI>("TASK_PAGE");
