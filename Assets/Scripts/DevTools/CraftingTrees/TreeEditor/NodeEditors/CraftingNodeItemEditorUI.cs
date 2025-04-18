@@ -22,13 +22,64 @@ using UnityEngine.EventSystems;
 
 namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 {
+    internal static class CraftingTreeNodeUtils
+    {
+        public static ItemSlot GetDisplaySlot(CraftingTreeNodeNetwork nodeNetwork, CraftingTreeGeneratorNode node)
+        {
+            switch (node.NodeType)
+            {
+                case CraftingTreeNodeType.Item:
+                    ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
+                    return ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
+                case CraftingTreeNodeType.Transmutation:
+                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
+                    if (node.NetworkData.InputIds.Count == 0) return null;
+                    int inputId = node.NetworkData.InputIds[0];
+                    CraftingTreeGeneratorNode inputNode = null;
+                    foreach (var otherNode in nodeNetwork.Nodes)
+                    {
+                        if (node.GetId() == inputId)
+                        {
+                            inputNode = otherNode;
+                            break;
+                        }
+                    }
+
+                    if (inputNode == null)
+                    {
+                        ItemObject defaultState = TransmutableItemUtils.GetDefaultObjectOfState(transmutationNodeData.OutputState);
+                        return new ItemSlot(defaultState, 1, null);
+                    }
+                    if (inputNode.NodeType != CraftingTreeNodeType.Item) return null;
+                    ItemNodeData transmutationInputItemData = (ItemNodeData)inputNode.NodeData;
+                    TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationInputItemData.SerializedItemSlot?.id);
+                    if (!transmutableItemObject) return null;
+                   
+                    TransmutableItemMaterial material = transmutableItemObject.getMaterial();
+                    if (!material) return null;
+                    TransmutableItemObject transmutatedItemObject = TransmutableItemUtils.GetMaterialItem(material, transmutationNodeData.OutputState);
+                    return new ItemSlot(transmutatedItemObject, 1, null);
+                case CraftingTreeNodeType.Processor:
+                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                    ItemSlot itemSlot = null;
+#if  UNITY_EDITOR
+                    string path = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
+                    RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
+                    itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
+#endif
+                    return itemSlot;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
     internal class CraftingNodeItemEditorUI : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private SerializedItemSlotEditorUI mItemSlotEditorUI;
         private List<ItemObject> displaySlots;
-        public void Display(CraftingTreeGeneratorNode node, CraftingTreeGeneratorUI generatorUI, bool openSearchInstantly)
+        public void Display(CraftingTreeGeneratorNode node, CraftingTreeGeneratorUI generatorUI, CraftingTreeNodeNetwork network, bool openSearchInstantly)
         {
             mInventoryUI.SetInteractMode(InventoryInteractMode.OverrideAction);
             mInventoryUI.OverrideClickAction(ClickOverride);
@@ -49,7 +100,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     OnValueChange = OnItemChange,
                     DisplayAmount = true
                 };
-                ItemSlot itemSlot = node.NodeData.GetDisplaySlot();
+                ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(network, node);
                 SerializedItemSlot serializedItemSlot = new SerializedItemSlot(itemSlot?.itemObject?.id, itemSlot?.amount ?? 0, null);
                 serializedItemSlotEditorUI.Initialize(serializedItemSlot,OnItemChange,parameters,itemRestrictions:displaySlots);
                 
@@ -131,7 +182,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 
             void DisplayInventory()
             {
-                ItemSlot itemSlot = node.NodeData.GetDisplaySlot();
+                ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(network, node);
                 mTitleText.text = ItemSlotUtils.IsItemSlotNull(itemSlot) ? "Null" : itemSlot.itemObject.name;
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
             }

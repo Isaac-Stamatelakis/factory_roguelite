@@ -74,7 +74,7 @@ namespace DevTools.CraftingTrees.Network
 
     internal abstract class CraftingTreeNodeData
     {
-        public abstract ItemSlot GetDisplaySlot();
+        
     }
 
 
@@ -82,10 +82,6 @@ namespace DevTools.CraftingTrees.Network
         
         public SerializedItemSlot SerializedItemSlot;
         public float Odds = 1f;
-        public override ItemSlot GetDisplaySlot()
-        {
-            return ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
-        }
     }
 
     
@@ -94,11 +90,6 @@ namespace DevTools.CraftingTrees.Network
 
     {
         public TransmutableItemState OutputState;
-        public override ItemSlot GetDisplaySlot()
-        {
-            TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(OutputState);
-            return new ItemSlot(transmutableItemObject, 1, null);
-        }
     }
 
 
@@ -134,16 +125,6 @@ namespace DevTools.CraftingTrees.Network
         public string ProcessorGuid;
         public string RecipeGuid;
         public RecipeMetaData RecipeData;
-        public override ItemSlot GetDisplaySlot()
-        {
-            ItemSlot itemSlot = null;
-#if  UNITY_EDITOR
-            string path = AssetDatabase.GUIDToAssetPath(ProcessorGuid);
-            RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
-            itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
-#endif
-            return itemSlot;
-        }
     }
 
     internal class SerializedNodeData
@@ -347,44 +328,23 @@ namespace DevTools.CraftingTrees.Network
             
             if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
 
-            // Transmutation nodes only allow one input and one output, which must be item nodes.
-            // Transmutation states must be different. Transmutation states must be transmutable. EG No dust to screw.
-
-            bool IsTransmutationValid(CraftingTreeGeneratorNode transmutationNode, CraftingTreeGeneratorNode otherNode, bool same)
+            // Processors can process any node but themself
+            if (craftingInput.NodeType == CraftingTreeNodeType.Processor || (craftingOutput.NodeType == CraftingTreeNodeType.Processor))
             {
-                if (otherNode.NodeType != CraftingTreeNodeType.Item) return false;
-                ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                return true;
+            }
+            
+            // Transmutation nodes can only have item inputs and they must be transmutation 
+            if (craftingInput.NodeType == CraftingTreeNodeType.Item && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                ItemNodeData itemNodeData = (ItemNodeData)craftingInput.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject) return false;
-                TransmutationNodeData transmutationNodeData = (TransmutationNodeData)transmutationNode.NodeData;
-                return same != (transmutableItemObject.getState() != transmutationNodeData.OutputState);
-            }
-            if (craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
-            {
-                if (!IsTransmutationValid(craftingOutput, craftingInput,false)) return false;
+                TransmutationNodeData transmutationNodeData = (TransmutationNodeData)craftingOutput.NodeData;
+                if (transmutableItemObject.getState() == transmutationNodeData.OutputState) return false;
                 if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
                 return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
             }
-
-            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation)
-            {
-                if (!IsTransmutationValid(craftingInput, craftingOutput,true)) return false;
-                int outputs = nodeNetworkUI.GetNodeOutputs(craftingInput);
-                if (outputs == 0) return true;
-                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
-            }
-
-            // Processors can only connect to item nodes.
-            if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
-            {
-                return craftingOutput.NodeType == CraftingTreeNodeType.Item;
-            }
-
-            if (craftingOutput.NodeType == CraftingTreeNodeType.Processor)
-            {
-                return craftingInput.NodeType == CraftingTreeNodeType.Item;
-            }
-
             return false;
         }
         

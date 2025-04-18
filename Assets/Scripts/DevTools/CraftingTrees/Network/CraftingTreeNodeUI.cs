@@ -1,4 +1,5 @@
 using System;
+using DevTools.CraftingTrees.TreeEditor.NodeEditors;
 using Item.Slot;
 using Items;
 using Items.Transmutable;
@@ -23,7 +24,8 @@ namespace DevTools.CraftingTrees.Network
         public override void DisplayImage()
         {
             Image image = GetComponent<Image>();
-            mItemSlotUI.Display(node.NodeData.GetDisplaySlot());
+            ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(nodeNetwork.NodeNetwork,node);
+            mItemSlotUI.Display(itemSlot);
             image.sprite = node.NodeType switch
             {
                 CraftingTreeNodeType.Item => nodeSprites.ItemBackground,

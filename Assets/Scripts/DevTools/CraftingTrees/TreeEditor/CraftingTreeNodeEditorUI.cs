@@ -45,7 +45,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             GlobalHelper.DeleteAllChildren(nodeContentContainer);
             
             CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
-            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI,openSearchInstantly);
+            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI,nodeNetwork,openSearchInstantly);
             
             InitializeInputFields();
             mBlocker.gameObject.SetActive(nodeNetwork.HasGeneratedRecipes());
@@ -73,9 +73,16 @@ namespace DevTools.CraftingTrees.TreeEditor
                     case CraftingTreeNodeType.Transmutation:
                         break;
                     case CraftingTreeNodeType.Processor:
-                        ProcessorNodeData recipeMetaData = (ProcessorNodeData)node.NodeData;
-                        if (recipeMetaData.RecipeData == null) return;
-                        if (recipeMetaData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
+                        ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                        FormattedInputFieldUI modeInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        modeInput.DisplayUInt("Mode", (uint)processorNodeData.Mode, (value) =>
+                        {
+                            processorNodeData.Mode = (int)value;
+                        });
+                        CanvasController.Instance.AddTypingListener(modeInput.InputField);
+                        
+                        if (processorNodeData.RecipeData == null) return;
+                        if (processorNodeData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
                         {
                             FormattedInputFieldUI tickInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
                             tickInput.DisplayUInt("Ticks", (uint)passiveRecipeMetaData.Ticks, (value) =>
@@ -84,7 +91,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                             });
                             CanvasController.Instance.AddTypingListener(tickInput.InputField);
                         }
-                        if (recipeMetaData.RecipeData is BurnerRecipeMetaData burnerRecipeMetaData)
+                        if (processorNodeData.RecipeData is BurnerRecipeMetaData burnerRecipeMetaData)
                         {
                             FormattedInputFieldUI passiveSpeedInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
                             passiveSpeedInput.DisplayFloat("Passive Speed",burnerRecipeMetaData.PassiveSpeed, (value) =>
@@ -93,7 +100,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                             },min:0,max:1);
                             CanvasController.Instance.AddTypingListener(passiveSpeedInput.InputField);
                         }
-                        if (recipeMetaData.RecipeData is GeneratorItemRecipeMetaData generatorItemRecipeMetaData)
+                        if (processorNodeData.RecipeData is GeneratorItemRecipeMetaData generatorItemRecipeMetaData)
                         {
                             FormattedInputFieldUI energyProduction = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
                             energyProduction.DisplayULong("Energy Per Tick", generatorItemRecipeMetaData.EnergyPerTick, (value) =>
@@ -103,7 +110,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                             CanvasController.Instance.AddTypingListener(energyProduction.InputField);
                         }
 
-                        if (recipeMetaData.RecipeData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
+                        if (processorNodeData.RecipeData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
                         {
                             FormattedInputFieldUI totalEnergyInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
                             totalEnergyInput.DisplayULong("Total Energy Cost", itemEnergyRecipeMetaData.TotalInputEnergy, (value) =>
