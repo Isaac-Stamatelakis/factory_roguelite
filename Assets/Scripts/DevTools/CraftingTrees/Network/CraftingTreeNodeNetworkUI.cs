@@ -89,7 +89,7 @@ namespace DevTools.CraftingTrees.Network
     internal class TransmutationNodeData : CraftingTreeNodeData
 
     {
-        public TransmutableItemState OutputState;
+        public string OutputItemId;
     }
 
 
@@ -329,7 +329,12 @@ namespace DevTools.CraftingTrees.Network
             if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
 
             // Processors can process any node but themself
-            if (craftingInput.NodeType == CraftingTreeNodeType.Processor || (craftingOutput.NodeType == CraftingTreeNodeType.Processor))
+            if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
+            {
+                return craftingOutput.NodeType == CraftingTreeNodeType.Item;
+            }
+
+            if (craftingOutput.NodeType == CraftingTreeNodeType.Processor)
             {
                 return true;
             }
@@ -340,8 +345,6 @@ namespace DevTools.CraftingTrees.Network
                 ItemNodeData itemNodeData = (ItemNodeData)craftingInput.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject) return false;
-                TransmutationNodeData transmutationNodeData = (TransmutationNodeData)craftingOutput.NodeData;
-                if (transmutableItemObject.getState() == transmutationNodeData.OutputState) return false;
                 if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
                 return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
             }

@@ -45,7 +45,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             GlobalHelper.DeleteAllChildren(nodeContentContainer);
             
             CraftingNodeItemEditorUI craftingTreeNodeEditorUI = GameObject.Instantiate(mItemEditorPrefab, nodeContentContainer, false);
-            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI,nodeNetwork,openSearchInstantly);
+            craftingTreeNodeEditorUI.Display(node,nodeNetworkUI.CraftingTreeGeneratorUI,nodeNetworkUI,openSearchInstantly);
             
             InitializeInputFields();
             mBlocker.gameObject.SetActive(nodeNetwork.HasGeneratedRecipes());

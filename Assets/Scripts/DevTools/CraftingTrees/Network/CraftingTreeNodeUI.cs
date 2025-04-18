@@ -24,7 +24,7 @@ namespace DevTools.CraftingTrees.Network
         public override void DisplayImage()
         {
             Image image = GetComponent<Image>();
-            ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(nodeNetwork.NodeNetwork,node);
+            ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(node);
             mItemSlotUI.Display(itemSlot);
             image.sprite = node.NodeType switch
             {
