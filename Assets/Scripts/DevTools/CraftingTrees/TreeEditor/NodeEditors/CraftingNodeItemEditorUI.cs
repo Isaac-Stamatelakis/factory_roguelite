@@ -5,11 +5,15 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Transmutable;
+using Recipe;
+using Recipe.Data;
 using TileEntity.Instances.WorkBenchs;
 using TMPro;
 using UI;
     
 #if UNITY_EDITOR
+using Recipe.Processor;
+using Recipe.Viewer;
 using UnityEditor;
 #endif
 
@@ -86,12 +90,29 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 #if UNITY_EDITOR
                         
 
-                        if (itemObject is TileItem tileItem)
+                        if (itemObject is TileItem { tileEntity: IProcessorTileEntity processorTileEntity })
                         {
-                            if (tileItem.tileEntity is IProcessorTileEntity processorTileEntity)
+                            string assetPath = AssetDatabase.GetAssetPath(processorTileEntity.GetRecipeProcessor());
+                            processorNodeData.ProcessorGuid = AssetDatabase.AssetPathToGUID(assetPath);
+                            switch (processorTileEntity.GetRecipeProcessor().RecipeType)
                             {
-                                string assetPath = AssetDatabase.GetAssetPath(processorTileEntity.GetRecipeProcessor());
-                                processorNodeData.ProcessorGuid = AssetDatabase.AssetPathToGUID(assetPath);
+                                case RecipeType.Item:
+                                    processorNodeData.RecipeData = null;
+                                    break;
+                                case RecipeType.Passive:
+                                    processorNodeData.RecipeData = new PassiveRecipeMetaData();
+                                    break;
+                                case RecipeType.Generator:
+                                    processorNodeData.RecipeData = new GeneratorItemRecipeMetaData();
+                                    break;
+                                case RecipeType.Machine:
+                                    processorNodeData.RecipeData = new ItemEnergyRecipeMetaData();
+                                    break;
+                                case RecipeType.Burner:
+                                    processorNodeData.RecipeData = new BurnerRecipeMetaData();
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
                             }
                         }
 #endif

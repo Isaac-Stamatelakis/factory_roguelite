@@ -1,10 +1,13 @@
 using System;
 using DevTools.CraftingTrees.Network;
 using DevTools.CraftingTrees.TreeEditor.NodeEditors;
+using Recipe;
+using Recipe.Processor;
 using TMPro;
 using TMPro.Examples;
 using UI.GeneralUIElements;
 using UI.NodeNetwork;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
@@ -54,7 +57,47 @@ namespace DevTools.CraftingTrees.TreeEditor
                 case CraftingTreeNodeType.Transmutation:
                     break;
                 case CraftingTreeNodeType.Processor:
-                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                    ProcessorNodeData recipeMetaData = (ProcessorNodeData)node.NodeData;
+                    if (recipeMetaData.RecipeData == null) return;
+                    if (recipeMetaData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
+                    {
+                        FormattedInputFieldUI tickInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        tickInput.DisplayUInt("Ticks", (uint)passiveRecipeMetaData.Ticks, (value) =>
+                        {
+                            passiveRecipeMetaData.Ticks = (int)value;
+                        });
+                    }
+                    if (recipeMetaData.RecipeData is BurnerRecipeMetaData burnerRecipeMetaData)
+                    {
+                        FormattedInputFieldUI passiveSpeedInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        passiveSpeedInput.DisplayFloat("Passive Speed",burnerRecipeMetaData.PassiveSpeed, (value) =>
+                        {
+                            burnerRecipeMetaData.PassiveSpeed = value;
+                        },min:0,max:1);
+                    }
+                    if (recipeMetaData.RecipeData is GeneratorItemRecipeMetaData generatorItemRecipeMetaData)
+                    {
+                        FormattedInputFieldUI energyProduction = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        energyProduction.DisplayULong("Energy Per Tick", generatorItemRecipeMetaData.EnergyPerTick, (value) =>
+                        {
+                            generatorItemRecipeMetaData.EnergyPerTick = value;
+                        });
+                    }
+
+                    if (recipeMetaData.RecipeData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
+                    {
+                        FormattedInputFieldUI passiveSpeedInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        passiveSpeedInput.DisplayULong("Total Energy Cost", itemEnergyRecipeMetaData.TotalInputEnergy, (value) =>
+                        {
+                            itemEnergyRecipeMetaData.TotalInputEnergy = value;
+                        });
+                        
+                        FormattedInputFieldUI minEnergyPerTick = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        minEnergyPerTick.DisplayULong("Min Energy Per Tick", itemEnergyRecipeMetaData.MinimumEnergyPerTick, (value) =>
+                        {
+                            itemEnergyRecipeMetaData.MinimumEnergyPerTick = value;
+                        });
+                    }
                   
                     break;
                 default:

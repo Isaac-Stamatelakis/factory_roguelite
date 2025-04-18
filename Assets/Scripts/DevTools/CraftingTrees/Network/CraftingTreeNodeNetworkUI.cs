@@ -6,6 +6,7 @@ using Item.Slot;
 using Items;
 using Items.Transmutable;
 using Newtonsoft.Json;
+using Recipe;
 using Recipe.Data;
 using Recipe.Processor;
 using Recipe.Viewer;
@@ -101,13 +102,38 @@ namespace DevTools.CraftingTrees.Network
     }
 
 
+    public  class RecipeMetaData
+    {
+        
+    }
 
+    public class PassiveRecipeMetaData : RecipeMetaData
+    {
+        public int Ticks = 50;
+    }
+
+    public class BurnerRecipeMetaData : PassiveRecipeMetaData
+    {
+        public float PassiveSpeed = 0;
+    }
+
+    public class GeneratorItemRecipeMetaData : PassiveRecipeMetaData
+    {
+        public ulong EnergyPerTick = 32;
+    }
+
+    public class ItemEnergyRecipeMetaData : RecipeMetaData
+    {
+        public ulong TotalInputEnergy = 8192;
+        public ulong MinimumEnergyPerTick = 32;
+    }
+    
     internal class ProcessorNodeData : CraftingTreeNodeData
     {
         public int Mode;
         public string ProcessorGuid;
         public string RecipeGuid;
-        public ItemRecipe RecipeData;
+        public RecipeMetaData RecipeData;
         public override ItemSlot GetDisplaySlot()
         {
             ItemSlot itemSlot = null;
@@ -125,6 +151,14 @@ namespace DevTools.CraftingTrees.Network
         public NodeNetworkData NodeNetworkData;
         public CraftingTreeNodeType NodeType;
         public string Data;
+    }
+
+    internal class SerializedProcessorNodeData
+    {
+        public int Mode;
+        public string ProcessorGuid;
+        public string RecipeGuid;
+        public string MetaData;
     }
     internal class SerializedCraftingTreeNodeNetwork
     {
@@ -166,7 +200,7 @@ namespace DevTools.CraftingTrees.Network
 
         private static SerializedNodeData SerializedNode(CraftingTreeGeneratorNode node)
         {
-            string serializedData = JsonConvert.SerializeObject(node.NodeData);
+            string serializedData = SerializeNodeData(node.NodeType, node.NodeData);
             return new SerializedNodeData
             {
                 NodeType = node.NodeType,
@@ -175,30 +209,89 @@ namespace DevTools.CraftingTrees.Network
             };
         }
 
+        private static string SerializeNodeData(CraftingTreeNodeType type, CraftingTreeNodeData nodeData)
+        {
+            switch (type)
+            {
+                case CraftingTreeNodeType.Item:
+                case CraftingTreeNodeType.Transmutation:
+                    return JsonConvert.SerializeObject(nodeData);
+                case CraftingTreeNodeType.Processor:
+                    ProcessorNodeData processorNodeData = (ProcessorNodeData)nodeData;
+                    SerializedProcessorNodeData serializedProcessorNodeData = new SerializedProcessorNodeData
+                    {
+                        Mode = processorNodeData.Mode,
+                        ProcessorGuid = processorNodeData.ProcessorGuid,
+                        RecipeGuid = processorNodeData.RecipeGuid,
+                        MetaData = JsonConvert.SerializeObject(processorNodeData.RecipeData)
+                    };
+                    return JsonConvert.SerializeObject(serializedProcessorNodeData);
+                
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+        private static CraftingTreeNodeData DeserializeNodeData(CraftingTreeNodeType type, string serializedData)
+        {
+            switch (type)
+            {
+                case CraftingTreeNodeType.Item:
+                    return JsonConvert.DeserializeObject<ItemNodeData>(serializedData);
+                case CraftingTreeNodeType.Transmutation:
+                    return JsonConvert.DeserializeObject<TransmutationNodeData>(serializedData);
+                case CraftingTreeNodeType.Processor:
+                    RecipeProcessor recipeProcessor = null;
+                    #if  UNITY_EDITOR
+                    
+                    SerializedProcessorNodeData serializedProcessorNodeData = JsonConvert.DeserializeObject<SerializedProcessorNodeData>(serializedData);
+                    string processorGuid = serializedProcessorNodeData.ProcessorGuid;
+                    string assetPath = AssetDatabase.GUIDToAssetPath(processorGuid);
+                    recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                    
+                    #endif
+                    if (!recipeProcessor) return null;
+                    RecipeMetaData recipeMetaData;
+                    switch (recipeProcessor.RecipeType)
+                    {
+                        case RecipeType.Item:
+                            recipeMetaData = null;
+                            break;
+                        case RecipeType.Passive:
+                            recipeMetaData = JsonConvert.DeserializeObject<PassiveRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Generator:
+                            recipeMetaData = JsonConvert.DeserializeObject<GeneratorItemRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Machine:
+                            recipeMetaData = JsonConvert.DeserializeObject<ItemEnergyRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Burner:
+                            recipeMetaData = JsonConvert.DeserializeObject<BurnerRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    return new ProcessorNodeData
+                    {
+                        Mode = serializedProcessorNodeData.Mode,
+                        ProcessorGuid = processorGuid,
+                        RecipeGuid = serializedProcessorNodeData.RecipeGuid,
+                        RecipeData = recipeMetaData,
+                    };
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
         private static CraftingTreeGeneratorNode DeserializeNode(SerializedNodeData serializedData)
         {
             try
             {
-                CraftingTreeNodeData nodeData;
-
-                switch (serializedData.NodeType)
-                {
-                    case CraftingTreeNodeType.Item:
-                        nodeData = JsonConvert.DeserializeObject<ItemNodeData>(serializedData.Data);
-                        break;
-                    case CraftingTreeNodeType.Transmutation:
-                        nodeData = JsonConvert.DeserializeObject<TransmutationNodeData>(serializedData.Data);
-                        break;
-                    case CraftingTreeNodeType.Processor:
-                        nodeData = JsonConvert.DeserializeObject<ProcessorNodeData>(serializedData.Data);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
+                CraftingTreeNodeData nodeData = DeserializeNodeData(serializedData.NodeType, serializedData.Data);
                 return new CraftingTreeGeneratorNode(serializedData.NodeType, serializedData.NodeNetworkData, nodeData);
             }
-            catch (JsonSerializationException e)
+            catch (Exception e) when (e is JsonSerializationException or NullReferenceException or ArgumentException)
             {
                 Debug.LogError($"Failed to deserialize node data {e.Message}");
                 return null;

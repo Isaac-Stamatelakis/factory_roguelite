@@ -22,6 +22,17 @@ namespace UI.GeneralUIElements
                 callback(value);
             });
         }
+        
+        public void DisplayULong(string title, ulong value, Action<ulong> callback)
+        {
+            mInputField.text = value.ToString();
+            mTitleText.text = title;
+            mInputField.onValueChanged.AddListener((text) =>
+            {
+                value = ulong.TryParse(text, out ulong result) ? result : 0;
+                callback(value);
+            });
+        }
     
         public void DisplayFloat(string title, float value, Action<float> callback, float min = float.MinValue, float max = float.MaxValue)
         {
