@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using DevTools.CraftingTrees.Network;
 using Items;
+using Recipe;
 using Recipe.Objects;
 using Recipe.Processor;
 using RecipeModule;
@@ -162,6 +163,39 @@ namespace DevTools.CraftingTrees.TreeEditor
                 {
                     modifyCount++;
                 }
+
+                switch (recipeProcessor.RecipeType)
+                {
+                    case RecipeType.Item:
+                        break;
+                    case RecipeType.Passive:
+                        PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
+                        PassiveRecipeMetaData passiveRecipeMetaData = (PassiveRecipeMetaData)processorNodeData.RecipeData;
+                        passiveItemRecipeObject.Ticks = passiveRecipeMetaData.Ticks;
+                        break;
+                    case RecipeType.Generator:
+                        GeneratorItemRecipeObject generatorItemRecipeObject = (GeneratorItemRecipeObject)recipeObject;
+                        GeneratorItemRecipeMetaData generatorRecipeMetaData = (GeneratorItemRecipeMetaData)processorNodeData.RecipeData;
+                        generatorItemRecipeObject.Ticks = generatorRecipeMetaData.Ticks;
+                        generatorItemRecipeObject.EnergyPerTick = generatorRecipeMetaData.EnergyPerTick;
+                        break;
+                    case RecipeType.Machine:
+                        ItemEnergyRecipeObject machineRecipeObject = (ItemEnergyRecipeObject)recipeObject;
+                        ItemEnergyRecipeMetaData machineRecipeMetaData = (ItemEnergyRecipeMetaData)processorNodeData.RecipeData;
+                        machineRecipeObject.MinimumEnergyPerTick = machineRecipeMetaData.MinimumEnergyPerTick;
+                        machineRecipeObject.TotalInputEnergy = machineRecipeMetaData.TotalInputEnergy;
+                        break;
+                    case RecipeType.Burner:
+                        BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
+                        BurnerRecipeMetaData burnerRecipeMetaData = (BurnerRecipeMetaData)processorNodeData.RecipeData;
+                        burnerRecipeObject.Ticks = burnerRecipeMetaData.Ticks;
+                        burnerRecipeObject.PassiveSpeed = burnerRecipeMetaData.PassiveSpeed;
+                        break;
+                    
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(recipeProcessor.RecipeType), $"Unknown recipe type: {recipeProcessor.RecipeType}");
+                }
+                    
                 
                 ItemRecipeObject itemRecipeObject = (ItemRecipeObject)recipeObject;
                 itemRecipeObject.Inputs.Clear();
