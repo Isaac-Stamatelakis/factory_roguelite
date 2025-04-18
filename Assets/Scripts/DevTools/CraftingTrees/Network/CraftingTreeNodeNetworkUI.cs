@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
+using Item.Transmutation.Info;
 using Items;
 using Items.Transmutable;
 using Newtonsoft.Json;
 using Recipe;
 using Recipe.Data;
+using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
 using UI.NodeNetwork;
@@ -92,12 +94,13 @@ namespace DevTools.CraftingTrees.Network
         public TransmutableItemState InputState;
         public uint InputAmount;
         public string OutputItemId;
-
-        public uint GetOutputAmount()
+        
+        public ItemSlot GetItemSlot(TransmutationEfficency transmutationEfficency)
         {
             TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
-            if (!transmutableItemObject) return 0;
-            return (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), 1f));
+            if (!transmutableItemObject) return null;
+            uint amount = (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), transmutationEfficency.Value()));
+            return new ItemSlot(transmutableItemObject, amount,null);
         }
     }
 
@@ -152,6 +155,7 @@ namespace DevTools.CraftingTrees.Network
     }
     internal class SerializedCraftingTreeNodeNetwork
     {
+        public TransmutationEfficency Efficency;
         public List<SerializedNodeData> SerializedNodes;
     }
 
@@ -168,7 +172,8 @@ namespace DevTools.CraftingTrees.Network
 
             return new SerializedCraftingTreeNodeNetwork
             {
-                SerializedNodes = serializedNodes
+                SerializedNodes = serializedNodes,
+                Efficency = nodeNetwork.TransmutationEfficency
             };
         }
 
@@ -184,7 +189,8 @@ namespace DevTools.CraftingTrees.Network
             }
             return new CraftingTreeNodeNetwork
             {
-                Nodes = nodes
+                Nodes = nodes,
+                TransmutationEfficency = serializedNetwork.Efficency
             };
         }
 
@@ -306,6 +312,7 @@ namespace DevTools.CraftingTrees.Network
     }
     internal class CraftingTreeNodeNetwork : INodeNetwork<CraftingTreeGeneratorNode>
     {
+        public TransmutationEfficency TransmutationEfficency;
         public List<CraftingTreeGeneratorNode> Nodes;
         public List<CraftingTreeGeneratorNode> GetNodes()
         {

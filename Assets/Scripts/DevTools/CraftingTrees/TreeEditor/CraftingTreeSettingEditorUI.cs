@@ -13,6 +13,7 @@ using UI;
 using UI.ToolTip;
 using Unity.VisualScripting;
 #if UNITY_EDITOR
+using Item.Slot;
 using Items.Transmutable;
 using UnityEditor;
 #endif
@@ -79,7 +80,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             craftingTreeGenerator.SetType(type);
         }
 
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator, List<ITreeGenerationListener> listeners)
+        public void Initialize(CraftingTreeGeneratorUI generatorUI, CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator, List<ITreeGenerationListener> listeners)
         {
             craftingTreeGenerationStatusListeners = listeners;
             this.network = craftingTreeNodeNetwork;
@@ -104,6 +105,8 @@ namespace DevTools.CraftingTrees.TreeEditor
             InitializeNodeButton(mTransmutationButton, CraftingTreeNodeType.Transmutation);
             InitializeNodeButton(mProcessorButton, CraftingTreeNodeType.Processor);
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
+            mTransmutationEfficiencyDropDown.value = (int)craftingTreeNodeNetwork.TransmutationEfficency;
+            mTransmutationEfficiencyDropDown.onValueChanged.AddListener(UpdateEffiency);
             mGenerateButton.onClick.AddListener(GenerateRecipes);
             mDeleteButton.onClick.AddListener(DeleteRecipes);
             InitializeStatusIcon();
@@ -123,6 +126,12 @@ namespace DevTools.CraftingTrees.TreeEditor
                         ? "Tree Recipes Generated\nTree is Un-interactable" 
                         : "Tree Recipes Not Generated\nTree is Interactable";
                 }
+            }
+
+            void UpdateEffiency(int value)
+            {
+                craftingTreeNodeNetwork.TransmutationEfficency = (TransmutationEfficency)value;
+                generatorUI.Rebuild();
             }
         }
 
@@ -312,7 +321,8 @@ namespace DevTools.CraftingTrees.TreeEditor
                 if (node.NodeType == CraftingTreeNodeType.Transmutation)
                 {
                     TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-                    return new SerializedItemSlot(transmutationNodeData.OutputItemId, transmutationNodeData.GetOutputAmount(), null);
+                    ItemSlot itemSlot = transmutationNodeData.GetItemSlot(network.TransmutationEfficency);
+                    return new SerializedItemSlot(itemSlot?.itemObject?.id,itemSlot?.amount ?? 0, null);
                 }
                 return null;
             }

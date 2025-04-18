@@ -7,6 +7,7 @@ using Items.Inventory;
 using Items.Transmutable;
 using Recipe;
 using Recipe.Data;
+using Recipe.Objects;
 using TileEntity.Instances.WorkBenchs;
 using TMPro;
 using UI;
@@ -33,10 +34,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     return ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
                 case CraftingTreeNodeType.Transmutation:
                     TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-                    TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
-                    if (!transmutableItemObject) return null;
-                    uint amount = (uint)(transmutationNodeData.InputAmount*TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState, transmutableItemObject.getState(), 1f));
-                    return new ItemSlot(transmutableItemObject, amount, null);
+                    return transmutationNodeData.GetItemSlot(nodeNetwork.TransmutationEfficency);
                 case CraftingTreeNodeType.Processor:
                     ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
                     ItemSlot itemSlot = null;
@@ -77,7 +75,8 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             {
                 if (otherNode.NodeType != CraftingTreeNodeType.Transmutation) continue;
                 if (!otherNode.NetworkData.InputIds.Contains(id)) continue;
-                float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState, transmutableItemObject.getState(), 1f);
+                
+                float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState, transmutableItemObject.getState(), nodeNetwork.TransmutationEfficency.Value());
                 uint amount = (uint)(transmutationNodeData.InputAmount * ratio);
                 UpdateTransmutationNode(new SerializedItemSlot(transmutationNodeData.OutputItemId,amount,null),nodeNetwork,otherNode);
             }
@@ -171,14 +170,8 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                                 if (otherNode.NodeType == CraftingTreeNodeType.Transmutation)
                                 {
                                     TransmutationNodeData otherTransmutationNodeData = (TransmutationNodeData)otherNode.NodeData;
-                                    TransmutableItemObject outputTransmutationItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(otherTransmutationNodeData.OutputItemId);
-                                    if (!outputTransmutationItemObject) break;
-                                    transmutationNodeData.InputState = outputTransmutationItemObject.getState();
-                                    TransmutableItemObject outputTransmutationItem = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
-                                    if (!outputTransmutationItem) break;
-                                    float otherRatio = TransmutableItemUtils.GetTransmutationRatio(otherTransmutationNodeData.InputState, outputTransmutationItemObject.getState(), 1f);
-                                    uint otherOutput = (uint)(otherTransmutationNodeData.InputAmount * otherRatio);
-                                    transmutationNodeData.InputAmount = otherOutput;
+                                    ItemSlot itemSlot = otherTransmutationNodeData.GetItemSlot(nodeNetwork.TransmutationEfficency);
+                                    transmutationNodeData.InputAmount = itemSlot?.amount ?? 0;
                                 }
                                 
                                 break;

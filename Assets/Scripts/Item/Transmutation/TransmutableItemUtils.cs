@@ -74,7 +74,7 @@ namespace Items.Transmutable
             float efficency = 1f)
         {
             uint gcd = GetGcd((uint)(inputState.getRatio()), (uint)(outputState.getRatio()));
-            return outputState.getRatio() / inputState.getRatio() / efficency;
+            return outputState.getRatio() / inputState.getRatio() * efficency;
         }
         
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)

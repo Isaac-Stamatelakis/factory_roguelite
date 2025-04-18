@@ -26,7 +26,7 @@ namespace DevTools.CraftingTrees.Network
                 mNodeNetworkUI,
                 mNodeEditorUI
             };
-            mSettingEditorUI.Initialize(nodeNetwork,craftingTreeGenerator,listeners);
+            mSettingEditorUI.Initialize(this,nodeNetwork,craftingTreeGenerator,listeners);
         }
 
         public void OnDestroy()
