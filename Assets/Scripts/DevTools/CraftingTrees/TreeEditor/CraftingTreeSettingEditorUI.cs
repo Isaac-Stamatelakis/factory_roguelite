@@ -256,15 +256,15 @@ namespace DevTools.CraftingTrees.TreeEditor
                 foreach (int inputId in inputIds)
                 {
                     var inputNode = nodeDictionary.GetValueOrDefault(inputId);
-                    if (inputNode == null || inputNode.NodeType != CraftingTreeNodeType.Item) continue;
-                    ItemNodeData itemNodeData = (ItemNodeData)inputNode.NodeData;
-                    if (itemNodeData.SerializedItemSlot == null) continue;
-                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (inputNode == null) continue;
+                    SerializedItemSlot serializedItemSlot = GetSerializedItemSlot(inputNode);
+                    if (serializedItemSlot == null) continue;
+                    ItemObject itemObject = itemRegistry.GetItemObject(serializedItemSlot.id);
                     if (!itemObject) continue;
                     EditorItemSlot editorItemSlot = new EditorItemSlot
                     {
                         ItemObject = itemObject,
-                        Amount = itemNodeData.SerializedItemSlot.amount
+                        Amount = serializedItemSlot.amount
                     };
                     itemRecipeObject.Inputs.Add(editorItemSlot);
                 }
@@ -272,23 +272,50 @@ namespace DevTools.CraftingTrees.TreeEditor
                 int currentId = node.GetId();
                 foreach (var otherNode in network.Nodes)
                 {
-                    if (otherNode == null || otherNode.NodeType != CraftingTreeNodeType.Item || !otherNode.NetworkData.InputIds.Contains(currentId)) continue;
-                    ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
-                    if (itemNodeData.SerializedItemSlot == null) continue;
-                    ItemObject itemObject = itemRegistry.GetItemObject(itemNodeData.SerializedItemSlot.id);
+                    if (otherNode == null || !otherNode.NetworkData.InputIds.Contains(currentId)) continue;
+                    SerializedItemSlot serializedItemSlot = GetSerializedItemSlot(otherNode);
+                    if (serializedItemSlot == null) continue;
+                    
+                    ItemObject itemObject = itemRegistry.GetItemObject(serializedItemSlot.id);
                     if (!itemObject) continue;
+                    float chance = 1;
+                    if (otherNode.NodeType == CraftingTreeNodeType.Item)
+                    {
+                        ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                        chance = itemNodeData.Odds;
+                    }
                     RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot
                     {
                         ItemObject = itemObject,
-                        Amount = itemNodeData.SerializedItemSlot.amount,
-                        Chance = itemNodeData.Odds
+                        Amount = serializedItemSlot.amount,
+                        Chance = chance
                     };
                     itemRecipeObject.Outputs.Add(editorItemSlot);
                 }
+
+                
             }
             Debug.Log($"Generated {generateCount} new recipes, modified {modifyCount} recipes & deleted {deleteCount} recipes.");
             SetStatusIconColor();
             SetInteractablity();
+
+            return;
+            SerializedItemSlot GetSerializedItemSlot(CraftingTreeGeneratorNode node)
+            {
+                if (node.NodeType == CraftingTreeNodeType.Item)
+                {
+                    ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
+                    return itemNodeData.SerializedItemSlot;
+                }
+
+                if (node.NodeType == CraftingTreeNodeType.Transmutation)
+                {
+                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
+                    // TODO RATIO
+                    return new SerializedItemSlot(transmutationNodeData.OutputItemId, 1, null);
+                }
+                return null;
+            }
 #endif
         }
 
