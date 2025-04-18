@@ -1,11 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
+using Items;
+using Items.Transmutable;
 using Newtonsoft.Json;
+using Recipe;
 using Recipe.Data;
+using Recipe.Processor;
 using Recipe.Viewer;
 using UI.NodeNetwork;
+#if  UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -66,7 +74,7 @@ namespace DevTools.CraftingTrees.Network
 
     internal abstract class CraftingTreeNodeData
     {
-        
+        public abstract ItemSlot GetDisplaySlot();
     }
 
 
@@ -74,6 +82,10 @@ namespace DevTools.CraftingTrees.Network
         
         public SerializedItemSlot SerializedItemSlot;
         public float Odds = 1f;
+        public override ItemSlot GetDisplaySlot()
+        {
+            return ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
+        }
     }
 
     
@@ -82,16 +94,56 @@ namespace DevTools.CraftingTrees.Network
 
     {
         public TransmutableItemState OutputState;
+        public override ItemSlot GetDisplaySlot()
+        {
+            TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(OutputState);
+            return new ItemSlot(transmutableItemObject, 1, null);
+        }
     }
 
 
+    public  class RecipeMetaData
+    {
+        
+    }
 
+    public class PassiveRecipeMetaData : RecipeMetaData
+    {
+        public int Ticks = 50;
+    }
+
+    public class BurnerRecipeMetaData : PassiveRecipeMetaData
+    {
+        public float PassiveSpeed = 0;
+    }
+
+    public class GeneratorItemRecipeMetaData : PassiveRecipeMetaData
+    {
+        public ulong EnergyPerTick = 32;
+    }
+
+    public class ItemEnergyRecipeMetaData : RecipeMetaData
+    {
+        public ulong TotalInputEnergy = 8192;
+        public ulong MinimumEnergyPerTick = 32;
+    }
+    
     internal class ProcessorNodeData : CraftingTreeNodeData
     {
         public int Mode;
         public string ProcessorGuid;
         public string RecipeGuid;
-        public ItemRecipe RecipeData;
+        public RecipeMetaData RecipeData;
+        public override ItemSlot GetDisplaySlot()
+        {
+            ItemSlot itemSlot = null;
+#if  UNITY_EDITOR
+            string path = AssetDatabase.GUIDToAssetPath(ProcessorGuid);
+            RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
+            itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
+#endif
+            return itemSlot;
+        }
     }
 
     internal class SerializedNodeData
@@ -99,6 +151,14 @@ namespace DevTools.CraftingTrees.Network
         public NodeNetworkData NodeNetworkData;
         public CraftingTreeNodeType NodeType;
         public string Data;
+    }
+
+    internal class SerializedProcessorNodeData
+    {
+        public int Mode;
+        public string ProcessorGuid;
+        public string RecipeGuid;
+        public string MetaData;
     }
     internal class SerializedCraftingTreeNodeNetwork
     {
@@ -140,7 +200,7 @@ namespace DevTools.CraftingTrees.Network
 
         private static SerializedNodeData SerializedNode(CraftingTreeGeneratorNode node)
         {
-            string serializedData = JsonConvert.SerializeObject(node.NodeData);
+            string serializedData = SerializeNodeData(node.NodeType, node.NodeData);
             return new SerializedNodeData
             {
                 NodeType = node.NodeType,
@@ -149,30 +209,89 @@ namespace DevTools.CraftingTrees.Network
             };
         }
 
+        private static string SerializeNodeData(CraftingTreeNodeType type, CraftingTreeNodeData nodeData)
+        {
+            switch (type)
+            {
+                case CraftingTreeNodeType.Item:
+                case CraftingTreeNodeType.Transmutation:
+                    return JsonConvert.SerializeObject(nodeData);
+                case CraftingTreeNodeType.Processor:
+                    ProcessorNodeData processorNodeData = (ProcessorNodeData)nodeData;
+                    SerializedProcessorNodeData serializedProcessorNodeData = new SerializedProcessorNodeData
+                    {
+                        Mode = processorNodeData.Mode,
+                        ProcessorGuid = processorNodeData.ProcessorGuid,
+                        RecipeGuid = processorNodeData.RecipeGuid,
+                        MetaData = JsonConvert.SerializeObject(processorNodeData.RecipeData)
+                    };
+                    return JsonConvert.SerializeObject(serializedProcessorNodeData);
+                
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+        private static CraftingTreeNodeData DeserializeNodeData(CraftingTreeNodeType type, string serializedData)
+        {
+            switch (type)
+            {
+                case CraftingTreeNodeType.Item:
+                    return JsonConvert.DeserializeObject<ItemNodeData>(serializedData);
+                case CraftingTreeNodeType.Transmutation:
+                    return JsonConvert.DeserializeObject<TransmutationNodeData>(serializedData);
+                case CraftingTreeNodeType.Processor:
+                    RecipeProcessor recipeProcessor = null;
+                    #if  UNITY_EDITOR
+                    
+                    SerializedProcessorNodeData serializedProcessorNodeData = JsonConvert.DeserializeObject<SerializedProcessorNodeData>(serializedData);
+                    string processorGuid = serializedProcessorNodeData.ProcessorGuid;
+                    string assetPath = AssetDatabase.GUIDToAssetPath(processorGuid);
+                    recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
+                    
+                    #endif
+                    if (!recipeProcessor) return null;
+                    RecipeMetaData recipeMetaData;
+                    switch (recipeProcessor.RecipeType)
+                    {
+                        case RecipeType.Item:
+                            recipeMetaData = null;
+                            break;
+                        case RecipeType.Passive:
+                            recipeMetaData = JsonConvert.DeserializeObject<PassiveRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Generator:
+                            recipeMetaData = JsonConvert.DeserializeObject<GeneratorItemRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Machine:
+                            recipeMetaData = JsonConvert.DeserializeObject<ItemEnergyRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        case RecipeType.Burner:
+                            recipeMetaData = JsonConvert.DeserializeObject<BurnerRecipeMetaData>(serializedProcessorNodeData.MetaData);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    return new ProcessorNodeData
+                    {
+                        Mode = serializedProcessorNodeData.Mode,
+                        ProcessorGuid = processorGuid,
+                        RecipeGuid = serializedProcessorNodeData.RecipeGuid,
+                        RecipeData = recipeMetaData,
+                    };
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
         private static CraftingTreeGeneratorNode DeserializeNode(SerializedNodeData serializedData)
         {
             try
             {
-                CraftingTreeNodeData nodeData;
-
-                switch (serializedData.NodeType)
-                {
-                    case CraftingTreeNodeType.Item:
-                        nodeData = JsonConvert.DeserializeObject<ItemNodeData>(serializedData.Data);
-                        break;
-                    case CraftingTreeNodeType.Transmutation:
-                        nodeData = JsonConvert.DeserializeObject<TransmutationNodeData>(serializedData.Data);
-                        break;
-                    case CraftingTreeNodeType.Processor:
-                        nodeData = JsonConvert.DeserializeObject<ProcessorNodeData>(serializedData.Data);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
+                CraftingTreeNodeData nodeData = DeserializeNodeData(serializedData.NodeType, serializedData.Data);
                 return new CraftingTreeGeneratorNode(serializedData.NodeType, serializedData.NodeNetworkData, nodeData);
             }
-            catch (JsonSerializationException e)
+            catch (Exception e) when (e is JsonSerializationException or NullReferenceException or ArgumentException)
             {
                 Debug.LogError($"Failed to deserialize node data {e.Message}");
                 return null;
@@ -202,6 +321,61 @@ namespace DevTools.CraftingTrees.Network
             return Nodes;
         }
     }
+
+    internal class CraftingTreeTypeEnforcer : NodeConnectionFilterer
+    {
+        public CraftingTreeTypeEnforcer(INodeNetworkUI nodeNetworkUI) : base(nodeNetworkUI)
+        {
+        }
+
+        public override bool CanConnect(INode input, INode output)
+        {
+            if (input is not CraftingTreeGeneratorNode craftingInput || output is not CraftingTreeGeneratorNode craftingOutput) return false;
+            
+            if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
+
+            // Transmutation nodes only allow one input and one output, which must be item nodes.
+            // Transmutation states must be different. Transmutation states must be transmutable. EG No dust to screw.
+
+            bool IsTransmutationValid(CraftingTreeGeneratorNode transmutationNode, CraftingTreeGeneratorNode otherNode, bool same)
+            {
+                if (otherNode.NodeType != CraftingTreeNodeType.Item) return false;
+                ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
+                TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
+                if (!transmutableItemObject) return false;
+                TransmutationNodeData transmutationNodeData = (TransmutationNodeData)transmutationNode.NodeData;
+                return same != (transmutableItemObject.getState() != transmutationNodeData.OutputState);
+            }
+            if (craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                if (!IsTransmutationValid(craftingOutput, craftingInput,false)) return false;
+                if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
+                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
+            }
+
+            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                if (!IsTransmutationValid(craftingInput, craftingOutput,true)) return false;
+                int outputs = nodeNetworkUI.GetNodeOutputs(craftingInput);
+                if (outputs == 0) return true;
+                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
+            }
+
+            // Processors can only connect to item nodes.
+            if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
+            {
+                return craftingOutput.NodeType == CraftingTreeNodeType.Item;
+            }
+
+            if (craftingOutput.NodeType == CraftingTreeNodeType.Processor)
+            {
+                return craftingInput.NodeType == CraftingTreeNodeType.Item;
+            }
+
+            return false;
+        }
+        
+    }
     
     internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
     {
@@ -223,6 +397,8 @@ namespace DevTools.CraftingTrees.Network
             {
                 nodes[node.GetId()] = node;
             }
+            connectionFilterer = new CraftingTreeTypeEnforcer(this);
+            
             Display();
             
         }

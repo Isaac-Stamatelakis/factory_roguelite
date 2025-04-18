@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -18,6 +19,18 @@ namespace UI.NodeNetwork {
         public Transform GetNodeContainer();
         public INodeUI GetSelectedNode();
         public void DeleteNode(INode node);
+        public int GetNodeOutputs(INode node);
+    }
+
+    public abstract class NodeConnectionFilterer
+    {
+        protected NodeConnectionFilterer(INodeNetworkUI nodeNetworkUI)
+        {
+            this.nodeNetworkUI = nodeNetworkUI;
+        }
+
+        protected INodeNetworkUI nodeNetworkUI;
+        public abstract bool CanConnect(INode first, INode second);
     }
     public abstract class NodeNetworkUI<TNode,TNetwork> : MonoBehaviour, INodeNetworkUI 
         where TNode : INode where TNetwork : INodeNetwork<TNode>
@@ -27,8 +40,8 @@ namespace UI.NodeNetwork {
         [SerializeField] protected Transform contentMaskContainer;
         [SerializeField] protected NodeNetworkEditorUI editController;
         [SerializeField] private Color color = Color.yellow;
-        
         [SerializeField] private GameObject linePrefab;
+        
         public Transform NodeContainer { get => nodeContainer;}
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => transform;}
@@ -45,7 +58,7 @@ namespace UI.NodeNetwork {
         protected bool lockZoom = false;
         protected Bounds? viewBounds;
         private Camera canvasCamera;
-
+        protected NodeConnectionFilterer connectionFilterer;
         public void Start()
         {
             canvasCamera = GetComponentInParent<Canvas>().worldCamera;
@@ -87,6 +100,7 @@ namespace UI.NodeNetwork {
                 INodeUI nodeUI = GenerateNode(node);
                 nodeUIDict[node] = nodeUI;
             }
+            SelectNode(selectedNode);
             DisplayLines();
         }
 
@@ -145,8 +159,28 @@ namespace UI.NodeNetwork {
             TNode typeNode = (TNode)node;
             nodeNetwork.GetNodes().Remove(typeNode);
             INodeUI nodeUI = nodeUIDict[typeNode];
+            int nodeId = node.GetId();
+            foreach (var otherNode in nodeNetwork.GetNodes())
+            {
+                if (otherNode.GetPrerequisites().Contains(nodeId))
+                {
+                    otherNode.GetPrerequisites().Remove(nodeId);
+                }
+            }
             GameObject.Destroy(nodeUI.GetGameObject());
             DisplayLines();
+        }
+
+        public int GetNodeOutputs(INode node)
+        {
+            int count = 0;
+            int nodeId = node.GetId();
+            foreach (var otherNode in nodeNetwork.GetNodes())
+            {
+                if (otherNode.GetPrerequisites().Contains(nodeId)) count++;
+            }
+
+            return count;
         }
 
         public void RefreshNode(TNode node)
@@ -353,6 +387,9 @@ namespace UI.NodeNetwork {
             if (selectedNodeElement.GetId() == clickedNode.GetId()) {
                 return;
             }
+
+            if (connectionFilterer != null && !connectionFilterer.CanConnect(selectedNodeElement, clickedNode)) return;
+                
             List<int> clickedPreReqs = clickedNode.GetPrerequisites();
             List<int> selectedPreReqs = CurrentSelected.GetNode().GetPrerequisites();
             

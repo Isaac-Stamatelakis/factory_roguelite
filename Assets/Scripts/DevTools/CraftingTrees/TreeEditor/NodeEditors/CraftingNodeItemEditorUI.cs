@@ -5,11 +5,15 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Transmutable;
+using Recipe;
+using Recipe.Data;
 using TileEntity.Instances.WorkBenchs;
 using TMPro;
 using UI;
     
 #if UNITY_EDITOR
+using Recipe.Processor;
+using Recipe.Viewer;
 using UnityEditor;
 #endif
 
@@ -23,12 +27,16 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
         [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private SerializedItemSlotEditorUI mItemSlotEditorUI;
-        private DisplayInformation displayInformation;
-        public void Display(CraftingTreeGeneratorNode node, CraftingTreeGeneratorUI generatorUI)
+        private List<ItemObject> displaySlots;
+        public void Display(CraftingTreeGeneratorNode node, CraftingTreeGeneratorUI generatorUI, bool openSearchInstantly)
         {
             mInventoryUI.SetInteractMode(InventoryInteractMode.OverrideAction);
             mInventoryUI.OverrideClickAction(ClickOverride);
-            displayInformation = GetDisplayInformation(node);
+            displaySlots = GetDisplayInformation(node);
+            if (openSearchInstantly)
+            {
+                ClickOverride(PointerEventData.InputButton.Left,0);
+            }
             
             DisplayInventory();
             return;
@@ -41,8 +49,9 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     OnValueChange = OnItemChange,
                     DisplayAmount = true
                 };
-                displayInformation = GetDisplayInformation(node);
-                serializedItemSlotEditorUI.Initialize(displayInformation.SerializedItemSlot,OnItemChange,parameters,itemRestrictions:displayInformation.Options);
+                ItemSlot itemSlot = node.NodeData.GetDisplaySlot();
+                SerializedItemSlot serializedItemSlot = new SerializedItemSlot(itemSlot?.itemObject?.id, itemSlot?.amount ?? 0, null);
+                serializedItemSlotEditorUI.Initialize(serializedItemSlot,OnItemChange,parameters,itemRestrictions:displaySlots);
                 
                 CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject,hideParent:false);
             }
@@ -81,12 +90,29 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 #if UNITY_EDITOR
                         
 
-                        if (itemObject is TileItem tileItem)
+                        if (itemObject is TileItem { tileEntity: IProcessorTileEntity processorTileEntity })
                         {
-                            if (tileItem.tileEntity is IProcessorTileEntity processorTileEntity)
+                            string assetPath = AssetDatabase.GetAssetPath(processorTileEntity.GetRecipeProcessor());
+                            processorNodeData.ProcessorGuid = AssetDatabase.AssetPathToGUID(assetPath);
+                            switch (processorTileEntity.GetRecipeProcessor().RecipeType)
                             {
-                                string assetPath = AssetDatabase.GetAssetPath(processorTileEntity.GetRecipeProcessor());
-                                processorNodeData.ProcessorGuid = AssetDatabase.AssetPathToGUID(assetPath);
+                                case RecipeType.Item:
+                                    processorNodeData.RecipeData = null;
+                                    break;
+                                case RecipeType.Passive:
+                                    processorNodeData.RecipeData = new PassiveRecipeMetaData();
+                                    break;
+                                case RecipeType.Generator:
+                                    processorNodeData.RecipeData = new GeneratorItemRecipeMetaData();
+                                    break;
+                                case RecipeType.Machine:
+                                    processorNodeData.RecipeData = new ItemEnergyRecipeMetaData();
+                                    break;
+                                case RecipeType.Burner:
+                                    processorNodeData.RecipeData = new BurnerRecipeMetaData();
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
                             }
                         }
 #endif
@@ -103,26 +129,22 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 
             void DisplayInventory()
             {
-                ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(displayInformation.SerializedItemSlot);
+                ItemSlot itemSlot = node.NodeData.GetDisplaySlot();
                 mTitleText.text = ItemSlotUtils.IsItemSlotNull(itemSlot) ? "Null" : itemSlot.itemObject.name;
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
             }
         }
 
-        private DisplayInformation GetDisplayInformation(CraftingTreeGeneratorNode node)
+        private List<ItemObject> GetDisplayInformation(CraftingTreeGeneratorNode node)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             List<ItemObject> itemObjects;
-            SerializedItemSlot serializedItemSlot = null;
             switch (node.NodeType)
             {
                 case CraftingTreeNodeType.Item:
                     itemObjects = itemRegistry.GetAllItems();
-                    ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
-                    serializedItemSlot = itemNodeData.SerializedItemSlot;
                     break;
                 case CraftingTreeNodeType.Transmutation:
-                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
                     itemObjects = new List<ItemObject>();
                     List<TransmutableItemObject> transmutableItemObjects = itemRegistry.GetAllItemsOfType<TransmutableItemObject>();
                     const string DEFAULT_MATERIAL = "Iron";
@@ -131,8 +153,6 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                         if (transmutable?.getMaterial()?.name != DEFAULT_MATERIAL) continue;
                         itemObjects.Add(transmutable);
                     }
-                    TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(transmutationNodeData.OutputState);
-                    serializedItemSlot = new SerializedItemSlot(transmutableItemObject?.id, 1, null);
                     break;
                 case CraftingTreeNodeType.Processor:
                     itemObjects = new List<ItemObject>();
@@ -147,16 +167,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     throw new ArgumentOutOfRangeException(nameof(node.NodeType), node.NodeType, null);
             }
 
-            return new DisplayInformation
-            {
-                SerializedItemSlot = serializedItemSlot,
-                Options = itemObjects
-            };
-        }
-        private class DisplayInformation
-        {
-            public SerializedItemSlot SerializedItemSlot;
-            public List<ItemObject> Options;
+            return itemObjects;
         }
     }
 }

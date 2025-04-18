@@ -8,56 +8,44 @@ using UI.NodeNetwork;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.Network
 {
     internal class CraftingTreeNodeUI : NodeUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetworkUI>
     {
+        [SerializeField] private NodeSprites nodeSprites;
         public override void DisplayImage()
         {
-            switch (node.NodeType)
+            Image image = GetComponent<Image>();
+            mItemSlotUI.Display(node.NodeData.GetDisplaySlot());
+            image.sprite = node.NodeType switch
             {
-                case CraftingTreeNodeType.Item:
-                {
-                    ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
-                    ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemNodeData.SerializedItemSlot);
-                    mItemSlotUI.Display(itemSlot);
-                    break;
-                }
-                    
-                case CraftingTreeNodeType.Transmutation:
-                {
-                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-                    TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetDefaultObjectOfState(transmutationNodeData.OutputState);
-                    ItemSlot itemSlot = new ItemSlot(transmutableItemObject, 1, null);
-                    mItemSlotUI.Display(itemSlot);
-                    break;
-                }
-                case CraftingTreeNodeType.Processor:
-#if  UNITY_EDITOR
-                {
-                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
-                    string path = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
-                    RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(path);
-                    ItemSlot itemSlot = new ItemSlot(recipeProcessor?.DisplayImage, 1, null);
-                    mItemSlotUI.Display(itemSlot);
-                }
-#endif
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                CraftingTreeNodeType.Item => nodeSprites.ItemBackground,
+                CraftingTreeNodeType.Transmutation => nodeSprites.TransmutableBackground,
+                CraftingTreeNodeType.Processor => nodeSprites.ProcessorBackground,
+                _ => throw new ArgumentOutOfRangeException(nameof(node.NodeType), $"Unknown node type: {node.NodeType}")
+            };
         }
+        
 
-        protected override void openContent()
+        protected override void openContent(PointerEventData eventData)
         {
-            if (Input.GetKey(KeyCode.LeftShift))
+            bool leftClick = eventData.button == PointerEventData.InputButton.Left;
+            if (leftClick && Input.GetKey(KeyCode.LeftShift))
             {
                 nodeNetwork.SelectNode(this);
-                return;
             }
-            
-            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork);
+            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork,openSearchInstantly: !leftClick);
+        }
+
+        [System.Serializable]
+        private class NodeSprites
+        {
+            public Sprite ItemBackground;
+            public Sprite TransmutableBackground;
+            public Sprite ProcessorBackground;
         }
     }
 }

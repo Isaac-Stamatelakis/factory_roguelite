@@ -45,7 +45,7 @@ namespace UI.NodeNetwork {
         {
             if (nodeNetwork?.GetSelectedNode() == null)
             {
-                openContent();
+                openContent(eventData);
             }
             else
             {
@@ -53,7 +53,7 @@ namespace UI.NodeNetwork {
             }
         }
         
-        protected abstract void openContent();
+        protected abstract void openContent(PointerEventData eventData);
 
         public INode GetNode()
         {
