@@ -439,15 +439,16 @@ namespace DevTools.CraftingTrees.Network
         {
             return nodes.GetValueOrDefault(id);
         }
-        public override void PlaceNewNode(Vector2 position)
+        public override INode PlaceNewNode(Vector2 position)
         {
-            if (generated) return;
+            if (generated) return null;
             int id = SerializedCraftingTreeNodeNetworkUtils.GetNextId(nodeNetwork);
             CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(id);
-            if (node == null) return;
+            if (node == null) return null;
             node.SetPosition(position);
             nodeNetwork.Nodes.Add(node);
             nodes[node.GetId()] = node;
+            return node;
         }
 
         public override GameObject GenerateNewNodeObject()

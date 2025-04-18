@@ -22,7 +22,15 @@ namespace UI.NodeNetwork {
             this.nodeNetworkUI = nodeNetworkUI;
             addNode.onClick.AddListener(AddButtonClick);
             ToolTipUIDisplayer toolTipUIDisplayer = helpHover.gameObject.AddComponent<ToolTipUIDisplayer>();
-            toolTipUIDisplayer.SetMessage("You are in Developer Mode\nClick on nodes whilst holding LShift to select them\nMove selected nodes with WASD\\Arrow Keys\nClick on nodes to connect them to the selected node\nClick LShift to deselect nodes");
+            toolTipUIDisplayer.SetMessage("" +
+                                          "You are in Developer Mode\n" +
+                                          "Click on nodes whilst holding LShift to select them\n" +
+                                          "Move selected nodes with WASD\\Arrow Keys\n" +
+                                          "Click on nodes to connect them to the selected node\n" +
+                                          "Click LShift to deselect nodes\n" +
+                                          "Click <b>[Q]</b> to Create New Nodes\n"+
+                                          "Click <b>[E]</b> to Delete Selected Node\n" +
+                                          "Click <b>[Z]</b> to Open Selected Node");
         }
         
         
@@ -47,11 +55,7 @@ namespace UI.NodeNetwork {
             {
                 AddButtonClick();
             }
-
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                nodeNetworkUI.DeleteNode(nodeNetworkUI.GetSelectedNode()?.GetNode());
-            }
+            
             SpawnNodePlacement();
         }
 
@@ -68,9 +72,9 @@ namespace UI.NodeNetwork {
             RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = gridPosition;
             if (Input.GetMouseButton(0)) {
-                nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
-                nodeNetworkUI.SelectNode(spawnedNodeObject.GetComponent<INodeUI>());
+                INode node = nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
                 nodeNetworkUI.Display();
+                nodeNetworkUI.SelectNodeValue(node);
                 spawnedNodeObject = null;
                 
             }

@@ -58,7 +58,7 @@ namespace Robot.Upgrades
         }
 
 
-        public override void PlaceNewNode(Vector2 position)
+        public override INode PlaceNewNode(Vector2 position)
         {
             int id = RobotUpgradeUtils.GetNextUpgradeId(nodeNetwork);
             RobotUpgradeNodeData nodeData = new RobotUpgradeNodeData(id);
@@ -67,6 +67,7 @@ namespace Robot.Upgrades
             robotUpgradeNode.SetPosition(position);
             nodeNetwork.UpgradeNodes ??= new List<RobotUpgradeNode>();
             nodeNetwork.UpgradeNodes.Add(robotUpgradeNode);
+            return robotUpgradeNode;
         }
 
         public override GameObject GenerateNewNodeObject()

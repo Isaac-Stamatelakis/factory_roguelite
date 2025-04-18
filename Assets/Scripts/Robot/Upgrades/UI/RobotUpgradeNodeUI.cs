@@ -11,7 +11,7 @@ namespace Robot.Upgrades
 {
     public class RobotUpgradeNodeUI : NodeUI<RobotUpgradeNode,RobotUpgradeNetworkUI>
     {
-        protected override void openContent(PointerEventData eventData)
+        public override void OpenContent(NodeUIContentOpenMode contentOpenMode)
         {
             nodeNetwork.RobotUpgradeUI.DisplayNodeContent(node);
         }

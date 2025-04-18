@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DevTools.CraftingTrees.Network;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -10,11 +11,12 @@ using UI.QuestBook;
 namespace UI.NodeNetwork {
     public interface INodeNetworkUI {
         public void SelectNode(INodeUI nodeUI);
+        public void SelectNodeValue(INode node);
         public void ModifyConnection(INode node);
         public void Display();
         public void DisplayLines();
         public Transform GetContentContainer();
-        public void PlaceNewNode(Vector2 position);
+        public INode PlaceNewNode(Vector2 position);
         public GameObject GenerateNewNodeObject();
         public Transform GetNodeContainer();
         public INodeUI GetSelectedNode();
@@ -71,10 +73,15 @@ namespace UI.NodeNetwork {
             (new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up),
             (new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down)
         };
-        
+
+        public void SelectNodeValue(INode node)
+        {
+            if (node == null) return;
+            INodeUI nodeUI = nodeUIDict.GetValueOrDefault((TNode)node);
+            SelectNode(nodeUI);
+        }
         public void SelectNode(INodeUI nodeUI)
         {
-            Debug.Log("A");
             if (nodeUI != null && ReferenceEquals(nodeUI, CurrentSelected))
             {
                 return;
@@ -84,11 +91,14 @@ namespace UI.NodeNetwork {
                 CurrentSelected?.SetSelect(false);
             }
             CurrentSelected = null;
-            Debug.Log("B");
             if (nodeUI == null) return;
-            Debug.Log("C");
+          
             CurrentSelected = nodeUI;
             CurrentSelected.SetSelect(true);
+            if (nodeUI is IOnSelectActionNodeUI onSelectActionNodeUI)
+            {
+                onSelectActionNodeUI.OnSelect();
+            }
         }
         /// <summary>
         /// Displays the network
@@ -96,13 +106,13 @@ namespace UI.NodeNetwork {
         /// </summary>
         public void Display() {
             GlobalHelper.DeleteAllChildren(nodeContainer);
-            
+            INode currentlySelectedNode = selectedNode?.GetNode();
             nodeUIDict = new Dictionary<TNode, INodeUI>();
             foreach (TNode node in nodeNetwork.GetNodes()) {
                 INodeUI nodeUI = GenerateNode(node);
                 nodeUIDict[node] = nodeUI;
             }
-            SelectNode(selectedNode);
+            SelectNodeValue((TNode)currentlySelectedNode);
             DisplayLines();
         }
 
@@ -263,6 +273,7 @@ namespace UI.NodeNetwork {
             HandleZoom();
             HandleRightClick();
             bool selectingNode = selectedNode != null;
+            if (CanvasController.Instance.IsTyping) return;
             if (!selectingNode) KeyPressMoveUpdate();
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
@@ -271,9 +282,14 @@ namespace UI.NodeNetwork {
             ClampPosition();
             if (!selectingNode) return;
             
-            if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
+            if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.E))
             {
                 DeleteNode((TNode)selectedNode.GetNode());
+            }
+
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                selectedNode?.OpenContent(NodeUIContentOpenMode.KeyPress);
             }
             const float delay = 0.2f;
             foreach (var (keycodes, direction) in moveDirections)
@@ -414,7 +430,7 @@ namespace UI.NodeNetwork {
         {
             return transform;
         }
-        public abstract void PlaceNewNode(Vector2 position);
+        public abstract INode PlaceNewNode(Vector2 position);
         public abstract GameObject GenerateNewNodeObject();
 
         public Transform GetNodeContainer()

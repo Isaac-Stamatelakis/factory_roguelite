@@ -11,6 +11,7 @@ namespace UI.NodeNetwork {
         public INode GetNode();
         public GameObject GetGameObject();
         public void DisplayImage();
+        public void OpenContent(NodeUIContentOpenMode contentOpenMode);
     }
     public abstract class NodeUI<TNode, TNetworkUI> : MonoBehaviour, IPointerClickHandler, INodeUI
     where TNode : INode where TNetworkUI : INodeNetworkUI
@@ -45,7 +46,7 @@ namespace UI.NodeNetwork {
         {
             if (nodeNetwork?.GetSelectedNode() == null)
             {
-                openContent(eventData);
+                OpenContent(NodeUIContentOpenMode.Click);
             }
             else
             {
@@ -53,7 +54,7 @@ namespace UI.NodeNetwork {
             }
         }
         
-        protected abstract void openContent(PointerEventData eventData);
+        public abstract void OpenContent(NodeUIContentOpenMode contentOpenMode);
 
         public INode GetNode()
         {
@@ -65,6 +66,13 @@ namespace UI.NodeNetwork {
             if (!instantiated) return null;
             return gameObject;
         }
+
+        
+    }
+    public enum NodeUIContentOpenMode
+    {
+        Click,
+        KeyPress
     }
 }
 
