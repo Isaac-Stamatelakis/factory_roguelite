@@ -89,6 +89,8 @@ namespace DevTools.CraftingTrees.Network
     internal class TransmutationNodeData : CraftingTreeNodeData
 
     {
+        public TransmutableItemState InputState;
+        public uint InputAmount;
         public string OutputItemId;
     }
 
@@ -326,9 +328,6 @@ namespace DevTools.CraftingTrees.Network
         {
             if (input is not CraftingTreeGeneratorNode craftingInput || output is not CraftingTreeGeneratorNode craftingOutput) return false;
             
-            if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
-
-            // Processors can process any node but themself
             if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
             {
                 return craftingOutput.NodeType == CraftingTreeNodeType.Item;
@@ -338,7 +337,12 @@ namespace DevTools.CraftingTrees.Network
             {
                 return true;
             }
-            
+
+            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
+                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
+            }
             // Transmutation nodes can only have item inputs and they must be transmutation 
             if (craftingInput.NodeType == CraftingTreeNodeType.Item && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
             {
@@ -391,6 +395,13 @@ namespace DevTools.CraftingTrees.Network
         public override bool ShowAllComplete() {
             return false;
 
+        }
+
+        public override void OnConnectionModified(CraftingTreeGeneratorNode node)
+        {
+            if (node.NodeType != CraftingTreeNodeType.Transmutation) return;
+            INodeUI nodeUI = nodeUIDict.GetValueOrDefault(node);
+            nodeUI?.DisplayImage();
         }
 
         public override void OnDeleteSelectedNode()

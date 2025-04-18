@@ -70,19 +70,18 @@ namespace Items.Transmutable
             return (input, output);
         }
 
-        public static uint GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
+        public static float GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
             float efficency = 1f)
         {
-            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
-            return (uint)(gcd * inputState.getRatio()/efficency);
+            uint gcd = GetGcd((uint)(inputState.getRatio()), (uint)(outputState.getRatio()));
+            return outputState.getRatio() / inputState.getRatio() / efficency;
         }
         
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
         {
             TransmutableItemObject outputItem = GetMaterialItem(material, outputState);
-            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
-            uint outputAmount = (uint)(gcd * outputState.getRatio());
-            ItemSlot output = new ItemSlot(outputItem, outputAmount, null);
+            float ratio = GetTransmutationRatio(inputState, outputState, efficency);
+            ItemSlot output = new ItemSlot(outputItem, (uint)ratio, null);
             return output;
         }
 

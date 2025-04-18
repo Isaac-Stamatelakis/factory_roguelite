@@ -139,9 +139,11 @@ namespace Items {
                 SetAmountText();
                 return;
             }
+            if (!ItemImage) return;
+            
             displaying = true;
-
             animationSpeedValue = GetAnimationSpeedValue();
+            
             GlobalHelper.DeleteAllChildren(ItemImage.transform);
             animatedItemDisplays.Clear();
             displayedSlot = itemSlot;
