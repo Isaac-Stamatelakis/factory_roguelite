@@ -74,19 +74,21 @@ namespace UI.NodeNetwork {
         
         public void SelectNode(INodeUI nodeUI)
         {
-            if (nodeUI != null && nodeUI.Equals(CurrentSelected))
+            Debug.Log("A");
+            if (nodeUI != null && ReferenceEquals(nodeUI, CurrentSelected))
             {
-                nodeUI.SetSelect(false);
                 return;
             }
-
             if (CurrentSelected?.GetGameObject())
             {
                 CurrentSelected?.SetSelect(false);
             }
-            
+            CurrentSelected = null;
+            Debug.Log("B");
+            if (nodeUI == null) return;
+            Debug.Log("C");
             CurrentSelected = nodeUI;
-            CurrentSelected?.SetSelect(true);
+            CurrentSelected.SetSelect(true);
         }
         /// <summary>
         /// Displays the network

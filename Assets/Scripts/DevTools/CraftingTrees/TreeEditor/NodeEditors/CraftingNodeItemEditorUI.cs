@@ -65,6 +65,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     case CraftingTreeNodeType.Item:
                         ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
                         itemNodeData.SerializedItemSlot = serializedItemSlot;
+                        if (serializedItemSlot.amount == 0) serializedItemSlot.amount = 1;
                         break;
                     case CraftingTreeNodeType.Transmutation:
                     {
@@ -92,6 +93,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 
                         if (itemObject is TileItem { tileEntity: IProcessorTileEntity processorTileEntity })
                         {
+                            if (!processorTileEntity.GetRecipeProcessor()) return;
                             string assetPath = AssetDatabase.GetAssetPath(processorTileEntity.GetRecipeProcessor());
                             processorNodeData.ProcessorGuid = AssetDatabase.AssetPathToGUID(assetPath);
                             switch (processorTileEntity.GetRecipeProcessor().RecipeType)

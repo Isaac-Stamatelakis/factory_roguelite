@@ -9,12 +9,21 @@ using Recipe.Processor;
 using RecipeModule;
 using TileEntity;
 using TMPro;
+using UI;
+using UI.ToolTip;
+using Unity.VisualScripting;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.TreeEditor
 {
+    internal interface ITreeGenerationListener
+    {
+        public void OnStatusChange(bool generationStatus);
+    }
     
     internal class CraftingTreeSettingEditorUI : MonoBehaviour
     {
@@ -22,18 +31,26 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private Button mTransmutationButton;
         [SerializeField] private Button mProcessorButton;
         [SerializeField] private Color highlightColor;
-        [SerializeField] private TMP_Dropdown mTierDropDown;
         [SerializeField] private TMP_Dropdown mTransmutationEfficiencyDropDown;
         [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
         [SerializeField] private Button mGenerateButton;
         [SerializeField] private Button mDeleteButton;
+        [SerializeField] private Image mStatusIcon;
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
         private CraftingTreeGenerator craftingTreeGenerator;
         private CraftingTreeNodeNetwork network;
+        private CanvasController canvasController;
+        private List<ITreeGenerationListener> craftingTreeGenerationStatusListeners;
+
+        public void Start()
+        {
+            canvasController = CanvasController.Instance;
+        }
 
         public void Update()
         {
+            if (canvasController.IsTyping) return;
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 SwitchCraftingType(mItemButton, CraftingTreeNodeType.Item);
@@ -61,8 +78,9 @@ namespace DevTools.CraftingTrees.TreeEditor
             craftingTreeGenerator.SetType(type);
         }
 
-        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator)
+        public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator, List<ITreeGenerationListener> listeners)
         {
+            craftingTreeGenerationStatusListeners = listeners;
             this.network = craftingTreeNodeNetwork;
             craftingTreeGenerator = treeGenerator;
             void InitializeNodeButton(Button button, CraftingTreeNodeType type)
@@ -77,16 +95,50 @@ namespace DevTools.CraftingTrees.TreeEditor
                 {
                     SwitchCraftingType(button, type);
                 });
+                ToolTipUIDisplayer toolTipUIDisplayer = button.AddComponent<ToolTipUIDisplayer>();
+                toolTipUIDisplayer.SetMessage($"Switches Node Placement to '{GlobalHelper.AddSpaces(type.ToString())}'");
             }
 
             InitializeNodeButton(mItemButton, CraftingTreeNodeType.Item);
             InitializeNodeButton(mTransmutationButton, CraftingTreeNodeType.Transmutation);
             InitializeNodeButton(mProcessorButton, CraftingTreeNodeType.Processor);
-            mTierDropDown.options = GlobalHelper.EnumToDropDown<Tier>();
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
             mGenerateButton.onClick.AddListener(GenerateRecipes);
             mDeleteButton.onClick.AddListener(DeleteRecipes);
+            InitializeStatusIcon();
+            SetInteractablity();
+
+            return;
+            void InitializeStatusIcon()
+            {
+                ToolTipUIDisplayer toolTipUIDisplayer = mStatusIcon.AddComponent<ToolTipUIDisplayer>();
+                toolTipUIDisplayer.SetAction(MessageAction);
+                SetStatusIconColor();
+                return;
+                
+                string MessageAction()
+                {
+                    return craftingTreeNodeNetwork.HasGeneratedRecipes() 
+                        ? "Tree Recipes Generated\nTree is Un-interactable" 
+                        : "Tree Recipes Not Generated\nTree is Interactable";
+                }
+            }
         }
+
+        private void SetInteractablity()
+        {
+            bool generated = network.HasGeneratedRecipes();
+            mTransmutationEfficiencyDropDown.interactable = !generated;
+            foreach (var listener in craftingTreeGenerationStatusListeners)
+            {
+                listener.OnStatusChange(generated);
+            }
+        }
+
+        private void SetStatusIconColor()
+        {
+            mStatusIcon.GetComponent<Image>().color = network.HasGeneratedRecipes() ? Color.cyan : Color.green;
+        } 
 
         private void GenerateRecipes()
         {
@@ -235,6 +287,8 @@ namespace DevTools.CraftingTrees.TreeEditor
                 }
             }
             Debug.Log($"Generated {generateCount} new recipes, modified {modifyCount} recipes & deleted {deleteCount} recipes.");
+            SetStatusIconColor();
+            SetInteractablity();
 #endif
         }
 
@@ -270,10 +324,13 @@ namespace DevTools.CraftingTrees.TreeEditor
                         recipes.Remove(recipeObject);
                     }
                     UnityEditor.AssetDatabase.DeleteAsset(recipePath);
+                    processorNodeData.RecipeGuid = null;
                     deleteCount++;
                 }
             }
             Debug.Log($"Deleted {deleteCount} recipes");
+            SetStatusIconColor();
+            SetInteractablity();
 #endif
         }
         

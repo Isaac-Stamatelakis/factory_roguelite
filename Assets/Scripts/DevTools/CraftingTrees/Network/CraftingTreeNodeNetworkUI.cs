@@ -289,6 +289,7 @@ namespace DevTools.CraftingTrees.Network
             try
             {
                 CraftingTreeNodeData nodeData = DeserializeNodeData(serializedData.NodeType, serializedData.Data);
+                if (nodeData == null) return null;
                 return new CraftingTreeGeneratorNode(serializedData.NodeType, serializedData.NodeNetworkData, nodeData);
             }
             catch (Exception e) when (e is JsonSerializationException or NullReferenceException or ArgumentException)
@@ -319,6 +320,18 @@ namespace DevTools.CraftingTrees.Network
         public List<CraftingTreeGeneratorNode> GetNodes()
         {
             return Nodes;
+        }
+
+        public bool HasGeneratedRecipes()
+        {
+            foreach (CraftingTreeGeneratorNode node in Nodes)
+            {
+                if (node == null) continue;
+                if (node.NodeType != CraftingTreeNodeType.Processor) continue;
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
+                if (processorNodeData.RecipeGuid != null) return true;
+            }
+            return false;
         }
     }
 
@@ -377,13 +390,14 @@ namespace DevTools.CraftingTrees.Network
         
     }
     
-    internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>
+    internal class CraftingTreeNodeNetworkUI : NodeNetworkUI<CraftingTreeGeneratorNode,CraftingTreeNodeNetwork>, ITreeGenerationListener
     {
         [SerializeField] private CraftingTreeNodeUI mCraftingTreeNodeUIPrefab;
         private readonly Dictionary<int, CraftingTreeGeneratorNode> nodes = new();
         private CraftingTreeGenerator craftingTreeGenerator;
         private CraftingTreeGeneratorUI craftingTreeGeneratorUI;
         public CraftingTreeGeneratorUI CraftingTreeGeneratorUI => craftingTreeGeneratorUI;
+        private bool generated;
 
         public void Initialize(CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator generator, CraftingTreeGeneratorUI craftingTreeGeneratorUI)
         {
@@ -427,6 +441,7 @@ namespace DevTools.CraftingTrees.Network
         }
         public override void PlaceNewNode(Vector2 position)
         {
+            if (generated) return;
             int id = SerializedCraftingTreeNodeNetworkUtils.GetNextId(nodeNetwork);
             CraftingTreeGeneratorNode node = craftingTreeGenerator?.GenerateNewNode(id);
             if (node == null) return;
@@ -437,8 +452,16 @@ namespace DevTools.CraftingTrees.Network
 
         public override GameObject GenerateNewNodeObject()
         {
+            if (generated) return null;
             if (craftingTreeGenerator == null) return null;
             return GameObject.Instantiate(mCraftingTreeNodeUIPrefab).gameObject;
+        }
+
+        public void OnStatusChange(bool generationStatus)
+        {
+            this.generated = generationStatus;
+            editController.ClearSpawnedObject();
+            SelectNode(null);
         }
     }
 }

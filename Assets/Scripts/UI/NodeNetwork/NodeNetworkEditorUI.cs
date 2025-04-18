@@ -32,7 +32,14 @@ namespace UI.NodeNetwork {
         
         private void AddButtonClick() {
             spawnedNodeObject = nodeNetworkUI.GenerateNewNodeObject();
+            if (!spawnedNodeObject) return;
             spawnedNodeObject.transform.SetParent(nodeNetworkUI.GetNodeContainer(),false);
+        }
+
+        public void ClearSpawnedObject()
+        {
+            if (!spawnedNodeObject) return;
+            Destroy(spawnedNodeObject);
         }
 
         public void Update() {

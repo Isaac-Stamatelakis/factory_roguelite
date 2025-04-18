@@ -21,7 +21,12 @@ namespace DevTools.CraftingTrees.Network
             this.filePath = filePath;
             craftingTreeGenerator = new CraftingTreeGenerator();
             mNodeNetworkUI.Initialize(nodeNetwork,craftingTreeGenerator,this);
-            mSettingEditorUI.Initialize(nodeNetwork,craftingTreeGenerator);
+            List<ITreeGenerationListener> listeners = new List<ITreeGenerationListener>
+            {
+                mNodeNetworkUI,
+                mNodeEditorUI
+            };
+            mSettingEditorUI.Initialize(nodeNetwork,craftingTreeGenerator,listeners);
         }
 
         public void OnDestroy()

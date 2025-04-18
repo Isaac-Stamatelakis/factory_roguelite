@@ -32,12 +32,15 @@ namespace DevTools.CraftingTrees.Network
 
         protected override void openContent(PointerEventData eventData)
         {
+            bool generated = nodeNetwork.NodeNetwork.HasGeneratedRecipes();
+            Debug.Log(generated);
             bool leftClick = eventData.button == PointerEventData.InputButton.Left;
-            if (leftClick && Input.GetKey(KeyCode.LeftShift))
+            if (leftClick && Input.GetKey(KeyCode.LeftShift) && !generated)
             {
                 nodeNetwork.SelectNode(this);
+                return;
             }
-            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork,openSearchInstantly: !leftClick);
+            nodeNetwork.CraftingTreeGeneratorUI?.NodeEditorUI?.Initialize(node,nodeNetwork.NodeNetwork,nodeNetwork,openSearchInstantly: !leftClick && !generated);
         }
 
         [System.Serializable]
