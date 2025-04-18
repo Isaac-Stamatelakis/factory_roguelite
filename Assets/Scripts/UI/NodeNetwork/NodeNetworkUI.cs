@@ -52,7 +52,7 @@ namespace UI.NodeNetwork {
         public INodeUI CurrentSelected { get => selectedNode; set => selectedNode = value; }
         protected TNetwork nodeNetwork;
         private INodeUI selectedNode;
-        private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
+        protected Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
         private RightClickEvent rightClickEvent;
         protected bool lockVerticalMovement = false;
@@ -422,8 +422,14 @@ namespace UI.NodeNetwork {
                 selectedPreReqs.Remove(clickedNode.GetId());
                 clickedPreReqs.Add(selectedNodeElement.GetId());
             }
-            
+            OnConnectionModified((TNode)clickedNode);
+            OnConnectionModified((TNode)selectedNodeElement);
             DisplayLines();
+        }
+
+        public virtual void OnConnectionModified(TNode node)
+        {
+            
         }
 
         public Transform GetContentContainer()

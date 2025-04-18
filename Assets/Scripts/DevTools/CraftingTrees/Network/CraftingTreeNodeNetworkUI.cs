@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
+using Item.Transmutation.Info;
 using Items;
 using Items.Transmutable;
 using Newtonsoft.Json;
 using Recipe;
 using Recipe.Data;
+using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
 using UI.NodeNetwork;
@@ -89,7 +91,17 @@ namespace DevTools.CraftingTrees.Network
     internal class TransmutationNodeData : CraftingTreeNodeData
 
     {
+        public TransmutableItemState InputState;
+        public uint InputAmount;
         public string OutputItemId;
+        
+        public ItemSlot GetItemSlot(TransmutationEfficency transmutationEfficency)
+        {
+            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
+            if (!transmutableItemObject) return null;
+            uint amount = (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), transmutationEfficency.Value()));
+            return new ItemSlot(transmutableItemObject, amount,null);
+        }
     }
 
 
@@ -143,6 +155,7 @@ namespace DevTools.CraftingTrees.Network
     }
     internal class SerializedCraftingTreeNodeNetwork
     {
+        public TransmutationEfficency Efficency;
         public List<SerializedNodeData> SerializedNodes;
     }
 
@@ -159,7 +172,8 @@ namespace DevTools.CraftingTrees.Network
 
             return new SerializedCraftingTreeNodeNetwork
             {
-                SerializedNodes = serializedNodes
+                SerializedNodes = serializedNodes,
+                Efficency = nodeNetwork.TransmutationEfficency
             };
         }
 
@@ -175,7 +189,8 @@ namespace DevTools.CraftingTrees.Network
             }
             return new CraftingTreeNodeNetwork
             {
-                Nodes = nodes
+                Nodes = nodes,
+                TransmutationEfficency = serializedNetwork.Efficency
             };
         }
 
@@ -297,6 +312,7 @@ namespace DevTools.CraftingTrees.Network
     }
     internal class CraftingTreeNodeNetwork : INodeNetwork<CraftingTreeGeneratorNode>
     {
+        public TransmutationEfficency TransmutationEfficency;
         public List<CraftingTreeGeneratorNode> Nodes;
         public List<CraftingTreeGeneratorNode> GetNodes()
         {
@@ -326,9 +342,6 @@ namespace DevTools.CraftingTrees.Network
         {
             if (input is not CraftingTreeGeneratorNode craftingInput || output is not CraftingTreeGeneratorNode craftingOutput) return false;
             
-            if (craftingInput.NodeType == craftingOutput.NodeType) return false; // Nodes of the same type cannot connect to each other
-
-            // Processors can process any node but themself
             if (craftingInput.NodeType == CraftingTreeNodeType.Processor)
             {
                 return craftingOutput.NodeType == CraftingTreeNodeType.Item;
@@ -339,14 +352,17 @@ namespace DevTools.CraftingTrees.Network
                 return true;
             }
             
-            // Transmutation nodes can only have item inputs and they must be transmutation 
-            if (craftingInput.NodeType == CraftingTreeNodeType.Item && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            if (craftingInput.NodeType is CraftingTreeNodeType.Item or CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
             {
                 ItemNodeData itemNodeData = (ItemNodeData)craftingInput.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject) return false;
                 if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
                 return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
+            }
+            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                return true;
             }
             return false;
         }
@@ -391,6 +407,13 @@ namespace DevTools.CraftingTrees.Network
         public override bool ShowAllComplete() {
             return false;
 
+        }
+
+        public override void OnConnectionModified(CraftingTreeGeneratorNode node)
+        {
+            if (node.NodeType != CraftingTreeNodeType.Transmutation) return;
+            INodeUI nodeUI = nodeUIDict.GetValueOrDefault(node);
+            nodeUI?.DisplayImage();
         }
 
         public override void OnDeleteSelectedNode()
