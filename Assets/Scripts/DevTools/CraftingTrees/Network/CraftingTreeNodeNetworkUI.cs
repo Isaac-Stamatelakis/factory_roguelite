@@ -337,20 +337,18 @@ namespace DevTools.CraftingTrees.Network
             {
                 return true;
             }
-
-            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
-            {
-                if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
-                return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
-            }
-            // Transmutation nodes can only have item inputs and they must be transmutation 
-            if (craftingInput.NodeType == CraftingTreeNodeType.Item && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            
+            if (craftingInput.NodeType is CraftingTreeNodeType.Item or CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
             {
                 ItemNodeData itemNodeData = (ItemNodeData)craftingInput.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject) return false;
                 if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
                 return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());
+            }
+            if (craftingInput.NodeType == CraftingTreeNodeType.Transmutation && craftingOutput.NodeType == CraftingTreeNodeType.Transmutation)
+            {
+                return true;
             }
             return false;
         }

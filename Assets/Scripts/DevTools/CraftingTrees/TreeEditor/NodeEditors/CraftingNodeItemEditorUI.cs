@@ -50,6 +50,38 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public static void UpdateTransmutationNode(SerializedItemSlot serializedItemSlot, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeGeneratorNode node)
+        {
+            if (serializedItemSlot == null) return;
+            if (node.NodeType != CraftingTreeNodeType.Transmutation) return;
+            TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
+            TransmutableItemObject currentNewItem = ItemRegistry.GetInstance().GetTransmutableItemObject(serializedItemSlot.id);
+            if (!currentNewItem)
+            {
+                transmutationNodeData.OutputItemId = null;
+                node.NetworkData.InputIds.Clear(); // Can clear because will only ever have one element
+                return;
+            }
+                            
+            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
+            if (!transmutableItemObject) return;
+            TransmutableItemMaterial material = currentNewItem.getMaterial();
+            if (!material) return;
+            TransmutableItemObject newTransmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, transmutableItemObject.getState());
+            transmutationNodeData.OutputItemId = newTransmutableItemObject?.id;
+            transmutationNodeData.InputState = currentNewItem.getState();
+            transmutationNodeData.InputAmount = serializedItemSlot.amount;
+            int id = node.GetId();
+            foreach (var otherNode in nodeNetwork.Nodes)
+            {
+                if (otherNode.NodeType != CraftingTreeNodeType.Transmutation) continue;
+                if (!otherNode.NetworkData.InputIds.Contains(id)) continue;
+                float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState, transmutableItemObject.getState(), 1f);
+                uint amount = (uint)(transmutationNodeData.InputAmount * ratio);
+                UpdateTransmutationNode(new SerializedItemSlot(transmutationNodeData.OutputItemId,amount,null),nodeNetwork,otherNode);
+            }
+        }
     }
     internal class CraftingNodeItemEditorUI : MonoBehaviour
     {
@@ -98,30 +130,17 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                         itemNodeData.SerializedItemSlot = serializedItemSlot;
                         if (serializedItemSlot.amount == 0) serializedItemSlot.amount = 1;
                         int id = node.GetId();
+                        bool update = false;
                         foreach (var otherNode in nodeNetwork.Nodes)
                         {
                             if (otherNode.NodeType != CraftingTreeNodeType.Transmutation) continue;
                             if (!otherNode.NetworkData.InputIds.Contains(id)) continue;
-                            TransmutationNodeData transmutationNodeData = (TransmutationNodeData)otherNode.NodeData;
-                            TransmutableItemObject currentNewItem = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
-                            if (!currentNewItem)
-                            {
-                                transmutationNodeData.OutputItemId = null;
-                                otherNode.NetworkData.InputIds.Clear(); // Can clear because will only ever have one element
-                                network.Display();
-                                break;
-                            }
-                            
-                            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
-                            if (!transmutableItemObject) break;
-                            TransmutableItemMaterial material = currentNewItem.getMaterial();
-                            if (!material) break;
-                            TransmutableItemObject newTransmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, transmutableItemObject.getState());
-                            transmutationNodeData.OutputItemId = newTransmutableItemObject?.id;
-                            transmutationNodeData.InputState = currentNewItem.getState();
-                            transmutationNodeData.InputAmount = serializedItemSlot.amount;
-                            network.Display();
+                            CraftingTreeNodeUtils.UpdateTransmutationNode(serializedItemSlot, nodeNetwork, otherNode);
+                            update = true;
                         }
+
+                        if (update) network.Display();
+                        
                         break;
                     case CraftingTreeNodeType.Transmutation:
                     {
@@ -235,7 +254,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                 case CraftingTreeNodeType.Transmutation:
                     itemObjects = new List<ItemObject>();
                     List<TransmutableItemObject> transmutableItemObjects = itemRegistry.GetAllItemsOfType<TransmutableItemObject>();
-                    TransmutableItemMaterial material = GetMaterial();
+                    TransmutableItemMaterial material = GetMaterial(node);
                     string materialName = material.name;
                     foreach (TransmutableItemObject transmutable in transmutableItemObjects)
                     {
@@ -258,13 +277,13 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 
             return itemObjects;
 
-            TransmutableItemMaterial GetMaterial()
+            TransmutableItemMaterial GetMaterial(CraftingTreeGeneratorNode searchNode)
             {
-                if (node.NetworkData.InputIds.Count == 0)
+                if (searchNode.NetworkData.InputIds.Count == 0)
                 {
                     return ReturnDefault();
                 }
-                int inputId = node.NetworkData.InputIds[0];
+                int inputId = searchNode.NetworkData.InputIds[0];
                 
                 CraftingTreeGeneratorNode inputNode = null;
                 foreach (var otherNode in nodeNetwork.Nodes)
@@ -275,10 +294,16 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                         break;
                     }
                 }
-                if (inputNode == null || inputNode.NodeType != CraftingTreeNodeType.Item)
+                if (inputNode == null)
                 {
                     return ReturnDefault();
                 }
+
+                if (inputNode.NodeType == CraftingTreeNodeType.Transmutation)
+                {
+                    return GetMaterial(inputNode);
+                }
+                if (inputNode.NodeType != CraftingTreeNodeType.Item) return ReturnDefault();
                 ItemNodeData itemNodeData = (ItemNodeData)inputNode.NodeData;
                 TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
                 if (!transmutableItemObject)
