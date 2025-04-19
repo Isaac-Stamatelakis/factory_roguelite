@@ -38,6 +38,7 @@ namespace DevTools.CraftingTrees.Network
 
         public override void OpenContent(NodeUIContentOpenMode contentOpenMode)
         {
+            if (!nodeNetwork) return;
             bool generated = nodeNetwork.NodeNetwork.HasGeneratedRecipes();
             if (contentOpenMode == NodeUIContentOpenMode.Click && Input.GetKey(KeyCode.LeftShift) && !generated)
             {

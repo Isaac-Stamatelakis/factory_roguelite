@@ -380,7 +380,7 @@ namespace Item.Slot
             fluidRecipeInputs = new List<T>();
             foreach (T itemSlot in inputs) {
                 if (IsItemSlotNull(itemSlot)) continue;
-                switch (itemSlot.getState()) {
+                switch (itemSlot.GetState()) {
                     case ItemState.Solid:
                         solidRecipeInputs.Add(itemSlot);
                         break;

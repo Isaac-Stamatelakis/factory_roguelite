@@ -44,6 +44,11 @@ namespace DevTools {
             if (CanEscapePop())
             {
                 PopStack();
+                if (uiObjectStack.Count == 0)
+                {
+                    page = DevToolPage.Title;
+                    Display();
+                }
             }
         }
 

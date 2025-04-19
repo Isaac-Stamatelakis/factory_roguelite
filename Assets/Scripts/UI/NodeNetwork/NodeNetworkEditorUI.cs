@@ -9,9 +9,11 @@ namespace UI.NodeNetwork {
     {
         [SerializeField] private Button addNode;
         [SerializeField] private Button helpHover;
+        [SerializeField] private RectTransform multiSelectIndicator;
         private GameObject spawnedNodeObject;
         protected INodeNetworkUI nodeNetworkUI;
         private Camera canvasCamera;
+        private MultiSelectAction multiSelectAction;
         public void Start()
         {
             canvasCamera = GetComponentInParent<Canvas>().worldCamera;
@@ -31,7 +33,9 @@ namespace UI.NodeNetwork {
                                           "Click <b>[Q]</b> to Create New Nodes\n"+
                                           "Click <b>[E]</b> to Delete Selected Node\n" +
                                           "Click <b>[Z]</b> to Open Selected Node");
+            multiSelectIndicator.transform.SetParent(this.nodeNetworkUI.GetContentContainer());
         }
+
         
         
         public void OnDestroy() {
@@ -57,6 +61,22 @@ namespace UI.NodeNetwork {
             }
             
             SpawnNodePlacement();
+            MultiSelect();
+        }
+        
+        public void MultiSelect()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                multiSelectAction = new MultiSelectAction(nodeNetworkUI,Input.mousePosition,multiSelectIndicator,canvasCamera);
+            }
+            
+            multiSelectAction?.SetCurrentPosition(Input.mousePosition);
+            if (Input.GetMouseButtonUp(0))
+            {
+                multiSelectAction?.Terminate();
+                multiSelectAction = null;
+            }
         }
 
         private void SpawnNodePlacement() {
@@ -85,6 +105,72 @@ namespace UI.NodeNetwork {
             float snappedX = Mathf.Round((mousePosition.x-containerPosition.x/containerScale) / scaledGrid) * scaledGrid;
             float snappedY = Mathf.Round((mousePosition.y-containerPosition.y/containerScale) / scaledGrid) * scaledGrid;
             return new Vector2(snappedX, snappedY);
+        }
+
+        private class MultiSelectAction
+        {
+            private const float MIN_DISTANCE = 1f;
+            private Vector2 InitialPosition;
+            private Vector2 TerminalPosition;
+            private INodeNetworkUI networkUI;
+            private RectTransform indicator;
+            private Camera uiCamera;
+
+            public MultiSelectAction(INodeNetworkUI nodeNetworkUI, Vector2 initialPosition, RectTransform indicator, Camera uiCamera)
+            {
+                networkUI = nodeNetworkUI;
+                InitialPosition = initialPosition;
+                this.indicator = indicator;
+                this.uiCamera = uiCamera;
+                Vector2 worldPosition = uiCamera.ScreenToWorldPoint(initialPosition);
+                indicator.transform.position = worldPosition;
+
+            }
+
+            public void SetCurrentPosition(Vector2 newScreenPosition)
+            {
+                TerminalPosition = newScreenPosition;
+                Vector2 dif = TerminalPosition-InitialPosition;
+                float magnitude = dif.magnitude;
+                indicator.gameObject.SetActive(magnitude > MIN_DISTANCE);
+                int rotation = 0;
+                Vector2 size = new Vector2(Mathf.Abs(dif.x),Mathf.Abs(dif.y));
+                switch (dif.x)
+                {
+                    case < 0 when dif.y < 0:
+                        rotation = 180;
+                        break;
+                    case < 0:
+                        rotation = 90;
+                        (size.x,size.y) = (size.y, size.x);
+                        break;
+                    default:
+                    {
+                        if (dif.y < 0)
+                        {
+                            rotation = 270;
+                            (size.x,size.y) = (size.y, size.x);
+                        }
+                        else
+                        {
+                            rotation = 0;
+                        }
+
+                        break;
+                    }
+                }
+                indicator.localRotation = Quaternion.Euler(0, 0, rotation);
+                indicator.sizeDelta = size;
+            }
+
+            public void Terminate()
+            {
+                Vector2 dif = InitialPosition - TerminalPosition;
+                float magnitude = dif.magnitude;
+                if (magnitude < MIN_DISTANCE) return;
+                indicator.gameObject.SetActive(false);
+                networkUI.MultiSelectNodes(InitialPosition,TerminalPosition);
+            }
         }
     }
 }

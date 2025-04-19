@@ -4,7 +4,7 @@ using Item.Slot;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public interface IPlacableItem : SolidItem
+public interface IPlacableItem : ISolidItem
 {
     public TileBase getTile();
 }

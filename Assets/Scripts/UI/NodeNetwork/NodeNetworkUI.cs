@@ -22,6 +22,7 @@ namespace UI.NodeNetwork {
         public INodeUI GetSelectedNode();
         public void DeleteNode(INode node);
         public int GetNodeOutputs(INode node);
+        public void MultiSelectNodes(Vector2 first, Vector2 second);
     }
 
     public abstract class NodeConnectionFilterer
@@ -193,6 +194,19 @@ namespace UI.NodeNetwork {
             }
 
             return count;
+        }
+
+        public void MultiSelectNodes(Vector2 first, Vector2 second)
+        {
+            Vector2 firstWorld = canvasCamera.ScreenToWorldPoint(first);
+            Vector2 secondWorld = canvasCamera.ScreenToWorldPoint(second);
+            Vector2 xBounds = first.x > second.x ? new Vector2(firstWorld.x, secondWorld.x) : new Vector2(secondWorld.x, firstWorld.x);
+            Vector2 yBounds = first.y > second.y ? new Vector2(firstWorld.y, secondWorld.y) : new Vector2(secondWorld.y, firstWorld.y);
+            foreach (TNode node in nodeNetwork.GetNodes())
+            {
+                Vector2 position = node.GetPosition();
+                if (position.x > xBounds.x)
+            }
         }
 
         public void RefreshNode(TNode node)

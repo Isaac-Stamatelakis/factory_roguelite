@@ -196,6 +196,42 @@ namespace DevTools.CraftingTrees.TreeEditor
                 break;
             }
             mTierText.text = highestTier.ToString();
+
+            Dictionary<int, CraftingTreeGeneratorNode> nodeDict = new Dictionary<int, CraftingTreeGeneratorNode>();
+            foreach (var node in network.Nodes)
+            {
+                nodeDict[node.GetId()] = node;
+            }
+            
+            foreach (var node in network.Nodes)
+            {
+                if (node.NodeType != CraftingTreeNodeType.Processor || node.NetworkData.InputIds.Count != 0) continue;
+                
+                
+            }
+            
+        }
+
+        private uint TraverseTicks(Dictionary<int, CraftingTreeGeneratorNode> nodes, CraftingTreeGeneratorNode current, uint value)
+        {
+            if (current.NodeType == CraftingTreeNodeType.Processor)
+            {
+                ProcessorNodeData processorNodeData = (ProcessorNodeData)current.NodeData;
+                if (processorNodeData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
+                {
+                    value = (uint)passiveRecipeMetaData.Ticks;
+                } else if (processorNodeData.RecipeData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
+                {
+                    
+                }
+            }
+
+            foreach (int id in current.NetworkData.InputIds)
+            {
+                
+            }
+
+            return value;
         }
         private void SetInteractablity()
         {

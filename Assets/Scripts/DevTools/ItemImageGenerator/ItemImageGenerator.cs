@@ -15,7 +15,7 @@ namespace DevTools.ItemImageGenerator
     public class ItemImageGenerator : MonoBehaviour
     {
         private const string SAVE_PATH = "C:\\Users\\Isaac\\Documents\\Coding\\unity\\CaveTechImages";
-        private const int RESOLUTION = 64;
+        
 
         [SerializeField] private Camera mCaptureCamera;
         
@@ -66,11 +66,14 @@ namespace DevTools.ItemImageGenerator
                 }
 
                 yield return new WaitForFixedUpdate();
+                int imageSize = 64;
+                
                 RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
                 mCaptureCamera.targetTexture = renderTexture;
             
                 mCaptureCamera.Render();
                 RenderTexture.active = renderTexture;
+                
                 
                 Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
                 tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
@@ -79,7 +82,7 @@ namespace DevTools.ItemImageGenerator
                 mCaptureCamera.targetTexture = null;
                 RenderTexture.active = null;
                 
-                int imageSize = 64;
+                
                 for (int r = 0; r < rows; r++)
                 {
                     for (int c = 0; c < cols; c++)
@@ -106,14 +109,14 @@ namespace DevTools.ItemImageGenerator
                     }
                 }
 
-                Destroy(container);
+                //Destroy(container);
                 Destroy(tex);
                 renderTexture.Release();
             }
             Debug.Log($"Generated {itemObjects.Count} Images at {folder}");
             mCaptureCamera.backgroundColor = originalColor;
             onComplete.Invoke();
-            GameObject.Destroy(gameObject);
+            //GameObject.Destroy(gameObject);
         }
 
        

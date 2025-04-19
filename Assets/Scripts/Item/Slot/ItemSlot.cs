@@ -10,13 +10,9 @@ namespace Item.Slot
         Fluid
     }
     
-    public interface SolidItem {
+    public interface ISolidItem {
 
     }
-    public interface NonSolidItem {
-
-    }
-    [System.Serializable]
     public class ItemSlot
     {
         public ItemSlot(ItemObject itemObject, uint amount, ItemTagCollection tags) {
@@ -27,10 +23,10 @@ namespace Item.Slot
         public ItemObject itemObject;
         public uint amount;
         public ItemTagCollection tags;
-        public ItemState getState() {
+        public ItemState GetState() {
             switch (itemObject)
             {
-                case SolidItem:
+                case ISolidItem:
                     return ItemState.Solid;
                 case TransmutableItemObject transmutableItemObject:
                 {
@@ -39,8 +35,6 @@ namespace Item.Slot
                 }
                 case CraftingItem craftingItem:
                     return craftingItem.getItemState();
-                case NonSolidItem:
-                    return ItemState.Fluid;
                 case FluidTileItem:
                     return ItemState.Fluid;
                 default:
