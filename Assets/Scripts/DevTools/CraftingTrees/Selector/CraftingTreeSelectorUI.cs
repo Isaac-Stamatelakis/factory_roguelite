@@ -123,7 +123,7 @@ namespace DevTools.CraftingTrees.Selector
                 }
                 
                 CraftingTreeSelectorUIElement devToolUpgradeListElement = Instantiate(elementPrefab, mList.transform);
-                devToolUpgradeListElement.Display(info, OnSelect,index);
+                devToolUpgradeListElement.Display(info, OnSelect,index,DisplayList);
             }
         }
 
