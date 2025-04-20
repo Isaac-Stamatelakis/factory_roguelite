@@ -46,8 +46,7 @@ namespace DevTools.CraftingTrees.Selector
                 {
                     SerializedNodes = new List<SerializedNodeData>()
                 };
-                string folderPath = DevToolUtils.GetDevToolPath(DevTool.CraftingTree);
-                string path = Path.Combine(folderPath,upgradeName) + ".bin";
+                string path = Path.Combine(craftingTreeSelectorUI.CurrentFolder,upgradeName) + ".bin";
                 GlobalHelper.SerializeCompressedJson(nodeNetwork, path);
                 craftingTreeSelectorUI.DisplayList();
                 GameObject.Destroy(gameObject);

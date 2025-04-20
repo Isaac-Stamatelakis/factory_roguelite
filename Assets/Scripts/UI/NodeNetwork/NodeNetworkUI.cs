@@ -19,9 +19,10 @@ namespace UI.NodeNetwork {
         public INode PlaceNewNode(Vector2 position);
         public GameObject GenerateNewNodeObject();
         public Transform GetNodeContainer();
-        public INodeUI GetSelectedNode();
+        public bool IsSelectingNodes();
         public void DeleteNode(INode node);
         public int GetNodeOutputs(INode node);
+        public void MultiSelectNodes(Vector2 first, Vector2 second);
     }
 
     public abstract class NodeConnectionFilterer
@@ -49,9 +50,8 @@ namespace UI.NodeNetwork {
         public Transform ContentContainer {get => transform;}
         public Transform ContentMaskContainer {get => contentMaskContainer;}
         public TNetwork NodeNetwork { get => nodeNetwork; set => nodeNetwork = value; }
-        public INodeUI CurrentSelected { get => selectedNode; set => selectedNode = value; }
         protected TNetwork nodeNetwork;
-        private INodeUI selectedNode;
+        protected List<INodeUI> selectedNodes = new();
         protected Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
         private RightClickEvent rightClickEvent;
@@ -82,23 +82,18 @@ namespace UI.NodeNetwork {
         }
         public void SelectNode(INodeUI nodeUI)
         {
-            if (nodeUI != null && ReferenceEquals(nodeUI, CurrentSelected))
+            foreach (var selected in selectedNodes)
             {
-                return;
+                if (selected.GetGameObject())
+                {
+                    selected.SetSelect(false);
+                }
             }
-            if (CurrentSelected?.GetGameObject())
-            {
-                CurrentSelected?.SetSelect(false);
-            }
-            CurrentSelected = null;
+
+            selectedNodes.Clear();
             if (nodeUI == null) return;
-          
-            CurrentSelected = nodeUI;
-            CurrentSelected.SetSelect(true);
-            if (nodeUI is IOnSelectActionNodeUI onSelectActionNodeUI)
-            {
-                onSelectActionNodeUI.OnSelect();
-            }
+            selectedNodes.Add(nodeUI);
+            nodeUI.SetSelect(true);
         }
         /// <summary>
         /// Displays the network
@@ -106,13 +101,23 @@ namespace UI.NodeNetwork {
         /// </summary>
         public void Display() {
             GlobalHelper.DeleteAllChildren(nodeContainer);
-            INode currentlySelectedNode = selectedNode?.GetNode();
+            List<int> selectedIds = new List<int>();
+            foreach (var selected in selectedNodes)
+            {
+                selectedIds.Add(selected.GetNode().GetId());
+            }
+            selectedNodes.Clear();
             nodeUIDict = new Dictionary<TNode, INodeUI>();
             foreach (TNode node in nodeNetwork.GetNodes()) {
                 INodeUI nodeUI = GenerateNode(node);
                 nodeUIDict[node] = nodeUI;
+                if (selectedIds.Contains(node.GetId()))
+                {
+                    selectedNodes.Add(nodeUI);
+                    nodeUI.SetSelect(true);
+                }
             }
-            SelectNodeValue((TNode)currentlySelectedNode);
+            
             DisplayLines();
         }
 
@@ -160,14 +165,15 @@ namespace UI.NodeNetwork {
             
         }
 
+        public bool IsSelectingNodes()
+        {
+            return selectedNodes.Count > 0;
+        }
+
         public void DeleteNode(INode node)
         {
             if (node == null) return;
-            if (ReferenceEquals(CurrentSelected?.GetNode(),node))
-            {
-                OnDeleteSelectedNode();
-            }
-            CurrentSelected = null;
+            
             TNode typeNode = (TNode)node;
             nodeNetwork.GetNodes().Remove(typeNode);
             INodeUI nodeUI = nodeUIDict[typeNode];
@@ -193,6 +199,49 @@ namespace UI.NodeNetwork {
             }
 
             return count;
+        }
+
+        public void MultiSelectNodes(Vector2 first, Vector2 second)
+        {
+            Vector2 firstWorld = first-(Vector2)canvasCamera.WorldToScreenPoint(ContentContainer.position);
+            Vector2 secondWorld = second-(Vector2)canvasCamera.WorldToScreenPoint(ContentContainer.position);
+            Vector2 xBounds = firstWorld.x > secondWorld.x 
+                ? new Vector2(secondWorld.x, firstWorld.x) 
+                : new Vector2(firstWorld.x, secondWorld.x);
+    
+            Vector2 yBounds = firstWorld.y > secondWorld.y 
+                ? new Vector2(secondWorld.y, firstWorld.y) 
+                : new Vector2(firstWorld.y, secondWorld.y);
+
+            foreach (var nodeUI in selectedNodes)
+            {
+                if (!nodeUI.GetGameObject()) continue;
+                nodeUI.SetSelect(false);
+            }
+            selectedNodes.Clear();
+            const float EPILSON = 32;
+            foreach (TNode node in nodeNetwork.GetNodes())
+            {
+                Vector2 position = node.GetPosition();
+                if (position.x >= xBounds.x-EPILSON && position.x <= xBounds.y+EPILSON &&
+                    position.y >= yBounds.x-EPILSON && position.y <= yBounds.y+EPILSON)
+                {
+                    var nodeUI = nodeUIDict.GetValueOrDefault(node);
+                    if (nodeUI == null) continue;
+                    nodeUI.SetSelect(true);
+                    selectedNodes.Add(nodeUI);
+                }
+            }
+
+            if (selectedNodes.Count == 1)
+            {
+                var nodeUI = selectedNodes[0];
+                if (nodeUI is IOnSelectActionNodeUI actionNodeUI)
+                {
+                    actionNodeUI.OnSelect();
+                }
+            }
+            
         }
 
         public void RefreshNode(TNode node)
@@ -272,24 +321,31 @@ namespace UI.NodeNetwork {
         public void Update() {
             HandleZoom();
             HandleRightClick();
-            bool selectingNode = selectedNode != null;
+            bool selectingNodes = selectedNodes.Count > 0;
             if (CanvasController.Instance.IsTyping) return;
-            if (!selectingNode) KeyPressMoveUpdate();
+            if (!selectingNodes) KeyPressMoveUpdate();
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 SelectNode(null);
             }
             ClampPosition();
-            if (!selectingNode) return;
+            if (!selectingNodes) return;
             
             if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.E))
             {
-                DeleteNode((TNode)selectedNode.GetNode());
+                foreach (var node in selectedNodes)
+                {
+                    DeleteNode(node.GetNode());
+                }
+                OnDeleteSelectedNode();
             }
 
             if (Input.GetKeyDown(KeyCode.Z))
             {
-                selectedNode?.OpenContent(NodeUIContentOpenMode.KeyPress);
+                if (selectedNodes.Count == 1)
+                {
+                    selectedNodes[0].OpenContent(NodeUIContentOpenMode.KeyPress);
+                }
             }
             const float delay = 0.2f;
             foreach (var (keycodes, direction) in moveDirections)
@@ -307,7 +363,11 @@ namespace UI.NodeNetwork {
             foreach (var (keycodes, direction) in moveDirections)
             {
                 if (!IsPressed(keycodes)) continue;
-                MoveNode((TNode)selectedNode?.GetNode(),direction);
+                foreach (var nodeUI in selectedNodes)
+                {
+                    MoveNode((TNode)nodeUI?.GetNode(),direction);
+                }
+                
             }
             ClampPosition();
 
@@ -398,7 +458,8 @@ namespace UI.NodeNetwork {
         
         public void ModifyConnection(INode clickedNode)
         {
-            INode selectedNodeElement = CurrentSelected?.GetNode();
+            if (selectedNodes.Count != 1) return;
+            INode selectedNodeElement =selectedNodes[0].GetNode();
             if (selectedNodeElement == null) {
                 return;
             }
@@ -409,7 +470,7 @@ namespace UI.NodeNetwork {
             if (connectionFilterer != null && !connectionFilterer.CanConnect(selectedNodeElement, clickedNode)) return;
                 
             List<int> clickedPreReqs = clickedNode.GetPrerequisites();
-            List<int> selectedPreReqs = CurrentSelected.GetNode().GetPrerequisites();
+            List<int> selectedPreReqs = selectedNodeElement.GetPrerequisites();
             
             bool clickPreReq = clickedPreReqs.Contains(selectedNodeElement.GetId());
             
@@ -443,11 +504,7 @@ namespace UI.NodeNetwork {
         {
             return nodeContainer;
         }
-
-        public INodeUI GetSelectedNode()
-        {
-            return selectedNode;
-        }
+        
 
         private class RightClickEvent
         {

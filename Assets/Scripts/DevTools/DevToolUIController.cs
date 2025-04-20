@@ -44,6 +44,11 @@ namespace DevTools {
             if (CanEscapePop())
             {
                 PopStack();
+                if (uiObjectStack.Count == 0)
+                {
+                    page = DevToolPage.Title;
+                    Display();
+                }
             }
         }
 
@@ -80,6 +85,16 @@ namespace DevTools {
 
             homeButton.onClick.AddListener(() =>
             {
+                if (uiObjectStack.Count > 0)
+                {
+                    GameObject current = uiObjectStack.Peek().gameObject;
+                    IDevToolBackButtonOverrideUI backButtonOverride = current.GetComponent<IDevToolBackButtonOverrideUI>();
+                    if (backButtonOverride != null)
+                    {
+                        bool overriden = backButtonOverride.BackPressOverriden();
+                        if (overriden) return;
+                    }
+                }
                 SwitchPage(DevToolPage.Title);
             });
             

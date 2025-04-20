@@ -20,7 +20,7 @@ namespace UI
         [SerializeField] private UIAudioElements uiAudioElements;
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
-        private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
+        protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
         private bool canTerminate;
         private AudioSource audioSource;

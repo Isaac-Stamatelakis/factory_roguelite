@@ -59,7 +59,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             if (tileEntityInstance is not IMachineInstance machineInstance) return;
             this.displayedInstance = machineInstance;
-            titleText.text = machineInstance.GetTileEntity().name;
+            titleText.text = machineInstance.GetTileEntity().name.Replace("_","");
             
             machineEnergyInventory = machineInstance.GetEnergyInventory();
             energyScrollbar.gameObject.SetActive(machineEnergyInventory!=null);
