@@ -215,6 +215,7 @@ namespace UI.NodeNetwork {
 
             foreach (var nodeUI in selectedNodes)
             {
+                if (!nodeUI.GetGameObject()) continue;
                 nodeUI.SetSelect(false);
             }
             selectedNodes.Clear();
