@@ -1,5 +1,5 @@
 # CaveTech
-CaveTech is a 2D factory game currently being developed in Unity. It's a fusion of Terraria and Modded Minecraft that is heavily inspired by the minecraft modpack GregTech New Horizons with aspects of GregTech, EnderIO, AE2, BetterQuesting, LootGames, and more. All coding, art, etc are custom made for this project.
+CaveTech is a 2D factory cave that I've been developing in Unity for a little more than a Year. It's a fusion of Terraria and Modded Minecraft that is heavily inspired by the minecraft modpack GregTech New Horizons with aspects of GregTech, EnderIO, AE2, BetterQuesting, LootGames, and more. All coding, art, etc are custom made for this project.
 
 ### View Feature Demos
 [Youtube](https://www.youtube.com/@CaveTechDev/videos)
@@ -8,7 +8,7 @@ CaveTech is a 2D factory game currently being developed in Unity. It's a fusion 
 In CaveTech you play as a mining Robot named HAPPY that is developed by the company 'CaveTech'. The player spawns in a confined area called 'The HUB' which is their primary base, and contains a powerful teleportation device that allows them to teleport to other dimensions. These dimensions contain materials use to upgrade their production lines and eventually unlock other dimensions, with the goal of eventually completeing their assigned mission.
 
 ## Features in CaveTech:
-* 6 Different Types of Tiles:
+* Six Different Types of Tiles:
   * Blocks: Can be collided with by the player.
   * Backgrounds: Behind all other tile types and is about 1.5x larger.
   * Objects: Cannot be collided with by the player, and can be any size.
@@ -38,18 +38,24 @@ In CaveTech you play as a mining Robot named HAPPY that is developed by the comp
   * Signal Conduits that transfer On/Off Signals.
   * Matrix Conduits which connect Tile Entities to a larger item system.
 * Five different types of Recipes:
-  * Energy, generator, passive, burner which are used by their respective Machines.
-  * Transmutation Recipes which modify the state of a Transmutable Item [Ingot -> Plate].
+  * Energy, generator, passive, burner, which are used by their respective Machines.
+  * Transmutation Recipes which modify the state of a Transmutable Item [Ingot -> Plate, Ingot -> Wire, Plate -> Dust, etc].
+* Item Information User Interface with six displays contextual information about items.
+  * Item Inputs and Outputs from Machines / Recipe Processors.
+  * If item can be burned, fuel duration and fuel usages.
+  * If item can be chiseled, item chisel states.
+  * If item can be found in a cave, item cave distrubtions 
+  * If item is dropped by an mob, mob item drop distrubtions.
+  * If item is transmutable, transmutation material information.
 * Two Types of Entities:
   *  Item Entities which can be picked up by the player.
   *  Mob Entities can be attacked by the player and may attack the player.
 * Questbook that guides players through the game and rewards them for completing quests such as item retrieval, visiting a dimension, and more.
-* In game text chat and many commands the player can use if their world has cheat mode enabled.
-* Item Catalogue
+* Text chat and many commands the player can use if their world has cheat mode enabled.
 * Four types of Robot Tools each with many upgrades:
-  * Laser Drill that breaks blocks, backgrounds, and can suck up fluids. Multi-Hit, Speed, VeinMine, and Magnet Upgrades.
+  * Laser Drill that breaks blocks, backgrounds, and can suck up fluids. Multi-Hit, Speed, VeinMine, Fortune, and Magnet Upgrades.
   * Laser Gun that shoots lasers. Fire Rate, Multi-Shot and Explosion Upgrades.
-  * Laser Cutters that breaks conduits. VeinMine and Magnet Upgrades.
+  * Laser Cutters that breaks Conduits. VeinMine, Magnet Upgrades and Break-All Upgrades.
   * Buildinator which can Rotate, Hammer [Tile -> Slab -> Stair -> etc], and Chisel Tiles. Multi-Hit Upgrades.
 * Player Robot Upgrades:
   * Speed, Jump Height, Reach, Health, Bonus Jumps, and Energy.
@@ -57,10 +63,12 @@ In CaveTech you play as a mining Robot named HAPPY that is developed by the comp
   * Teleportation which teleports the player to their cursor.
   * Nano-Bots which give the player passive healing.
 * Many Unity Editor Tools and In-Game Developer Tools:
-  * Structure Editor for generating and editing randomly occuring structures.
-  * QuestBook Editor for editing and creating QuestBooks.
-  * Upgrade Editor for editing and creating Robot/Tool Upgrades.
-  * Item Generators for all Item Types and Sub-Types. 
+  * Item Generators for all Tile Types and Sub Types.
+  * In-Game Structure Editor for generating and editing randomly occuring structures.
+  * In-Game QuestBook Editor for editing and creating QuestBooks.
+  * In-Game Upgrade Editor for editing and creating Robot/Tool Upgrades.
+  * In-Game Crafting Tree Generator for visualizing large crafting trees and generating recipes into the game.
+  
 * (In-Progress) Matrix Item System supporting a massive centralized Item storage, Item Input/Output and Auto Crafting. 
 
 
@@ -69,15 +77,15 @@ In CaveTech you play as a mining Robot named HAPPY that is developed by the comp
 ![image](https://github.com/user-attachments/assets/fef3f620-45eb-482a-ab8e-f69cc05e5cf1)
 ### Image of the Icy Caverns
 ![image](https://github.com/user-attachments/assets/799311ae-3807-4c88-ac0a-48dafbd82dbf)
+### Image of the Twilight Caverns
+![image](https://github.com/user-attachments/assets/bda09ea0-cf90-4834-b616-12841ad0051e)
+
 ### Image of Transmutable Item Ingots
 ![image](https://github.com/user-attachments/assets/143f9a15-e85d-4ec9-8654-bb7f4a42b389)
 ### Image of Transmutable Item States
 ![image](https://github.com/user-attachments/assets/0112d317-2c8f-44f4-9c52-6e15c73e1e9d)
 ![image](https://github.com/user-attachments/assets/6249f37a-0f27-433a-94c1-e699858f208c)
 
-
-
-![jan3-5](https://github.com/user-attachments/assets/dfef118f-a376-413f-ad4b-24ede81b4d1b)
 
 
 
