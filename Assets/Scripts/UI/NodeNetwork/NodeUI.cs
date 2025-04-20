@@ -44,13 +44,14 @@ namespace UI.NodeNetwork {
         }
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (nodeNetwork?.GetSelectedNode() == null)
+            if (nodeNetwork == null) return;
+            if (!nodeNetwork.IsSelectingNodes())
             {
                 OpenContent(NodeUIContentOpenMode.Click);
             }
             else
             {
-                nodeNetwork?.ModifyConnection(node);
+                nodeNetwork.ModifyConnection(node);
             }
         }
         

@@ -42,7 +42,8 @@ namespace UI.QuestBook {
                     SavePlayerData();
                 }
             }
-            CurrentSelected = null;
+            selectedNodes.Clear();
+            
             this.questBookUI = questBookUI;
             this.NodeNetwork = questBookPage;
             this.questBookData = questBookData;

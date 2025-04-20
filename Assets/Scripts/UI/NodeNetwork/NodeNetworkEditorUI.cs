@@ -160,6 +160,8 @@ namespace UI.NodeNetwork {
                     }
                 }
                 indicator.localRotation = Quaternion.Euler(0, 0, rotation);
+                Vector2 parentScale = indicator.transform.parent.localScale;
+                indicator.transform.localScale = new Vector3(1/parentScale.x, 1/parentScale.y, 1); // Don't want to scale select zone
                 indicator.sizeDelta = size;
             }
 
