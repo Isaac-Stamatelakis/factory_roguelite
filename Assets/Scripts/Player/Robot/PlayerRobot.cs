@@ -103,6 +103,7 @@ namespace Player {
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
+        private bool lastIsUsingTool;
         private float defaultLinearDrag;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
@@ -185,12 +186,21 @@ namespace Player {
 
         public void SetIsUsingTool(bool value)
         {
+            if (isUsingTool == value) return;
+            lastIsUsingTool = isUsingTool;
             isUsingTool = value;
+            
             animator.SetBool(Action,value);
             gunController.gameObject.SetActive(value);
-            if (value == false)
+            if (!value)
             {
                 gunController.OnNoClick();
+            }
+            
+            if (IsGrounded() && Mathf.Abs(rb.velocity.x) > 0.05f)
+            {
+                float time = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                PlayWalkAnimation(time);
             }
         }
         
@@ -523,11 +533,8 @@ namespace Player {
                 {
                     const float ANIMATOR_SPEED_INCREASE = 0.25f;
                     animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                    animator.Play(isUsingTool ? "WalkAction" : "Walk");
-                    bool walkingBackwards = isUsingTool && (
-                        (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
-                        (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
-                    animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
+                    const float NO_TIME_CHANGE = -1;
+                    PlayWalkAnimation(NO_TIME_CHANGE);
                 }
             }
 
@@ -567,6 +574,23 @@ namespace Player {
             SpaceBarMovementUpdate(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+        }
+
+        private void PlayWalkAnimation(float time)
+        {
+            if (time > 0)
+            {
+                animator.Play(isUsingTool ? "WalkAction" : "Walk",0,time);
+            }
+            else
+            {
+                animator.Play(isUsingTool ? "WalkAction" : "Walk");
+            }
+            
+            bool walkingBackwards = isUsingTool && (
+                (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
+                (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
+            animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
         }
 
         public float GetMaxHealth()
