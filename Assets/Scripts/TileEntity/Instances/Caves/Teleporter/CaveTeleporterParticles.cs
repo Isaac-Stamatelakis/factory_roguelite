@@ -39,6 +39,17 @@ namespace TileEntity.Instances.Caves.Teleporter
 
         private IEnumerator LoadParticles()
         {
+            Camera mainCamera = Camera.main;
+            float width = mainCamera.orthographicSize * 2;
+
+            void ApplySize(ParticleSystem system, float cover)
+            {
+                var shape = system.shape;
+                shape.radius = cover*width;
+            }
+            ApplySize(outer,1.1f);
+            ApplySize(mid,0.5f);
+            ApplySize(inner,0.125f);
             var wait = new WaitForSeconds(delay);
             outer.Play();
             particleSystems.Add(outer);
