@@ -140,7 +140,7 @@ namespace WorldModule.Caves {
             }
             return noiseField;
         }
-        private IEnumerator cellular_automaton(int[][] grid,Vector2Int size)
+        private IEnumerator CellularAutomatonSmooth(int[][] grid,Vector2Int size)
         {
             const int DELAY_COUNT = 10000;
             int iterationCount = 0;
@@ -194,6 +194,7 @@ namespace WorldModule.Caves {
             } 
             yield return grid;
         }
+        
 
         private IEnumerator GenerateWorld(int[][] grid,Vector2Int caveSize) {
             int width = caveSize.x;
@@ -229,12 +230,60 @@ namespace WorldModule.Caves {
         {
             UnityEngine.Random.InitState(seed);
             int[][] noiseField = GenerateNoiseField(size,seed);
-            var gridIEnumerator = cellular_automaton(noiseField, size);
+            var gridIEnumerator = CellularAutomatonSmooth(noiseField, size);
             yield return gridIEnumerator;
             int[][] grid = gridIEnumerator.Current as int[][];
             yield return grid;
         }
 
+        public override int[][] GenerateGridInstant(int seed, Vector2Int size)
+        {
+            UnityEngine.Random.InitState(seed);
+            int[][] grid = GenerateNoiseField(size,seed);
+            CelluarAutomation();
+            return grid;
+            int[][] CelluarAutomation() {
+                for (int n = 0; n < smoothIterations; n ++) {
+                    int[][] tempGrid = new int[size.x][];
+                    for (int index = 0; index < size.x; index++)
+                    {
+                        tempGrid[index] = new int[size.y];
+                    }
+                    for (int x = 0; x < size.x; x ++) {
+                        for (int y = 0; y < size.y; y ++) {
+                            tempGrid[x][y] = grid[x][y];
+                        }
+                    }
+                    for (int x = 0; x < size.x; x ++) {
+                        for (int y = 0; y < size.y; y++) {
+                            int neighboors = 0;
+                            for (int j = -cellRadius; j <= cellRadius; j ++) {
+                                for (int k = -cellRadius; k <= cellRadius; k ++) {
+                                    if (j == 0 && k == 0) {
+                                        continue;
+                                    }
+                                    int xIndex = x+j; 
+                                    int yIndex = y+k;
+                                    if (xIndex < 0  || xIndex >= size.x || yIndex < 0 || yIndex >= size.y) {
+                                        neighboors ++;
+                                        continue;
+                                    }
+                                    if (tempGrid[xIndex][yIndex] == 1) {
+                                        neighboors ++;
+                                    }
+                                }
+                            }
+                            if (neighboors > cellNeighboorCount) {
+                                grid[x][y] = 0;
+                            } else {
+                                grid[x][y] = 1;
+                            }
+                        }
+                    }
+                }
+                return grid;
+            }
+        }
     }
 }
 
