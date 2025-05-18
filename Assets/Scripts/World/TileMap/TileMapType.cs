@@ -122,7 +122,7 @@ namespace TileMaps.Type {
                 case TileMapType.SignalConduit:
                     return 2.2f;
                 case TileMapType.Fluid:
-                    return 1.1f;
+                    return 1.5f;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tileMapType), tileMapType, null);
             }

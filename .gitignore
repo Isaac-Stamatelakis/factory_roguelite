@@ -1,0 +1,17 @@
+# Ignore everything thats not whitelisted
+/*
+
+!.gitignore
+# Unity Package Manager
+!Packages/
+
+# Project settings
+!ProjectSettings/
+
+# Assets
+!Assets/
+
+# Ignore Editor Creations
+Assets/EditorCreations/
+# Ignore Tool Gen
+Assets/ToolGen/

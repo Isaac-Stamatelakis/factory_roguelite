@@ -22,6 +22,7 @@ using Recipe;
 using TileEntity;
 using TileMaps;
 using UI;
+using UI.GraphicSettings;
 using UI.Indicators;
 using UI.Indicators.General;
 using UI.JEI;
@@ -104,6 +105,8 @@ namespace Dimensions {
             
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
+            
+            GraphicSettingsUtils.ApplyWorldGraphicSettings();
             
         }
 
