@@ -1,5 +1,7 @@
 # Ignore everything thats not whitelisted
 /*
+
+!.gitignore
 # Unity Package Manager
 !Packages/
 

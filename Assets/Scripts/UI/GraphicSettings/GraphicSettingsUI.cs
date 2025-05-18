@@ -10,6 +10,7 @@ namespace UI.GraphicSettings
     {
         [SerializeField] private Button mBackButton;
         [SerializeField] private Scrollbar mViewRangeScrollbar;
+        [SerializeField] private Scrollbar mUIScaleScrollbar;
         [SerializeField] private Button mVSyncButton;
         [SerializeField] private Button mAntiAliasingButton;
         [SerializeField] private Button mParticleButton;
@@ -20,6 +21,7 @@ namespace UI.GraphicSettings
         {
             mBackButton.onClick.AddListener(CanvasController.Instance.PopStack);
             SetUpScrollbar(mViewRangeScrollbar, GraphicSetting.View_Range);
+            SetUpScrollbar(mUIScaleScrollbar, GraphicSetting.UIScale);
             SetUpButton(mVSyncButton, GraphicSetting.VSync);
             SetUpButton(mAntiAliasingButton, GraphicSetting.AntiAliasing);
             SetUpButton(mParticleButton, GraphicSetting.Particles);
@@ -33,14 +35,12 @@ namespace UI.GraphicSettings
             TextMeshProUGUI textIndicator = scrollbar.GetComponentInChildren<TextMeshProUGUI>();
             textIndicator.text = GetText(graphicSetting, initial);
             GraphicSettingManager manager = GraphicSettingFactory.GetManager(graphicSetting);
-            if (manager is IScrollBarGraphicManager scrollBarGraphicManager)
+            
+            scrollbar.value = (float)initial / (mViewRangeScrollbar.numberOfSteps - 1);
+            scrollbar.onValueChanged.AddListener((value) =>
             {
-                scrollbar.numberOfSteps = scrollBarGraphicManager.GetSteps();
-            }
-            mViewRangeScrollbar.value = (float)initial / (mViewRangeScrollbar.numberOfSteps - 1);
-            mViewRangeScrollbar.onValueChanged.AddListener((value) =>
-            {
-                int intVal = (int)(value * (mViewRangeScrollbar.numberOfSteps - 1));
+                IScrollBarGraphicManager scrollBarGraphicManager = (IScrollBarGraphicManager)manager;
+                int intVal = (int)(value * (scrollBarGraphicManager.GetSteps() - 1));
                 GraphicSettingsUtils.SetGraphicSettingsValue(graphicSetting, intVal);
                 manager?.ApplyGraphicSettings(intVal);
                 textIndicator.text = GetText(graphicSetting, intVal);

@@ -10,7 +10,7 @@ namespace Misc
         {
             if (GraphicSettingsUtils.APPLY_ON_START)
             {
-                GraphicSettingsUtils.ApplyAllGraphicsSettings();
+                GraphicSettingsUtils.ApplyGenericGraphicSettings();
             }
             GameObject.Destroy(gameObject);
         }

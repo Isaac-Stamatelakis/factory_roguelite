@@ -20,6 +20,8 @@ namespace UI.GraphicSettings
                     return new FullScreenManager();
                 case GraphicSetting.Resolution:
                     return new ResolutionManager();
+                case GraphicSetting.UIScale:
+                    return new UIScaleGraphicSettingManager();
                 default:
                     return null;
             }
