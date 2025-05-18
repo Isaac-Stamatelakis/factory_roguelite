@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -76,17 +77,15 @@ namespace WorldModule.Caves {
             this.caveElements = caveElements;
         }
 
-        public SeralizedWorldData Generate(int seed) {
+        public IEnumerator Generate(int seed) {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             double total = 0;
             Vector2Int worldSize = new Vector2Int(caveObject.ChunkWidth, caveObject.ChunkHeight) * Global.CHUNK_SIZE;
             UnityEngine.Random.InitState(seed);
-            SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed,worldSize);
-            
-            double modelTime = stopwatch.Elapsed.TotalSeconds;
-            
-            total += modelTime;
+            IEnumerator worldTileDataEnumerator = caveElements.GenerationModel.GenerateBase(seed,worldSize);
+            yield return worldTileDataEnumerator;
+            SeralizedWorldData worldTileData =  worldTileDataEnumerator.Current as SeralizedWorldData;
             
             Vector2Int size = caveObject.GetChunkCaveSize()*Global.CHUNK_SIZE;
             IntervalVector coveredArea = caveObject.GetChunkCoveredArea();
@@ -120,13 +119,11 @@ namespace WorldModule.Caves {
                 entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
                 total += entityDistributionTime;
             }
-            
             MusicTrackController.Instance.SetSong(caveElements.Songs);
-            stopwatch.Stop();
-            Debug.Log($"Cave generated completed in {total:F2} seconds. Model Generation of {caveElements.GenerationModel.GetType().Name} Time: {modelTime:F2} seconds." +
-                      $"Tile Distribution Time: {tileDistributionTime:F2} seconds. Entity Distribution Time: {entityDistributionTime:F2} seconds.");
-            return worldTileData;
+            yield return worldTileData;
         }
+        
+        
         
     }
     
