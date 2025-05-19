@@ -24,10 +24,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
+        public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps)
         {
             tileEntities ??= new Dictionary<Vector2Int, ITileEntityInstance>();
-            yield return base.Load(tileGridMaps,direction);
+            yield return base.Load(tileGridMaps);
             
             const int ENTITY_LOAD_PER_UPDATE = 5;
             if (parent is not ILoadedChunk loadedChunk) yield break;

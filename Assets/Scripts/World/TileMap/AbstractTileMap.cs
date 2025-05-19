@@ -84,7 +84,7 @@ namespace TileMaps {
         }
         public virtual IEnumerator RemovePartition(Vector2Int partitionPosition) {
             if (!ContainsPartition(partitionPosition)) {
-                yield return null;
+                yield break;
             }
             partitions.Remove(partitionPosition);
             int partitionX = partitionPosition.x*Global.CHUNK_PARTITION_SIZE;
@@ -93,8 +93,8 @@ namespace TileMaps {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
                     RemoveTile(partitionX+x,partitionY+y);
                 }
-                yield return null;
             }
+            yield return null;
         }
 
         public void AddListener(ITileMapListener listener) {

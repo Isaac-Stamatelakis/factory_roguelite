@@ -12,7 +12,7 @@ using UnityEngine;
 
 public class TierItemInfoObject : ScriptableObject
 {
-    public TieredGameStage TieredGameStage;
+    public GameStageObject GameStageObject;
     public TransmutableItemMaterial PrimaryMaterial;
     public TransmutableItemMaterial SecondaryMaterial;
     public TransmutableItemMaterial WireMaterial;

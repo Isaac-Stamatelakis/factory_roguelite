@@ -291,11 +291,11 @@ namespace Chunks.Systems {
             return playerPartitionChangeDifference;
         }
 
-        public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
+        public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition) {
             if (chunkPartition.IsLoading()) yield break;
             loadedPartitionBoundary.PartitionLoaded(chunkPartition.GetRealPosition());
             fluidTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),true);
-            yield return chunkPartition.Load(tileGridMaps,direction);
+            yield return chunkPartition.Load(tileGridMaps);
             chunkPartition.SetIsLoading(false);
         }
 
