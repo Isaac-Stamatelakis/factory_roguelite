@@ -47,8 +47,7 @@ namespace Player {
         OnSlope,
         HeadContact,
         OnPlatform,
-        HeadInFluid,
-        FeetInFluid,
+        InFluid,
     }
     
     public class PlayerRobot : MonoBehaviour
@@ -266,7 +265,7 @@ namespace Player {
                 highDragFrames = int.MaxValue;
             }
 
-            if (state is CollisionState.FeetInFluid)
+            if (state is CollisionState.InFluid)
             {
                 var vector2 = rb.velocity;
                 vector2.y = vector2.y * 0.05f;
@@ -287,10 +286,8 @@ namespace Player {
         }
         
 
-        public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
+        public void AddFluidCollisionData(FluidTileItem fluidTileItem)
         {
-            if (!collisionStates.Contains(collisionState)) return;
-            if (collisionState != CollisionState.FeetInFluid) return;
             if (!fluidTileItem) return;
             if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
             {
@@ -304,7 +301,8 @@ namespace Player {
         public void RemoveCollisionState(CollisionState state)
         {
             if (!collisionStates.Remove(state)) return;
-            if (state == CollisionState.FeetInFluid)
+            
+            if (state == CollisionState.InFluid)
             {
                 Vector3 position = transform.position;
                 position.z = -5;
@@ -329,6 +327,11 @@ namespace Player {
             }
         }
 
+        public bool IsMoving()
+        {
+            return rb.velocity.magnitude > 0.1f;
+        }
+
         public bool CollisionStateActive(CollisionState state)
         {
             return collisionStates.Contains(state);
@@ -336,7 +339,7 @@ namespace Player {
 
         public bool InFluid()
         {
-            return collisionStates.Contains(CollisionState.HeadInFluid) && collisionStates.Contains(CollisionState.FeetInFluid);
+            return collisionStates.Contains(CollisionState.InFluid);
         }
 
         private void MoveUpdate()

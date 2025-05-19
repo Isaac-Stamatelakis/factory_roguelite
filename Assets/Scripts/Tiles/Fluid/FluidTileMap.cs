@@ -20,6 +20,11 @@ using Random = UnityEngine.Random;
 namespace Fluids {
     public class FluidTileMap : AbstractWorldTileMap<FluidTileItem>, ITileMapListener
     {
+        public enum FluidParticleType
+        {
+            Splash,
+            Standard
+        }
         private class FluidParticles
         {
             public ParticleSystem Splash;
@@ -63,6 +68,8 @@ namespace Fluids {
             unlitFluidParticles = new FluidParticles(miscDimAssets.SplashParticlePrefab, miscDimAssets.FluidParticlePrefab, transform, miscDimAssets.UnlitMaterial);
             
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
+            TileMapBundleFactory.AddCompositeCollider(unlitTileMap.gameObject,TileMapType.Fluid);
+            
             mapCollider2D = tilemap.GetComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
@@ -127,7 +134,32 @@ namespace Fluids {
             simulator.DisruptSurface(cellPosition);
             if (!fluidTileItem) return;
             PlayParticles(particles.Splash, worldPosition,fluidTileItem);
+        }
+
+        public void PlayerParticles(Vector2 worldPosition, FluidParticleType particleType)
+        {
+            Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
+            FluidCell fluidCell = simulator.GetFluidCell(new  Vector2Int(cellPosition.x, cellPosition.y));
             
+            FluidTileItem fluidTileItem = fluidCell?.FluidTileItem;
+            if (!fluidTileItem) return;
+            
+            ParticleSystem system = GetFluidParticles(particleType, fluidTileItem.fluidOptions.Lit);
+            PlayParticles(system, worldPosition,fluidTileItem);
+        }
+
+        private ParticleSystem GetFluidParticles(FluidParticleType fluidParticleType, bool lit)
+        {
+            FluidParticles particles = GetFluidParticles(lit);
+            switch (fluidParticleType)
+            {
+                case FluidParticleType.Splash:
+                    return particles.Splash;
+                case FluidParticleType.Standard:
+                    return particles.Standard;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(fluidParticleType), fluidParticleType, null);
+            }
         }
 
         private FluidParticles GetFluidParticles(bool lit)

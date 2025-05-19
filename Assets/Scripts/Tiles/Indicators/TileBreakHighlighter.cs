@@ -58,7 +58,7 @@ namespace Tiles.Indicators
             float outlineScale = outline ? 1f : 1.1f;
             TileBase outlineTile = outline ? outline : tile;
             mOutlineTilemap.SetTile(tilePosition,outlineTile);
-            Matrix4x4 matrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
+            Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
             matrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,outlineScale * Vector3.one);
             mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
         }
