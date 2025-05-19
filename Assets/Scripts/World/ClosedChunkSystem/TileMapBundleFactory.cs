@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Dimensions;
 using UnityEngine;
 using TileMaps.Type;
 using Fluids;
+using Items;
 using TileMaps;
 using TileMaps.Conduit;
 using Unity.VisualScripting;
@@ -70,7 +72,7 @@ namespace Chunks.Systems {
         private static void InitTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
-            container.tag = "Ground";
+            
             container.name = tileType.ToString();
             if (tileType.HasCollider()) {
                 container.layer = LayerMask.NameToLayer(tileType.ToString());
@@ -86,20 +88,28 @@ namespace Chunks.Systems {
             
             if (tileType is TileMapType.Block or TileMapType.Platform or TileMapType.Object or TileMapType.Fluid)
             {
-                GameObject gameObject = worldTileMap.GetTilemap().gameObject;
-                Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
-                rb.bodyType = RigidbodyType2D.Static;
-                gameObject.GetComponent<TilemapCollider2D>().usedByComposite = true;
-                CompositeCollider2D compositeCollider2D = gameObject.AddComponent<CompositeCollider2D>();
-                compositeCollider2D.geometryType = CompositeCollider2D.GeometryType.Polygons;
-                if (tileType is TileMapType.Fluid)
-                {
-                    compositeCollider2D.isTrigger = true;
-                }
+                AddCompositeCollider(worldTileMap.GetTilemap().gameObject, tileType);
+                // OnTriggerExit2D is not called if the last tile is deleted. This 'dummy' tile is out of bounds and prevents this bug from happening.
+                TileItem tileItem = ItemRegistry.GetInstance().GetTileItem("structure_parameter");
+                worldTileMap.GetTilemap().SetTile(new Vector3Int(1024,1024,0),tileItem.tile);
             }
+        }
 
-            
-            
+        public static void AddCompositeCollider(GameObject gameObject, TileMapType tileType)
+        {
+            Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Static;
+            gameObject.GetComponent<TilemapCollider2D>().usedByComposite = true;
+            CompositeCollider2D compositeCollider2D = gameObject.AddComponent<CompositeCollider2D>();
+            compositeCollider2D.geometryType = CompositeCollider2D.GeometryType.Polygons;
+            if (tileType is TileMapType.Fluid)
+            {
+                compositeCollider2D.isTrigger = true;
+            }
+            else
+            {
+                gameObject.tag = "Ground";
+            }
         }
 
         

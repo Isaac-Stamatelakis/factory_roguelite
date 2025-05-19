@@ -47,8 +47,7 @@ namespace Player {
         OnSlope,
         HeadContact,
         OnPlatform,
-        HeadInFluid,
-        FeetInFluid,
+        InFluid,
     }
     
     public class PlayerRobot : MonoBehaviour
@@ -103,6 +102,7 @@ namespace Player {
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
+        private bool lastIsUsingTool;
         private float defaultLinearDrag;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
@@ -185,12 +185,21 @@ namespace Player {
 
         public void SetIsUsingTool(bool value)
         {
+            if (isUsingTool == value) return;
+            lastIsUsingTool = isUsingTool;
             isUsingTool = value;
+            
             animator.SetBool(Action,value);
             gunController.gameObject.SetActive(value);
-            if (value == false)
+            if (!value)
             {
                 gunController.OnNoClick();
+            }
+            
+            if (IsGrounded() && Mathf.Abs(rb.velocity.x) > 0.05f)
+            {
+                float time = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                PlayWalkAnimation(time);
             }
         }
         
@@ -256,7 +265,7 @@ namespace Player {
                 highDragFrames = int.MaxValue;
             }
 
-            if (state is CollisionState.FeetInFluid)
+            if (state is CollisionState.InFluid)
             {
                 var vector2 = rb.velocity;
                 vector2.y = vector2.y * 0.05f;
@@ -277,10 +286,8 @@ namespace Player {
         }
         
 
-        public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
+        public void AddFluidCollisionData(FluidTileItem fluidTileItem)
         {
-            if (!collisionStates.Contains(collisionState)) return;
-            if (collisionState != CollisionState.FeetInFluid) return;
             if (!fluidTileItem) return;
             if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
             {
@@ -294,7 +301,8 @@ namespace Player {
         public void RemoveCollisionState(CollisionState state)
         {
             if (!collisionStates.Remove(state)) return;
-            if (state == CollisionState.FeetInFluid)
+            
+            if (state == CollisionState.InFluid)
             {
                 Vector3 position = transform.position;
                 position.z = -5;
@@ -319,6 +327,11 @@ namespace Player {
             }
         }
 
+        public bool IsMoving()
+        {
+            return rb.velocity.magnitude > 0.1f;
+        }
+
         public bool CollisionStateActive(CollisionState state)
         {
             return collisionStates.Contains(state);
@@ -326,7 +339,7 @@ namespace Player {
 
         public bool InFluid()
         {
-            return collisionStates.Contains(CollisionState.HeadInFluid) && collisionStates.Contains(CollisionState.FeetInFluid);
+            return collisionStates.Contains(CollisionState.InFluid);
         }
 
         private void MoveUpdate()
@@ -358,12 +371,24 @@ namespace Player {
             {
                 animator.SetBool(Walk,false);
                 FlightMoveUpdate();
-            }
-            else
-            {
-                StandardMoveUpdate();
+                return;
             }
             
+            if (climbing)
+            {
+                animator.speed = 1;
+                animator.SetBool(Walk,false);
+                animator.Play(isUsingTool ? "AirAction" : "Air");
+                bool exitKeyCode = ControlUtils.GetControlKeyDown(PlayerControl.MoveLeft) || ControlUtils.GetControlKeyDown(PlayerControl.MoveRight) || ControlUtils.GetControlKeyDown(PlayerControl.Jump);
+                if (!exitKeyCode) return;
+                
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                climbing = false;
+                rb.gravityScale = defaultGravityScale;
+                return;
+            }
+            StandardMoveUpdate();
+
         }
         
 
@@ -507,32 +532,8 @@ namespace Player {
                     if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
-            
-            if (IsGrounded())
-            {
-                if (!moveUpdate)
-                {
-                    if (!climbing)
-                    {
-                        animator.Play(isUsingTool ? "IdleAction" : "Idle");
-                    }
-                    
-                    animator.speed = 1;
-                }
-                else
-                {
-                    const float ANIMATOR_SPEED_INCREASE = 0.25f;
-                    animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                    animator.Play(isUsingTool ? "WalkAction" : "Walk");
-                    bool walkingBackwards = isUsingTool && (
-                        (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
-                        (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
-                    animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
-                }
-            }
 
-
-            animator.SetBool(Walk,moveUpdate);
+            UpdateMovementAnimations();
 
             const float MAX_MOVE_DIR = 1;
             
@@ -567,6 +568,40 @@ namespace Player {
             SpaceBarMovementUpdate(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+
+            void UpdateMovementAnimations()
+            {
+                animator.SetBool(Walk,moveUpdate);
+                if (!IsGrounded()) return;
+                if (!moveUpdate)
+                {
+                    animator.speed = 1;
+                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
+                    return;
+                }
+                const float ANIMATOR_SPEED_INCREASE = 0.25f;
+                animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                const float NO_TIME_CHANGE = -1;
+                PlayWalkAnimation(NO_TIME_CHANGE);
+            }
+        }
+        
+
+        private void PlayWalkAnimation(float time)
+        {
+            if (time > 0)
+            {
+                animator.Play(isUsingTool ? "WalkAction" : "Walk",0,time);
+            }
+            else
+            {
+                animator.Play(isUsingTool ? "WalkAction" : "Walk");
+            }
+            
+            bool walkingBackwards = isUsingTool && (
+                (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
+                (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
+            animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
         }
 
         public float GetMaxHealth()
@@ -849,6 +884,8 @@ namespace Player {
             iFrames--;
             highDragFrames--;
             
+            if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
+            
             CanStartClimbing();
             if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
             {
@@ -867,7 +904,7 @@ namespace Player {
 
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
+            
 
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
@@ -1166,6 +1203,7 @@ namespace Player {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
             }
+            
             bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
             if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
             
@@ -1224,15 +1262,13 @@ namespace Player {
 
         private void HandleClimbing() {
             IClimableTileEntity climableTileEntity = GetClimbable(transform.position);
-            bool exitKeyCode = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.Jump);
-            if (climableTileEntity == null || exitKeyCode)
+            if (climableTileEntity == null)
             {
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 climbing = false;
                 rb.gravityScale = defaultGravityScale;
                 return;
             }
-            animator.Play(isUsingTool ? "AirAction" : "Air");
             IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
             platformCollider.enabled = below == null;
             Vector2 velocity = rb.velocity;

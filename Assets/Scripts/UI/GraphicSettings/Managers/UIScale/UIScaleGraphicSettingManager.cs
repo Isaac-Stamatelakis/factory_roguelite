@@ -16,7 +16,18 @@ namespace UI.GraphicSettings.Managers
             {
                 scalableUIElement.transform.localScale =  new Vector3(scaleValue, scaleValue, scaleValue);
             }
-            
+        }
+
+        public void ApplyDefaultScale(GameObject uiElement)
+        {
+            ApplyScale(uiElement,GraphicSettingsUtils.GetGraphicSettingsValue(GraphicSetting.UIScale));
+        }
+
+        public void ApplyScale(GameObject uiElement, int value)
+        {
+            UIScale uiScale = (UIScale)value;
+            float scaleValue = GetUIScaleValue(uiScale);
+            uiElement.transform.localScale =  new Vector3(scaleValue, scaleValue, scaleValue);
         }
 
         private float GetUIScaleValue(UIScale scale)

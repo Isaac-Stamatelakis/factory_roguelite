@@ -48,7 +48,8 @@ namespace WorldModule {
             int minY = -(caveSize.y-1)/2;
             int maxY = (caveSize.y)/2;
             int saves = 0;
-            const int DELAYS_PER_SAVES = 4;
+            var delay = new WaitForFixedUpdate();
+            const int DELAYS_PER_SAVES = 2;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                     SaveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
@@ -56,7 +57,7 @@ namespace WorldModule {
                     if (saves > DELAYS_PER_SAVES)
                     {
                         saves = 0;
-                        yield return null;
+                        yield return delay;
                     }
                 }
             }

@@ -19,7 +19,7 @@ namespace Player.Movement
             Collider2D platformCollider = GetComponent<Collider2D>();
             colliderBounds = platformCollider.bounds.extents.y;
         }
-        
+
         public void OnTriggerStay2D(Collider2D other)
         {
             if (!other.CompareTag("Ground")) return;

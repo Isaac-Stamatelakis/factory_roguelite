@@ -11,11 +11,10 @@ namespace WorldModule.Caves {
         private Vector2Int bottomLeftCorner;
         private Vector2Int origin;
         private int maxSearchDistance;
-        private HashSet<Vector2Int> seen = new HashSet<Vector2Int>();
         private Vector2Int caveSize;
         private Vector2Int result;
         private List<Vector2Int> directions;
-        private bool found;
+        private int tileSearches;
         public CaveSpawnPositionSearcher(SeralizedWorldData worldTileData, Vector2Int bottomLeftCorner, Vector2Int origin, int maxSearchDistance) {
             this.worldTileData = worldTileData;
             this.bottomLeftCorner = bottomLeftCorner;
@@ -35,35 +34,49 @@ namespace WorldModule.Caves {
             directions.RemoveAt(0);
             
         }
+        
 
-        public Vector2Int search()
+        public Vector2Int Search()
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            FindSpawnPosition(origin);
-            stopwatch.Stop();
-            if (found) {
-                Debug.Log($"Found cave spawn position {result} after {seen.Count} searchs in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
-            } else {
-                Debug.LogWarning("Cave spawn position search could not find alternative position to origin");
+            bool found = FindSpawnPosition(origin,false);
+            
+            bool inFluid = !found; // If first search doesn't work, then check inFluid
+            if (inFluid)
+            {
+                found = FindSpawnPosition(origin, true);
+                inFluid = found;
             }
-            return result;
+            
+            if (found) {
+                Debug.Log($"Found cave spawn position {result}. Tiles Searched: {tileSearches}. In-Fluid: {inFluid}.");
+                return result;
+            }
+
+            Debug.LogWarning("Cave spawn position search could not find alternative position to origin");
+            
+            const int CLEAR_RANGE = 2;
+            for (int x = -CLEAR_RANGE; x <= CLEAR_RANGE; x++)
+            {
+                for (int y = -1; y < 2*CLEAR_RANGE; y++)
+                {
+                    Vector2Int clearCellPosition = new Vector2Int(x, y) - bottomLeftCorner;
+                    worldTileData.baseData.ids[clearCellPosition.x, clearCellPosition.y] = null;
+                }
+            }
+            
+            return Vector2Int.zero;
+
         }
 
-        public void FindSpawnPosition(Vector2Int startPosition)
+        private bool FindSpawnPosition(Vector2Int startPosition, bool ignoreFluids)
         {
+            var seen = new HashSet<Vector2Int>();
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
             queue.Enqueue(startPosition);
 
             while (queue.Count > 0)
             {
                 Vector2Int position = queue.Dequeue();
-
-                if (found) 
-                {
-                    return;
-                }
-
                 Vector2Int normalizedPosition = position - bottomLeftCorner;
 
                 if (normalizedPosition.x < 0 || normalizedPosition.x >= caveSize.x || 
@@ -75,17 +88,25 @@ namespace WorldModule.Caves {
 
                 seen.Add(position);
 
-                if (seen.Count > maxSearchDistance)
-                    continue;
+                if (seen.Count > maxSearchDistance) continue;
+                
+                var found = HasSpace(1, normalizedPosition,ignoreFluids);
 
-                found = hasSpace(1, normalizedPosition);
-                result = position;
-
+                if (found)
+                {
+                    result = position;
+                    tileSearches += seen.Count;
+                    return true;
+                }
+                
+                
                 foreach (Vector2Int direction in directions)
                 {
                     queue.Enqueue(position + direction);
                 }
             }
+            tileSearches += seen.Count;
+            return false;
         }
 
         private void shuffle<T>(List<T> values, System.Random rand)
@@ -98,7 +119,7 @@ namespace WorldModule.Caves {
             }
         }
 
-        private bool hasSpace(int radius,Vector2Int position)
+        private bool HasSpace(int radius,Vector2Int position, bool ignoreFluids)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = -radius; x <= radius; x++) {
@@ -111,9 +132,10 @@ namespace WorldModule.Caves {
                     if (worldTileData.baseData.ids[adjx,adjy] != null) {
                         return false;
                     }
+                    if (ignoreFluids) continue;
                     string fluidId = worldTileData.fluidData.ids[adjx, adjy];
                     FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(fluidId);
-                    if (fluidTileItem && fluidTileItem.fluidOptions.DamagePerSecond > 0) return false;
+                    if (fluidTileItem) return false;
                 }
             }
 

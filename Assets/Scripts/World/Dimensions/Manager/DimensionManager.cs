@@ -33,6 +33,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.SceneManagement;
+using World;
 using World.BackUp;
 using World.Cave.Registry;
 using World.Dimensions.Serialization;
