@@ -36,7 +36,7 @@ public class GenerationModelVisualizer : Editor
         {
             for (int y = 0; y < height; y++)
             {
-                Color color = (grid[x][y] == 1) ? Color.black : Color.white;
+                Color color = (grid[x][y] == 1) ? Color.white : Color.black;
                 gridTexture.SetPixel(x, y, color);
             }
         }
