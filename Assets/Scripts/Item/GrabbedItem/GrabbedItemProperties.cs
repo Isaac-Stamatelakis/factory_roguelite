@@ -5,6 +5,7 @@ using Item.Slot;
 using Items;
 using PlayerModule.KeyPress;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Item.GrabbedItem {
     public class GrabbedItemProperties : MonoBehaviour
@@ -41,15 +42,13 @@ namespace Item.GrabbedItem {
             );
             rectTransform.anchoredPosition = localPos;
             bool leftClick = Input.GetMouseButtonDown(0);
-            
-            if (leftClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
+            if (leftClick && EventSystem.current.IsPointerOverGameObject())
             {
-                listenMouse = true;
-                dragEvent = new ItemSlotUIDragEvent(itemSlot);
-            }
-
-            if (leftClick)
-            {
+                if (!ItemSlotUtils.IsItemSlotNull(itemSlot))
+                {
+                    listenMouse = true;
+                    dragEvent = new ItemSlotUIDragEvent(itemSlot);
+                }
                 TryAddDoubleClick();
             }
             if (doubleClickEvent != null)
@@ -119,7 +118,6 @@ namespace Item.GrabbedItem {
         public void TerminateDragEvent()
         {
             dragEvent = null;
-            //dragEvent?.Reset();
         }
 
         public void SetItemSlot(ItemSlot itemSlot) {

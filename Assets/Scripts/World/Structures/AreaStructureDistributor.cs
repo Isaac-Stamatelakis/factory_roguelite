@@ -108,7 +108,6 @@ namespace WorldModule.Caves {
             Vector2Int smallestPosition, largestPosition;
             (smallest, largest) = areaA < areaB ? (a,b) : (b,a); 
             (smallestPosition,largestPosition) = areaA < areaB ? (aPosition,bPosition) : (bPosition,aPosition);
-            Vector2Int largestTopRight = largestPosition + largest.Size;
             SeralizedWorldData smallestData = smallest.Data;
             SeralizedWorldData largestData = largest.Data;
 
@@ -121,7 +120,7 @@ namespace WorldModule.Caves {
                     }
                     Vector2Int largestRelativePosition = largestPosition - smallestPosition + cellPosition;
                     if (largestRelativePosition.x < 0  || largestRelativePosition.y < 0 || 
-                        largestRelativePosition.x >= smallest.Size.x || largestRelativePosition.y >= smallest.Size.y) {
+                        largestRelativePosition.x >= largest.Size.x || largestRelativePosition.y >= largest.Size.y) {
                         continue;
                     }
                     string largestBaseId = largestData.baseData.ids[largestRelativePosition.x,largestRelativePosition.y];
