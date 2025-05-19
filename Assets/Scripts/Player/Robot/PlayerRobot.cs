@@ -379,6 +379,12 @@ namespace Player {
                 animator.speed = 1;
                 animator.SetBool(Walk,false);
                 animator.Play(isUsingTool ? "AirAction" : "Air");
+                bool exitKeyCode = ControlUtils.GetControlKeyDown(PlayerControl.MoveLeft) || ControlUtils.GetControlKeyDown(PlayerControl.MoveRight) || ControlUtils.GetControlKeyDown(PlayerControl.Jump);
+                if (!exitKeyCode) return;
+                
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                climbing = false;
+                rb.gravityScale = defaultGravityScale;
                 return;
             }
             StandardMoveUpdate();
@@ -1197,8 +1203,7 @@ namespace Player {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
             }
-
-            if (ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.MoveLeft)) return;
+            
             bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
             if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
             
@@ -1257,8 +1262,7 @@ namespace Player {
 
         private void HandleClimbing() {
             IClimableTileEntity climableTileEntity = GetClimbable(transform.position);
-            bool exitKeyCode = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.Jump);
-            if (climableTileEntity == null || exitKeyCode)
+            if (climableTileEntity == null)
             {
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 climbing = false;

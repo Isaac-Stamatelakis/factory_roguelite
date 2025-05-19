@@ -58,7 +58,6 @@ namespace Player.Movement
         {
             if (!other.CompareTag(tagLayer)) return;
             playerRobot.RemoveCollisionState((CollisionState)CollisionState);
-            
         }
     }
 }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Dimensions;
 using UnityEngine;
 using TileMaps.Type;
 using Fluids;
+using Items;
 using TileMaps;
 using TileMaps.Conduit;
 using Unity.VisualScripting;
@@ -87,6 +89,9 @@ namespace Chunks.Systems {
             if (tileType is TileMapType.Block or TileMapType.Platform or TileMapType.Object or TileMapType.Fluid)
             {
                 AddCompositeCollider(worldTileMap.GetTilemap().gameObject, tileType);
+                // OnTriggerExit2D is not called if the last tile is deleted. This 'dummy' tile is out of bounds and prevents this bug from happening.
+                TileItem tileItem = ItemRegistry.GetInstance().GetTileItem("structure_parameter");
+                worldTileMap.GetTilemap().SetTile(new Vector3Int(1024,1024,0),tileItem.tile);
             }
         }
 
