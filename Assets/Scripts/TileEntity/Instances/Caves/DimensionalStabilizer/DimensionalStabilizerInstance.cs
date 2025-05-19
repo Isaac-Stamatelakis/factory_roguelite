@@ -8,9 +8,10 @@ using World.Cave.Registry;
 
 namespace TileEntity.Instances.Caves.DimensionalStabilizer
 {
-    public class DimensionalStabilizerInstance : TileEntityInstance<DimensionalStabilizerObject>, IEnergyConduitInteractable, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IPlaceInitializable, IBreakActionTileEntity
+    public class DimensionalStabilizerInstance : TileEntityInstance<DimensionalStabilizerObject>, IEnergyConduitInteractable, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity
     {
         private CaveRegistry caveRegistry;
+        private ulong lastEnergyInput;
         public DimensionalStabilizerInstance(DimensionalStabilizerObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
         }
@@ -22,13 +23,17 @@ namespace TileEntity.Instances.Caves.DimensionalStabilizer
         
         public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
         {
+            lastEnergyInput = energy;
+            
+            return energy; // Eats all energy inputed
+        }
+
+        private int GetAllotments(ulong energy)
+        {
             if (energy == 0) return 0;
             float tier = Mathf.Log(energy, 4);
             int allotments = (int)Mathf.Pow(4, tier);
-            
-            
-            // Eats all energy inputed
-            return energy;
+            return allotments;
         }
 
         public ulong GetEnergy(Vector2Int portPosition)
@@ -56,6 +61,13 @@ namespace TileEntity.Instances.Caves.DimensionalStabilizer
         public void OnBreak()
         {
             caveRegistry.RemoveStabilizer();
+        }
+
+        public void TickUpdate()
+        {
+            int allotments = GetAllotments(lastEnergyInput);
+            caveRegistry.VerifyAllotments(allotments);
+            lastEnergyInput = 0;
         }
     }
 }

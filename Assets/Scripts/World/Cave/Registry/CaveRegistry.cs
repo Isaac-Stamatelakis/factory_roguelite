@@ -23,8 +23,12 @@ namespace World.Cave.Registry
         private readonly List<VoidMinerInstance> voidMiners = new List<VoidMinerInstance>();
         private DimensionalStabilizerInstance dimensionalStabilizer;
         private int requiredAllotments;
+        public int RequiredAllotments => requiredAllotments;
         private bool minersActive;
-
+        public bool MinersActive => minersActive;
+        private int currentAllotments;
+        public int CurrentAllotments => currentAllotments;
+        public int MinerCount => voidMiners.Count;
         public void Awake()
         {
             caveDataDict = new Dictionary<string, CaveTileCollection>();
@@ -223,6 +227,7 @@ namespace World.Cave.Registry
 
         public void AddMiner(VoidMinerInstance voidMiner)
         {
+            if (voidMiners.Contains(voidMiner)) return;
             voidMiners.Add(voidMiner);
             voidMiner.DimensionStabilized = minersActive;
             requiredAllotments++; // TODO MODIFY THIS TO GROW BY TIER
@@ -230,6 +235,7 @@ namespace World.Cave.Registry
 
         public void RemoveMiner(VoidMinerInstance voidMiner)
         {
+            if (!voidMiners.Contains(voidMiner)) return;
             voidMiners.Remove(voidMiner);
             requiredAllotments--; // TODO MODIFY THIS TO GROW BY TIER
         }
@@ -249,6 +255,7 @@ namespace World.Cave.Registry
         public void VerifyAllotments(int allotments)
         {
             bool requirementSatisfied = allotments >= requiredAllotments;
+            currentAllotments = allotments;
             if (requirementSatisfied)
             {
                 if (minersActive) return;

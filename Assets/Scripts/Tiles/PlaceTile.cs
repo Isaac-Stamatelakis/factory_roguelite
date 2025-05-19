@@ -20,6 +20,7 @@ using Item.Slot;
 using Items;
 using Items.Tags;
 using Player;
+using TileEntity.Instances.Caves.DimensionalStabilizer;
 using TileEntity.Instances.CompactMachines;
 using TileEntity.MultiBlock;
 using TileMaps.Previewer;
@@ -113,6 +114,11 @@ namespace TileMaps.Place {
         public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem)
         {
             if (!tileItem.tileOptions.placeableInCave && closedChunkSystem.Dim == (int)Dimension.Cave) return false;
+            
+            if (tileItem.tileEntity is IConditionalPlacementTileEntityObject conditionalPlacementTile)
+            {
+                if (!conditionalPlacementTile.CanPlace()) return false;
+            }
             
             TileMapType tileMapType = tileItem.tileType.toTileMapType();
             TileMapLayer layer = tileMapType.ToLayer();
