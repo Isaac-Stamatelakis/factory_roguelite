@@ -221,7 +221,7 @@ namespace TileMaps {
         public abstract ItemObject GetItemObject(Vector2Int position);
         public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition)
         {
-            return new OutlineTileMapCellData(tilemap.GetTile(cellPosition), null,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetTransformMatrix(cellPosition).rotation);
+            return new OutlineTileMapCellData(tilemap.GetTile(cellPosition), null,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetColor(cellPosition));
         }
 
         public abstract bool BreakAndDropTile(Vector2Int position, bool dropItem);
