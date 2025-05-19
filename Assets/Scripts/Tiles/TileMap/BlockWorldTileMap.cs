@@ -11,17 +11,19 @@ using UnityEngine.Tilemaps;
 namespace TileMaps {
     public struct OutlineTileMapCellData
     {
+        public Color TileColor;
         public TileBase Tile;
         public TileBase OutlineTile;
         public Quaternion OutlineRotation;
         public Quaternion TileRotation;
 
-        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation)
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor)
         {
             Tile = tile;
             OutlineTile = outlineTile;
             OutlineRotation = outlineRotation;
             TileRotation = tileRotation;
+            TileColor = tileColor;
         }
     }
     public interface IOutlineTileGridMap : IWorldTileMap
@@ -138,7 +140,7 @@ namespace TileMaps {
 
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),tilemap.GetTransformMatrix(position).rotation,outlineTileMap.GetTransformMatrix(position).rotation);
+            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),tilemap.GetTransformMatrix(position).rotation,outlineTileMap.GetTransformMatrix(position).rotation,tilemap.GetColor(position));
         }
     }
 }

@@ -11,6 +11,7 @@ using Chunks;
 using Chunks.Systems;
 using UnityEngine.UI;
 using Entities;
+using Item.GrabbedItem;
 using Item.Slot;
 using Items.Tags;
 using Items.Tags.FluidContainers;
@@ -151,6 +152,9 @@ namespace PlayerModule {
 
         private void DisplayInventory()
         {
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            grabbedItemProperties.TerminateDragEvent();
+            
             PlayerScript playerScript = GetComponent<PlayerScript>();
             switch (inventoryMode)
             {

@@ -5,6 +5,7 @@ using Item.Slot;
 using Items;
 using PlayerModule.KeyPress;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Item.GrabbedItem {
     public class GrabbedItemProperties : MonoBehaviour
@@ -27,7 +28,8 @@ namespace Item.GrabbedItem {
         private ItemSlotUIClickHandler takeRightClickSlot;
         private Camera uiCamera;
         private RectTransform rectTransform;
-        
+
+        public bool DragEventActive => dragEvent != null;
         
         
         void Update()
@@ -40,16 +42,13 @@ namespace Item.GrabbedItem {
             );
             rectTransform.anchoredPosition = localPos;
             bool leftClick = Input.GetMouseButtonDown(0);
-            bool rightClick = Input.GetMouseButtonUp(0);
-            
-            if (leftClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
+            if (leftClick && EventSystem.current.IsPointerOverGameObject())
             {
-                listenMouse = true;
-                dragEvent = new ItemSlotUIDragEvent(itemSlot);
-            }
-
-            if (leftClick)
-            {
+                if (!ItemSlotUtils.IsItemSlotNull(itemSlot))
+                {
+                    listenMouse = true;
+                    dragEvent = new ItemSlotUIDragEvent(itemSlot);
+                }
                 TryAddDoubleClick();
             }
             if (doubleClickEvent != null)
@@ -65,7 +64,7 @@ namespace Item.GrabbedItem {
             if (mouseDown)
             {
                 SolidItemClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>();
-                dragEvent.DragNewSlot(clickHandler);
+                dragEvent?.DragNewSlot(clickHandler);
             }
             else
             {
@@ -114,6 +113,11 @@ namespace Item.GrabbedItem {
             ItemSlot clickedSlot = clickHandler.GetInventoryItem();
             if (ItemSlotUtils.IsItemSlotNull(clickedSlot)) return;
             doubleClickEvent = new ItemSlotDoubleClickEvent(clickHandler);
+        }
+
+        public void TerminateDragEvent()
+        {
+            dragEvent = null;
         }
 
         public void SetItemSlot(ItemSlot itemSlot) {

@@ -36,6 +36,13 @@ namespace Tiles.Highlight
             }
             active = true;
             mBaseMap.SetTile(cellPosition,tileBase);
+            Color tileColor = tilemap.GetColor(cellPosition);
+            if (tileColor != Color.white)
+            {
+                mBaseMap.SetTileFlags(cellPosition,TileFlags.None);
+                mBaseMap.SetColor(cellPosition,tileColor);
+            }
+            
             lastCellPosition = cellPosition;
             Sprite sprite = GetSprite(tileBase);
             mOutline.sprite = sprite;

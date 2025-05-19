@@ -4,6 +4,8 @@ using System.Linq;
 using Dimensions;
 using Items;
 using Items.Transmutable;
+using TileEntity.Instances;
+using TileEntity.Instances.Caves.DimensionalStabilizer;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -18,7 +20,15 @@ namespace World.Cave.Registry
         private static CaveRegistry instance;
         public static CaveRegistry Instance => instance;
         private Dictionary<string, CaveTileCollection> caveDataDict;
-
+        private readonly List<VoidMinerInstance> voidMiners = new List<VoidMinerInstance>();
+        private DimensionalStabilizerInstance dimensionalStabilizer;
+        private int requiredAllotments;
+        public int RequiredAllotments => requiredAllotments;
+        private bool minersActive;
+        public bool MinersActive => minersActive;
+        private int currentAllotments;
+        public int CurrentAllotments => currentAllotments;
+        public int MinerCount => voidMiners.Count;
         public void Awake()
         {
             caveDataDict = new Dictionary<string, CaveTileCollection>();
@@ -208,6 +218,60 @@ namespace World.Cave.Registry
                 caveInfoCatalogueElements.Add(caveInfoCatalogueElement);
             }
             return caveInfoCatalogueElements;
+        }
+
+        public bool HasActiveStabilizer()
+        {
+            return dimensionalStabilizer != null;
+        }
+
+        public void AddMiner(VoidMinerInstance voidMiner)
+        {
+            if (voidMiners.Contains(voidMiner)) return;
+            voidMiners.Add(voidMiner);
+            voidMiner.DimensionStabilized = minersActive;
+            requiredAllotments++; // TODO MODIFY THIS TO GROW BY TIER
+        }
+
+        public void RemoveMiner(VoidMinerInstance voidMiner)
+        {
+            if (!voidMiners.Contains(voidMiner)) return;
+            voidMiners.Remove(voidMiner);
+            requiredAllotments--; // TODO MODIFY THIS TO GROW BY TIER
+        }
+        
+        
+        public void SetStabilizer(DimensionalStabilizerInstance stabilizer)
+        {
+            dimensionalStabilizer = stabilizer;
+        }
+
+        public void RemoveStabilizer()
+        {
+            dimensionalStabilizer = null;
+            SetMinerState(false);
+        }
+
+        public void VerifyAllotments(int allotments)
+        {
+            bool requirementSatisfied = allotments >= requiredAllotments;
+            currentAllotments = allotments;
+            if (requirementSatisfied)
+            {
+                if (minersActive) return;
+                SetMinerState(true);
+            } else if (minersActive)
+            {
+                SetMinerState(false);
+            }
+        }
+        private void SetMinerState(bool state)
+        {
+            foreach (VoidMinerInstance voidMiner in voidMiners)
+            {
+                voidMiner.DimensionStabilized = state;
+            }
+            minersActive = state;
         }
     }
 

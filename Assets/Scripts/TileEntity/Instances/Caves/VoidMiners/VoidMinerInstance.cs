@@ -21,6 +21,7 @@ namespace TileEntity.Instances {
     public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
         IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator, ICompactMachineInteractable
     {
+        public bool DimensionStabilized;
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
         private CaveTileCollection caveTileCollection;
@@ -86,11 +87,15 @@ namespace TileEntity.Instances {
             };
             // TODO GIVE THIS PROPER ENERGY STORAGE
             EnergyInventory = new EnergyInventory(0, 65365);
+            CaveRegistry.Instance.AddMiner(this);
         }
         
         public void OnBreak()
         {
+            CaveRegistry.Instance.RemoveMiner(this);
+            
             if (chunk is not ILoadedChunk loadedChunk) return;
+            
             Vector2 position = GetWorldPosition();
             if (MinerData.DriveSlot != null)
             {
@@ -112,6 +117,8 @@ namespace TileEntity.Instances {
         public void SetCaveTileCollectionFromDriveSlot(CaveRegistry caveRegistry)
         {
             ItemSlot itemSlot = MinerData.DriveSlot;
+            caveRegistry.AddMiner(this);
+            
             if (itemSlot?.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out object caveData))
             {
                 caveTileCollection = null;
@@ -128,7 +135,7 @@ namespace TileEntity.Instances {
         
         public void TickUpdate()
         {
-            if (caveTileCollection == null) return;
+            if (!DimensionStabilized || caveTileCollection == null) return;
             float randomFloat = (float)random.NextDouble();
             string id = caveTileCollection.GetId(randomFloat);
             if (!MinerData.ItemFilter?.Filter(id) ?? false) return;

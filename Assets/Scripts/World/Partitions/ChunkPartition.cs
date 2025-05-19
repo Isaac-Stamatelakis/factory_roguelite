@@ -73,7 +73,7 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
+        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps)
         {
             tickableTileEntities ??= new List<ITickableTileEntity>();
             loading = true;
@@ -87,41 +87,12 @@ namespace Chunks.Partitions {
             baseTileHardnessArray = new int[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int realPosition = GetRealPosition();
-
-            switch (direction) {
-                case Direction.Left:
-                    for (int x = Global.CHUNK_PARTITION_SIZE-1; x >= 0; x --) {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
-                            iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
-                        }
-                        yield return null;
-                    }
-                    break;
-                case Direction.Right:
-                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE ; y ++) {
-                            iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
-                        }
-                        yield return null;
-                    }
-                    break;
-                case Direction.Up:
-                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
-                        for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                            iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
-                        }
-                        yield return null;
-                    }
-                    break;
-                case Direction.Down:
-                    for (int y = Global.CHUNK_PARTITION_SIZE-1; y >= 0; y --) {
-                        for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                            iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
-                        }
-                        yield return null;
-                    }
-                    break;
+            for (int y = Global.CHUNK_PARTITION_SIZE-1; y >= 0; y --) {
+                for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
+                    iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
             }
+            yield return null;
             SetTileLoaded(true);
         }
 

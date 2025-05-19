@@ -466,7 +466,7 @@ namespace PlayerModule.Mouse {
                 return false;
             }
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
-            if (grabbedItemProperties.ItemSlot == null) {
+            if (grabbedItemProperties.ItemSlot == null || grabbedItemProperties.DragEventActive) {
                 return false;
             }
             ILoadedChunk chunk = GetChunk(mousePosition);

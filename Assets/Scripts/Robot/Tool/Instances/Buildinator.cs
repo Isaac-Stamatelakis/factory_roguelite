@@ -331,7 +331,7 @@ namespace Robot.Tool.Instances
                         {
                             Tilemap tilemap = tileGridMap.GetTilemap();
                             Quaternion quaternion = tilemap.GetTransformMatrix(vector3Int).rotation;
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion);
+                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion,tilemap.GetColor(vector3Int));
                         }
                         
                     }
