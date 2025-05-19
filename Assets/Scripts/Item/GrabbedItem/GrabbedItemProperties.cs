@@ -27,7 +27,8 @@ namespace Item.GrabbedItem {
         private ItemSlotUIClickHandler takeRightClickSlot;
         private Camera uiCamera;
         private RectTransform rectTransform;
-        
+
+        public bool DragEventActive => dragEvent != null;
         
         
         void Update()
@@ -40,7 +41,6 @@ namespace Item.GrabbedItem {
             );
             rectTransform.anchoredPosition = localPos;
             bool leftClick = Input.GetMouseButtonDown(0);
-            bool rightClick = Input.GetMouseButtonUp(0);
             
             if (leftClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
@@ -65,7 +65,7 @@ namespace Item.GrabbedItem {
             if (mouseDown)
             {
                 SolidItemClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>();
-                dragEvent.DragNewSlot(clickHandler);
+                dragEvent?.DragNewSlot(clickHandler);
             }
             else
             {
@@ -114,6 +114,12 @@ namespace Item.GrabbedItem {
             ItemSlot clickedSlot = clickHandler.GetInventoryItem();
             if (ItemSlotUtils.IsItemSlotNull(clickedSlot)) return;
             doubleClickEvent = new ItemSlotDoubleClickEvent(clickHandler);
+        }
+
+        public void TerminateDragEvent()
+        {
+            dragEvent = null;
+            //dragEvent?.Reset();
         }
 
         public void SetItemSlot(ItemSlot itemSlot) {
