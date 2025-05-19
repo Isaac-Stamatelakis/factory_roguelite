@@ -371,12 +371,18 @@ namespace Player {
             {
                 animator.SetBool(Walk,false);
                 FlightMoveUpdate();
-            }
-            else
-            {
-                StandardMoveUpdate();
+                return;
             }
             
+            if (climbing)
+            {
+                animator.speed = 1;
+                animator.SetBool(Walk,false);
+                animator.Play(isUsingTool ? "AirAction" : "Air");
+                return;
+            }
+            StandardMoveUpdate();
+
         }
         
 
@@ -520,29 +526,8 @@ namespace Player {
                     if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
-            
-            if (IsGrounded())
-            {
-                if (!moveUpdate)
-                {
-                    if (!climbing)
-                    {
-                        animator.Play(isUsingTool ? "IdleAction" : "Idle");
-                    }
-                    
-                    animator.speed = 1;
-                }
-                else
-                {
-                    const float ANIMATOR_SPEED_INCREASE = 0.25f;
-                    animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                    const float NO_TIME_CHANGE = -1;
-                    PlayWalkAnimation(NO_TIME_CHANGE);
-                }
-            }
 
-
-            animator.SetBool(Walk,moveUpdate);
+            UpdateMovementAnimations();
 
             const float MAX_MOVE_DIR = 1;
             
@@ -577,7 +562,24 @@ namespace Player {
             SpaceBarMovementUpdate(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+
+            void UpdateMovementAnimations()
+            {
+                animator.SetBool(Walk,moveUpdate);
+                if (!IsGrounded()) return;
+                if (!moveUpdate)
+                {
+                    animator.speed = 1;
+                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
+                    return;
+                }
+                const float ANIMATOR_SPEED_INCREASE = 0.25f;
+                animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                const float NO_TIME_CHANGE = -1;
+                PlayWalkAnimation(NO_TIME_CHANGE);
+            }
         }
+        
 
         private void PlayWalkAnimation(float time)
         {
@@ -876,6 +878,8 @@ namespace Player {
             iFrames--;
             highDragFrames--;
             
+            if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
+            
             CanStartClimbing();
             if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
             {
@@ -894,7 +898,7 @@ namespace Player {
 
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
+            
 
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
@@ -1193,6 +1197,8 @@ namespace Player {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
             }
+
+            if (ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.MoveLeft)) return;
             bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
             if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
             
@@ -1259,7 +1265,6 @@ namespace Player {
                 rb.gravityScale = defaultGravityScale;
                 return;
             }
-            animator.Play(isUsingTool ? "AirAction" : "Air");
             IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
             platformCollider.enabled = below == null;
             Vector2 velocity = rb.velocity;
