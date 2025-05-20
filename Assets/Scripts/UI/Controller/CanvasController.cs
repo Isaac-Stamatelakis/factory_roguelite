@@ -21,7 +21,7 @@ namespace UI
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
         protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
-        public bool IsActive => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
+        public bool IsActive => uiObjectStack.Count > 0;
         private bool canTerminate;
         private AudioSource audioSource;
         public bool IsTyping => isTyping;
@@ -52,8 +52,7 @@ namespace UI
             });
         }
         private bool isTyping;
-        public bool BlockKeyInput => IsActive || isTyping;
-        public bool UIActive => uiObjectStack.Count > 0 || isTyping;
+        public bool BlockKeyInput => (uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement) || isTyping;
 
         public void Update()
         {

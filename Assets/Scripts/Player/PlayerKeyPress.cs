@@ -48,7 +48,7 @@ namespace PlayerModule.KeyPress {
         {
             inventoryKeyPresses();
             
-            if (canvasController.UIActive) return;
+            if (canvasController.BlockKeyInput) return;
             ControlUtils.UpdateModifierCount();
             
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenSearch))
