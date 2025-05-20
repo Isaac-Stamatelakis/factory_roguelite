@@ -177,7 +177,10 @@ namespace Items {
                     AddOverlay(tileSprite, tileOverlay.GetColor(),$"TileOverlay",material);
                 }
 
-                if (tileItem.tileOptions?.TileColor)
+                if (tileItem.tileOptions?.TransmutableColorOverride)
+                {
+                    color = tileItem.tileOptions.TransmutableColorOverride.color;
+                } else if (tileItem.tileOptions?.TileColor)
                 {
                     color = tileItem.tileOptions.TileColor.GetColor();
                 }

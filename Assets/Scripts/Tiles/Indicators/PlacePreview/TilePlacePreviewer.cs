@@ -111,9 +111,15 @@ namespace TileMaps.Previewer {
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
-            if (itemObject is TileItem tileItem && tileItem.tileOptions?.TileColor)
+            if (itemObject is TileItem tileItem)
             {
-                tilemap.color *= tileItem.tileOptions.TileColor.GetColor();
+                if (tileItem.tileOptions.TransmutableColorOverride)
+                {
+                    tilemap.color *= tileItem.tileOptions.TransmutableColorOverride.color;
+                } else if (tileItem.tileOptions.TileColor)
+                {
+                    tilemap.color *= tileItem.tileOptions.TileColor.GetColor();
+                }
             }
             
         }

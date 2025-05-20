@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using Item.GameStage;
 using Items;
+using Recipe;
 using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity;
@@ -57,6 +59,7 @@ namespace EditorScripts.Tier
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
                 ItemRecipeObject asset = AssetDatabase.LoadAssetAtPath<ItemRecipeObject>(assetPath);
+                if (!asset) continue;
                 if (asset is ItemEnergyRecipeObject itemEnergyRecipeObject)
                 {
                     constructorRecipe = itemEnergyRecipeObject;
@@ -66,7 +69,7 @@ namespace EditorScripts.Tier
             }
         }
 
-        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0)
+        protected ItemGenerationData GenerateDefaultItemData(string itemName, GameStageObject gameStageObject, ItemType itemType, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0)
         {
             string folder = TryCreateContentFolder(itemName);
             ItemObject current;
@@ -86,10 +89,10 @@ namespace EditorScripts.Tier
             {
                 current = ScriptableObject.CreateInstance<TileItem>();
                 current.name = $"{ItemDisplayUtils.TIER_REPLACE_VALUE} Ladder";
+                current.id = $"{itemName}_{gameStageObject.GetGameStageId()}".ToLower();
                 AssetDatabase.CreateAsset(current,Path.Combine(folder,current.name + ".asset"));
             }
             GetTierItemRecipes(folder, out ItemRecipeObject workBenchRecipe, out ItemEnergyRecipeObject constructorRecipe);
-            
             switch (recipeGenerationMode)
             {
                 case RecipeGenerationMode.None:
@@ -98,15 +101,15 @@ namespace EditorScripts.Tier
                     break;
                 case RecipeGenerationMode.WorkBench:
                     DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.ConstructorProcessor, constructorRecipe);
-                    if (!workBenchRecipe) workBenchRecipe = CreateRecipe<ItemRecipeObject>("WorkBench");
+                    if (!workBenchRecipe) workBenchRecipe = CreateRecipe<ItemRecipeObject>(defaultValues.RecipeProcessors.WorkBenchProcessor);
                     break;
                 case RecipeGenerationMode.Constructor:
                     DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.WorkBenchProcessor, workBenchRecipe);
-                    if (!constructorRecipe) constructorRecipe = CreateRecipe<ItemEnergyRecipeObject>("Constructor");
+                    if (!constructorRecipe) constructorRecipe = CreateRecipe<ItemEnergyRecipeObject>(defaultValues.RecipeProcessors.ConstructorProcessor);
                     break;
                 case RecipeGenerationMode.All:
-                    if (!workBenchRecipe) workBenchRecipe = CreateRecipe<ItemRecipeObject>("WorkBench");
-                    if (!constructorRecipe) constructorRecipe = CreateRecipe<ItemEnergyRecipeObject>("Constructor");
+                    if (!workBenchRecipe) workBenchRecipe = CreateRecipe<ItemRecipeObject>(defaultValues.RecipeProcessors.WorkBenchProcessor);
+                    if (!constructorRecipe) constructorRecipe = CreateRecipe<ItemEnergyRecipeObject>(defaultValues.RecipeProcessors.ConstructorProcessor);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeGenerationMode), recipeGenerationMode, null);
@@ -119,11 +122,22 @@ namespace EditorScripts.Tier
                 ConstructorRecipeObject = constructorRecipe
             };
 
-            T CreateRecipe<T>(string processorName) where T : ScriptableObject
+            T CreateRecipe<T>(RecipeProcessor recipeProcessor) where T : RecipeObject
             {
                 T recipe = ScriptableObject.CreateInstance<T>();
-                recipe.name = $"{itemName}_{processorName}";
+                recipe.name = $"{itemName}_{recipeProcessor.name}";
                 AssetDatabase.CreateAsset(recipe,Path.Combine(folder,recipe.name + ".asset"));
+                
+                RecipeCollection recipeCollection = recipeProcessor.GetRecipeCollection(recipeMode);
+                if (!recipeCollection)
+                {
+                    Debug.LogWarning($"Could not sync recipe for '{itemName}' in processor '{recipeProcessor.name}' with mode '{recipeMode}' as processor does not have a collection in mode");
+                }
+                else
+                {
+                    recipeCollection.Recipes.Add(recipe);
+                }
+                
                 return recipe;
             }
             
@@ -137,9 +151,9 @@ namespace EditorScripts.Tier
 
         
 
-        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
+        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, GameStageObject gameStageObject, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName, ItemType.TileItem, recipeGenerationMode,recipeMode);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName, gameStageObject,ItemType.TileItem, recipeGenerationMode,recipeMode);
             string folder = Path.Combine(generationPath, itemName);
             T tileEntityObject = GetFirstObjectInFolder<T>(folder);
             if (!tileEntityObject)
@@ -149,6 +163,9 @@ namespace EditorScripts.Tier
                 tileEntityObject.name = $"T~{tileEntityName}";
                 AssetDatabase.CreateAsset(tileEntityObject, Path.Combine(folder,tileEntityObject.name + ".asset"));
             }
+
+            TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
+            tileItem.tileEntity = tileEntityObject;
 
             return new TileEntityItemGenerationData
             {

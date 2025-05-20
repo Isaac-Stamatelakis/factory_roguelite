@@ -86,9 +86,16 @@ namespace Item.Display
                         spriteRenderer.material = material.WorldShaderMaterial;
                     }
                 }
-            } else if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.TileColor)
+            } else if (itemSlot.itemObject is TileItem tileItem)
             {
-                spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
+                if (tileItem.tileOptions.TransmutableColorOverride)
+                {
+                    spriteRenderer.color = tileItem.tileOptions.TransmutableColorOverride.color;
+                } else if (tileItem.tileOptions.TileColor)
+                {
+                    spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
+                }
+                
             } else if (itemSlot.itemObject is IColorableItem colorableItem)
             {
                 spriteRenderer.color = colorableItem.Color;

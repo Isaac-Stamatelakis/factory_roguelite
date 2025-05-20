@@ -27,6 +27,16 @@ namespace Recipe.Processor {
                 return;
             }
         }
+
+        public RecipeCollection GetRecipeCollection(int mode)
+        {
+            foreach (RecipeModeCollection collection in RecipeCollections)
+            {
+                if (collection.Mode != mode) continue;
+                return collection.RecipeCollection;
+            }
+            return null;
+        }
     }
 
     

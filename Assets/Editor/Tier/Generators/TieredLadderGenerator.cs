@@ -17,7 +17,10 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder",RecipeGenerationMode.All);
+            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder",tierItemInfoObject.GameStageObject,RecipeGenerationMode.All);
+            TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
+            tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
+
         }
     }
 }

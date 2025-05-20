@@ -85,12 +85,18 @@ namespace EditorScripts.Tier
 
             List<TierItemGenerator> generators = new List<TierItemGenerator>
             {
-                new TieredLadderGenerator(tierItemInfoObject, defaults, "Ladder")
+                CreateGenerator<TieredLadderGenerator>()
             };
 
             foreach (TierItemGenerator generator in generators)
             {
                 generator.Generate();
+            }
+
+            return;
+            TierItemGenerator CreateGenerator<T>() where T : TierItemGenerator
+            {
+                return (TierItemGenerator)Activator.CreateInstance(typeof(T), tierItemInfoObject, defaults, tierGenPath);
             }
         }
     }
