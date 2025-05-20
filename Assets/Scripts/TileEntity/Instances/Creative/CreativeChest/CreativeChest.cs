@@ -4,21 +4,28 @@ using Conduits.Ports;
 using Item.Slot;
 using UI;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.Creative.CreativeChest
 {
     [CreateAssetMenu(fileName = "New Creative Chest", menuName = "Tile Entity/Creative/Chest")]
-    public class CreativeChest : TileEntityObject
+    public class CreativeChest : TileEntityObject, IUITileEntity
     {
+        public AssetReference AssetReference;
         public ConduitPortLayout ConduitPortLayout;
         public CreativeChestUI CreativeChestUIPrefab;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new CreativeChestInstance(this, tilePosition, tileItem, chunk);
         }
+
+        public AssetReference GetUIAssetReference()
+        {
+            return AssetReference;
+        }
     }
 
-    public class CreativeChestInstance : TileEntityInstance<CreativeChest>, IItemConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, IConduitPortTileEntity
+    public class CreativeChestInstance : TileEntityInstance<CreativeChest>, IItemConduitInteractable, ISerializableTileEntity, IConduitPortTileEntity
     {
         public ItemSlot ItemSlot;
         public CreativeChestInstance(CreativeChest tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
@@ -47,12 +54,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             ItemSlot = ItemSlotFactory.DeserializeSlot(data);
         }
 
-        public void OnRightClick()
-        {
-            CreativeChestUI creativeChestUI = GameObject.Instantiate(tileEntityObject.CreativeChestUIPrefab);
-            creativeChestUI.DisplayTileEntityInstance(this);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(creativeChestUI.gameObject);
-        }
+        
 
         public ConduitPortLayout GetConduitPortLayout()
         {

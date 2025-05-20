@@ -63,6 +63,11 @@ namespace TileEntity {
     {
         public void OnRightClick();
     }
+
+    public interface IStopPlayerRightClickableTileEntity : IRightClickableTileEntity
+    {
+        
+    }
     
     /// <summary>
     /// TileEntities which implement this interface will have the method Serialize saving any data, and the method

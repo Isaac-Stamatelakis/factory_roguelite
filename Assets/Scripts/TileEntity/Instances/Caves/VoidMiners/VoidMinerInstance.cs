@@ -18,7 +18,7 @@ using World.Cave.Registry;
 using Random = System.Random;
 
 namespace TileEntity.Instances {
-    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
+    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
         IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator, ICompactMachineInteractable
     {
         public bool DimensionStabilized;
@@ -31,13 +31,6 @@ namespace TileEntity.Instances {
         public int CompactMachineDepth;
         public VoidMinerInstance(VoidMinerObject tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-        }
-
-        public void OnRightClick()
-        {
-            VoidMinerUI voidMinerUI = GameObject.Instantiate(tileEntityObject.VoidMinerUI);
-            voidMinerUI.DisplayTileEntityInstance(this);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(voidMinerUI.gameObject);
         }
 
         public string Serialize()

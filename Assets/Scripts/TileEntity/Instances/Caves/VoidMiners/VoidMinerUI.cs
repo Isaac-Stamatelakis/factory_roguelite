@@ -5,13 +5,15 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Tags;
+using PlayerModule;
+using TileEntity.Instances.Machine.UI;
 using TMPro;
 using UnityEngine;
 using World.Cave.Registry;
 
 namespace TileEntity.Instances.Caves.VoidMiners
 {
-    public class VoidMinerUI : MonoBehaviour, ITileEntityUI
+    public class VoidMinerUI : MonoBehaviour, ITileEntityUI, IInventoryUITileEntityUI
     {
         [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private TextMeshProUGUI mDepthText;
@@ -88,6 +90,23 @@ namespace TileEntity.Instances.Caves.VoidMiners
             ItemFilter filter = filterData as ItemFilter;
             if (filterData == null) return;
             voidMinerInstance.MinerData.ItemFilter = filter;
+        }
+
+        public InventoryUI GetInput()
+        {
+            return mDriveInventoryUI;
+        }
+
+        public List<InventoryUI> GetAllInventoryUIs()
+        {
+            return new List<InventoryUI>
+            {
+                mDriveInventoryUI,
+                mFilterInventoryUI,
+                mFluidOutputUI.InventoryUI,
+                mOreOutputUI.InventoryUI,
+                mStoneOutputUI.InventoryUI
+            };
         }
     }
 }

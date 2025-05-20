@@ -27,7 +27,7 @@ namespace TileEntity.Instances.CompactMachines {
         public ItemTag GetItemTag();
     }
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
-        IRightClickableTileEntity, ICompactMachine, 
+        IStopPlayerRightClickableTileEntity, ICompactMachine, 
         IBreakActionTileEntity, ISerializableTileEntity,
         IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity, ITextPreviewTileEntity
     {
