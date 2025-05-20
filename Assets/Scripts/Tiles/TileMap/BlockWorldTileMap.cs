@@ -38,7 +38,7 @@ namespace TileMaps {
         public override void Initialize(TileMapType tileMapType)
         {
             base.Initialize(tileMapType);
-            
+            overlayTileMap = AddOverlay();
             GameObject outline = new GameObject();
             outline.name = "Outline";
             outline.AddComponent<TilemapRenderer>();
@@ -46,11 +46,6 @@ namespace TileMaps {
             outline.transform.SetParent(transform,false);
             setView(false,Color.black);
             
-            GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
-            overlayTileMapObject.transform.SetParent(transform,false);
-            overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
-            overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, OVERLAY_Z);
             shaderOverlayTilemapManager = new ShaderOverlayTilemapManager(transform);
         }
 
@@ -94,6 +89,7 @@ namespace TileMaps {
             Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
             return !shaderMaterial ? overlayTileMap : shaderOverlayTilemapManager.GetTileMap(shaderMaterial);
         }
+
         protected override void SetTile(int x, int y, TileItem tileItem)
         {
             base.SetTile(x, y, tileItem);
@@ -103,18 +99,13 @@ namespace TileMaps {
             if (partition == null) return;
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             
-            var tileOverlay = tileItem.tileOptions?.Overlay;
             Vector3Int vec3 = new Vector3Int(x,y,0);
+            TileOverlay tileOverlay = tileItem.tileOptions.Overlay;
             if (tileOverlay)
             {
-                var overlayTile = tileOverlay.GetTile();
-                Tilemap placementTilemap = GetOverlayTileMap(tileOverlay);
-            
-                SetTileItemTile(placementTilemap, overlayTile, vec3, tileItem.tileOptions.rotatable, baseTileData);
-                placementTilemap.SetTileFlags(vec3, TileFlags.None); // Required to get color to work
-                placementTilemap.SetColor(vec3,tileOverlay.GetColor());
+                Tilemap placementMap = GetOverlayTileMap(tileItem.tileOptions.Overlay);
+                PlaceOverlayTile(tileItem.tileOptions.Overlay,placementMap, vec3,tileItem,baseTileData);
             }
-            
             TileBase outlineTile = tileItem.outline;
             if (!outlineTile) {
                 return;

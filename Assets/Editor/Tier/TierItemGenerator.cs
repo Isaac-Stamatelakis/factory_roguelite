@@ -4,9 +4,11 @@ using System.IO;
 using Item.GameStage;
 using Item.Slot;
 using Items;
+using Items.Transmutable;
 using Recipe;
 using Recipe.Objects;
 using Recipe.Processor;
+using Tier.Generators.Defaults;
 using TileEntity;
 using TileEntity.Instances;
 using UnityEditor;
@@ -71,46 +73,43 @@ namespace EditorScripts.Tier
             }
         }
 
-        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0)
+        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, int recipeMode = 0, bool useTierName = false)
         {
             string folder = TryCreateContentFolder(itemName);
-            ItemObject current;
-            switch (itemType)
+            ItemObject current = itemType switch
             {
-                case ItemType.Crafting:
-                    current = GetFirstObjectInFolder<ItemObject>(folder);
-                    break;
-                case ItemType.TileItem:
-                    current = GetFirstObjectInFolder<TileItem>(folder);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null);
-            }
-            
+                ItemType.Crafting => GetFirstObjectInFolder<ItemObject>(folder),
+                ItemType.TileItem => GetFirstObjectInFolder<TileItem>(folder),
+                _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
+            };
+
             if (!current)
             {
-                current = ScriptableObject.CreateInstance<TileItem>();
-                current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
+                current = itemType switch
+                {
+                    ItemType.Crafting => ScriptableObject.CreateInstance<CraftingItem>(),
+                    ItemType.TileItem => ScriptableObject.CreateInstance<TileItem>(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
+                };
+
+                current.name = GetItemName();
                 AssetDatabase.CreateAsset(current,Path.Combine(folder,current.name + ".asset"));
                 string assetPath = AssetDatabase.GetAssetPath(current);
                 string guid = AssetDatabase.AssetPathToGUID(assetPath);
                 EditorHelper.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
             }
-            
-            current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
-            current.id = $"{tierItemInfoObject.PrimaryMaterial.name}_{itemName}".ToLower();
+            TileEntity.Tier tier = TileEntity.Tier.Basic;
+            if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage) tier = tieredGameStage.Tier;
+
+            RecipeGenerationMode recipeGenerationMode = tier > TileEntity.Tier.Master ? RecipeGenerationMode.Constructor : RecipeGenerationMode.All;
+            current.name = GetItemName();
+            current.id = current.name.ToLower().Replace(" ", "_");
             current.SetGameStageObject(tierItemInfoObject.GameStageObject);
+            EditorUtility.SetDirty(current);
+            
             GetTierItemRecipes(folder, out ItemRecipeObject workBenchRecipe, out ItemEnergyRecipeObject constructorRecipe);
             switch (recipeGenerationMode)
             {
-                case RecipeGenerationMode.None:
-                    DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.WorkBenchProcessor, workBenchRecipe);
-                    DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.ConstructorProcessor, constructorRecipe);
-                    break;
-                case RecipeGenerationMode.WorkBench:
-                    DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.ConstructorProcessor, constructorRecipe);
-                    if (!workBenchRecipe) workBenchRecipe = CreateRecipe<ItemRecipeObject>(defaultValues.RecipeProcessors.WorkBenchProcessor);
-                    break;
                 case RecipeGenerationMode.Constructor:
                     DeleteRecipe(recipeMode,defaultValues.RecipeProcessors.WorkBenchProcessor, workBenchRecipe);
                     if (!constructorRecipe) constructorRecipe = CreateRecipe<ItemEnergyRecipeObject>(defaultValues.RecipeProcessors.ConstructorProcessor);
@@ -122,6 +121,8 @@ namespace EditorScripts.Tier
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeGenerationMode), recipeGenerationMode, null);
             }
+            
+            
 
             return new ItemGenerationData
             {
@@ -129,6 +130,13 @@ namespace EditorScripts.Tier
                 WorkBenchRecipeObject = workBenchRecipe,
                 ConstructorRecipeObject = constructorRecipe
             };
+
+            string GetItemName()
+            {
+                return useTierName 
+                    ? $"{tierItemInfoObject.GameStageObject?.GetGameStageName()} {itemName}" 
+                    : $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
+            }
 
             T CreateRecipe<T>(RecipeProcessor recipeProcessor) where T : RecipeObject
             {
@@ -144,7 +152,10 @@ namespace EditorScripts.Tier
                 else
                 {
                     recipeCollection.Recipes.Add(recipe);
+                    EditorUtility.SetDirty(recipeCollection);
                 }
+
+                EditorUtility.SetDirty(recipe);
                 
                 return recipe;
             }
@@ -152,7 +163,15 @@ namespace EditorScripts.Tier
             void DeleteRecipe(int mode, RecipeProcessor recipeProcessor, RecipeObject recipeObject)
             {
                 if (!recipeObject) return;
-                recipeProcessor.RemoveRecipe(mode,recipeObject);
+                RecipeCollection recipeCollection = recipeProcessor.GetRecipeCollection(mode);
+                if (recipeCollection)
+                {
+                    if (recipeCollection.Recipes.Contains(recipeObject))
+                    {
+                        EditorUtility.SetDirty(recipeCollection);
+                        recipeCollection.Recipes.Remove(recipeObject);
+                    }
+                }
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(recipeObject));
             }
         }
@@ -184,9 +203,9 @@ namespace EditorScripts.Tier
 
         
 
-        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
+        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, int recipeMode = 0, bool useTierName = false) where T : TileEntityObject
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem, recipeGenerationMode,recipeMode);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem,recipeMode,useTierName:useTierName);
             string folder = Path.Combine(generationPath, itemName);
             T tileEntityObject = GetFirstObjectInFolder<T>(folder);
             if (!tileEntityObject)
@@ -196,6 +215,7 @@ namespace EditorScripts.Tier
                 tileEntityObject.name = $"T~{tileEntityName}";
                 AssetDatabase.CreateAsset(tileEntityObject, Path.Combine(folder,tileEntityObject.name + ".asset"));
             }
+            EditorUtility.SetDirty(tileEntityObject);
 
             TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
             tileItem.tileEntity = tileEntityObject;
@@ -207,13 +227,18 @@ namespace EditorScripts.Tier
             };
         }
 
+        protected EditorItemSlot StateToItem(TransmutableItemState state, uint amount)
+        {
+            ItemObject itemObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, state);
+            return new EditorItemSlot(itemObject, amount);
+        }
+        
+
 
         protected enum RecipeGenerationMode
         {
-            None = 0,
-            WorkBench = 1,
-            Constructor = 2,
-            All = 3,
+            Constructor = 1,
+            All = 2,
         }
 
         protected enum ItemType
@@ -227,6 +252,11 @@ namespace EditorScripts.Tier
             public ItemObject ItemObject;
             public ItemRecipeObject WorkBenchRecipeObject;
             public ItemEnergyRecipeObject ConstructorRecipeObject;
+
+            public RandomEditorItemSlot ToRandomEditorSlot(uint amount, float chance = 1f)
+            {
+                return new RandomEditorItemSlot(ItemObject, amount, chance);
+            }
         }
         protected class TileEntityItemGenerationData
         {

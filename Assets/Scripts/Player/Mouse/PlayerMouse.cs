@@ -131,6 +131,8 @@ namespace PlayerModule.Mouse {
             if (!currentSystem) {
                 return;
             }
+            
+            PreviewHighlight(mousePosition);
            
             
             if (!leftClick)
@@ -190,20 +192,7 @@ namespace PlayerModule.Mouse {
             tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
-
-        public void FixedUpdate()
-        {
-            if (canvasController.BlockKeyInput)
-            {
-                return;
-            }
-            if (!currentSystem) {
-                return;
-            }
-            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            PreviewHighlight(mousePosition);
-        }
-
+        
         public void SetRange(float range)
         {
             this.range = range;
@@ -215,11 +204,14 @@ namespace PlayerModule.Mouse {
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 3);
-                if (!result.HasValue) continue;
+                if (!result.HasValue)
+                {
+                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
+                    continue;
+                }
                 bool highlight = TryHighlight(currentSystem, (result.Value,worldTileMap));
                 if (highlight) return;
             }
-            ToolTipController.Instance.HideToolTip(ToolTipType.World);
             tileHighlighter.Hide();
         }
         

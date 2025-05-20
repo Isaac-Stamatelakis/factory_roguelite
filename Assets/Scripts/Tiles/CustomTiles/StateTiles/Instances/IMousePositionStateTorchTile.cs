@@ -26,7 +26,6 @@ namespace Tiles {
             WallRight = 2,
             Background = 3,
         }
-        public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;

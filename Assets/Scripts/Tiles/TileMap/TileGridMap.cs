@@ -42,8 +42,17 @@ namespace TileMaps {
     }
     public class WorldTileMap : AbstractWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
+        protected Tilemap AddOverlay()
+        {
+            GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
+            overlayTileMapObject.transform.SetParent(transform,false);
+            var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
+            overlayTileMapObject.AddComponent<TilemapRenderer>();
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, OVERLAY_Z);
+            return overlayTileMap;
+        }
+
         public const float OVERLAY_Z = -3f;
-        
 
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             SpawnItemEntity(new ItemSlot(itemObject,amount,null), hitTilePosition);
@@ -266,7 +275,7 @@ namespace TileMaps {
                 tilemap.SetTileFlags(vector3Int, TileFlags.LockColor);
             }
         }
-
+        
         protected void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
         {
             if (tileBase is IStateTile stateTile) {
@@ -284,6 +293,14 @@ namespace TileMaps {
    
             PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
+
+        protected void PlaceOverlayTile(TileOverlay tileOverlay, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
+        {
+            var overlayTile = tileOverlay.GetTile();
+            SetTileItemTile(overlayTileMap,overlayTile, vector3Int, tileItem.tileOptions.rotatable, baseTileData);
+            overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
+            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
+        } 
         
         
         

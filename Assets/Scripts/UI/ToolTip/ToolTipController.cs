@@ -24,11 +24,13 @@ namespace UI.ToolTip {
         private readonly Vector2 offset = new Vector2(60, 0);
         [SerializeField] private ToolTipUI toolTipPrefab;
         [SerializeField] private ToolTipUI worldToolTipPrefab;
+        [SerializeField] private Canvas mWorldCanvas;
         private static ToolTipController instance;
         private Color defaultToolTipColor;
         private Color defaultWorldToolTipColor;
         private ToolTipType toolTipType;
         private Camera canvasCamera;
+        private ToolTipUI currentToolTip;
 
         public static ToolTipController Instance { get => instance; }
 
@@ -68,30 +70,34 @@ namespace UI.ToolTip {
         /// </summary>
         public void ShowWorldToolTip(Vector2 position, string text, Color? backGroundColor = null)
         {
+            if (toolTipType == ToolTipType.World)
+            {
+                currentToolTip.setText(text);
+                currentToolTip.transform.position = position;
+                return;
+            }
             HideToolTip();
-            ToolTipUI newToolTip = GameObject.Instantiate(worldToolTipPrefab, transform, false);
+            ToolTipUI newToolTip = GameObject.Instantiate(worldToolTipPrefab, mWorldCanvas.transform, false);
+            currentToolTip = newToolTip;
+            newToolTip.transform.position = position;
             newToolTip.setText(text);
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultWorldToolTipColor;
             toolTipType = ToolTipType.World;
-            SetToolTipPosition(position, newToolTip.transform);
+            
         }
 
-        private void SetToolTipPosition(Vector2 position, Transform toolTipTransform)
-        {
-            Canvas canvas = transform.parent.GetComponent<Canvas>();
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas.GetComponent<RectTransform>(),
-                 position,
-                canvas.worldCamera,
-                out Vector2 localPoint
-            );
-            RectTransform rectTransform = (RectTransform)toolTipTransform;
-            rectTransform.anchoredPosition = localPoint;
-        }
+        
         public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null) {
+            if (toolTipType == ToolTipType.UI)
+            {
+                currentToolTip.setText(text);
+                currentToolTip.transform.position = position;
+                return;
+            }
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
+            currentToolTip = newToolTip;
             newToolTip.setText(text);   
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
@@ -124,8 +130,8 @@ namespace UI.ToolTip {
         
         public void HideToolTip()
         {
-            if (transform.childCount == 0) return;
-            GlobalHelper.DeleteAllChildren(transform);
+            if (!currentToolTip) return;
+            GameObject.Destroy(currentToolTip.gameObject);
             toolTipType = ToolTipType.None;
         }
         

@@ -8,6 +8,7 @@ using Fluids;
 using Items;
 using TileMaps;
 using TileMaps.Conduit;
+using Tiles.TileMap;
 using Unity.VisualScripting;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Tilemaps;
@@ -167,6 +168,7 @@ namespace Chunks.Systems {
                 {
                     TileMapType.Block => container.AddComponent<BlockWorldTileMap>(),
                     TileMapType.Background => container.AddComponent<BackgroundWorldTileMap>(),
+                    TileMapType.Object => container.AddComponent<ObjectTileMap>(),
                     _ => container.AddComponent<WorldTileMap>()
                 };
 

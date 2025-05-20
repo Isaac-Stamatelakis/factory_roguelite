@@ -4,6 +4,7 @@ using Items.Inventory;
 using TileEntity.Instances.Machine.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TileEntity.Instances.Storage.Chest
 {
@@ -15,6 +16,8 @@ namespace TileEntity.Instances.Storage.Chest
         {
             if (tileEntityInstance is not ChestInstance chestInstance) return;
             mTitle.text = tileEntityInstance.GetName();
+            GridLayoutGroup gridLayoutGroup = mInventoryUI.GetComponent<GridLayoutGroup>();
+            gridLayoutGroup.constraintCount = (int)chestInstance.TileEntityObject.Columns;
             mInventoryUI.DisplayInventory(chestInstance.Inventory.Items);
         }
 
