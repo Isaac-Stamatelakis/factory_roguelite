@@ -97,6 +97,8 @@ namespace EditorScripts.Tier
                 string guid = AssetDatabase.AssetPathToGUID(assetPath);
                 EditorHelper.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
             }
+            
+            
 
             TileEntity.Tier tier = TileEntity.Tier.Basic;
             if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage) tier = tieredGameStage.Tier;
@@ -105,6 +107,8 @@ namespace EditorScripts.Tier
             current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
             current.id = $"{tierItemInfoObject.PrimaryMaterial.name}_{itemName}".ToLower();
             current.SetGameStageObject(tierItemInfoObject.GameStageObject);
+            EditorUtility.SetDirty(current);
+            
             GetTierItemRecipes(folder, out ItemRecipeObject workBenchRecipe, out ItemEnergyRecipeObject constructorRecipe);
             switch (recipeGenerationMode)
             {
@@ -119,6 +123,8 @@ namespace EditorScripts.Tier
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeGenerationMode), recipeGenerationMode, null);
             }
+            
+            
 
             return new ItemGenerationData
             {
@@ -141,7 +147,10 @@ namespace EditorScripts.Tier
                 else
                 {
                     recipeCollection.Recipes.Add(recipe);
+                    EditorUtility.SetDirty(recipeCollection);
                 }
+
+                EditorUtility.SetDirty(recipe);
                 
                 return recipe;
             }
@@ -149,7 +158,15 @@ namespace EditorScripts.Tier
             void DeleteRecipe(int mode, RecipeProcessor recipeProcessor, RecipeObject recipeObject)
             {
                 if (!recipeObject) return;
-                recipeProcessor.RemoveRecipe(mode,recipeObject);
+                RecipeCollection recipeCollection = recipeProcessor.GetRecipeCollection(mode);
+                if (recipeCollection)
+                {
+                    if (recipeCollection.Recipes.Contains(recipeObject))
+                    {
+                        EditorUtility.SetDirty(recipeCollection);
+                        recipeCollection.Recipes.Remove(recipeObject);
+                    }
+                }
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(recipeObject));
             }
         }
@@ -193,6 +210,7 @@ namespace EditorScripts.Tier
                 tileEntityObject.name = $"T~{tileEntityName}";
                 AssetDatabase.CreateAsset(tileEntityObject, Path.Combine(folder,tileEntityObject.name + ".asset"));
             }
+            EditorUtility.SetDirty(tileEntityObject);
 
             TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
             tileItem.tileEntity = tileEntityObject;

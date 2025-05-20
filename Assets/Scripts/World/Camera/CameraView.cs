@@ -38,14 +38,10 @@ public class CameraView : MonoBehaviour
         pixelPerfectCamera.refResolutionX = cameraWidth;
         pixelPerfectCamera.refResolutionY = cameraHeight;
         const int PIXELS_PER_TILE = 16;
-        const bool BONUS_LOAD_RANGE = true;
         
         Vector2 partitionsPerScreen = new Vector2(cameraWidth,cameraHeight) / (PIXELS_PER_TILE * Global.CHUNK_PARTITION_SIZE * 2);
-        chunkPartitionLoadRange = new Vector2Int((int)partitionsPerScreen.x, (int)partitionsPerScreen.y)+Vector2Int.one;
-        if (BONUS_LOAD_RANGE)   
-        {
-            chunkPartitionLoadRange += Vector2Int.one;
-        }
+        const int BONUS_RANGE = 3;
+        chunkPartitionLoadRange = new Vector2Int((int)partitionsPerScreen.x, (int)partitionsPerScreen.y)+BONUS_RANGE*Vector2Int.one;
         
         Debug.Log($"Camera size set '{cameraWidth} by {cameraHeight}' pixels, and partition load range '{chunkPartitionLoadRange}'");
         StartCoroutine(SetCameraSizeDelayed());

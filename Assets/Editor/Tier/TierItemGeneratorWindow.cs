@@ -68,7 +68,7 @@ namespace EditorScripts.Tier
                 if (!tierItemInfoObject.GameStageObject) continue;
                 GenerateMaterialItems(tierItemInfoObject,defaults);
             }
-            AssetDatabase.SaveAssets();
+            
             
             Debug.Log("Complete");
         }
@@ -95,6 +95,8 @@ namespace EditorScripts.Tier
             {
                 generator.Generate();
             }
+            AssetDatabase.Refresh();
+            AssetDatabase.SaveAssets();
             
             return;
             TierItemGenerator CreateGenerator<T>() where T : TierItemGenerator
