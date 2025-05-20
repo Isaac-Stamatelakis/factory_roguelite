@@ -24,6 +24,10 @@ namespace Items {
             return GameStageObject;
         }
 
+        public override void SetGameStageObject(GameStageObject gameStageObject)
+        {
+            GameStageObject = gameStageObject;
+        }
         public override Sprite getSprite()
         {
             return robot.defaultSprite;

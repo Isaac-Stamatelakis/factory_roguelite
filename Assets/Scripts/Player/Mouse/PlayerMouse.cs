@@ -372,7 +372,8 @@ namespace PlayerModule.Mouse {
             if (conduit == null) {
                 return false;
             }
-           
+            
+            StopPlayerHorizontalMovement();
             IOConduitPortUI conduitPortUI = MainCanvasController.TInstance.DisplayUIElement<IOConduitPortUI>(MainSceneUIElement.IOPortViewer);
             IOConduitPort conduitPort = conduit.GetPort() as IOConduitPort;
             conduitPortUI.Display(conduitPort,conduit);
@@ -386,7 +387,7 @@ namespace PlayerModule.Mouse {
         /// <param name="mousePosition"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public static bool TryClickTileEntity(Vector2 mousePosition) {
+        public bool TryClickTileEntity(Vector2 mousePosition) {
             int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             if (ReferenceEquals(tilemapObject,null)) return false;
@@ -412,17 +413,33 @@ namespace PlayerModule.Mouse {
             IRightClickableTileEntity rightClickableTileEntity = tileEntityInstance as IRightClickableTileEntity;
             
             // In cases where the tile entity has both ui and click behavior, holding left shit lets the player interact with the entity instance
-            bool clickInstanceInterface = rightClickableTileEntity != null && Input.GetKey(KeyCode.LeftShift); 
-            
+            bool clickInstanceInterface = rightClickableTileEntity != null && Input.GetKey(KeyCode.LeftShift);
+            if (rightClickableTileEntity is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
+            {
+                StopPlayerHorizontalMovement();
+            }
             if (!clickInstanceInterface && tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
+                
                 TileEntityAssetRegistry.Instance.DisplayUI(tileEntityInstance);
+                
                 return true;
             }
+            
 
             rightClickableTileEntity?.OnRightClick();
             return rightClickableTileEntity != null;
+
+            
         }
+        
+        private void StopPlayerHorizontalMovement()
+        {
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+            var velocity = rb.velocity; // Set X Velocity to 0 to prevent slight camera shake
+            velocity.x = 0;
+            rb.velocity = velocity;
+        } 
 
         private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             if (!closedChunkSystem || !closedChunkSystem.Interactable) {

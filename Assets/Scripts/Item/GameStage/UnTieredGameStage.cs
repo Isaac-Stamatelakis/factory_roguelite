@@ -9,5 +9,10 @@ namespace Item.GameStage
         {
             return name.ToLower().Replace(" ", "_");
         }
+
+        public override string GetGameStageName()
+        {
+            return name;
+        }
     }
 }

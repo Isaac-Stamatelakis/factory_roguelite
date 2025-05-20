@@ -11,7 +11,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 namespace TileEntity.Instances.CompactMachine.BluePrinter
 {
     
-    public class CompactMachineBluePrinterInstance : TileEntityInstance<CompactMachineBluePrinterObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable
+    public class CompactMachineBluePrinterInstance : TileEntityInstance<CompactMachineBluePrinterObject>, ISerializableTileEntity, IPlaceInitializable
     {
         public const int DEFAULT_INVENTORY_SIZE = 30;
         private CompactMachineBluePrintInventory bluePrintInventory;
@@ -20,20 +20,9 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
         {
         }
 
-        public void OnRightClick()
-        {
-            // Testing with asset reference;
-            Addressables.LoadAssetAsync<GameObject>(tileEntityObject.UIAssetReference).Completed += OnComplete;
-        }
+        
 
-        private void OnComplete(AsyncOperationHandle<GameObject> handle)
-        {
-            GameObject loadedObject = handle.Result;
-            CompactMachineBluePrinterUI bluePrinterUI = GameObject.Instantiate(loadedObject).GetComponent<CompactMachineBluePrinterUI>();
-            bluePrinterUI.DisplayTileEntityInstance(this);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(bluePrinterUI.gameObject);
-            Addressables.Release(handle);
-        }
+       
         
         public void PlaceInitialize()
         {

@@ -29,6 +29,11 @@ namespace Recipe.Objects
     public class RandomEditorItemSlot : EditorItemSlot
     {
         [SerializeField, Range(0 , 1)] public float Chance = 1f;
+
+        public RandomEditorItemSlot(ItemObject itemObject, uint amount, float chance) : base(itemObject, amount)
+        {
+            Chance = chance;
+        }
     }
 }
 

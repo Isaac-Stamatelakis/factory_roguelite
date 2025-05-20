@@ -30,7 +30,7 @@ namespace TileEntity {
     /// TileEntityObjects which implement this interface can be their instances climbed by the player
     /// </summary>
     public interface IClimableTileEntity {
-        public int GetSpeed();
+        public float GetSpeed();
     }
 
     /// <summary>
@@ -62,6 +62,11 @@ namespace TileEntity {
     public interface IRightClickableTileEntity
     {
         public void OnRightClick();
+    }
+
+    public interface IStopPlayerRightClickableTileEntity : IRightClickableTileEntity
+    {
+        
     }
     
     /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Items;
+using Items.Transmutable;
 using Robot.Tool.Instances.Drill;
 using TileEntity;
 using Tiles.Options.Colors;
@@ -54,9 +55,11 @@ namespace Tiles {
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;
+        public TransmutableItemMaterial TransmutableColorOverride;
         public TileColorOptionObject TileColor;
         public TileOverlay Overlay;
         public TileParticleOptions ParticleGradient;
+        
     }
 
     [System.Serializable]

@@ -252,12 +252,15 @@ namespace TileMaps {
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
             SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
-            if (tileItem.tileOptions?.TileColor)
+            if (tileItem.tileOptions.TransmutableColorOverride)
+            {
+                tilemap.SetTileFlags(vector3Int, TileFlags.None);
+                tilemap.SetColor(vector3Int,tileItem.tileOptions.TransmutableColorOverride.color);
+            } else if (tileItem.tileOptions.TileColor)
             {
                 tilemap.SetTileFlags(vector3Int, TileFlags.None);
                 tilemap.SetColor(vector3Int,tileItem.tileOptions.TileColor.GetColor());
-            }
-            else
+            } else
             {
                 tilemap.SetColor(vector3Int,Color.white);
                 tilemap.SetTileFlags(vector3Int, TileFlags.LockColor);

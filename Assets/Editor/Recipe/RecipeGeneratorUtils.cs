@@ -130,12 +130,8 @@ public static class RecipeGeneratorUtils
             }
 
             ItemObject output = outputs[i];
-            RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot
-            {
-                Amount = (uint)recipeGenerator.OutputAmounts[i],
-                ItemObject = output,
-                Chance = 1f
-            };
+            RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot(output, (uint)recipeGenerator.OutputAmounts[i], 1f);
+            
             if (!editorItemSlot.ItemObject) continue;
             recipeObject.Outputs.Add(editorItemSlot);
         }
@@ -172,18 +168,10 @@ public static class RecipeGeneratorUtils
         switch (input.Mode)
         {
             case RecipeGenerationInputMode.Object:
-                return new EditorItemSlot
-                {
-                    ItemObject = input.ItemObject,
-                    Amount = amount,
-                };
+                return new EditorItemSlot(input.ItemObject, amount);
             case RecipeGenerationInputMode.Material:
-                ItemObject itemObject = TransmutableItemGenerator.GetTransmutableItemObject(input.Material, input.ItemState);
-                return new EditorItemSlot
-                {
-                    ItemObject = itemObject,
-                    Amount = amount,
-                };
+                ItemObject itemObject = EditorHelper.GetTransmutableItemObject(input.Material, input.ItemState);
+                return new EditorItemSlot(itemObject, amount);
             default:
                 throw new ArgumentOutOfRangeException();
         }

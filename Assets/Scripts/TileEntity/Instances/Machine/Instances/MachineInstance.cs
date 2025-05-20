@@ -14,8 +14,8 @@ using UnityEngine;
 namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
-        IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
-        IPlaceInitializable, IBluePrintPlaceInitializedTileEntity, IRecipeRestrictionTileEntity
+        IStopPlayerRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
+        IBluePrintPlaceInitializedTileEntity, IRecipeRestrictionTileEntity
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
         protected TRecipe currentRecipe;

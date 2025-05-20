@@ -6,16 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Items {
-    public static class ItemDisplayUtils {
-       
-       
-
-        public static string[] AmountSuffixes => suffixes;
-       
-
-      
-        
-
+    public static class ItemDisplayUtils
+    {
         private static readonly string[] suffixes = {"k","M","B","T"};
 
         public static string FormatAmountText(uint amount,bool oneInvisible = true, ItemState itemState = ItemState.Solid)

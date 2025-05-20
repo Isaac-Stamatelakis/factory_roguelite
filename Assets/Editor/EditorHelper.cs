@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Items.Transmutable;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -35,6 +36,17 @@ public static class EditorHelper
         AssetDatabase.CreateFolder("Assets/EditorCreations", folderName);
         AssetDatabase.Refresh();
         return path;
+    }
+
+    public static TransmutableItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
+    {
+        string materialPath = AssetDatabase.GetAssetPath(material);
+        string materialsFolder = Path.GetDirectoryName(materialPath);
+        string transmutationFolderPath = Path.GetDirectoryName(materialsFolder);
+        string itemFolder = Path.Combine(transmutationFolderPath, TransmutableItemGenerator.GEN_FOLDER);
+        string contentFolder = Path.Combine(itemFolder, material.name);
+        string itemPath = Path.Combine(contentFolder, $"{material.name} {state}.asset");
+        return AssetDatabase.LoadAssetAtPath<TransmutableItemObject>(itemPath);
     }
 
     public static void AssignAddressablesLabel(string guid, List<AssetLabel> labels, AssetGroup group)

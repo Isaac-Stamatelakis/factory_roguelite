@@ -10,5 +10,6 @@ namespace Item.GameStage
     public abstract class GameStageObject : ScriptableObject
     {
         public abstract string GetGameStageId();
+        public abstract string GetGameStageName();
     }
 }

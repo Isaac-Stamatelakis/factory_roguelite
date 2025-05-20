@@ -12,6 +12,12 @@ namespace Items
         public ItemObject ItemObject;
         public uint Amount;
         public List<EditorKVP<ItemTag, EditorTagData>> Tags;
+
+        public EditorItemSlot(ItemObject itemObject, uint amount)
+        {
+            ItemObject = itemObject;
+            Amount = amount;
+        }
     }
     [System.Serializable]
     public class EditorKVP<T1, T2>

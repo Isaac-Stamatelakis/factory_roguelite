@@ -369,11 +369,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                     if (serializedItemSlot == null) continue;
                     ItemObject itemObject = itemRegistry.GetItemObject(serializedItemSlot.id);
                     if (!itemObject) continue;
-                    EditorItemSlot editorItemSlot = new EditorItemSlot
-                    {
-                        ItemObject = itemObject,
-                        Amount = serializedItemSlot.amount
-                    };
+                    EditorItemSlot editorItemSlot = new EditorItemSlot(itemObject, serializedItemSlot.amount);
                     itemRecipeObject.Inputs.Add(editorItemSlot);
                 }
                 
@@ -392,12 +388,8 @@ namespace DevTools.CraftingTrees.TreeEditor
                         ItemNodeData itemNodeData = (ItemNodeData)otherNode.NodeData;
                         chance = itemNodeData.Odds;
                     }
-                    RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot
-                    {
-                        ItemObject = itemObject,
-                        Amount = serializedItemSlot.amount,
-                        Chance = chance
-                    };
+
+                    RandomEditorItemSlot editorItemSlot = new RandomEditorItemSlot(itemObject, serializedItemSlot.amount, chance);
                     itemRecipeObject.Outputs.Add(editorItemSlot);
                 }
 
