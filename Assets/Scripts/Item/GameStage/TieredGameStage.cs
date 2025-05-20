@@ -11,5 +11,10 @@ namespace Item.GameStage
         {
             return ((int)Tier).ToString();
         }
+
+        public override string GetGameStageName()
+        {
+            return Tier.ToString();
+        }
     }
 }

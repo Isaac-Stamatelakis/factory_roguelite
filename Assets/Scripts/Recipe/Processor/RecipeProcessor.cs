@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Items;
+using Recipe.Objects;
 using RecipeModule;
 using TileEntity.Instances.Machine;
 using UnityEngine;
@@ -15,6 +16,17 @@ namespace Recipe.Processor {
         public ItemObject DisplayImage;
         public TileEntityLayoutObject LayoutObject;
         public RecipeProcessorRestrictionObject ProcessorRestrictionObject;
+
+        public void RemoveRecipe(int mode, RecipeObject recipeObject)
+        {
+            foreach (RecipeModeCollection collection in RecipeCollections)
+            {
+                if (collection.Mode != mode) continue;
+                if (!collection.RecipeCollection.Recipes.Contains(recipeObject)) continue;
+                collection.RecipeCollection.Recipes.Remove(recipeObject);
+                return;
+            }
+        }
     }
 
     

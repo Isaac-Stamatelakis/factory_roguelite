@@ -41,7 +41,7 @@ public class TransmutableItemGenerator : EditorWindow
         GUILayout.Label($"Generates items for materials inside {MATERIAL_PATH}", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         GUI.enabled = false;
-        GUILayout.TextArea("Generates new materials, adds new states for existing materials and deletes states that no longer exist from existing materials.");
+        GUILayout.TextArea("Generates items for new materials, adds new states for existing materials and deletes states that no longer exist from existing materials.");
         GUI.enabled = true;
         if (GUILayout.Button("Update Material Items"))
         {
