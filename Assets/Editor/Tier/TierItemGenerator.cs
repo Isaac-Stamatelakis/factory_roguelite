@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Item.GameStage;
+using Item.Slot;
 using Items;
 using Recipe;
 using Recipe.Objects;
@@ -156,6 +157,31 @@ namespace EditorScripts.Tier
             }
         }
 
+        protected void AssignBasicItemRecipes(RandomEditorItemSlot output, List<EditorItemSlot> inputs, ulong ticks, ItemGenerationData itemGenerationData)
+        {
+            ApplyItemRecipe(itemGenerationData.WorkBenchRecipeObject);
+            ApplyItemRecipe(itemGenerationData.ConstructorRecipeObject);
+
+            if (!itemGenerationData.ConstructorRecipeObject) return;
+            TileEntity.Tier tier = TileEntity.Tier.Basic;
+            if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage)
+            {
+                tier = tieredGameStage.Tier;
+            }
+            ulong costPerTick = tier.GetMaxEnergyUsage();
+            ulong energyCost = costPerTick * ticks;
+            itemGenerationData.ConstructorRecipeObject.MinimumEnergyPerTick = costPerTick;
+            itemGenerationData.ConstructorRecipeObject.TotalInputEnergy = energyCost;
+            
+            return;
+            void ApplyItemRecipe(ItemRecipeObject itemRecipeObject)
+            {
+                if (!itemRecipeObject) return;
+                itemRecipeObject.Outputs = new List<RandomEditorItemSlot> { output };
+                itemRecipeObject.Inputs = inputs;
+            }
+        }
+
         
 
         protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
@@ -200,7 +226,7 @@ namespace EditorScripts.Tier
         {
             public ItemObject ItemObject;
             public ItemRecipeObject WorkBenchRecipeObject;
-            public RecipeObject ConstructorRecipeObject;
+            public ItemEnergyRecipeObject ConstructorRecipeObject;
         }
         protected class TileEntityItemGenerationData
         {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Item.GameStage;
 using Items;
+using Items.Transmutable;
+using Recipe.Objects;
 using TileEntity;
 using TileEntity.Instances;
 using UnityEditor;
@@ -29,11 +31,19 @@ namespace EditorScripts.Tier.Generators
             if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage)
             {
                 int tier = (int)tieredGameStage.Tier;
-                bonusSpeed = 2.5f * tier;
+                bonusSpeed = 2.5f * tier + 0.25f * tier * tier;;
             }
 
             ladder.speed = 7.5f + bonusSpeed;
 
+            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 16, 1f);
+            
+            ItemObject rodObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, TransmutableItemState.Rod);
+            ItemObject screwObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, TransmutableItemState.Screw);
+            EditorItemSlot rodInput = new EditorItemSlot(rodObject, 6);
+            EditorItemSlot screwInput = new EditorItemSlot(screwObject, 9);
+            List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput, screwInput };
+            AssignBasicItemRecipes(recipeOutput,inputs,50,tileEntityItemGenerationData.ItemGenerationData);
         }
     }
 }

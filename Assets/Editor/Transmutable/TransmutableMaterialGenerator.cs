@@ -26,7 +26,7 @@ public class TransmutableItemGenerator : EditorWindow
     private const string SHADER_OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/ShaderOutlineWrapper.asset";
     private const string STONE_COLLECTION_PATH = "Assets/Objects/TransmutableItems/OreSource/StoneCollection.asset";
     private const string GAMESTAGE_PATH = "Assets/Objects/TransmutableItems/OreSource/ORE.asset";
-    private const string GEN_PATH = "Items";
+    public const string GEN_FOLDER = "Items";
     private const string ORE_PATH = "Ores";
     private const string ORE_OVERLAY_NAME = "_Overlay";
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
@@ -99,10 +99,10 @@ public class TransmutableItemGenerator : EditorWindow
             Debug.LogWarning($"Material '{material}' options not set.");
             return;
         }
-        string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
+        string instancePath = Path.Combine(transmutableItemFolder, GEN_FOLDER);
         if (!Directory.Exists(instancePath))
         {
-            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_PATH);
+            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_FOLDER);
         }
         string materialItemsPath = Path.Combine(instancePath, material.name);
         if (!Directory.Exists(materialItemsPath))
@@ -174,19 +174,7 @@ public class TransmutableItemGenerator : EditorWindow
     {
         return Path.Combine(materialItemsPath, itemName + ".asset");
     }
-
-    public static ItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
-    {
-        string transmutableItemFolder = GetMaterialItemPath(material);
-        string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
-        if (!Directory.Exists(instancePath))
-        {
-            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_PATH);
-        }
-        string materialItemsPath = Path.Combine(instancePath, material.name);
-        string assetPath = GetStateAssetPath(materialItemsPath, state.ToString());
-        return AssetDatabase.LoadAssetAtPath<ItemObject>(assetPath);
-    }
+    
 
     private void UpdateOres(bool reset)
     {
@@ -211,7 +199,7 @@ public class TransmutableItemGenerator : EditorWindow
     private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
     {
         string transmutableItemFolder = GetMaterialItemPath(material);
-        string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
+        string instancePath = Path.Combine(transmutableItemFolder, GEN_FOLDER);
         if (!Directory.Exists(instancePath)) return;
         string materialItemsPath = Path.Combine(instancePath, material.name);
         if (!Directory.Exists(materialItemsPath)) return;
