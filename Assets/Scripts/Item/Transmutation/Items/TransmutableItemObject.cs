@@ -53,6 +53,11 @@ namespace Items.Transmutable {
         {
             return material?.gameStageObject;
         }
+
+        public override void SetGameStageObject(GameStageObject gameStageObject)
+        {
+            // Cannot set :)
+        }
     }
 }
 

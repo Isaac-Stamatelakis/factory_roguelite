@@ -43,6 +43,11 @@ namespace Items {
             return Stage;
         }
 
+        public override void SetGameStageObject(GameStageObject gameStageObject)
+        {
+            Stage = gameStageObject;
+        }
+
         public SpriteCollection[] SpriteCollectionOverlays => SpriteCollection;
 
         public Color Color => ColorScriptableObject?.Color ?? Color.white;

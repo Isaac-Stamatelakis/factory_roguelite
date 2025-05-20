@@ -8,9 +8,6 @@ using UnityEngine.UI;
 namespace Items {
     public static class ItemDisplayUtils
     {
-
-        public const string TIER_REPLACE_VALUE = "{TIER}";
-        
         private static readonly string[] suffixes = {"k","M","B","T"};
 
         public static string FormatAmountText(uint amount,bool oneInvisible = true, ItemState itemState = ItemState.Solid)

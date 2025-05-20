@@ -7,13 +7,13 @@ namespace TileEntity.Instances {
     [CreateAssetMenu(fileName = "New Door", menuName = "Tile Entity/Ladder")]
     public class Ladder : TileEntityObject, IClimableTileEntity
     {
-        public int speed;
+        public float speed;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return null;
         }
 
-        public int GetSpeed()
+        public float GetSpeed()
         {
             return speed;
         }

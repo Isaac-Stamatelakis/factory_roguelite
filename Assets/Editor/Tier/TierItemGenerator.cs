@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Item.GameStage;
 using Items;
@@ -69,7 +70,7 @@ namespace EditorScripts.Tier
             }
         }
 
-        protected ItemGenerationData GenerateDefaultItemData(string itemName, GameStageObject gameStageObject, ItemType itemType, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0)
+        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0)
         {
             string folder = TryCreateContentFolder(itemName);
             ItemObject current;
@@ -88,10 +89,16 @@ namespace EditorScripts.Tier
             if (!current)
             {
                 current = ScriptableObject.CreateInstance<TileItem>();
-                current.name = $"{ItemDisplayUtils.TIER_REPLACE_VALUE} Ladder";
-                current.id = $"{itemName}_{gameStageObject.GetGameStageId()}".ToLower();
+                current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
                 AssetDatabase.CreateAsset(current,Path.Combine(folder,current.name + ".asset"));
+                string assetPath = AssetDatabase.GetAssetPath(current);
+                string guid = AssetDatabase.AssetPathToGUID(assetPath);
+                EditorHelper.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
             }
+            
+            current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
+            current.id = $"{tierItemInfoObject.PrimaryMaterial.name}_{itemName}".ToLower();
+            current.SetGameStageObject(tierItemInfoObject.GameStageObject);
             GetTierItemRecipes(folder, out ItemRecipeObject workBenchRecipe, out ItemEnergyRecipeObject constructorRecipe);
             switch (recipeGenerationMode)
             {
@@ -151,9 +158,9 @@ namespace EditorScripts.Tier
 
         
 
-        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, GameStageObject gameStageObject, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
+        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, RecipeGenerationMode recipeGenerationMode, int recipeMode = 0) where T : TileEntityObject
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName, gameStageObject,ItemType.TileItem, recipeGenerationMode,recipeMode);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem, recipeGenerationMode,recipeMode);
             string folder = Path.Combine(generationPath, itemName);
             T tileEntityObject = GetFirstObjectInFolder<T>(folder);
             if (!tileEntityObject)

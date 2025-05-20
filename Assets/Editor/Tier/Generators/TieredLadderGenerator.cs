@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Item.GameStage;
 using Items;
 using TileEntity;
 using TileEntity.Instances;
@@ -17,9 +18,21 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder",tierItemInfoObject.GameStageObject,RecipeGenerationMode.All);
+            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder",RecipeGenerationMode.All);
             TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
+            tileItem.tile = defaultValues.Tiles.Ladder;
+            tileItem.tileType = TileType.Object;
+
+            Ladder ladder = (Ladder)tileEntityItemGenerationData.TileEntityObject;
+            float bonusSpeed = 0;
+            if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage)
+            {
+                int tier = (int)tieredGameStage.Tier;
+                bonusSpeed = 2.5f * tier;
+            }
+
+            ladder.speed = 7.5f + bonusSpeed;
 
         }
     }

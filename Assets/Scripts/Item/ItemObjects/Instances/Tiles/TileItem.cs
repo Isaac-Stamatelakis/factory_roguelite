@@ -76,6 +76,11 @@ public class TileItem : ItemObject, IPlacableItem
         return gameStage;
     }
 
+    public override void SetGameStageObject(GameStageObject gameStageObject)
+    {
+        gameStage = gameStageObject;
+    }
+
     public override Sprite getSprite()
     {
         return GetDefaultSprite(tile);

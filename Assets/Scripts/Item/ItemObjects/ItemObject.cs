@@ -11,6 +11,7 @@ namespace Items {
         Stack,
         Animated
     }
+    
     public abstract class ItemObject : ScriptableObject {
         [Header("Unique identifier for this item")]
         public string id;
@@ -34,6 +35,12 @@ namespace Items {
         public abstract Sprite getSprite();
         public abstract ItemDisplayType? getDisplayType();
         public abstract GameStageObject GetGameStageObject();
+        /// <summary>
+        /// Sets game stage object of item object
+        /// </summary>
+        /// <remarks>This is only abstract to prevent bugs. Some ItemObject implementations eg TransmutationItemObject do not technically require this method</remarks>
+        /// <param name="gameStageObject"></param>
+        public abstract void SetGameStageObject(GameStageObject gameStageObject);
     }
 
     [System.Serializable]
