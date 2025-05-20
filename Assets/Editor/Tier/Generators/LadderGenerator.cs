@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,14 +21,14 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder",RecipeGenerationMode.All);
+            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Ladder>("Ladder");
             TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
             tileItem.tile = defaultValues.Tiles.Ladder;
             tileItem.tileType = TileType.Object;
 
             Ladder ladder = (Ladder)tileEntityItemGenerationData.TileEntityObject;
-            float bonusSpeed = 0;
+            float bonusSpeed = 0; 
             if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage)
             {
                 int tier = (int)tieredGameStage.Tier;
@@ -35,13 +36,10 @@ namespace EditorScripts.Tier.Generators
             }
 
             ladder.speed = 7.5f + bonusSpeed;
-
             RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 16, 1f);
             
-            ItemObject rodObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, TransmutableItemState.Rod);
-            ItemObject screwObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, TransmutableItemState.Screw);
-            EditorItemSlot rodInput = new EditorItemSlot(rodObject, 6);
-            EditorItemSlot screwInput = new EditorItemSlot(screwObject, 9);
+            EditorItemSlot rodInput = StateToItem(TransmutableItemState.Rod, 6);
+            EditorItemSlot screwInput = StateToItem(TransmutableItemState.Screw, 9);
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput, screwInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,tileEntityItemGenerationData.ItemGenerationData);
         }

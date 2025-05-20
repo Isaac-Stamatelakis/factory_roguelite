@@ -68,8 +68,8 @@ namespace EditorScripts.Tier
                 if (!tierItemInfoObject.GameStageObject) continue;
                 GenerateMaterialItems(tierItemInfoObject,defaults);
             }
-
-            AssetDatabase.Refresh();
+            AssetDatabase.SaveAssets();
+            
             Debug.Log("Complete");
         }
 
@@ -85,14 +85,15 @@ namespace EditorScripts.Tier
 
             List<TierItemGenerator> generators = new List<TierItemGenerator>
             {
-                CreateGenerator<TieredLadderGenerator>()
+                CreateGenerator<TieredLadderGenerator>(),
+                CreateGenerator<TieredChestGenerator>()
             };
 
             foreach (TierItemGenerator generator in generators)
             {
                 generator.Generate();
             }
-
+            
             return;
             TierItemGenerator CreateGenerator<T>() where T : TierItemGenerator
             {
