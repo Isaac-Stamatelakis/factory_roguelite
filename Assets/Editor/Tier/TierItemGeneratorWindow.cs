@@ -6,10 +6,12 @@ using System.IO;
 using Items.Transmutable;
 using Items;
 using System;
+using System.Diagnostics;
 using EditorScripts.Tier.Generators;
 using Item.GameStage;
 using Item.Slot;
 using NUnit.Framework;
+using Tier.Generators.Defaults;
 using Tiles;
 using Tiles.Options.Overlay;
 using UnityEditor.AddressableAssets;
@@ -18,6 +20,7 @@ using UnityEditor.VersionControl;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using World.Cave.Collections;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace EditorScripts.Tier
@@ -59,6 +62,9 @@ namespace EditorScripts.Tier
                 Directory.CreateDirectory(GEN_PATH);
                 AssetDatabase.Refresh();
             }
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             Debug.Log("Generating Tier Items & Recipes");
             foreach (string guid in guids)
             {
@@ -68,9 +74,8 @@ namespace EditorScripts.Tier
                 if (!tierItemInfoObject.GameStageObject) continue;
                 GenerateMaterialItems(tierItemInfoObject,defaults);
             }
-            
-            
-            Debug.Log("Complete");
+            stopwatch.Stop();
+            Debug.Log($"Tier Item & Recipe Generation Completed in {stopwatch.Elapsed.Seconds:F2}s");
         }
 
         private void GenerateMaterialItems(TierItemInfoObject tierItemInfoObject, TierItemGeneratorDefaults defaults)
@@ -83,13 +88,23 @@ namespace EditorScripts.Tier
                 AssetDatabase.CreateFolder(GEN_PATH, gameStageName);
             }
 
-            List<TierItemGenerator> generators = new List<TierItemGenerator>
+            List<TierItemGenerator> tileEntityGenerators = new List<TierItemGenerator>
             {
                 CreateGenerator<TieredLadderGenerator>(),
                 CreateGenerator<TieredChestGenerator>(),
                 CreateGenerator<PlatformGenerator>(),
-                CreateGenerator<TorchGenerator>(),
+                CreateGenerator<TorchGenerator>()
             };
+
+            List<TierItemGenerator> itemGenerators = new List<TierItemGenerator>
+            {
+                CreateGenerator<MachineFrameGenerator>(),
+                CreateGenerator<RobotArmGenerator>(),
+            };
+
+            List<TierItemGenerator> generators = new List<TierItemGenerator>();
+            generators.AddRange(tileEntityGenerators);
+            generators.AddRange(itemGenerators);
 
             foreach (TierItemGenerator generator in generators)
             {

@@ -8,6 +8,7 @@ using Items.Transmutable;
 using Recipe;
 using Recipe.Objects;
 using Recipe.Processor;
+using Tier.Generators.Defaults;
 using TileEntity;
 using TileEntity.Instances;
 using UnityEditor;
@@ -72,40 +73,37 @@ namespace EditorScripts.Tier
             }
         }
 
-        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, int recipeMode = 0)
+        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, int recipeMode = 0, bool useTierName = false)
         {
             string folder = TryCreateContentFolder(itemName);
-            ItemObject current;
-            switch (itemType)
+            ItemObject current = itemType switch
             {
-                case ItemType.Crafting:
-                    current = GetFirstObjectInFolder<ItemObject>(folder);
-                    break;
-                case ItemType.TileItem:
-                    current = GetFirstObjectInFolder<TileItem>(folder);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null);
-            }
-            
+                ItemType.Crafting => GetFirstObjectInFolder<ItemObject>(folder),
+                ItemType.TileItem => GetFirstObjectInFolder<TileItem>(folder),
+                _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
+            };
+
             if (!current)
             {
-                current = ScriptableObject.CreateInstance<TileItem>();
-                current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
+                current = itemType switch
+                {
+                    ItemType.Crafting => ScriptableObject.CreateInstance<CraftingItem>(),
+                    ItemType.TileItem => ScriptableObject.CreateInstance<TileItem>(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
+                };
+
+                current.name = GetItemName();
                 AssetDatabase.CreateAsset(current,Path.Combine(folder,current.name + ".asset"));
                 string assetPath = AssetDatabase.GetAssetPath(current);
                 string guid = AssetDatabase.AssetPathToGUID(assetPath);
                 EditorHelper.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
             }
-            
-            
-
             TileEntity.Tier tier = TileEntity.Tier.Basic;
             if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage) tier = tieredGameStage.Tier;
 
             RecipeGenerationMode recipeGenerationMode = tier > TileEntity.Tier.Master ? RecipeGenerationMode.Constructor : RecipeGenerationMode.All;
-            current.name = $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
-            current.id = $"{tierItemInfoObject.PrimaryMaterial.name}_{itemName}".ToLower();
+            current.name = GetItemName();
+            current.id = current.name.ToLower().Replace(" ", "_");
             current.SetGameStageObject(tierItemInfoObject.GameStageObject);
             EditorUtility.SetDirty(current);
             
@@ -132,6 +130,13 @@ namespace EditorScripts.Tier
                 WorkBenchRecipeObject = workBenchRecipe,
                 ConstructorRecipeObject = constructorRecipe
             };
+
+            string GetItemName()
+            {
+                return useTierName 
+                    ? $"{tierItemInfoObject.GameStageObject?.GetGameStageName()} {itemName}" 
+                    : $"{tierItemInfoObject.PrimaryMaterial.name} {itemName}";
+            }
 
             T CreateRecipe<T>(RecipeProcessor recipeProcessor) where T : RecipeObject
             {
@@ -198,9 +203,9 @@ namespace EditorScripts.Tier
 
         
 
-        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, int recipeMode = 0) where T : TileEntityObject
+        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, int recipeMode = 0, bool useTierName = false) where T : TileEntityObject
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem,recipeMode);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem,recipeMode,useTierName:useTierName);
             string folder = Path.Combine(generationPath, itemName);
             T tileEntityObject = GetFirstObjectInFolder<T>(folder);
             if (!tileEntityObject)
@@ -247,6 +252,11 @@ namespace EditorScripts.Tier
             public ItemObject ItemObject;
             public ItemRecipeObject WorkBenchRecipeObject;
             public ItemEnergyRecipeObject ConstructorRecipeObject;
+
+            public RandomEditorItemSlot ToRandomEditorSlot(uint amount, float chance = 1f)
+            {
+                return new RandomEditorItemSlot(ItemObject, amount, chance);
+            }
         }
         protected class TileEntityItemGenerationData
         {
