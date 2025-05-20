@@ -13,25 +13,29 @@ using UnityEngine;
 
 namespace EditorScripts.Tier.Generators
 {
-    public class MachineFrameGenerator : TierItemGenerator
+    public class MotorGenerator : TierItemGenerator
     {
-        public MachineFrameGenerator(TierItemInfoObject tierItemInfoObject, TierItemGeneratorDefaults defaultValues, string generationPath) : base(tierItemInfoObject, defaultValues, generationPath)
+        public MotorGenerator(TierItemInfoObject tierItemInfoObject, TierItemGeneratorDefaults defaultValues, string generationPath) : base(tierItemInfoObject, defaultValues, generationPath)
         {
         }
 
         public override void Generate()
         {
-            var itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.MachineFrame,ItemType.TileItem,useTierName:true);
-            TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
-            tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
-            tileItem.tile = defaultValues.Tiles.MachineFrame;
-            tileItem.tileType = TileType.Object;
-
+            var itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.Motor,ItemType.Crafting,useTierName:true);
+            ItemObject itemObject = itemGenerationData.ItemObject;
+            itemObject.SpriteOverlays = new SpriteOverlay[1];
+            itemObject.SpriteOverlays[0] = new SpriteOverlay
+            {
+                Color = tierItemInfoObject.PrimaryMaterial.color,
+                Sprite = defaultValues.ItemSprites.MotorSprite
+            };
+            
             RandomEditorItemSlot recipeOutput = itemGenerationData.ToRandomEditorSlot(1);
             
             EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 8);
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { plateInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,itemGenerationData);
         }
+        
     }
 }

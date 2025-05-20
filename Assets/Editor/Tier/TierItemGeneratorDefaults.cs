@@ -66,5 +66,6 @@ namespace Tier.Generators.Defaults
     public class ItemSprites
     {
         public RobotArmGenerator.RobotArmSprites RobotArmSprites;
+        public Sprite MotorSprite;
     }
 }

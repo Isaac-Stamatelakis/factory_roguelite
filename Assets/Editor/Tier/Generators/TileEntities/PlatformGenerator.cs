@@ -21,7 +21,7 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData("Platform",ItemType.TileItem);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.Platform,ItemType.TileItem);
             TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
             tileItem.tile = defaultValues.Tiles.Platform;

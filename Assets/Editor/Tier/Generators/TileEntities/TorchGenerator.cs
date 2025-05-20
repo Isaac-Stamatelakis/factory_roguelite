@@ -8,6 +8,7 @@ using Recipe.Objects;
 using Tier.Generators.Defaults;
 using TileEntity;
 using TileEntity.Instances;
+using Tiles;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,13 +22,18 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Torch>("Torch");
+            TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Torch>(TierGeneratedItemType.Torch);
             TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
             tileItem.tile = defaultValues.Tiles.TorchRod;
             tileItem.tileOptions.Overlay = defaultValues.Tiles.TorchSource;
             tileItem.tileType = TileType.Object;
-
+            TilePlacementOptions placementOptions = tileItem.tileOptions.placementRequirements;
+            placementOptions.Below = true;
+            placementOptions.BackGround = true;
+            placementOptions.BreakWhenBroken = true;
+            placementOptions.Side = true;
+            
             Torch torch = (Torch)tileEntityItemGenerationData.TileEntityObject;
             torch.intensity = 1;
             torch.radius = 7;

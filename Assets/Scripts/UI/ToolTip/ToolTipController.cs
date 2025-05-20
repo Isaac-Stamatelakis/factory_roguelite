@@ -92,7 +92,7 @@ namespace UI.ToolTip {
             if (toolTipType == ToolTipType.UI)
             {
                 currentToolTip.setText(text);
-                SetToolTipPosition(currentToolTip.transform as RectTransform,-0.5f);
+                SetToolTipPosition(currentToolTip.transform as RectTransform);
                 return;
             }
             
@@ -103,13 +103,16 @@ namespace UI.ToolTip {
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
             
-            SetToolTipPosition(newToolTip.transform as RectTransform,0);
+            RectTransform rectTransform  = newToolTip.GetComponent<RectTransform>();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            SetPivot(rectTransform);
+            SetToolTipPosition(rectTransform);
             
             toolTipType = ToolTipType.UI;
 
             return;
 
-            void SetToolTipPosition(RectTransform toolTipTransform, float viewPortOffset)
+            void SetPivot(RectTransform toolTipTransform)
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     toolTipTransform.parent as RectTransform,
@@ -117,22 +120,29 @@ namespace UI.ToolTip {
                     canvasCamera,
                     out Vector2 localPos
                 );
-                LayoutRebuilder.ForceRebuildLayoutImmediate(toolTipTransform);
+                
                 Vector3 rightEdgeWorldPos = toolTipTransform.TransformPoint(
                     new Vector3(localPos.x + toolTipTransform.sizeDelta.x, 0, 0)
                 );
                 Vector3 rightEdgeViewport = canvasCamera.WorldToViewportPoint(rightEdgeWorldPos);
-                float xViewPort = rightEdgeViewport.x + viewPortOffset; // View port is sometimes witihin range [-0.5f, 0.5f] or if already existing [0,1f] not sure why
-                // For some reason my viewport calculation returns a viewport in range [-0.5f,0.5f]
-                bool reverse = xViewPort > 0.4f; // Choose a value a bit less than 0.5f
+                bool reverse = rightEdgeViewport.x > 0.4f; // Choose a value a bit less than 0.5f
                 if (reverse)
                 {
-                    var pivot = toolTipTransform.pivot;
+                    Vector2 pivot = toolTipTransform.pivot;
                     pivot.x = 1;
                     toolTipTransform.pivot = pivot;
                 }
-           
-                toolTipTransform.anchoredPosition = localPos+ (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
+            }
+            void SetToolTipPosition(RectTransform toolTipTransform)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    toolTipTransform.parent as RectTransform,
+                    canvasCamera.WorldToScreenPoint(position),
+                    canvasCamera,
+                    out Vector2 localPos
+                );
+                Vector2 pivot = toolTipTransform.pivot;
+                toolTipTransform.anchoredPosition = localPos+ (useOffset ? (Mathf.Approximately(pivot.x, 1) ? -offset : offset) : Vector2.zero);
             }
         }
         

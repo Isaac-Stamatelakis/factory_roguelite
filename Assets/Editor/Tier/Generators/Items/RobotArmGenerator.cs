@@ -21,7 +21,7 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            var itemGenerationData = GenerateDefaultItemData("Robot Arm",ItemType.Crafting,useTierName:true);
+            var itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.RobotArm,ItemType.Crafting,useTierName:true);
             ItemObject itemObject = itemGenerationData.ItemObject;
             RobotArmSprites robotArmSprites = defaultValues.ItemSprites.RobotArmSprites;
             itemObject.SpriteOverlays = new SpriteOverlay[2];
@@ -37,9 +37,11 @@ namespace EditorScripts.Tier.Generators
             };
             
             RandomEditorItemSlot recipeOutput = itemGenerationData.ToRandomEditorSlot(1);
+            ItemObject motorItem = LookUpGeneratedItem(TierGeneratedItemType.Motor);
+            EditorItemSlot motorInput = new EditorItemSlot(motorItem, 2);
             
             EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 8);
-            List<EditorItemSlot> inputs = new List<EditorItemSlot> { plateInput };
+            List<EditorItemSlot> inputs = new List<EditorItemSlot> { motorInput, plateInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,itemGenerationData);
         }
 

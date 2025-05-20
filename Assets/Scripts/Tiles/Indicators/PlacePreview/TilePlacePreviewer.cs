@@ -67,7 +67,7 @@ namespace TileMaps.Previewer {
         }
 
         // Update is called once per frame
-        void FixedUpdate()
+        void Update()
         {
             if (CanvasController.Instance.BlockKeyInput)
             {

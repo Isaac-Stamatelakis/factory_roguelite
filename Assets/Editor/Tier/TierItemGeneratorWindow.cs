@@ -99,6 +99,7 @@ namespace EditorScripts.Tier
             List<TierItemGenerator> itemGenerators = new List<TierItemGenerator>
             {
                 CreateGenerator<MachineFrameGenerator>(),
+                CreateGenerator<MotorGenerator>(),
                 CreateGenerator<RobotArmGenerator>(),
             };
 
