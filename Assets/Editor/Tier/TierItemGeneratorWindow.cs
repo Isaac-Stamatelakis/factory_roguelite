@@ -24,9 +24,9 @@ namespace EditorScripts.Tier
 {
     public class TierItemGeneratorWindow : EditorWindow
     {
-        private const string TIER_INFO_PATH = "Assets/Objects/Tiers/TierDeclariations";
-        private const string GEN_PATH = "Assets/Objects/Tiers/Generated";
-        private const string DEFAULT_VALUES_PATH = "Assets/Objects/Tiers/DefaultValues.asset";
+        private const string TIER_INFO_PATH = "Assets/Objects/TierGenerator/TierDeclariations";
+        private const string GEN_PATH = "Assets/Objects/TierGenerator/Generated";
+        private const string DEFAULT_VALUES_PATH = "Assets/Objects/TierGenerator/DefaultValues.asset";
 
         [MenuItem("Tools/Item Constructors/Tiers")]
         public static void ShowWindow()
@@ -86,7 +86,9 @@ namespace EditorScripts.Tier
             List<TierItemGenerator> generators = new List<TierItemGenerator>
             {
                 CreateGenerator<TieredLadderGenerator>(),
-                CreateGenerator<TieredChestGenerator>()
+                CreateGenerator<TieredChestGenerator>(),
+                CreateGenerator<PlatformGenerator>(),
+                CreateGenerator<TorchGenerator>(),
             };
 
             foreach (TierItemGenerator generator in generators)

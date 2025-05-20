@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Conduits.Ports;
 using Items;
 using Recipe.Processor;
+using Tiles.Options.Overlay;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Tilemaps;
@@ -31,6 +32,9 @@ public class TierTiles
     public Tile Chest;
     public Tile Crate;
     public Tile SingleTank;
+    public TileBase Platform;
+    public TileBase TorchRod;
+    public TileOverlay TorchSource;
 }
 [System.Serializable]
 public class RecipeInputs
