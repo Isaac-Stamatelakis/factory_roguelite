@@ -19,11 +19,11 @@ namespace Tiles
 
         public TileBase GetDefaultTile()
         {
-            const int allDirectionState =   (int)ConduitDirectionState.Left
+            const int ALL_DIRECTION_STATE =   (int)ConduitDirectionState.Left
                                             + (int)ConduitDirectionState.Right
                                             + (int)ConduitDirectionState.Up
                                             + (int)ConduitDirectionState.Down;
-            return Tiles[allDirectionState];
+            return Tiles[ALL_DIRECTION_STATE];
         }
 
         public int GetStateAmount()

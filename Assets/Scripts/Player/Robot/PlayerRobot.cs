@@ -857,7 +857,7 @@ namespace Player {
                 Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
                 Vector2 dif = tileCenter - (Vector2)transform.position;
                 bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
-                if (standingOnGround && PlaceTile.tileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
+                if (standingOnGround && TilePlaceUtils.TileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
             }
             if (hammerTileState is not (HammerTileState.Slab or HammerTileState.Stair)) return false;
             StartCoroutine(AutoJumpCoroutine());

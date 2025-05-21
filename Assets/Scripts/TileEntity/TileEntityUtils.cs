@@ -287,7 +287,7 @@ namespace TileEntity {
         public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem, bool includeSelf = true)
         {
             TileType tileType = tileItem.tileType;
-            TileMapType tileMapType = tileType.toTileMapType();
+            TileMapType tileMapType = tileType.ToTileMapType();
             TileMapLayer layer = tileMapType.ToLayer();
             
             IChunk chunk = tileEntityInstance.GetChunk();
@@ -331,7 +331,7 @@ namespace TileEntity {
 
         public static List<T> BFSTileEntityComponent<T>(ITileEntityInstance tileEntityInstance, TileType tileType)
         {
-            TileMapType tileMapType = tileType.toTileMapType();
+            TileMapType tileMapType = tileType.ToTileMapType();
             TileMapLayer layer = tileMapType.ToLayer();
             
             IChunk chunk = tileEntityInstance.GetChunk();

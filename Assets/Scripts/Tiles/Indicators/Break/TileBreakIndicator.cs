@@ -48,7 +48,7 @@ namespace Tiles {
             tilemap.SetTile(vector3Int,breakTile);
             if (!empty) return;
             int rotation = random.Next(0, 4) * 90;
-            PlaceTile.SetTileMapMatrix(tilemap,vector3Int,rotation,false);
+            TilePlaceUtils.SetTileMapMatrix(tilemap,vector3Int,rotation,false);
         }
 
         private void PlaceHammerTileBreak(BreakHammerTileState hammerTileState, float breakRatio, Vector2Int cellPosition, BaseTileData baseTileData)
@@ -57,7 +57,7 @@ namespace Tiles {
             Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
             TileBase breakTile = breakStateTileSingle.GetTileAtBreakPercent(breakRatio);
             tilemap.SetTile(vector3Int,breakTile);
-            PlaceTile.SetTileMapMatrix(tilemap,vector3Int,baseTileData.rotation,baseTileData.mirror);
+            TilePlaceUtils.SetTileMapMatrix(tilemap,vector3Int,baseTileData.rotation,baseTileData.mirror);
         }
         
 

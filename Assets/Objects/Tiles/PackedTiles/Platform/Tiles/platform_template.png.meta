@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 31d954a0a1681cf429f70c4b8c1293cb
+guid: a1a148754512dbf4b9314e06147a82f3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,7 +117,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: generic_template_0
+      name: platform_template_0
       rect:
         serializedVersion: 2
         x: 0
@@ -135,14 +135,14 @@ TextureImporter:
         - {x: 8, y: 8}
       tessellationDetail: 0
       bones: []
-      spriteID: 45ebbce9c2e064441a5d668492b2689e
-      internalID: -1603022724
+      spriteID: fb610a57d8f49724d8c5eb5bec299076
+      internalID: -743911583
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: generic_template_1
+      name: platform_template_1
       rect:
         serializedVersion: 2
         x: 16
@@ -160,18 +160,18 @@ TextureImporter:
         - {x: 8, y: 8}
       tessellationDetail: 0
       bones: []
-      spriteID: 9818053b2d4f71241a76e4fd6e2018dd
-      internalID: -279057036
+      spriteID: c9e9c38f4bed0e84fb21cc683a9e6218
+      internalID: 522427960
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: generic_template_2
+      name: platform_template_2
       rect:
         serializedVersion: 2
-        x: 32
-        y: 32
+        x: 0
+        y: 16
         width: 16
         height: 16
       alignment: 0
@@ -185,41 +185,14 @@ TextureImporter:
         - {x: 8, y: 8}
       tessellationDetail: 0
       bones: []
-      spriteID: 68d004f6fb7d69549b5823d41932ae91
-      internalID: -2039786459
+      spriteID: d2d8bf31f1d38ef4ba1a302022f72070
+      internalID: 931562323
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: generic_template_3
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 16
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape:
-      - - {x: 6, y: 8}
-        - {x: -8, y: -6}
-        - {x: -8, y: -8}
-        - {x: -5, y: -8}
-        - {x: 8, y: 5}
-        - {x: 8, y: 8}
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5888af9be2ed84549aee60ab3ba71eba
-      internalID: 849629873
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: generic_template_4
+      name: platform_template_3
       rect:
         serializedVersion: 2
         x: 16
@@ -239,35 +212,14 @@ TextureImporter:
         - {x: -6, y: 8}
       tessellationDetail: 0
       bones: []
-      spriteID: 208ac70b041675148a42fa9c335f1d08
-      internalID: -635995199
+      spriteID: 153d3dc705e1c4c4e9afd30c2800f567
+      internalID: -1413342967
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: generic_template_5
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 16
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 74c9bbdec0b0e374bb25f05697a890c5
-      internalID: 179046569
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: generic_template_6
+      name: platform_template_4
       rect:
         serializedVersion: 2
         x: 0
@@ -281,8 +233,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7a7526ec8eefef04c88f955b9d2975a2
-      internalID: 227120102
+      spriteID: b9e7c604704fceb4f984d2a815c5edcc
+      internalID: -1418251158
       vertices: []
       indices: 
       edges: []
@@ -298,13 +250,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      generic_template_0: -1603022724
-      generic_template_1: -279057036
-      generic_template_2: -2039786459
-      generic_template_3: 849629873
-      generic_template_4: -635995199
-      generic_template_5: 179046569
-      generic_template_6: 227120102
+      platform_template_0: -743911583
+      platform_template_1: 522427960
+      platform_template_2: 931562323
+      platform_template_3: -1413342967
+      platform_template_4: -1418251158
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

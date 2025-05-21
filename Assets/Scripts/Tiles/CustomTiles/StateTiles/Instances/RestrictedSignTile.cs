@@ -19,10 +19,10 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             // If exists tile on bottom place bottom
             // If exists tile on background place background
             // If no condition return -1
-            bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
-            bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
-            bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
-            bool up = PlaceTile.tileInDirection(position,Direction.Up,TileMapLayer.Base);
+            bool left = TilePlaceUtils.TileInDirection(position,Direction.Left,TileMapLayer.Base);
+            bool right = TilePlaceUtils.TileInDirection(position,Direction.Right,TileMapLayer.Base);
+            bool down = TilePlaceUtils.TileInDirection(position,Direction.Down,TileMapLayer.Base);
+            bool up = TilePlaceUtils.TileInDirection(position,Direction.Up,TileMapLayer.Base);
             
             // Priotize placing down
             int mousePosition = MousePositionUtils.GetMousePlacement(position);

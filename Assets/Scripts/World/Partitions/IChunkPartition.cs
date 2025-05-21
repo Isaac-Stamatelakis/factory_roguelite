@@ -30,7 +30,7 @@ namespace Chunks.Partitions {
         public ITileEntityInstance GetTileEntity(Vector2Int positionInPartition);
         public List<T> GetTileEntitiesOfType<T>();
         public void GetTileEntityObjects(HashSet<TileEntityObject> objects);
-        public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
+        public TileItem GetTileItem(Vector2Int positionInPartition,TileMapLayer layer);
         public void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
         public void AddFluidDataToChunk(FluidCell[][] chunkFluidCells);
         public PartitionFluidData GetFluidData();

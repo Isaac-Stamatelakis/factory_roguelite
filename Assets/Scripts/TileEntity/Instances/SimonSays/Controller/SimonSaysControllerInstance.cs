@@ -185,7 +185,7 @@ namespace TileEntity.Instances.SimonSays {
             };
             foreach (Vector2Int position in brickPlacePositions) {
                 Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
-                PlaceTile.placeTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem);
+                TilePlaceUtils.PlaceTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem);
             }
         }
 
@@ -199,7 +199,7 @@ namespace TileEntity.Instances.SimonSays {
                 Vector2Int.down,
             };
             TileItem chestTile = tileEntityObject.ChestTile;
-            IWorldTileMap chestLayerTileMap = closedChunkSystem.GetTileMap(chestTile.tileType.toTileMapType());
+            IWorldTileMap chestLayerTileMap = closedChunkSystem.GetTileMap(chestTile.tileType.ToTileMapType());
             for (var index = 0; index < chestPlacePositions.Count; index++)
             {
                 var position = chestPlacePositions[index];
@@ -244,7 +244,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
-                PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
+                TilePlaceUtils.PlaceTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
             }
         }
         

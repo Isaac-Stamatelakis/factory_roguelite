@@ -69,10 +69,10 @@ namespace TileMaps {
                 return;
             }
             Vector2 spriteSize =  Global.GetSpriteSize(itemSprites[0]);
-            if (PlaceTile.mod(spriteSize.x,2) == 0) {
+            if (TilePlaceUtils.Mod(spriteSize.x,2) == 0) {
                 realXPosition += 0.25f;
             }
-            if (PlaceTile.mod(spriteSize.y,2) == 0) {
+            if (TilePlaceUtils.Mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
             ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.GetEntityContainer());
@@ -139,7 +139,7 @@ namespace TileMaps {
                 DeleteTileEntityFromConduit(position);
             }
             Vector3Int vector = new Vector3Int(position.x,position.y,0);
-            tilemap.SetTile(vector, null);
+            RemoveTile(vector.x,vector.y);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition, TileMapLayer.Base);
             
             WriteTile(partition,tilePositionInPartition,null);
@@ -298,7 +298,7 @@ namespace TileMaps {
                 return;
             }
    
-            PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
+            TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
 
         protected void PlaceOverlayTile(TileOverlay tileOverlay, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
@@ -385,7 +385,7 @@ namespace TileMaps {
             Vector2 worldPosition = tilemap.CellToWorld((Vector3Int)position);
             
             FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), baseTileData.rotation);
-            if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
+            if (!TilePlaceUtils.BaseTilePlaceable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
             {
                 return;
             }
@@ -394,7 +394,7 @@ namespace TileMaps {
             bool updateOnRotate = spriteSize.x != spriteSize.y;
             if (updateOnRotate) UpdateListeners(position,tileItem);
             
-            PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
+            TilePlaceUtils.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
             ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
@@ -439,7 +439,7 @@ namespace TileMaps {
             if (tile is IStateRotationTile)
             {
                 // Switching to a non-state tile will fuck up the rotation of state tiles so have to reset it to 0
-                PlaceTile.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
+                TilePlaceUtils.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
             }
             
             closedChunkSystem.BreakIndicator.RemoveBreak(position);

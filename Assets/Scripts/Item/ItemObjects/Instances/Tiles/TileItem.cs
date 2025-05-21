@@ -13,6 +13,7 @@ using UnityEngine.AddressableAssets;
 using Items;
 using Tiles.CustomTiles.IdTiles;
 using Tiles.Fluid.Simulation;
+using Unity.VisualScripting;
 
 public enum TileMovementType
 {
@@ -27,7 +28,7 @@ public enum TileType {
     Platform
 }
 public static class TileTypeExtension {
-    public static TileMapType toTileMapType(this TileType tileType) {
+    public static TileMapType ToTileMapType(this TileType tileType) {
         switch (tileType) {
             case TileType.Block:
                 return TileMapType.Block;
@@ -40,15 +41,6 @@ public static class TileTypeExtension {
             default:
                 Debug.LogError("TileTypeExtension method toTileMapType did not include switch case " + tileType.ToString());
                 return TileMapType.Block;
-        }
-    }
-
-    public static bool isSolid(this TileType tileType) {
-        switch (tileType) {
-            case TileType.Block:
-                return true;
-            default:
-                return false;
         }
     }
 }
@@ -107,7 +99,7 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem
             Tile standardTile => new Sprite[] { standardTile.sprite },
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites,
             RuleTile ruleTile => new Sprite[] { ruleTile.m_DefaultSprite },
-            IStateTileSingle stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
+            IStateTile stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
             _ => null
         };
     }

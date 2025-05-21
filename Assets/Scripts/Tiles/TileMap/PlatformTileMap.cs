@@ -1,5 +1,9 @@
+using System;
 using Chunks.Partitions;
+using Items;
+using Player;
 using TileMaps;
+using TileMaps.Layer;
 using TileMaps.Place;
 using TileMaps.Type;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
@@ -64,8 +68,12 @@ namespace Tiles.TileMap
                 map.SetTileFlags(vector3Int, TileFlags.None);
                 map.SetColor(vector3Int,color);
             }
+        }
 
-            
+        public override void PlaceNewTileAtLocation(int x, int y, ItemObject itemObject)
+        {
+            base.PlaceNewTileAtLocation(x, y, itemObject);
+            UpdateAdjacentTiles(new Vector2Int(x, y));
         }
 
         protected override void RemoveTile(int x, int y)
@@ -74,14 +82,42 @@ namespace Tiles.TileMap
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
             slopeTileMap.SetTile(cellPosition, null);
             slopeDecoTileMap.SetTile(cellPosition, null);
+            UpdateAdjacentTiles(new Vector2Int(x, y));
         }
-
-        public override void BreakTile(Vector2Int position)
+        
+        
+        private void UpdateAdjacentTiles(Vector2Int cellPosition)
         {
-            base.BreakTile(position);
-            Vector3Int cellPosition = new Vector3Int(position.x, position.y, 0);
-            slopeTileMap.SetTile(cellPosition, null);
-            slopeDecoTileMap.SetTile(cellPosition, null);
+            UpdateAdjacentTile(cellPosition + Vector2Int.left);
+            UpdateAdjacentTile(cellPosition + Vector2Int.right);
+            return;
+            void UpdateAdjacentTile(Vector2Int direction)
+            {
+                Vector2Int adjacentPosition = cellPosition + direction;
+                IChunkPartition partition = GetPartitionAtPosition(adjacentPosition);
+                if (partition == null) return;
+                Vector2Int positionInPartition = GetTilePositionInPartition(adjacentPosition);
+                BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
+                if (!tileItem) return;
+                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+                TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state, (int)PlatformPlacementMode.Update);
+                Vector2 worldPosition = tilemap.CellToWorld(vector3Int);
+                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(worldPosition, tilePlacementData);
+                int rotation = TilePlaceUtils.GetPlacementPlatformRotation(worldPosition, tilePlacementData);
+                baseTileData.state = (int)state;
+                baseTileData.rotation = rotation;
+                SetTile(adjacentPosition.x,adjacentPosition.y,tileItem);
+
+            }
         }
+        
+    }
+    
+    public enum PlatformPlacementMode
+    {
+        Flat,
+        Slope,
+        Update
     }
 }

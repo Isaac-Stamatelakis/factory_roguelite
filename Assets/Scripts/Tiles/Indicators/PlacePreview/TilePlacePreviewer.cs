@@ -94,7 +94,7 @@ namespace TileMaps.Previewer {
             
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
-            Vector3Int placePosition = PlaceTile.GetItemPlacePosition(itemObject,position);
+            Vector3Int placePosition = TilePlaceUtils.GetItemPlacePosition(itemObject,position);
             
             if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
@@ -135,12 +135,12 @@ namespace TileMaps.Previewer {
             switch (itemObject)
             {
                 case TileItem tileItem:
-                    return PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State,0), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
                     if (conduitMap is not ConduitTileMap conduitTileMap) return nonPlacableColor;
-                    return PlaceTile.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
+                    return TilePlaceUtils.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
                 default:
                     return Color.white;
             }
@@ -194,6 +194,12 @@ namespace TileMaps.Previewer {
             if (tileBase is IStateTileSingle stateTile) {
                 tileBase = stateTile.GetTileAtState(autoState);
             }
+
+            if (tileBase is IStateTileMultiple stateTileMultiple)
+            {
+                // TODO
+                tileBase = stateTileMultiple.GetDefaultTile();
+            }
             if (!rotatable)
             {
                 placementTilemap.SetTile(placePosition,tileBase);
@@ -222,7 +228,7 @@ namespace TileMaps.Previewer {
             }
             else
             {
-                PlaceTile.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
+                TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
             }
         }
         

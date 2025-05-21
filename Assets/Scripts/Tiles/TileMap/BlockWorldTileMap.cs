@@ -61,17 +61,6 @@ namespace TileMaps {
             
         }
         
-        
-        public override void BreakTile(Vector2Int position)
-        {
-            Vector3Int vector = new Vector3Int(position.x, position.y, 0);
-            if (!tilemap.GetTile(vector)) return;
-            base.BreakTile(position);
-            
-            outlineTileMap.SetTile(vector, null);
-            overlayTileMap.SetTile(vector, null);
-            shaderOverlayTilemapManager.ClearAllOnTile(ref vector);
-        }
 
         protected override void RemoveTile(int x, int y)
         {

@@ -29,6 +29,7 @@ namespace Tiles.TileMap
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             PlaceOverlayTile(tileItem.tileOptions.Overlay,overlayTileMap, new Vector3Int(x,y,0),tileItem,baseTileData);
         }
+        
 
         protected override void RemoveTile(int x, int y)
         {
@@ -37,11 +38,7 @@ namespace Tiles.TileMap
             overlayTileMap.SetTile(cellPosition, null);
         }
 
-        public override void BreakTile(Vector2Int position)
-        {
-            base.BreakTile(position);
-            Vector3Int cellPosition = new Vector3Int(position.x, position.y, 0);
-            overlayTileMap.SetTile(cellPosition, null);
-        }
+        
+        
     }
 }

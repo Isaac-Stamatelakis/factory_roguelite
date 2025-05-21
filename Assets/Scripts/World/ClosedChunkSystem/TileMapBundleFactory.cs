@@ -169,6 +169,7 @@ namespace Chunks.Systems {
                     TileMapType.Block => container.AddComponent<BlockWorldTileMap>(),
                     TileMapType.Background => container.AddComponent<BackgroundWorldTileMap>(),
                     TileMapType.Object => container.AddComponent<ObjectTileMap>(),
+                    TileMapType.Platform => container.AddComponent<PlatformTileMap>(),
                     _ => container.AddComponent<WorldTileMap>()
                 };
 

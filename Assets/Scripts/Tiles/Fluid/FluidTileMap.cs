@@ -291,7 +291,7 @@ namespace Fluids {
                     FluidCell current = simulator.GetFluidCell(position);
                     if (current != null && current.Liquid > 0.05f)
                     {
-                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileMap;
+                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.ToTileMapType()) as WorldTileMap;
                         tileGridMap?.BreakAndDropTile(position,true);
                     }
                     

@@ -5,7 +5,16 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.CustomTiles.StateTiles.Instances.Platform
 {
-    
+ 
+    public enum PlatformTileState
+    {
+        FlatConnectNone,
+        FlatConnectOne,
+        FlatConnectAll,
+        Slope,
+        FlatSlopeConnectOne,
+        FlatSlopeConnectAll,
+    }
     public class PlatformStateTile : TileBase, IStateTileMultiple
     {
         public TileBase FlatConnectNone;
@@ -13,15 +22,7 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
         public TileBase FlatConnectAll;
         public TileBase Slope;
         public TileBase SlopeDeco;
-        public enum PlatformTileState
-        {
-            FlatConnectNone,
-            FlatConnectOne,
-            FlatConnectAll,
-            Slope,
-            FlatSlopeConnectOne,
-            FlatSlopeConnectAll,
-        }
+        
         
         public TileBase GetDefaultTile()
         {
