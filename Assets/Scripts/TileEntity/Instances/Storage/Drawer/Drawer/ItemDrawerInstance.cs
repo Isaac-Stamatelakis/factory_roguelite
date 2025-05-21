@@ -14,7 +14,7 @@ using TileEntity.MultiBlock;
 
 namespace TileEntity.Instances.Storage {
     public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, 
-        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate, IRefreshOnItemExtractTileEntity
+        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate, IWorldToolTipTileEntity
     {
         private const string SPRITE_SUFFIX = "_visual";
         private ItemSlot itemSlot;
@@ -66,7 +66,11 @@ namespace TileEntity.Instances.Storage {
             visualElement.Display(itemSlot);
 
             const float TILE_COVER_RATIO = 0.7f;
-            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElement.GetComponent<SpriteRenderer>().sprite);
+
+            Sprite visualElementSprite = visualElement.GetComponent<SpriteRenderer>().sprite;
+            if (!visualElementSprite) visualElementSprite = visualElement.GetComponentInChildren<SpriteRenderer>().sprite;
+            if (!visualElementSprite) return;
+            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElementSprite);
 
         }
         
@@ -100,21 +104,23 @@ namespace TileEntity.Instances.Storage {
             ItemSlot playerItemSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 itemSlot = playerItemSlot;
-                playerInventory.removeSelectedItemSlot();
-                LoadVisual();
+                OnInsertUpdate();
                 return;
             }
 
-            if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot,
-                    playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE)) return;
+            if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE)) return;
             
             ItemSlotUtils.InsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE);
             if (playerItemSlot.amount > 0) return;
-            
-            playerInventory.removeSelectedItemSlot();
-            LoadVisual();
+            OnInsertUpdate();
+            return;
 
-
+            void OnInsertUpdate()
+            {
+                playerInventory.RemoveSelectedItemSlot();
+                playerInventory.RefreshSelectedSlotDisplay();
+                LoadVisual();
+            }
         }
 
         public string Serialize()
@@ -189,10 +195,10 @@ namespace TileEntity.Instances.Storage {
             controller = drawerControllerInstance;
         }
 
-        public void RefreshOnExtraction()
+        public string GetTextPreview()
         {
-            Debug.Log("HI");
-            LoadVisual();
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return "Storing Nothing";
+            return $"Storing {itemSlot.amount} of {itemSlot.itemObject.name}";
         }
     }
 }

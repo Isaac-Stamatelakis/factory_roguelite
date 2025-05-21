@@ -218,7 +218,7 @@ namespace PlayerModule.Mouse {
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);
-            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not ITextPreviewTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
+            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not IWorldToolTipTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
@@ -227,20 +227,20 @@ namespace PlayerModule.Mouse {
             return true;
         }
 
-        private bool DisplayTextPreviewToolTip(ITextPreviewTileEntity textPreviewTileEntity)
+        private bool DisplayTextPreviewToolTip(IWorldToolTipTileEntity worldToolTipTileEntity)
         {
-            Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(textPreviewTileEntity.GetTile()));
+            Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(worldToolTipTileEntity.GetTile()));
             float verticalOffset = (spriteSize.y / 2 + 1) * Global.TILE_SIZE;
-            Vector2 worldPosition = textPreviewTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
+            Vector2 worldPosition = worldToolTipTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
             
             Vector2 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
             
-            string text = textPreviewTileEntity.GetTextPreview();
+            string text = worldToolTipTileEntity.GetTextPreview();
             if (string.IsNullOrEmpty(text))
             {
                 return false;
             }
-            ToolTipController.Instance.ShowWorldToolTip(screenPosition,textPreviewTileEntity.GetTextPreview());
+            ToolTipController.Instance.ShowWorldToolTip(screenPosition,worldToolTipTileEntity.GetTextPreview());
             return true;
         }
 

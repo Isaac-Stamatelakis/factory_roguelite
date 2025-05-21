@@ -307,10 +307,11 @@ namespace Items.Inventory {
                 return;
             }
             for (int n = 0; n < slots.Count; n ++) {
-                DisplayItem(n);
+                RefreshSlot(n);
             }
         }
-        public void DisplayItem(int n) {
+        
+        public void RefreshSlot(int n) {
             if (n < 0 || n >= slots.Count || n >= inventory.Count) {
                 return;
             }
@@ -328,7 +329,7 @@ namespace Items.Inventory {
                 return;
             }
             inventory[n]=data;
-            DisplayItem(n);
+            RefreshSlot(n);
             CallListeners(n);
         }
         

@@ -111,6 +111,7 @@ namespace EditorScripts.Tier
             {
                 generator.Generate();
             }
+            
             AssetDatabase.Refresh();
             AssetDatabase.SaveAssets();
             
