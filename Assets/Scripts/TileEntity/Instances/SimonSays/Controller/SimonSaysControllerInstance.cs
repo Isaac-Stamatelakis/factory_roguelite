@@ -185,7 +185,7 @@ namespace TileEntity.Instances.SimonSays {
             };
             foreach (Vector2Int position in brickPlacePositions) {
                 Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
-                TilePlaceUtils.PlaceTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem);
+                TilePlaceUtils.PlaceTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem,null);
             }
         }
 
@@ -244,7 +244,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
-                TilePlaceUtils.PlaceTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
+                TilePlaceUtils.PlaceTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, null,tileEntityInstance);
             }
         }
         

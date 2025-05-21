@@ -271,7 +271,7 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        public static void PlaceTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, ITileEntityInstance presetTileEntity = null, TilePlacementData placementData = null, ItemTagCollection itemTagCollection = null) {
+        public static void PlaceTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, TilePlacementData placementData, ITileEntityInstance presetTileEntity = null, ItemTagCollection itemTagCollection = null) {
             if (iWorldTileMap == null || ReferenceEquals(tileItem,null)) {
                 return;
             }
@@ -309,11 +309,11 @@ namespace TileMaps.Place {
                 }
             } else if (tileItem.tile is PlatformStateTile)
             {
-                Vector2 worldCentered = TileHelper.getRealTileCenter(worldPosition);
-                state = (int)GetPlacementPlatformState(worldCentered, placementData);
-                rotation = GetPlacementPlatformRotation(worldCentered, placementData);
-                Debug.Log(state);
-                Debug.Log(rotation);
+                placementData ??= new TilePlacementData(0, 0, 0);
+                PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
+                state = (int)GetPlacementPlatformState(placePosition, placementData,platformTileMap);
+                placementData.State = state;
+                rotation = GetPlacementPlatformRotation(placePosition, placementData,platformTileMap);
                 // TODO NON AUTO ROTATION
             }
             
@@ -336,7 +336,7 @@ namespace TileMaps.Place {
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
         }
 
-        public static PlatformTileState GetPlacementPlatformState(Vector2 worldPosition, TilePlacementData tilePlacementData)
+        public static PlatformTileState GetPlacementPlatformState(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
         {
             PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
             switch (platformPlacementMode)
@@ -345,9 +345,8 @@ namespace TileMaps.Place {
                     return PlatformTileState.Slope;
                 case PlatformPlacementMode.Flat:
                 case PlatformPlacementMode.Update:
-                    int platformLayer = 1 << LayerMask.NameToLayer("Platform");
-                    bool left = RaycastTileInBox(worldPosition + Vector2.left, platformLayer);
-                    bool right = RaycastTileInBox(worldPosition + Vector2.right, platformLayer);
+                    bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
+                    bool right =  platformTileMap.HasTile(cellPosition + Vector2Int.right);
                     if (left && right) return PlatformTileState.FlatConnectAll;
                     if (!left && !right) return PlatformTileState.FlatConnectNone;
                     return PlatformTileState.FlatConnectOne;
@@ -355,20 +354,27 @@ namespace TileMaps.Place {
                     throw new ArgumentOutOfRangeException();
             }
         }
-        public static int GetPlacementPlatformRotation(Vector2 worldPosition, TilePlacementData tilePlacementData)
+        public static int GetPlacementPlatformRotation(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
         {
             PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
             switch (platformPlacementMode)
             {
                 case PlatformPlacementMode.Slope:
-                    int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
-                    return MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                    return 0;
+                    //int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
+                   // return MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
                 case PlatformPlacementMode.Flat:
                 case PlatformPlacementMode.Update:
-                    int platformLayer = 1 << LayerMask.NameToLayer("Platform");
-                    bool left = RaycastTileInBox(worldPosition + Vector2.left, platformLayer);
-                    bool right = RaycastTileInBox(worldPosition + Vector2.right, platformLayer);
-                    return !left && right ? 1 : 0;
+                    Debug.Log((PlatformTileState)tilePlacementData.State);
+                    if (tilePlacementData.State is (int)PlatformTileState.FlatConnectOne or (int)PlatformTileState.FlatSlopeConnectOne)
+                    {
+                        bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
+                        bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
+                        Debug.Log(right);
+                        if (right) return 1;
+                    }
+                    return 0;
+                    
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -524,7 +530,6 @@ namespace TileMaps.Place {
         public static bool RaycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
         {
             var collider = Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
-            Debug.Log(!collider);
             if (ReferenceEquals(collider,null)) return false;
             if (ignorePlaceBreakable) return true;
             WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();

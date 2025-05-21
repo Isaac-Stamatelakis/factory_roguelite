@@ -76,20 +76,25 @@ namespace Tiles.TileMap
             UpdateAdjacentTiles(new Vector2Int(x, y));
         }
 
+        public override void BreakTile(Vector2Int position)
+        {
+            base.BreakTile(position);
+            UpdateAdjacentTiles(position);
+        }
+
         protected override void RemoveTile(int x, int y)
         {
             base.RemoveTile(x, y);
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
             slopeTileMap.SetTile(cellPosition, null);
             slopeDecoTileMap.SetTile(cellPosition, null);
-            UpdateAdjacentTiles(new Vector2Int(x, y));
         }
         
         
         private void UpdateAdjacentTiles(Vector2Int cellPosition)
         {
-            UpdateAdjacentTile(cellPosition + Vector2Int.left);
-            UpdateAdjacentTile(cellPosition + Vector2Int.right);
+            UpdateAdjacentTile(Vector2Int.left);
+            UpdateAdjacentTile(Vector2Int.right);
             return;
             void UpdateAdjacentTile(Vector2Int direction)
             {
@@ -100,18 +105,22 @@ namespace Tiles.TileMap
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
                 if (!tileItem) return;
-                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
                 TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state, (int)PlatformPlacementMode.Update);
-                Vector2 worldPosition = tilemap.CellToWorld(vector3Int);
-                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(worldPosition, tilePlacementData);
-                int rotation = TilePlaceUtils.GetPlacementPlatformRotation(worldPosition, tilePlacementData);
+                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(adjacentPosition, tilePlacementData,this);
+                tilePlacementData.State = (int)state;
+                int rotation = TilePlaceUtils.GetPlacementPlatformRotation(adjacentPosition, tilePlacementData,this);
                 baseTileData.state = (int)state;
                 baseTileData.rotation = rotation;
+                Debug.Log(baseTileData.rotation);
                 SetTile(adjacentPosition.x,adjacentPosition.y,tileItem);
 
             }
         }
-        
+
+        public override bool HasTile(Vector3Int vector3Int)
+        {
+            return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
+        }
     }
     
     public enum PlatformPlacementMode
