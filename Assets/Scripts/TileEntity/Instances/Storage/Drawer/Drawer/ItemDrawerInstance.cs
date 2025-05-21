@@ -48,6 +48,11 @@ namespace TileEntity.Instances.Storage {
             
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
+                if (visualElement)
+                {
+                    Object.Destroy(visualElement.gameObject);
+                }
+                visualElement = null;
                 return;
             } 
             
@@ -56,7 +61,8 @@ namespace TileEntity.Instances.Storage {
                 visualElement = visualElementObject.AddComponent<ItemWorldDisplay>();
                 visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
                 visualElement.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
-                visualElement.transform.position = GetWorldPosition();
+                Vector2 worldPosition = GetWorldPosition();
+                visualElement.transform.position = new Vector3(worldPosition.x, worldPosition.y, -1); // Set z to -1 so tile highlighter doesn't hide visual element 
             }
             else
             {
@@ -68,8 +74,16 @@ namespace TileEntity.Instances.Storage {
             const float TILE_COVER_RATIO = 0.7f;
 
             Sprite visualElementSprite = visualElement.GetComponent<SpriteRenderer>().sprite;
-            if (!visualElementSprite) visualElementSprite = visualElement.GetComponentInChildren<SpriteRenderer>().sprite;
+            if (!visualElementSprite) // GetComponentInChildren<SpriteRenderer>() is not working in this case for some reason
+            {
+                foreach (Transform child in visualElement.transform)
+                {
+                    visualElementSprite = child.GetComponent<SpriteRenderer>().sprite;
+                    if (visualElementSprite) break;
+                }
+            }
             if (!visualElementSprite) return;
+            
             visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElementSprite);
 
         }
@@ -130,9 +144,10 @@ namespace TileEntity.Instances.Storage {
 
         public void Unload()
         {
-            if (visualElement != null) {
-                GameObject.Destroy(visualElement.gameObject);
+            if (visualElement) {
+                Object.Destroy(visualElement.gameObject);
             }
+            visualElement = null;
         }
 
         public void Unserialize(string data)
@@ -198,7 +213,7 @@ namespace TileEntity.Instances.Storage {
         public string GetTextPreview()
         {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return "Storing Nothing";
-            return $"Storing {itemSlot.amount} of {itemSlot.itemObject.name}";
+            return $"Storing {ItemDisplayUtils.FormatAmountText(itemSlot.amount)} of {itemSlot.itemObject.name}";
         }
     }
 }

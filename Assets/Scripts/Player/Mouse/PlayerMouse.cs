@@ -230,7 +230,7 @@ namespace PlayerModule.Mouse {
         private bool DisplayTextPreviewToolTip(IWorldToolTipTileEntity worldToolTipTileEntity)
         {
             Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(worldToolTipTileEntity.GetTile()));
-            float verticalOffset = (spriteSize.y / 2 + 1) * Global.TILE_SIZE;
+            float verticalOffset = (spriteSize.y / 2 + 1.5f) * Global.TILE_SIZE;
             Vector2 worldPosition = worldToolTipTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
             
             Vector2 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
