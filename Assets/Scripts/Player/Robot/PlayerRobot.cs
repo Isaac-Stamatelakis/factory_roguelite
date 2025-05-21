@@ -102,7 +102,6 @@ namespace Player {
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
-        private bool lastIsUsingTool;
         private float defaultLinearDrag;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
@@ -186,7 +185,6 @@ namespace Player {
         public void SetIsUsingTool(bool value)
         {
             if (isUsingTool == value) return;
-            lastIsUsingTool = isUsingTool;
             isUsingTool = value;
             
             animator.SetBool(Action,value);
@@ -221,7 +219,6 @@ namespace Player {
             {
                 // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
                 liveYUpdates = 2;
-                //jumpEvent = null;
                 var vector2 = rb.velocity;
                 vector2.y = 0.005f;
                 rb.velocity = vector2;
@@ -267,11 +264,7 @@ namespace Player {
 
             if (state is CollisionState.InFluid)
             {
-                var vector2 = rb.velocity;
-                vector2.y = vector2.y * 0.05f;
-                rb.velocity = vector2;
                 fallTime = 0;
-
                 Vector3 position = transform.position;
                 position.z = 2;
                 transform.position = position;
@@ -289,6 +282,23 @@ namespace Player {
         public void AddFluidCollisionData(FluidTileItem fluidTileItem)
         {
             if (!fluidTileItem) return;
+            
+            if (rb.bodyType != RigidbodyType2D.Static)
+            {
+                float slowFactor = fluidTileItem.fluidOptions.SpeedSlowFactor;
+                var vector2 = rb.velocity;
+                if (slowFactor > 0.8f)
+                {
+                    vector2.y *= slowFactor;
+                }
+                else
+                {
+                    vector2.y *= 0.1f * slowFactor;
+                }
+                
+                rb.velocity = vector2;
+            }
+            
             if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
             {
                 // Deal half damage on first collision
@@ -847,7 +857,7 @@ namespace Player {
                 Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
                 Vector2 dif = tileCenter - (Vector2)transform.position;
                 bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
-                if (standingOnGround && PlaceTile.tileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
+                if (standingOnGround && TilePlaceUtils.TileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
             }
             if (hammerTileState is not (HammerTileState.Slab or HammerTileState.Stair)) return false;
             StartCoroutine(AutoJumpCoroutine());

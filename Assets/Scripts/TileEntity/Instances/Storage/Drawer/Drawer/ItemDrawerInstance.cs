@@ -14,7 +14,7 @@ using TileEntity.MultiBlock;
 
 namespace TileEntity.Instances.Storage {
     public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, 
-        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate, IRefreshOnItemExtractTileEntity
+        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate, IWorldToolTipTileEntity
     {
         private const string SPRITE_SUFFIX = "_visual";
         private ItemSlot itemSlot;
@@ -48,6 +48,11 @@ namespace TileEntity.Instances.Storage {
             
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
+                if (visualElement)
+                {
+                    Object.Destroy(visualElement.gameObject);
+                }
+                visualElement = null;
                 return;
             } 
             
@@ -56,7 +61,8 @@ namespace TileEntity.Instances.Storage {
                 visualElement = visualElementObject.AddComponent<ItemWorldDisplay>();
                 visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
                 visualElement.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
-                visualElement.transform.position = GetWorldPosition();
+                Vector2 worldPosition = GetWorldPosition();
+                visualElement.transform.position = new Vector3(worldPosition.x, worldPosition.y, -1); // Set z to -1 so tile highlighter doesn't hide visual element 
             }
             else
             {
@@ -64,9 +70,22 @@ namespace TileEntity.Instances.Storage {
                 visualElement.enabled = true;
             }
             visualElement.Display(itemSlot);
+            
 
             const float TILE_COVER_RATIO = 0.7f;
-            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElement.GetComponent<SpriteRenderer>().sprite);
+
+            Sprite visualElementSprite = visualElement.GetComponent<SpriteRenderer>().sprite;
+            if (!visualElementSprite) // GetComponentInChildren<SpriteRenderer>() is not working in this case for some reason
+            {
+                foreach (Transform child in visualElement.transform)
+                {
+                    visualElementSprite = child.GetComponent<SpriteRenderer>().sprite;
+                    if (visualElementSprite) break;
+                }
+            }
+            if (!visualElementSprite) return;
+            
+            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElementSprite);
 
         }
         
@@ -100,21 +119,23 @@ namespace TileEntity.Instances.Storage {
             ItemSlot playerItemSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 itemSlot = playerItemSlot;
-                playerInventory.removeSelectedItemSlot();
-                LoadVisual();
+                OnInsertUpdate();
                 return;
             }
 
-            if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot,
-                    playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE)) return;
+            if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE)) return;
             
             ItemSlotUtils.InsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE);
             if (playerItemSlot.amount > 0) return;
-            
-            playerInventory.removeSelectedItemSlot();
-            LoadVisual();
+            OnInsertUpdate();
+            return;
 
-
+            void OnInsertUpdate()
+            {
+                playerInventory.RemoveSelectedItemSlot();
+                playerInventory.RefreshSelectedSlotDisplay();
+                LoadVisual();
+            }
         }
 
         public string Serialize()
@@ -124,9 +145,10 @@ namespace TileEntity.Instances.Storage {
 
         public void Unload()
         {
-            if (visualElement != null) {
-                GameObject.Destroy(visualElement.gameObject);
+            if (visualElement) {
+                Object.Destroy(visualElement.gameObject);
             }
+            visualElement = null;
         }
 
         public void Unserialize(string data)
@@ -189,10 +211,10 @@ namespace TileEntity.Instances.Storage {
             controller = drawerControllerInstance;
         }
 
-        public void RefreshOnExtraction()
+        public string GetTextPreview()
         {
-            Debug.Log("HI");
-            LoadVisual();
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return "Storing Nothing";
+            return $"Storing {ItemDisplayUtils.FormatAmountText(itemSlot.amount)} of {itemSlot.itemObject.name}";
         }
     }
 }

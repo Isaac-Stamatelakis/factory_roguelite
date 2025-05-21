@@ -310,6 +310,7 @@ namespace Player
         public bool Indiciator = true;
         public PlayerTileRotation Rotation;
         public int State;
+        public int PlacementMode;
     }
 
     public static class PlayerTileRotationExtension
@@ -337,11 +338,13 @@ namespace Player
     {
         public PlayerTileRotation Rotation;
         public int State;
+        public int PlacementMode;
 
-        public TilePlacementData(PlayerTileRotation rotation, int state)
+        public TilePlacementData(PlayerTileRotation rotation, int state, int placementMode)
         {
             Rotation = rotation;
             State = state;
+            PlacementMode = placementMode;
         }
     }
 

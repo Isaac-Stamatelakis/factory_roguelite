@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.ItemObjects.Interfaces;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMaps.Type;
@@ -40,7 +42,7 @@ namespace Items {
         Energy = ConduitType.Energy
     }
 
-    public abstract class ConduitItem : ItemObject, IPlacableItem
+    public abstract class ConduitItem : ItemObject, IPlacableItem, ISolidItem
     {
         public GameStageObject GameStageObject;
         public ConduitStateTile Tile;
@@ -53,7 +55,7 @@ namespace Items {
             return ItemDisplayType.Single;
         }
 
-        public TileBase getTile()
+        public TileBase GetTile()
         {
             return Tile;
         }

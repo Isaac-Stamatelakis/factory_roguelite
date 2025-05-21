@@ -9,9 +9,7 @@ namespace Items {
     {
         [SerializeField] [HideInInspector] protected Sprite[] sprites;
         public GameStageObject GameStageObject;
-        #if UNITY_EDITOR
         public Sprite[] Sprites {get => sprites; set => sprites = value;}
-        #endif
         [Header("Changing this modifies the format of sprite you can input")]
         [SerializeField]  protected ItemDisplayType displayType;
         public override ItemDisplayType? getDisplayType()

@@ -41,7 +41,7 @@ namespace UI.Indicators.General
                 ? (int)ConduitDirectionState.Up + (int)ConduitDirectionState.Down + (int)ConduitDirectionState.Left + (int)ConduitDirectionState.Right 
                 : 0;
             state += (int)ConduitDirectionState.Active; 
-            conduitImage.sprite = TileItem.GetDefaultSprite(current?.Tile.getTileAtState(state));
+            conduitImage.sprite = TileItem.GetDefaultSprite(current?.Tile.GetTileAtState(state));
             placementCounter.text = options.PlacementMode == ConduitPlacementMode.New ? placementCount.ToString() : string.Empty;
         }
 

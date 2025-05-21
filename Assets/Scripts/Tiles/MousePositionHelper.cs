@@ -25,7 +25,7 @@ namespace Tiles {
 
             foreach (Direction direction in directions)
             {
-                 if (PlaceTile.tileInDirection(mousePosition, direction, TileMapLayer.Base)) directionsWithTile.Add(direction);
+                 if (TilePlaceUtils.TileInDirection(mousePosition, direction, TileMapLayer.Base)) directionsWithTile.Add(direction);
             }
 
             if (directionsWithTile.Count == 0) return NO_AUTO_ROTATION;

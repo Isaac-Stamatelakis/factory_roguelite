@@ -22,6 +22,7 @@ using TileEntity;
 using Entities;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
+using Item.ItemObjects.Interfaces;
 using Item.Slot;
 using Player;
 using Player.Controls;
@@ -218,7 +219,7 @@ namespace PlayerModule.Mouse {
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);
-            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not ITextPreviewTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
+            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not IWorldToolTipTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
@@ -227,20 +228,20 @@ namespace PlayerModule.Mouse {
             return true;
         }
 
-        private bool DisplayTextPreviewToolTip(ITextPreviewTileEntity textPreviewTileEntity)
+        private bool DisplayTextPreviewToolTip(IWorldToolTipTileEntity worldToolTipTileEntity)
         {
-            Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(textPreviewTileEntity.GetTile()));
-            float verticalOffset = (spriteSize.y / 2 + 1) * Global.TILE_SIZE;
-            Vector2 worldPosition = textPreviewTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
+            Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(worldToolTipTileEntity.GetTile()));
+            float verticalOffset = (spriteSize.y / 2 + 1.5f) * Global.TILE_SIZE;
+            Vector2 worldPosition = worldToolTipTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
             
             Vector2 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
             
-            string text = textPreviewTileEntity.GetTextPreview();
+            string text = worldToolTipTileEntity.GetTextPreview();
             if (string.IsNullOrEmpty(text))
             {
                 return false;
             }
-            ToolTipController.Instance.ShowWorldToolTip(screenPosition,textPreviewTileEntity.GetTextPreview());
+            ToolTipController.Instance.ShowWorldToolTip(screenPosition,worldToolTipTileEntity.GetTextPreview());
             return true;
         }
 
@@ -423,6 +424,7 @@ namespace PlayerModule.Mouse {
         private void StopPlayerHorizontalMovement()
         {
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
+            if (rb.bodyType == RigidbodyType2D.Static) return;
             var velocity = rb.velocity; // Set X Velocity to 0 to prevent slight camera shake
             velocity.x = 0;
             rb.velocity = velocity;
@@ -436,7 +438,7 @@ namespace PlayerModule.Mouse {
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
             
-            bool placed = PlaceTile.PlaceFromWorldPosition(playerScript,selectedSlot,mousePosition,closedChunkSystem);
+            bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,mousePosition,closedChunkSystem);
             if (placed) {
                 playerScript.PlaceUpdate();
             }

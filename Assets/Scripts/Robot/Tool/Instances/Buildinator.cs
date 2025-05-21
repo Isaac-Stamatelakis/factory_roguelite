@@ -75,7 +75,7 @@ namespace Robot.Tool.Instances
             
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
             
-            if (!PlaceTile.raycastTileInBox(origin, TileMapLayer.Base.ToRaycastLayers(),true)) return;
+            if (!TilePlaceUtils.RaycastTileInBox(origin, TileMapLayer.Base.ToRaycastLayers(),true)) return;
             
             Vector2Int vector2Int = Global.GetCellPositionFromWorld(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
@@ -220,7 +220,7 @@ namespace Robot.Tool.Instances
                     Vector2 worldPosition = worldTileGridMap.GetTilemap().CellToWorld((Vector3Int)tilePosition);
 
                     FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), baseTileData.rotation);
-                    if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, system, newRotation, exclusion)) continue;
+                    if (!TilePlaceUtils.BaseTilePlaceable(tileItem, worldPosition, system, newRotation, exclusion)) continue;
 
                     FloatIntervalVector newArea = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), newRotation);
                     IntervalVector intervalVector = FloatIntervalVector.ToCellIntervalVector(newArea);

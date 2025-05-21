@@ -49,7 +49,7 @@ public class RuleTileGenerator : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         RuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        ItemEditorFactory.saveTileWithName(ruleTile,tileName);
+        ItemEditorFactory.SaveTileWithName(ruleTile,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,

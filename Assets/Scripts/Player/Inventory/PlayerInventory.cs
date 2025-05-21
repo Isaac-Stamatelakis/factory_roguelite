@@ -125,7 +125,7 @@ namespace PlayerModule {
                     indicatorManager.RemovePlaceBundles();
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
                     
-                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTile || tileItem.tileOptions.rotatable))
+                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTileSingle || tileItem.tileOptions.rotatable))
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
                         indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
@@ -215,7 +215,7 @@ namespace PlayerModule {
             }
             InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot].amount--;
-            playerInventoryGrid.DisplayItem(selectedSlot);
+            playerInventoryGrid.RefreshSlot(selectedSlot);
         }
 
         public void IterateSelectedTile(int iterator) {
@@ -282,7 +282,7 @@ namespace PlayerModule {
                         Give(itemSlot);
                         return;
                     }
-                    playerInventoryGrid.DisplayItem(index);
+                    playerInventoryGrid.RefreshSlot(index);
                     continue;
                 }
                 if (fluidSlot.amount + fluidAmount > fluidCellItem.storage) continue;
@@ -303,7 +303,7 @@ namespace PlayerModule {
                 if (itemSlot.amount == 1)
                 {
                     ItemSlotUtils.AddTag(itemSlot, ItemTag.FluidContainer, newFluidSlot);
-                    playerInventoryGrid.DisplayItem(firstEmptyCellIndex);
+                    playerInventoryGrid.RefreshSlot(firstEmptyCellIndex);
                     return;
                 }
                 ItemSlot spliced = ItemSlotFactory.Splice(itemSlot, 1);
@@ -355,9 +355,14 @@ namespace PlayerModule {
             return playerInventoryData.Inventory[selectedSlot];
         }
 
-        public void removeSelectedItemSlot() {
+        public void RemoveSelectedItemSlot() {
             InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot] = null;
+        }
+
+        public void RefreshSelectedSlotDisplay()
+        {
+            InventoryUI.RefreshSlot(selectedSlot);
         }
 
         public void InventoryUpdate(int n)

@@ -45,12 +45,15 @@ namespace Entities.Mob.Display
             partTransforms = new Transform[length+2];
             partTransforms[0] = CreatePart(headSprite,"Head",HeadDamage);
             AssemblePart();
-        }
-
-        public void Update()
-        {
             playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            if (!playerTransform) return;
+        }
+        
+        public void FixedUpdate()
+        {
+            if (!assembled)
+            {
+                AssemblePart();
+            }
             currentRoutineTime -= Time.deltaTime;
             switch (movementMode)
             {
@@ -65,14 +68,6 @@ namespace Entities.Mob.Display
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public void FixedUpdate()
-        {
-            if (!assembled)
-            {
-                AssemblePart();
             }
         }
 

@@ -14,7 +14,7 @@ namespace Tiles {
 
     [CreateAssetMenu(fileName = "T~New Hammer Tile", menuName = "Tile/State/Hammer")]
     
-    public class HammerTile : TileBase, IStateTile
+    public class HammerTile : TileBase, IStateTileSingle
     {
         public const int BASE_TILE_STATE = 0;
         public const int SLAB_TILE_STATE = 1;
@@ -27,7 +27,7 @@ namespace Tiles {
         [SerializeField] public Tile stairs;
         
 
-        public virtual TileBase getTileAtState(int state)
+        public virtual TileBase GetTileAtState(int state)
         {
             return state switch
             {
@@ -53,7 +53,7 @@ namespace Tiles {
             return baseTile;
         }
 
-        public virtual int getStateAmount()
+        public virtual int GetStateAmount()
         {
             return 4;
         }

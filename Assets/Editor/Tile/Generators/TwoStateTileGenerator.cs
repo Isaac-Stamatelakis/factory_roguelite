@@ -44,21 +44,21 @@ public class TwoStateTileGenerator : EditorWindow
         ItemEditorFactory.CreateDirectory(tileName);
 
         Tile inactiveTile = ItemEditorFactory.StandardTileCreator(inactive,TileColliderType.Tile);
-        ItemEditorFactory.saveTileWithName(inactiveTile,tileName,"Inactive");
+        ItemEditorFactory.SaveTileWithName(inactiveTile,tileName,"Inactive");
 
         Tile activeTile = ItemEditorFactory.StandardTileCreator(active,TileColliderType.Sprite);
-        ItemEditorFactory.saveTileWithName(activeTile,tileName,"Active");
+        ItemEditorFactory.SaveTileWithName(activeTile,tileName,"Active");
 
        
-        TwoStateTile twoStateTile = ScriptableObject.CreateInstance<TwoStateTile>();
-        twoStateTile.activeTile = activeTile;
-        twoStateTile.inactiveTile = inactiveTile;
+        TwoStateTileSingle twoStateTileSingle = ScriptableObject.CreateInstance<TwoStateTileSingle>();
+        twoStateTileSingle.activeTile = activeTile;
+        twoStateTileSingle.inactiveTile = inactiveTile;
         
-        ItemEditorFactory.saveTileWithName(twoStateTile,tileName);
+        ItemEditorFactory.SaveTileWithName(twoStateTileSingle,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
-            tile: twoStateTile,
+            tile: twoStateTileSingle,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: null

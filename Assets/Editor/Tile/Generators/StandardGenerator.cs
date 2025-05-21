@@ -60,7 +60,7 @@ public class Standard1TileGeneratorWindow : EditorWindow {
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(tileName,tile,tileType);
 #pragma warning restore CS0618 // Type or member is obsolete
-        ItemEditorFactory.saveTileWithName(tile,tileName);
+        ItemEditorFactory.SaveTileWithName(tile,tileName);
         
     }
 }

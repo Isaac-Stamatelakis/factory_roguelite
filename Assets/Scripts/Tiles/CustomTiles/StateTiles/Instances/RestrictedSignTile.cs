@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.CustomTiles.StateTiles.Instances {
     
     [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/State/Sign")]
-    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IStateTile
+    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IStateTileSingle
     {
         public Tile onBlock;
         public Tile onLeft;
@@ -19,10 +19,10 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             // If exists tile on bottom place bottom
             // If exists tile on background place background
             // If no condition return -1
-            bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
-            bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
-            bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
-            bool up = PlaceTile.tileInDirection(position,Direction.Up,TileMapLayer.Base);
+            bool left = TilePlaceUtils.TileInDirection(position,Direction.Left,TileMapLayer.Base);
+            bool right = TilePlaceUtils.TileInDirection(position,Direction.Right,TileMapLayer.Base);
+            bool down = TilePlaceUtils.TileInDirection(position,Direction.Down,TileMapLayer.Base);
+            bool up = TilePlaceUtils.TileInDirection(position,Direction.Up,TileMapLayer.Base);
             
             // Priotize placing down
             int mousePosition = MousePositionUtils.GetMousePlacement(position);
@@ -53,7 +53,7 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             return -1;
         }
 
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             switch (state) {
                 case 0:
@@ -74,7 +74,7 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             return onBlock;
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return 4;
         }

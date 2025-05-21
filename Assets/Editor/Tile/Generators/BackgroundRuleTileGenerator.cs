@@ -50,7 +50,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
         
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        ItemEditorFactory.saveTileWithName(tile,tileName);
+        ItemEditorFactory.SaveTileWithName(tile,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,

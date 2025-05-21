@@ -16,7 +16,7 @@ namespace Tiles {
     }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IStateTile, INoDelayPreviewTile, IDirectionStateTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IStateTileSingle, INoDelayPreviewTile, IDirectionStateTile
     {
         private enum TorchTileState
         {
@@ -34,23 +34,23 @@ namespace Tiles {
        
        
         public int GetStateAtPosition(Vector2 position) {
-            bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
+            bool down = TilePlaceUtils.TileInDirection(position,Direction.Down,TileMapLayer.Base);
             
             int mousePosition = MousePositionUtils.GetMousePlacement(position);
             if (down && MousePositionUtils.MouseCentered(true,position)) {
                 return (int)TorchTileState.OnGround;
             }
-            bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
+            bool left = TilePlaceUtils.TileInDirection(position,Direction.Left,TileMapLayer.Base);
             // If top 
             if (left && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left)) {
                 return (int)TorchTileState.WallLeft;
             }
-            bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
+            bool right = TilePlaceUtils.TileInDirection(position,Direction.Right,TileMapLayer.Base);
             if (right && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right)) {
                 return (int)TorchTileState.WallRight;
             }
             
-            bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
+            bool background = TilePlaceUtils.TileInDirection(position,Direction.Center,TileMapLayer.Background);
             if (!left && !right && !down && background) {
                 return (int)TorchTileState.Background;
             }
@@ -66,7 +66,7 @@ namespace Tiles {
             return (int)TorchTileState.Invalid;
         }
 
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             TorchTileState torchTileState = (TorchTileState)state;
             switch (torchTileState) {
@@ -89,7 +89,7 @@ namespace Tiles {
             return onBlock;
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return 4;
         }

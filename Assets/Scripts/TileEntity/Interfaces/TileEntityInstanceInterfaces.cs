@@ -161,7 +161,7 @@ namespace TileEntity {
     /// TileEntities which implement this interface will show a text preview when the player hovers over them.
     /// <remarks>Holding LShift will hide this text preview</remarks>
     /// </summary>
-    public interface ITextPreviewTileEntity : ITileEntityInstance
+    public interface IWorldToolTipTileEntity : ITileEntityInstance
     {
         public string GetTextPreview();
     }

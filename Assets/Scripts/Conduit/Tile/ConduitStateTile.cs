@@ -6,11 +6,11 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles
 {
-    public class ConduitStateTile : TileBase, IStateTile, INoDelayPreviewTile
+    public class ConduitStateTile : TileBase, IStateTileSingle, INoDelayPreviewTile
     {
         public Tile[] Tiles;
         
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             if (state < Tiles.Length && state >= 0) return Tiles[state];
             Debug.LogWarning($"Invalid state for conduit tile {state} {name}");
@@ -19,14 +19,14 @@ namespace Tiles
 
         public TileBase GetDefaultTile()
         {
-            const int allDirectionState =   (int)ConduitDirectionState.Left
+            const int ALL_DIRECTION_STATE =   (int)ConduitDirectionState.Left
                                             + (int)ConduitDirectionState.Right
                                             + (int)ConduitDirectionState.Up
                                             + (int)ConduitDirectionState.Down;
-            return Tiles[allDirectionState];
+            return Tiles[ALL_DIRECTION_STATE];
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return Tiles.Length;
         }

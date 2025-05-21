@@ -73,7 +73,7 @@ public class ConduitTileGenerator : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations", conduitName);
         AssetDatabase.Refresh();
 
-        ConduitStateTile conduitTile = CreateInstance<ConduitStateTile>();
+        ConduitStateTile conduitStateTileTile = CreateInstance<ConduitStateTile>();
         List<Tile> tiles = new List<Tile>();
         AssetDatabase.CreateFolder(path, "Inactive");
         AssetDatabase.Refresh();
@@ -87,10 +87,10 @@ public class ConduitTileGenerator : EditorWindow {
             tiles.AddRange(GenerateSpritesFromTexture(activeTexture, activePath));
         }
 
-        conduitTile.Tiles = new Tile[tiles.Count];
+        conduitStateTileTile.Tiles = new Tile[tiles.Count];
         for (int i = 0; i < tiles.Count; i++)
         {
-            conduitTile.Tiles[i] = tiles[i];
+            conduitStateTileTile.Tiles[i] = tiles[i];
         }
         
         ConduitItem conduitItem = null;
@@ -123,12 +123,12 @@ public class ConduitTileGenerator : EditorWindow {
             return;
         }
         conduitItem.name = conduitName;
-        conduitItem.Tile = conduitTile;
+        conduitItem.Tile = conduitStateTileTile;
         conduitItem.id = conduitName;
         conduitItem.id = conduitItem.id.ToLower().Replace(" ","_");
         
-        conduitTile.name = $"T~{conduitItem.name}";
-        AssetDatabase.CreateAsset(conduitTile, Path.Combine(path,conduitTile.name + ".asset"));
+        conduitStateTileTile.name = $"T~{conduitItem.name}";
+        AssetDatabase.CreateAsset(conduitStateTileTile, Path.Combine(path,conduitStateTileTile.name + ".asset"));
         AssetDatabase.CreateAsset(conduitItem, Path.Combine(path,conduitItem.name + ".asset"));
     }
 

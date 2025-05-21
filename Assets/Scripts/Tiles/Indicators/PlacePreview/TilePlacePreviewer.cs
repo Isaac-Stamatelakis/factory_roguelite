@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduits;
 using Conduits.Systems;
 using Dimensions;
+using Item.ItemObjects.Interfaces;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMaps.Place;
@@ -88,12 +89,12 @@ namespace TileMaps.Previewer {
                 return;
             }
 
-            TileBase tileBase = placableItem.getTile();
+            TileBase tileBase = placableItem.GetTile();
             if (ReferenceEquals(tileBase, null)) return;
             
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
-            Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
+            Vector3Int placePosition = TilePlaceUtils.GetItemPlacePosition(itemObject,position);
             
             if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
@@ -104,21 +105,24 @@ namespace TileMaps.Previewer {
             if (tileBase is ConduitStateTile conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
-            }
-            else
+            } else if (itemObject is FluidTileItem fluidTileItem)
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject as TileItem, tileBase, placePosition, position);
+                placementRecord = PreviewFluidTile(fluidTileItem, tileBase, placePosition);
+            }
+            else if (itemObject is TileItem tileItem)
+            {
+                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
-            if (itemObject is TileItem tileItem)
+            if (itemObject is TileItem tileItem1)
             {
-                if (tileItem.tileOptions.TransmutableColorOverride)
+                if (tileItem1.tileOptions.TransmutableColorOverride)
                 {
-                    tilemap.color *= tileItem.tileOptions.TransmutableColorOverride.color;
-                } else if (tileItem.tileOptions.TileColor)
+                    tilemap.color *= tileItem1.tileOptions.TransmutableColorOverride.color;
+                } else if (tileItem1.tileOptions.TileColor)
                 {
-                    tilemap.color *= tileItem.tileOptions.TileColor.GetColor();
+                    tilemap.color *= tileItem1.tileOptions.TileColor.GetColor();
                 }
             }
             
@@ -131,15 +135,21 @@ namespace TileMaps.Previewer {
             switch (itemObject)
             {
                 case TileItem tileItem:
-                    return PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State,0), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
                     if (conduitMap is not ConduitTileMap conduitTileMap) return nonPlacableColor;
-                    return PlaceTile.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
+                    return TilePlaceUtils.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
                 default:
                     return Color.white;
             }
+        }
+
+        private SingleTilePlacementRecord PreviewFluidTile(FluidTileItem fluidTileItem, TileBase tileBase, Vector3Int placePosition)
+        {
+            tilemap.SetTile(placePosition,tileBase);
+            return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
@@ -181,8 +191,14 @@ namespace TileMaps.Previewer {
 
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {
-            if (tileBase is IStateTile stateTile) {
-                tileBase = stateTile.getTileAtState(autoState);
+            if (tileBase is IStateTileSingle stateTile) {
+                tileBase = stateTile.GetTileAtState(autoState);
+            }
+
+            if (tileBase is IStateTileMultiple stateTileMultiple)
+            {
+                // TODO
+                tileBase = stateTileMultiple.GetDefaultTile();
             }
             if (!rotatable)
             {
@@ -212,7 +228,7 @@ namespace TileMaps.Previewer {
             }
             else
             {
-                PlaceTile.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
+                TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
             }
         }
         
@@ -249,7 +265,7 @@ namespace TileMaps.Previewer {
             {
                 previewState = 15;
             }
-            TileBase previewTile = conduitStateTile.getTileAtState(previewState);
+            TileBase previewTile = conduitStateTile.GetTileAtState(previewState);
             tilemap.SetTile(position, previewTile);
             for (int i = 0; i < directions.Count; i++)
             {
@@ -266,7 +282,7 @@ namespace TileMaps.Previewer {
                     state += (int) directionState;
                 }
                 
-                TileBase tile = adjStateTile.getTileAtState(state);
+                TileBase tile = adjStateTile.GetTileAtState(state);
                 unhighlightedTileMap.SetTile(position + direction, tile);
                 placePositions.Add(position + direction);
             }

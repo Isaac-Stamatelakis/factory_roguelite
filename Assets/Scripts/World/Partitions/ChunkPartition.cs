@@ -242,7 +242,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
+        public abstract TileItem GetTileItem(Vector2Int positionInPartition, TileMapLayer layer);
 
         public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 

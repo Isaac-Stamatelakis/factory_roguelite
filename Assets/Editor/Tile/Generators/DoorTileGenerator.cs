@@ -46,33 +46,33 @@ public class DoorTileGenerator : EditorWindow {
         ItemEditorFactory.CreateDirectory(tileName);
 
         Tile leftClosedTile = ItemEditorFactory.StandardTileCreator(leftClosed,TileColliderType.Sprite);
-        ItemEditorFactory.saveTileWithName(leftClosedTile,tileName,"LeftClosed");
+        ItemEditorFactory.SaveTileWithName(leftClosedTile,tileName,"LeftClosed");
 
         Tile leftOpenTile = ItemEditorFactory.StandardTileCreator(leftOpen,TileColliderType.Sprite);
-        ItemEditorFactory.saveTileWithName(leftOpenTile,tileName,"LeftOpen");
+        ItemEditorFactory.SaveTileWithName(leftOpenTile,tileName,"LeftOpen");
 
         Tile rightClosedTile = ItemEditorFactory.StandardTileCreator(rightClosed,TileColliderType.Sprite);
-        ItemEditorFactory.saveTileWithName(rightClosedTile,tileName,"RightClosed");
+        ItemEditorFactory.SaveTileWithName(rightClosedTile,tileName,"RightClosed");
 
         Tile rightOpenTile = ItemEditorFactory.StandardTileCreator(rightOpen,TileColliderType.Sprite);
-        ItemEditorFactory.saveTileWithName(rightOpenTile,tileName,"RightOpen");
+        ItemEditorFactory.SaveTileWithName(rightOpenTile,tileName,"RightOpen");
 
-        IMousePositionStateDoorTile doorTile = ScriptableObject.CreateInstance<IMousePositionStateDoorTile>();
-        doorTile.left = leftClosedTile;
-        doorTile.leftOpen = leftOpenTile;
-        doorTile.right = rightClosedTile;
-        doorTile.rightOpen = rightOpenTile;
+        IMousePositionStateDoorTile doorDoorTile = ScriptableObject.CreateInstance<IMousePositionStateDoorTile>();
+        doorDoorTile.left = leftClosedTile;
+        doorDoorTile.leftOpen = leftOpenTile;
+        doorDoorTile.right = rightClosedTile;
+        doorDoorTile.rightOpen = rightOpenTile;
         
 
         Door door = ScriptableObject.CreateInstance<Door>();
         ItemEditorFactory.saveTileEntity(door,tileName);
 
-        ItemEditorFactory.saveTileWithName(doorTile,tileName);
+        ItemEditorFactory.SaveTileWithName(doorDoorTile,tileName);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
-            tile: doorTile,
+            tile: doorDoorTile,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: door

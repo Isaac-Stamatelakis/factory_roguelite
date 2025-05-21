@@ -126,13 +126,7 @@ namespace Items {
                 Unload();
                 return;
             }
-            Sprite[] sprites = itemSlot.itemObject.GetSprites();
-            if (sprites == null || sprites.Length == 0)
-            {
-                Unload();
-                return;
-            }
-
+            
             if (displaying && ItemSlotUtils.AreEqual(itemSlot, displayedSlot))
             {
                 this.displayedSlot = itemSlot;
@@ -141,13 +135,30 @@ namespace Items {
             }
             if (!ItemImage) return;
             
+            ItemImage.gameObject.SetActive(true);
             displaying = true;
-            animationSpeedValue = GetAnimationSpeedValue();
-            
-            GlobalHelper.DeleteAllChildren(ItemImage.transform);
-            animatedItemDisplays.Clear();
             displayedSlot = itemSlot;
-            SetImageSprite(ItemImage, sprites[0]);
+            
+            Sprite[] sprites = itemSlot.itemObject.GetSprites();
+            if (sprites != null && sprites.Length > 0)
+            {
+                animationSpeedValue = GetAnimationSpeedValue();
+                GlobalHelper.DeleteAllChildren(ItemImage.transform);
+                animatedItemDisplays.Clear();
+                SetImageSprite(ItemImage, sprites[0]);
+                if (sprites.Length > 1)
+                {
+                    animatedItemDisplays.Add(new AnimatedItemDisplay
+                    {
+                        Image = ItemImage,
+                        Sprites = sprites
+                    });
+                }
+            }
+            else
+            {
+                ItemImage.sprite = null;
+            }
             
             Color color = Color.white;
             ItemImage.material = null;
@@ -190,14 +201,6 @@ namespace Items {
             }
 
             ItemImage.color = color;
-            if (sprites.Length > 1)
-            {
-                animatedItemDisplays.Add(new AnimatedItemDisplay
-                {
-                    Image = ItemImage,
-                    Sprites = sprites
-                });
-            }
             
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
@@ -215,7 +218,7 @@ namespace Items {
                         var spriteCollection = spriteCollections[index];
                         if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
 
-                        Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
+                        Image overlayImage = AddOverlay(spriteCollection.Sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
 
                         animatedItemDisplays.Add(new AnimatedItemDisplay
                         {
@@ -225,11 +228,16 @@ namespace Items {
                     }
                 }
             }
-            
             RefreshDisplay();
-            ItemImage.enabled = ItemImage.sprite;
-            ItemImage.gameObject.SetActive(true);
             
+            bool mainSpriteNotNull = ItemImage.sprite;
+            if (!mainSpriteNotNull && ItemImage.transform.childCount > 0)
+            {
+                Image childImage = ItemImage.transform.GetChild(0).GetComponent<Image>();
+                ItemImage.transform.localScale = ItemDisplayUtils.GetItemScale(childImage.sprite);
+            }
+            
+            ItemImage.enabled = mainSpriteNotNull;
             DisplayTagVisuals(itemSlot);
         }
 

@@ -68,8 +68,7 @@ namespace Item.Display
         private void Decorate()
         {
             Sprite[] itemSprites = itemSlot.itemObject.GetSprites();
-            if (itemSprites == null) return;
-            if (itemSprites.Length > 1)
+            if (itemSprites != null && itemSprites.Length > 1)
             {
                 spriteAnimators.Add(new WorldSpriteAnimator(spriteRenderer, itemSprites));
             }

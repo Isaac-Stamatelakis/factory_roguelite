@@ -125,13 +125,13 @@ namespace Fluids {
             if (fluidCell == null || !fluidCell.FluidTileItem) return 0;
             return fluidCell.Liquid;
         }
-        public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
+        public void Disrupt(Vector2 worldPosition, FluidTileItem fluidTileItem)
         {
             if (!fluidTileItem) return;
             FluidParticles particles = GetFluidParticles(fluidTileItem.fluidOptions.Lit);
             
             if (particles.Splash.isPlaying) return;
-            simulator.DisruptSurface(cellPosition);
+            simulator.DisruptSurface((Vector2Int)tilemap.WorldToCell(worldPosition));
             if (!fluidTileItem) return;
             PlayParticles(particles.Splash, worldPosition,fluidTileItem);
         }
@@ -291,7 +291,7 @@ namespace Fluids {
                     FluidCell current = simulator.GetFluidCell(position);
                     if (current != null && current.Liquid > 0.05f)
                     {
-                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileMap;
+                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.ToTileMapType()) as WorldTileMap;
                         tileGridMap?.BreakAndDropTile(position,true);
                     }
                     

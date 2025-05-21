@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.ItemObjects.Interfaces;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileEntity;
@@ -11,6 +13,7 @@ using UnityEngine.AddressableAssets;
 using Items;
 using Tiles.CustomTiles.IdTiles;
 using Tiles.Fluid.Simulation;
+using Unity.VisualScripting;
 
 public enum TileMovementType
 {
@@ -25,7 +28,7 @@ public enum TileType {
     Platform
 }
 public static class TileTypeExtension {
-    public static TileMapType toTileMapType(this TileType tileType) {
+    public static TileMapType ToTileMapType(this TileType tileType) {
         switch (tileType) {
             case TileType.Block:
                 return TileMapType.Block;
@@ -40,19 +43,10 @@ public static class TileTypeExtension {
                 return TileMapType.Block;
         }
     }
-
-    public static bool isSolid(this TileType tileType) {
-        switch (tileType) {
-            case TileType.Block:
-                return true;
-            default:
-                return false;
-        }
-    }
 }
 
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
-public class TileItem : ItemObject, IPlacableItem
+public class TileItem : ItemObject, IPlacableItem, ISolidItem
 {
     public GameStageObject gameStage;
     public TileType tileType;
@@ -93,7 +87,7 @@ public class TileItem : ItemObject, IPlacableItem
             Tile tile => tile.sprite,
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
             RuleTile ruleTile => ruleTile.m_DefaultSprite,
-            IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
+            IStateTileSingle stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
             _ => null
         };
     }
@@ -116,7 +110,7 @@ public class TileItem : ItemObject, IPlacableItem
         return GetDefaultSprites(tile);
     }
 
-    public TileBase getTile()
+    public TileBase GetTile()
     {
         return tile;
     }

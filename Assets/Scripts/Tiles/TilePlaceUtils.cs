@@ -24,13 +24,13 @@ using TileEntity.Instances.Caves.DimensionalStabilizer;
 using TileEntity.Instances.CompactMachines;
 using TileEntity.MultiBlock;
 using TileMaps.Previewer;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using Tiles.TileMap;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Place {
-    public static class PlaceTile
+    public static class TilePlaceUtils
     {
-        
-        
         public static void RotateTileInMap(Tilemap tilemap, TileBase tileBase, Vector3Int cellPosition, int rotation, bool mirror)
         {
             tilemap.SetTile(cellPosition,null); // This is required to reset the transform matrix in the tilemap to the base 
@@ -76,14 +76,14 @@ namespace TileMaps.Place {
             {
                 case TileItem tileItem:
                 {
-                    TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State);
-                    if (!TilePlacable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
+                    TileMapType tileMapType = tileItem.tileType.ToTileMapType();
+                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State, playerScript.TilePlacementOptions.PlacementMode);
+                    if (!TilePlaceable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
                     
-                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData, itemTagCollection: itemSlot?.tags);
+                    PlaceTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData, itemTagCollection: itemSlot?.tags);
                     return true;
                 }
-                case ConduitItem conduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
+                case ConduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
                     return false;
                 case ConduitItem conduitItem:
                 {
@@ -101,17 +101,18 @@ namespace TileMaps.Place {
                 case FluidTileItem fluidTileItem:
                 {
                     IWorldTileMap fluidMap = closedChunkSystem.GetTileMap(TileMapType.Fluid);
-                    if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
+                    
+                    if (checkConditions && !FluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
                         return false;
                     }
-                    return placeFluid(fluidTileItem,worldPlaceLocation,fluidMap);
+                    return PlaceFluid(fluidTileItem,worldPlaceLocation,fluidMap);
                 }
                 default:
                     return false;
             }
         }
         
-        public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem)
+        public static bool TilePlaceable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem)
         {
             if (!tileItem.tileOptions.placeableInCave && closedChunkSystem.Dim == (int)Dimension.Cave) return false;
             
@@ -120,36 +121,42 @@ namespace TileMaps.Place {
                 if (!conditionalPlacementTile.CanPlace()) return false;
             }
             
-            TileMapType tileMapType = tileItem.tileType.toTileMapType();
+            TileMapType tileMapType = tileItem.tileType.ToTileMapType();
             TileMapLayer layer = tileMapType.ToLayer();
             switch (layer) {
                 case TileMapLayer.Base:
-                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation.ToValue());
+                    return BaseTilePlaceable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation.ToValue());
                 case TileMapLayer.Background:
-                    return backgroundTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
+                    return BackgroundTilePlaceable(tileItem,worldPlaceLocation, closedChunkSystem);
                 default:
                     return false;
             }
         }
-        public static Vector3Int getItemPlacePosition(ItemObject itemObject, Vector2 position) {
-            if (itemObject is TileItem) {
-                TileItem tileItem = (TileItem) itemObject;
-                return (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
-            } else if (itemObject is ConduitItem) {
-                return (Vector3Int) Global.GetCellPositionFromWorld(position);
+        public static Vector3Int GetItemPlacePosition(ItemObject itemObject, Vector2 position) {
+            if (itemObject is TileItem tileItem) {
+                return (Vector3Int)GetPlacePosition(position.x,position.y);
             }
-            return Vector3Int.zero;
+            return (Vector3Int) Global.GetCellPositionFromWorld(position);
+           
         }
-        public static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
+        public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
-            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
-            if (tileItem.tileType == TileType.Block)
+            
+            bool singleCellTile = tileItem.tileType is TileType.Platform or TileType.Block;
+            if (singleCellTile)
             {
+                bool playerCollidable = tileItem.tileType == TileType.Block;
+                int layer = TileMapLayer.Base.ToRaycastLayers();
+                if (playerCollidable)
+                {
+                    layer |=  1 << LayerMask.NameToLayer("Player");
+                }
                 Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
-                if (raycastTileInBox(centeredWorld, 1 << LayerMask.NameToLayer("Player"))) return false;
+                if (RaycastTileInBox(centeredWorld, layer)) return false;
             }
             
-   
+            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
+            
             
             if (exclusion == null)
             {
@@ -160,10 +167,11 @@ namespace TileMaps.Place {
                 if (TileWithinIntervalAreaRangeExclusion(intervalVector, exclusion, TileMapLayer.Base,tileItem.tileOptions.placeBreakable)) return false;
             }
             
+            
             if (DevMode.Instance.noPlaceLimit) return true;
             
     
-            HashSet<Direction> adjacentBlocks = GetActivePerimeter(intervalVector, tileItem.tileType.toTileMapType().ToLayer());
+            HashSet<Direction> adjacentBlocks = GetActivePerimeter(intervalVector, tileItem.tileType.ToTileMapType().ToLayer());
             
             TilePlacementOptions placementOptions = tileItem.tileOptions.placementRequirements;
             
@@ -193,7 +201,7 @@ namespace TileMaps.Place {
             if (placementOptions.BackGround)
             {
                 restrictions++;
-                bool background = backgroundTileWithinRange(
+                bool background = BackgroundTileWithinRange(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
@@ -214,9 +222,9 @@ namespace TileMaps.Place {
         i) no tileBackground within sprite size.
         ii) tileBackground below, above, left, or right, or a tileblock at the location.
         **/
-        private static bool backgroundTilePlacable(TileItem tileItem,Vector2 worldPosition, ClosedChunkSystem closedChunkSystem) { 
+        private static bool BackgroundTilePlaceable(TileItem tileItem,Vector2 worldPosition, ClosedChunkSystem closedChunkSystem) { 
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.GetSprite()),0);
-            if (backgroundTileWithinRange(
+            if (BackgroundTileWithinRange(
                 intervalVector.X.LowerBound,
                 intervalVector.X.UpperBound,
                 intervalVector.Y.LowerBound,
@@ -230,19 +238,19 @@ namespace TileMaps.Place {
             }
             
             return 
-                tileWithinParameter(
+                TileWithinParameter(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
                     TileMapLayer.Base.ToRaycastLayers()) 
-                || backgroundWithinParameter(
+                || BackgroundWithinParameter(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
                     closedChunkSystem.GetTileMap(TileMapType.Background))
-                || tileWithinRange(
+                || TileWithinRange(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
@@ -263,25 +271,16 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, ITileEntityInstance presetTileEntity = null, TilePlacementData placementData = null, ItemTagCollection itemTagCollection = null) {
+        public static void PlaceTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, TilePlacementData placementData, ITileEntityInstance presetTileEntity = null, ItemTagCollection itemTagCollection = null)
+        {
             if (iWorldTileMap == null || ReferenceEquals(tileItem,null)) {
                 return;
             }
             if (!closedChunkSystem.LocalWorldPositionInSystem(worldPosition)) {
                 return;
             }
-
             
-            int state = placementData?.State ?? 0;
-            if (tileItem.tile is IMousePositionStateTile restrictedTile) {
-                state = restrictedTile.GetStateAtPosition(worldPosition);
-                bool placeable = state != -1;
-                if (!placeable) {
-                    return;
-                }
-            }
-            
-            Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            Vector2Int placePosition = GetPlacePosition(worldPosition.x, worldPosition.y);
 
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             PlayerTileRotation? tileRotation = placementData?.Rotation;
@@ -292,7 +291,7 @@ namespace TileMaps.Place {
                 {
                     if (tileItem.tile is HammerTile)
                     {
-                        int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
+                        int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData.State);
                         if (hammerTileRotation > 0) rotation = hammerTileRotation;
                     }
                 }
@@ -300,6 +299,35 @@ namespace TileMaps.Place {
                 {
                     rotation = (int)tileRotation.Value;
                 }
+            }
+            
+            int state = placementData?.State ?? 0;
+            if (tileItem.tile is IMousePositionStateTile restrictedTile) {
+                state = restrictedTile.GetStateAtPosition(worldPosition);
+                bool placeable = state != -1;
+                if (!placeable) {
+                    return;
+                }
+            } else if (tileItem.tile is PlatformStateTile)
+            {
+                placementData ??= new TilePlacementData(0, 0, 0);
+                if (placementData.PlacementMode == (int)PlatformPlacementMode.Slope && tileRotation.HasValue)
+                {
+                    if (tileRotation == PlayerTileRotation.Auto) // Kind of messy but GetPlacementPlatformRotation returns placementData rotation if sloped
+                    {
+                        int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
+                        placementData.Rotation = (PlayerTileRotation)(MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1);
+                    }
+                    else
+                    {
+                        placementData.Rotation = tileRotation.Value;
+                    }
+                }
+                PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
+                state = (int)GetPlacementPlatformState(placePosition, placementData,platformTileMap);
+                placementData.State = state;
+                rotation = GetPlacementPlatformRotation(placePosition, placementData,platformTileMap);
+                // TODO NON AUTO ROTATION
             }
             
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
@@ -319,7 +347,48 @@ namespace TileMaps.Place {
                 return;
             }
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
-            
+        }
+
+        public static PlatformTileState GetPlacementPlatformState(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
+        {
+            PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
+            switch (platformPlacementMode)
+            {
+                case PlatformPlacementMode.Slope:
+                    return PlatformTileState.Slope;
+                case PlatformPlacementMode.Flat:
+                case PlatformPlacementMode.Update:
+                    if (tilePlacementData.State == (int)PlatformTileState.Slope) return PlatformTileState.Slope;
+                    bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
+                    bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
+                    
+                    // This might be reversed
+                    if (!left && !right) return PlatformTileState.FlatConnectAll;
+                    if (left && right) return PlatformTileState.FlatConnectNone;
+                    return PlatformTileState.FlatConnectOne;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        public static int GetPlacementPlatformRotation(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
+        {
+            PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
+            switch (platformPlacementMode)
+            {
+                case PlatformPlacementMode.Slope:
+                    return (int)tilePlacementData.Rotation;
+                case PlatformPlacementMode.Flat:
+                case PlatformPlacementMode.Update:
+                    if (tilePlacementData.State is (int)PlatformTileState.FlatConnectOne or (int)PlatformTileState.FlatSlopeConnectOne)
+                    {
+                        bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
+                        if (right) return 1;
+                    }
+                    return 0;
+                    
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public static void ClearTilesOnPlace(TileItem tileItem, Vector2 worldPosition, int rotation)
@@ -387,7 +456,8 @@ namespace TileMaps.Place {
 
         
 
-        private static bool PlaceConduit(PlayerScript playerScript, ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
+        private static void PlaceConduit(PlayerScript playerScript, ConduitItem conduitItem, Vector2 worldPosition,
+            IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
         {
             Vector2Int placePosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.GetConduitType();
@@ -401,12 +471,10 @@ namespace TileMaps.Place {
             IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity,playerScript.ConduitPlacementOptions);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
             iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
-            
-            return true;
         }
 
-        private static bool placeFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            if (iWorldTileMap is not FluidTileMap fluidTileMap) {
+        private static bool PlaceFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+            if (iWorldTileMap is not FluidTileMap) {
                 return false;
             }
             Vector2Int placePosition = Global.GetCellPositionFromWorld(worldPosition);
@@ -421,17 +489,17 @@ namespace TileMaps.Place {
             return !conduitTileMap.HasTile(tileMapPosition);
         }
 
-        private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+        private static bool FluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
             Vector2Int tileMapPosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
-            if (raycastTileInBox(worldPosition, TileMapLayer.Base.ToRaycastLayers(), true)) return false;
+            if (RaycastTileInBox(worldPosition, TileMapLayer.Base.ToRaycastLayers(), true)) return false;
             return !iWorldTileMap.HasTile(tileMapPosition);
         }
 
-        public static UnityEngine.Vector2Int getPlacePosition(ItemObject item, float x, float y) {
-            return new UnityEngine.Vector2Int(snap(x), snap(y));
+        public static UnityEngine.Vector2Int GetPlacePosition(float x, float y) {
+            return new UnityEngine.Vector2Int(Snap(x), Snap(y));
         }
 
-        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer, bool requireFlat = true)
+        public static bool TileInDirection(Vector2 position, Direction direction, TileMapLayer layer, bool requireFlat = true)
         {
             float centeredX = (float)Math.Floor(position.x / Global.TILE_SIZE) * Global.TILE_SIZE +
                               Global.TILE_SIZE / 2f;
@@ -440,7 +508,7 @@ namespace TileMaps.Place {
             Vector2 centered = new Vector2(centeredX,centeredY);
             if (direction == Direction.Center)
             {
-                return raycastTileInBox(centered,layer.ToRaycastLayers());  
+                return RaycastTileInBox(centered,layer.ToRaycastLayers());  
             }
             if (requireFlat)
             {
@@ -449,30 +517,28 @@ namespace TileMaps.Place {
 
             return direction switch
             {
-                Direction.Down => raycastTileInBox(centered + Vector2.down * Global.TILE_SIZE, layer.ToRaycastLayers()),
-                Direction.Up => raycastTileInBox(centered + Vector2.up * Global.TILE_SIZE, layer.ToRaycastLayers()),
-                Direction.Left => raycastTileInBox(centered + Vector2.left * Global.TILE_SIZE, layer.ToRaycastLayers()),
-                Direction.Right => raycastTileInBox(centered + Vector2.right * Global.TILE_SIZE,
+                Direction.Down => RaycastTileInBox(centered + Vector2.down * Global.TILE_SIZE, layer.ToRaycastLayers()),
+                Direction.Up => RaycastTileInBox(centered + Vector2.up * Global.TILE_SIZE, layer.ToRaycastLayers()),
+                Direction.Left => RaycastTileInBox(centered + Vector2.left * Global.TILE_SIZE, layer.ToRaycastLayers()),
+                Direction.Right => RaycastTileInBox(centered + Vector2.right * Global.TILE_SIZE,
                     layer.ToRaycastLayers()),
                 _ => false
             };
         }
         
-        public static int snap(float value) {
+        public static int Snap(float value) {
             return Mathf.FloorToInt(2*value);
         }
 
-        public static float mod(float x, float m) {
+        public static float Mod(float x, float m) {
         return (x%m + m)%m;
         }
 
-        public static float modInt(float x, int m) {
-        return (x%m + m)%m;
-        }
+       
         /// <summary>
         /// raycasts a given position in a 0.5f, 0.5f box.
         /// </summary>
-        public static bool raycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
+        public static bool RaycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
         {
             var collider = Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
             if (ReferenceEquals(collider,null)) return false;
@@ -589,11 +655,11 @@ namespace TileMaps.Place {
         /**
         returns true if there is a tile within the range, inclusive
         **/
-        private static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layers,
+        private static bool TileWithinRange(float minX, float maxX, float minY, float maxY, int layers,
             bool ignorePlaceBreakable = false) {
             for (float x = minX; x <= maxX; x += Global.TILE_SIZE) {
                 for (float y = minY; y <= maxY; y += Global.TILE_SIZE) {
-                    if (raycastTileInBox(new Vector2(x,y), layers,ignorePlaceBreakable)) {
+                    if (RaycastTileInBox(new Vector2(x,y), layers,ignorePlaceBreakable)) {
                         return true;
                     }
                 }
@@ -603,7 +669,7 @@ namespace TileMaps.Place {
         /// Summary:
         ///     Since tilebackgrounds can "overflow" into other grids, must check each quadrant of the grid.
         ///     Returns true iff every raycast background hits 
-        private static bool backgroundTileWithinRange(float minX, float maxX, float minY, float maxY, IWorldTileMap worldTileMap)
+        private static bool BackgroundTileWithinRange(float minX, float maxX, float minY, float maxY, IWorldTileMap worldTileMap)
         {
             Tilemap tilemap = worldTileMap.GetTilemap();
             for (float x = minX; x <= maxX; x += 1/2f) {
@@ -620,25 +686,25 @@ namespace TileMaps.Place {
         }
 
         
-        private static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, int layers) {
+        private static bool TileWithinParameter(float minX, float maxX, float minY, float maxY, int layers) {
             return (
-                tileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,layers) ||
-                tileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,layers) ||
-                tileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,layers) ||
-                tileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers));
+                TileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,layers) ||
+                TileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,layers) ||
+                TileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,layers) ||
+                TileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers));
         }
         
-        private static bool backgroundWithinParameter(float minX, float maxX, float minY, float maxY, IWorldTileMap worldTileMap) {
+        private static bool BackgroundWithinParameter(float minX, float maxX, float minY, float maxY, IWorldTileMap worldTileMap) {
             return (
-                backgroundTileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,worldTileMap) ||
-                backgroundTileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,worldTileMap) ||
-                backgroundTileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,worldTileMap) ||
-                backgroundTileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,worldTileMap));
+                BackgroundTileWithinRange(minX-Global.TILE_SIZE,minX-Global.TILE_SIZE,minY,maxY,worldTileMap) ||
+                BackgroundTileWithinRange(maxX+Global.TILE_SIZE,maxX+Global.TILE_SIZE,minY,maxY,worldTileMap) ||
+                BackgroundTileWithinRange(minX,maxX,minY-Global.TILE_SIZE,minY-Global.TILE_SIZE,worldTileMap) ||
+                BackgroundTileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,worldTileMap));
         }
 
         private static bool TileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer,
             bool placeBreakable) {
-            return tileWithinRange(
+            return TileWithinRange(
                 floatIntervalVector.X.LowerBound,
                 floatIntervalVector.X.UpperBound,
                 floatIntervalVector.Y.LowerBound,
@@ -655,7 +721,7 @@ namespace TileMaps.Place {
             for (float x = minX; x <= maxX; x += 1/2f) {
                 for (float y = minY; y <= maxY; y += 1/2f) {
                     if (x >= exclusion.X.LowerBound && x <= exclusion.X.UpperBound && y >= exclusion.Y.LowerBound && y <= exclusion.Y.UpperBound) continue;
-                    if (raycastTileInBox(new Vector2(x,y), layer.ToRaycastLayers(),ignorePlaceBreakable)) {
+                    if (RaycastTileInBox(new Vector2(x,y), layer.ToRaycastLayers(),ignorePlaceBreakable)) {
                         return true;
                     }
                 }
@@ -671,14 +737,14 @@ namespace TileMaps.Place {
             float minY = floatIntervalVector.Y.LowerBound;
             float maxY = floatIntervalVector.Y.UpperBound;
             HashSet<Direction> directions = new HashSet<Direction>();
-            if (tileWithinRange(minX - Global.TILE_SIZE, minX - Global.TILE_SIZE, minY, maxY, layers))
+            if (TileWithinRange(minX - Global.TILE_SIZE, minX - Global.TILE_SIZE, minY, maxY, layers))
                 directions.Add(Direction.Left);
-            if (tileWithinRange(maxX + Global.TILE_SIZE, maxX + Global.TILE_SIZE, minY, maxY, layers))
+            if (TileWithinRange(maxX + Global.TILE_SIZE, maxX + Global.TILE_SIZE, minY, maxY, layers))
                 directions.Add(Direction.Right);
-            if (tileWithinRange(minX, maxX, minY - Global.TILE_SIZE, minY - Global.TILE_SIZE, layers))
+            if (TileWithinRange(minX, maxX, minY - Global.TILE_SIZE, minY - Global.TILE_SIZE, layers))
                 directions.Add(Direction.Down);
             
-            if (tileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers))
+            if (TileWithinRange(minX,maxX,maxY+Global.TILE_SIZE,maxY+Global.TILE_SIZE,layers))
                 directions.Add(Direction.Up);
             return directions;
 

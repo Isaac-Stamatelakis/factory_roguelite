@@ -149,7 +149,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             if (ReferenceEquals(tileItem,null)) {
                 return;
             }
-            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.ToTileMapType()];
             iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
@@ -187,7 +187,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
 
             TileType tileType = GetTileType(tileItem, positionInPartition.x, positionInPartition.y);
-            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileType.toTileMapType()];
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileType.ToTileMapType()];
             iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
@@ -218,15 +218,15 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,options);
         }
 
-        public override TileItem GetTileItem(Vector2Int position, TileMapLayer layer)
+        public override TileItem GetTileItem(Vector2Int positionInPartition, TileMapLayer layer)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             {
                 switch (layer) {
                     case TileMapLayer.Base:
-                        return itemRegistry.GetTileItem(data.baseData.ids[position.x,position.y]);
+                        return itemRegistry.GetTileItem(data.baseData.ids[positionInPartition.x,positionInPartition.y]);
                     case TileMapLayer.Background:
-                        return itemRegistry.GetTileItem(data.backgroundData.ids[position.x,position.y]);
+                        return itemRegistry.GetTileItem(data.backgroundData.ids[positionInPartition.x,positionInPartition.y]);
                     default:
                         Debug.LogError("TileChunkPartition attempted to return tileitem from invalid layer " + layer.ToString());
                         return null;

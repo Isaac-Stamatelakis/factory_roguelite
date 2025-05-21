@@ -43,7 +43,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 grabbedItemProperties.SetItemSlot(newSlot);
                 grabbedItemProperties.SetDeIterateSlot(this);
                 inventoryUI.CallListeners(index);
-                inventoryUI.DisplayItem(index);
+                inventoryUI.RefreshSlot(index);
                 return;
             }
             
@@ -64,7 +64,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             grabbedItemProperties.UpdateSprite();
             inventoryUI.CallListeners(index);
-            inventoryUI.DisplayItem(index);
+            inventoryUI.RefreshSlot(index);
         }
 
         protected override void LeftClick()
@@ -87,7 +87,7 @@ namespace Item.Inventory.ClickHandlers.Instances
         
             if (!update) return;
 
-            inventoryUI.DisplayItem(index);
+            inventoryUI.RefreshSlot(index);
             inventoryUI.CallListeners(index);
         }
 

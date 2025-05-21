@@ -65,12 +65,11 @@ public static class ItemEditorFactory
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
     }
-    public static void saveTileWithName(TileBase tileBase, string tileName, string addition = "",string path = "Assets/EditorCreations/") {
+    public static void SaveTileWithName(TileBase tileBase, string tileName, string addition = "",string path = "Assets/EditorCreations/") {
         if (!path.EndsWith("/")) {
             path = path + '/';
         }
         string savePath = Path.Combine(path+tileName,$"T~{tileName}{addition}.asset");
-        Debug.Log(savePath);
         AssetDatabase.CreateAsset(tileBase,savePath);
         AssetDatabase.Refresh();
     }

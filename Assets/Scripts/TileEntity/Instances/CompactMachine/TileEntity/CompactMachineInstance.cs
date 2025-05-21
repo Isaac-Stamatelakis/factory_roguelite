@@ -29,7 +29,7 @@ namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
         IStopPlayerRightClickableTileEntity, ICompactMachine, 
         IBreakActionTileEntity, ISerializableTileEntity,
-        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity, ITextPreviewTileEntity
+        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity, IWorldToolTipTileEntity
     {
         private CompactMachineTeleporterInstance teleporter;
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }

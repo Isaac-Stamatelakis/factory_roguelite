@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,10 +17,19 @@ namespace Tiles {
         public TileMapType getStateType(int state);
     }
 
-    public interface IStateTile {
-        public TileBase getTileAtState(int state);
+    public interface IStateTileSingle : IStateTile{
+        public TileBase GetTileAtState(int state);
+        
+    }
+    public interface IStateTileMultiple : IStateTile
+    {
+        public void GetTiles(int state, TileBase[] container);
+    }
+
+    public interface IStateTile
+    {
         public TileBase GetDefaultTile();
-        public int getStateAmount();   
+        public int GetStateAmount();   
     }
 }
 

@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.Indicators.Break
 {
     [CreateAssetMenu(fileName ="New Break State Tile",menuName="Tile/State/Break")]
-    public class BreakIndicatorStateTile : TileBase, IStateTile
+    public class BreakIndicatorStateTileSingle : TileBase, IStateTileSingle
     {
         public Tile[] Tiles;
 
@@ -14,7 +14,7 @@ namespace Tiles.Indicators.Break
             int index = Mathf.RoundToInt(percent * (Tiles.Length-1));
             return Tiles[index];
         }
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             if (state < 0 || state >= Tiles.Length) return null;
             return Tiles[state];
@@ -25,7 +25,7 @@ namespace Tiles.Indicators.Break
             return Tiles[0];
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return Tiles.Length;
         }
