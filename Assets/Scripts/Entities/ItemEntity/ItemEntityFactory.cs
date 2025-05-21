@@ -22,7 +22,7 @@ namespace Entities {
             }
         }
         public static GameObject SpawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2? initialVelocity = null) {
-            if (ItemSlotUtils.IsItemSlotNull(itemSlot) || ReferenceEquals(itemSlot.itemObject.getSprite(),null)) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot) || ReferenceEquals(itemSlot.itemObject.GetSprite(),null)) {
                 return null;
             }
             GameObject tileItemEntity = new GameObject();

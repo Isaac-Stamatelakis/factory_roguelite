@@ -10,9 +10,9 @@ namespace Items {
     {
         public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
-            return new Sprite[]{getSprite()};
+            return new Sprite[]{GetSprite()};
         }
         public Tile getTile(int fill) {
             if (fill == 0) {
@@ -50,7 +50,7 @@ namespace Items {
             GameStageObject = gameStageObject;
         }
 
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
             return tiles[^1].sprite;
         }

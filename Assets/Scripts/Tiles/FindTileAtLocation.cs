@@ -68,7 +68,7 @@ public static class FindTileAtLocation
                     if (tileItem == null) {
                         continue;
                     }
-                    if (isHitTile(tileItem.getSprite(),searchWidth)) {
+                    if (isHitTile(tileItem.GetSprite(),searchWidth)) {
                         return new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
                     }
                 }
@@ -79,7 +79,7 @@ public static class FindTileAtLocation
                     if (tileItem == null) {
                         continue;
                     }
-                    if (isHitTile(tileItem.getSprite(),searchWidth)) {
+                    if (isHitTile(tileItem.GetSprite(),searchWidth)) {
                         return new Vector2Int(hitPosition.x-(searchWidth/2), hitPosition.y+y);
                     }
                 }
@@ -90,7 +90,7 @@ public static class FindTileAtLocation
                     if (tileItem == null) {
                         continue;
                     }
-                    if (isHitTile(tileItem.getSprite(),searchWidth)) {
+                    if (isHitTile(tileItem.GetSprite(),searchWidth)) {
                         return new Vector2Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
                     }
                 }
@@ -101,7 +101,7 @@ public static class FindTileAtLocation
                     if (tileItem == null) {
                         continue;
                     }
-                    if (isHitTile(tileItem.getSprite(),searchWidth)) {
+                    if (isHitTile(tileItem.GetSprite(),searchWidth)) {
                         return new Vector2Int(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
                     }
                 }

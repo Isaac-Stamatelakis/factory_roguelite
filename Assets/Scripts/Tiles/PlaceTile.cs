@@ -142,7 +142,7 @@ namespace TileMaps.Place {
         }
         public static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
-            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.getSprite()),rotation);
+            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
             if (tileItem.tileType == TileType.Block)
             {
                 Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
@@ -215,7 +215,7 @@ namespace TileMaps.Place {
         ii) tileBackground below, above, left, or right, or a tileblock at the location.
         **/
         private static bool backgroundTilePlacable(TileItem tileItem,Vector2 worldPosition, ClosedChunkSystem closedChunkSystem) { 
-            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.getSprite()),0);
+            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.GetSprite()),0);
             if (backgroundTileWithinRange(
                 intervalVector.X.LowerBound,
                 intervalVector.X.UpperBound,
@@ -325,7 +325,7 @@ namespace TileMaps.Place {
         public static void ClearTilesOnPlace(TileItem tileItem, Vector2 worldPosition, int rotation)
         {
             int layers = TileMapLayer.Base.ToRaycastLayers();
-            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.getSprite()),rotation);
+            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
             for (float x = intervalVector.X.LowerBound; x <= intervalVector.X.UpperBound; x += 0.5f)
             {
                 for (float y = intervalVector.Y.LowerBound; y <= intervalVector.Y.UpperBound; y += 0.5f)

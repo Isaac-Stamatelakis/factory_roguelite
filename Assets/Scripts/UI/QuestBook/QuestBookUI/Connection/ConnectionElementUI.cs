@@ -23,7 +23,7 @@ namespace UI.QuestBook {
             this.node = node;
             this.nodeConnections = nodeConnections;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);
-            mImage.sprite = itemObject?.getSprite();
+            mImage.sprite = itemObject?.GetSprite();
             nameText.text = node.Content.Title;
             idText.text = "#" + node.Id.ToString();
             setColor();

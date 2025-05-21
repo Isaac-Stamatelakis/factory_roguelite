@@ -126,7 +126,7 @@ namespace Items {
                 Unload();
                 return;
             }
-            Sprite[] sprites = itemSlot.itemObject.getSprites();
+            Sprite[] sprites = itemSlot.itemObject.GetSprites();
             if (sprites == null || sprites.Length == 0)
             {
                 Unload();

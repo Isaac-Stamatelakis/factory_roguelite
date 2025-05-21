@@ -34,7 +34,7 @@ namespace Item.Tags.ItemTagManagers.Instances
             
             fluidGameObject.name = fluidItem.itemObject.name;
             SpriteRenderer spriteRenderer = fluidGameObject.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = fluidItem.itemObject.getSprite();
+            spriteRenderer.sprite = fluidItem.itemObject.GetSprite();
             
             Vector2 scale = fluidContainer.GetWorldFluidSpriteScale();
             fluidGameObject.transform.localScale = scale;
@@ -56,7 +56,7 @@ namespace Item.Tags.ItemTagManagers.Instances
             }
             GameObject fluidObject = new GameObject();
             Image image = fluidObject.AddComponent<Image>();
-            image.sprite = fluidItem.itemObject.getSprite();
+            image.sprite = fluidItem.itemObject.GetSprite();
             RectTransform rectTransform = fluidObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = spriteSize;
             return fluidObject;

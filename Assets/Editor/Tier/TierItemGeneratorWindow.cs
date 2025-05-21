@@ -99,8 +99,8 @@ namespace EditorScripts.Tier
             List<TierItemGenerator> itemGenerators = new List<TierItemGenerator>
             {
                 CreateGenerator<MachineFrameGenerator>(),
-                CreateGenerator<MotorGenerator>(),
-                CreateGenerator<RobotArmGenerator>(),
+                CreateCraftingItemGenerator(TierGeneratedCraftingItemType.Motor),
+                CreateCraftingItemGenerator(TierGeneratedCraftingItemType.RobotArm),
             };
 
             List<TierItemGenerator> generators = new List<TierItemGenerator>();
@@ -118,6 +118,11 @@ namespace EditorScripts.Tier
             TierItemGenerator CreateGenerator<T>() where T : TierItemGenerator
             {
                 return (TierItemGenerator)Activator.CreateInstance(typeof(T), tierItemInfoObject, defaults, tierGenPath);
+            }
+            
+            TierItemGenerator CreateCraftingItemGenerator(TierGeneratedCraftingItemType itemType)
+            {
+                return new TierCraftingItemGenerator(tierItemInfoObject, defaults, tierGenPath, itemType);
             }
         }
     }

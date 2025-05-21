@@ -59,7 +59,7 @@ namespace Robot.Tool.Instances
         
         public override Sprite GetPrimaryModeSprite()
         {
-            return robotObject.ToolIconItem?.getSprite();
+            return robotObject.ToolIconItem?.GetSprite();
         }
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)

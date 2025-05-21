@@ -28,11 +28,10 @@ namespace Items {
             {
                 if (CanApplyTag(tag)) return true;
             }
-
             return false;
         }
-        public abstract Sprite[] getSprites();
-        public abstract Sprite getSprite();
+        public abstract Sprite[] GetSprites();
+        public abstract Sprite GetSprite();
         public abstract ItemDisplayType? getDisplayType();
         public abstract GameStageObject GetGameStageObject();
         /// <summary>

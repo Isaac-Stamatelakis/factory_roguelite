@@ -28,12 +28,12 @@ namespace Items {
         {
             GameStageObject = gameStageObject;
         }
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
             return robot.defaultSprite;
         }
 
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
             return new Sprite[]{robot.defaultSprite};
         }

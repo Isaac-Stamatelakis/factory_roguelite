@@ -80,7 +80,7 @@ namespace Robot.Tool
         
         public Sprite GetSprite()
         {
-            return robotObject?.ToolIconItem?.getSprite();
+            return robotObject?.ToolIconItem?.GetSprite();
         }
         public abstract Sprite GetPrimaryModeSprite();
 

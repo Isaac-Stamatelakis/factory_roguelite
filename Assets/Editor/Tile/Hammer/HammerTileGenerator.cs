@@ -178,8 +178,6 @@ namespace HammerTileEditor
             {
                 throw new System.Exception("Texture was less than 16 pixels wide and 16 pixels tall");
             }
-
-            
             
             Sprite[] sprites = EditorFactory.spritesFromTexture(texture, path, tileName, 16, 16);
             TileBase tile = GetTileFromSprites(sprites);

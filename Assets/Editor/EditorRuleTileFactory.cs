@@ -184,8 +184,6 @@ public class EditorFactory
         for (int y = 0; y < rows ; y++) {
             for (int x = 0; x < columns; x ++) {
                 int index = y*columns+x;
-                RuleVal ruleVal = indexToRule(index);
-
                 Color[] pixels = texture.GetPixels(width*x,height*y,width,height);
                 Texture2D spliteTexture = new Texture2D(width,height);
                 spliteTexture.SetPixels(0,0,width,height,pixels);
@@ -394,6 +392,7 @@ public class EditorFactory
             TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath + ".png") as TextureImporter;
             textureImporter.textureType = TextureImporterType.Sprite;
             textureImporter.spritePixelsPerUnit = 32;
+            
             AssetDatabase.ImportAsset(spriteSavePath + ".png", ImportAssetOptions.ForceUpdate);
             AssetDatabase.Refresh();
 

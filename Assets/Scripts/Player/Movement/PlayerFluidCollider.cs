@@ -65,7 +65,6 @@ namespace Player.Movement
         {
             fluidTileMap = null;
             playerRobot.RemoveCollisionState(CollisionState.InFluid);
-            
         }
     }
 }

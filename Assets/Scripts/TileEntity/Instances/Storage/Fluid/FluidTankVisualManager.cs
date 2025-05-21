@@ -19,7 +19,7 @@ namespace TileEntity.Instances.Storage.Fluid
                 return;
             }
             gameObject.SetActive(true);
-            spriteRenderer.sprite = itemSlot.itemObject.getSprite();
+            spriteRenderer.sprite = itemSlot.itemObject.GetSprite();
             float height = fillRatio;
             transform.localScale = new Vector3(1f,height,1);
             transform.position = new Vector3(tileEntityPosition.x,tileEntityPosition.y-Global.TILE_SIZE+height/2,3f);

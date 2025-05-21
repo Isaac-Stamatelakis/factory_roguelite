@@ -33,19 +33,19 @@ namespace Items.Transmutable {
         {
             return state.getMatterState();
         }
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
             return material.GetOptionStateDict()[state].sprites;
         }
 
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
-            return getSprites()[0];
+            return GetSprites()[0];
         }
 
         public override ItemDisplayType? getDisplayType()
         {
-            var sprites = getSprites();
+            var sprites = GetSprites();
             return sprites?.Length > 1 ? ItemDisplayType.Animated : ItemDisplayType.Single;
         }
 
