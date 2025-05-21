@@ -57,22 +57,22 @@ public class DoorTileGenerator : EditorWindow {
         Tile rightOpenTile = ItemEditorFactory.StandardTileCreator(rightOpen,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(rightOpenTile,tileName,"RightOpen");
 
-        MousePositionStateTileSingleStateDoorTile doorTile = ScriptableObject.CreateInstance<MousePositionStateTileSingleStateDoorTile>();
-        doorTile.left = leftClosedTile;
-        doorTile.leftOpen = leftOpenTile;
-        doorTile.right = rightClosedTile;
-        doorTile.rightOpen = rightOpenTile;
+        IMousePositionStateDoorTile doorDoorTile = ScriptableObject.CreateInstance<IMousePositionStateDoorTile>();
+        doorDoorTile.left = leftClosedTile;
+        doorDoorTile.leftOpen = leftOpenTile;
+        doorDoorTile.right = rightClosedTile;
+        doorDoorTile.rightOpen = rightOpenTile;
         
 
         Door door = ScriptableObject.CreateInstance<Door>();
         ItemEditorFactory.saveTileEntity(door,tileName);
 
-        ItemEditorFactory.saveTileWithName(doorTile,tileName);
+        ItemEditorFactory.saveTileWithName(doorDoorTile,tileName);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
-            tile: doorTile,
+            tile: doorDoorTile,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: door

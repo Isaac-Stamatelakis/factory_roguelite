@@ -34,14 +34,14 @@ namespace Tiles.TileMap
         {
             base.RemoveTile(x, y);
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
-            if (overlayTileMap.GetTile(cellPosition)) overlayTileMap.SetTile(cellPosition, null);
+            overlayTileMap.SetTile(cellPosition, null);
         }
 
         public override void BreakTile(Vector2Int position)
         {
             base.BreakTile(position);
             Vector3Int cellPosition = new Vector3Int(position.x, position.y, 0);
-            if (overlayTileMap.GetTile(cellPosition)) overlayTileMap.SetTile(cellPosition, null);
+            overlayTileMap.SetTile(cellPosition, null);
         }
     }
 }

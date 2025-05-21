@@ -12,7 +12,7 @@ namespace Tiles {
         public TileType GetTileType(int state);
     }
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
-    public class MousePositionStateTileSingleStateDoorTile : TileBase, IMousePositionStateTile, ITypeSwitchType, IStateTileSingle, IStateLayerTile
+    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, ITypeSwitchType, IStateTileSingle, IStateLayerTile
     {
         public Tile left;
         public Tile leftOpen;

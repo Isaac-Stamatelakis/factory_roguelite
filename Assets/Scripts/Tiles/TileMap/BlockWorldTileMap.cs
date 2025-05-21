@@ -55,7 +55,6 @@ namespace TileMaps {
                 float z =(bool)wireFrame ? -0.1f : 0.3f;
                 outlineTileMap.transform.localPosition = new Vector3(0,0,z);
             }
-            
             if (color != null) {
                 outlineTileMap.color = (Color)color;
             }
@@ -63,22 +62,23 @@ namespace TileMaps {
         }
         
         
-
-
         public override void BreakTile(Vector2Int position)
         {
-            base.BreakTile(position);
             Vector3Int vector = new Vector3Int(position.x, position.y, 0);
+            if (!tilemap.GetTile(vector)) return;
+            base.BreakTile(position);
+            
             outlineTileMap.SetTile(vector, null);
-            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
+            overlayTileMap.SetTile(vector, null);
             shaderOverlayTilemapManager.ClearAllOnTile(ref vector);
         }
 
         protected override void RemoveTile(int x, int y)
         {
-            outlineTileMap.SetTile(new Vector3Int(x,y,0), null);
             Vector3Int vector = new Vector3Int(x,y,0);
-            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
+            if (!tilemap.GetTile(vector)) return;
+            outlineTileMap.SetTile(new Vector3Int(x,y,0), null);
+            overlayTileMap.SetTile(vector, null);
             shaderOverlayTilemapManager.ClearAllOnTile(ref vector);
             base.RemoveTile(x, y);
         }

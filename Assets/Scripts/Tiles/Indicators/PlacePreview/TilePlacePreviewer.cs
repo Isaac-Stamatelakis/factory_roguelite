@@ -102,7 +102,7 @@ namespace TileMaps.Previewer {
             lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
             
-            if (tileBase is ConduitStateTileSingle conduitStateTile)
+            if (tileBase is ConduitStateTile conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
             } else if (itemObject is FluidTileItem fluidTileItem)
@@ -230,7 +230,7 @@ namespace TileMaps.Previewer {
 
         
 
-        private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTileSingle conduitStateTileSingle, ItemObject itemObject, Vector3Int position)
+        private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTile conduitStateTile, ItemObject itemObject, Vector3Int position)
         {
             if (itemObject is not ConduitItem conduitItem)
             {
@@ -259,7 +259,7 @@ namespace TileMaps.Previewer {
             {
                 previewState = 15;
             }
-            TileBase previewTile = conduitStateTileSingle.GetTileAtState(previewState);
+            TileBase previewTile = conduitStateTile.GetTileAtState(previewState);
             tilemap.SetTile(position, previewTile);
             for (int i = 0; i < directions.Count; i++)
             {
@@ -267,7 +267,7 @@ namespace TileMaps.Previewer {
                 IConduit conduit = manager.GetConduitAtCellPosition((Vector2Int)position+(Vector2Int)direction);
                 if (conduit == null || conduit.GetId() != conduitItem.id) continue;
                 
-                ConduitStateTileSingle adjStateTileSingle = conduitItem.Tile;
+                ConduitStateTile adjStateTile = conduitItem.Tile;
                 int state = conduit.GetState();
                 var directionState = directionStates[i];
                 if (!playerScript.ConduitPlacementOptions.CanConnect(conduit)) continue;
@@ -276,7 +276,7 @@ namespace TileMaps.Previewer {
                     state += (int) directionState;
                 }
                 
-                TileBase tile = adjStateTileSingle.GetTileAtState(state);
+                TileBase tile = adjStateTile.GetTileAtState(state);
                 unhighlightedTileMap.SetTile(position + direction, tile);
                 placePositions.Add(position + direction);
             }

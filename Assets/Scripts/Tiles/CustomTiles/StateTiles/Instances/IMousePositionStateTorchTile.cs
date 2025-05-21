@@ -16,7 +16,7 @@ namespace Tiles {
     }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class MousePositionStateTileSingleStateTorchTile : TileBase, IMousePositionStateTile, IStateTileSingle, INoDelayPreviewTile, IDirectionStateTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IStateTileSingle, INoDelayPreviewTile, IDirectionStateTile
     {
         private enum TorchTileState
         {

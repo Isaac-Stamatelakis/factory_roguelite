@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.CustomTiles.StateTiles.Instances.Platform
 {
     
-    public class PlatformStateTileSingle : TileBase, IMultiTileStateTile
+    public class PlatformStateTile : TileBase, IStateTileMultiple
     {
         public TileBase FlatConnectNone;
         public TileBase FlatConnectOne;
@@ -40,19 +40,23 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
             {
                 case PlatformTileState.FlatConnectNone:
                     container[0] = FlatConnectNone;
-                    container[1] = null; // Null marks termination for 
+                    container[1] = null;
+                    container[2] = null;
                     break;
                 case PlatformTileState.FlatConnectOne:
                     container[0] = FlatConnectOne;
                     container[1] = null;
+                    container[2] = null;
                     break;
                 case PlatformTileState.FlatConnectAll:
                     container[0] = FlatConnectAll;
                     container[1] = null;
+                    container[2] = null;
                     break;
                 case PlatformTileState.Slope:
-                    container[0] = Slope;
-                    container[1] = null;
+                    container[0] = null;
+                    container[1] = Slope;
+                    container[2] = SlopeDeco;
                     break;
                 case PlatformTileState.FlatSlopeConnectOne:
                     container[0] = FlatConnectOne;

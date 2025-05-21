@@ -21,7 +21,7 @@ namespace Tiles {
         public TileBase GetTileAtState(int state);
         
     }
-    public interface IMultiTileStateTile : IStateTile
+    public interface IStateTileMultiple : IStateTile
     {
         public void GetTiles(int state, TileBase[] container);
     }

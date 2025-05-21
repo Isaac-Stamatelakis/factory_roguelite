@@ -261,6 +261,8 @@ namespace TileMaps {
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
             SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
+            
+            // Don't use get tile color for performance
             if (tileItem.tileOptions.TransmutableColorOverride)
             {
                 tilemap.SetTileFlags(vector3Int, TileFlags.None);
@@ -269,11 +271,16 @@ namespace TileMaps {
             {
                 tilemap.SetTileFlags(vector3Int, TileFlags.None);
                 tilemap.SetColor(vector3Int,tileItem.tileOptions.TileColor.GetColor());
-            } else
-            {
-                tilemap.SetColor(vector3Int,Color.white);
-                tilemap.SetTileFlags(vector3Int, TileFlags.LockColor);
-            }
+            } 
+        }
+
+        protected Color GetTileColor(TileItem tileItem)
+        {
+            if (tileItem.tileOptions.TransmutableColorOverride)
+                return tileItem.tileOptions.TransmutableColorOverride.color;
+            if (tileItem.tileOptions.TileColor)
+                return tileItem.tileOptions.TileColor.GetColor();
+            return Color.white;
         }
         
         protected void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
@@ -566,6 +573,7 @@ namespace TileMaps {
                 if (tilemap.HasTile(cellPosition))
                 {
                     tilemap.SetTile(cellPosition, null);
+                    break;
                 }
             }
         }

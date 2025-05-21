@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles
 {
-    public class ConduitStateTileSingle : TileBase, IStateTileSingle, INoDelayPreviewTile
+    public class ConduitStateTile : TileBase, IStateTileSingle, INoDelayPreviewTile
     {
         public Tile[] Tiles;
         
