@@ -22,6 +22,7 @@ using TileEntity;
 using Entities;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
+using Item.ItemObjects.Interfaces;
 using Item.Slot;
 using Player;
 using Player.Controls;
@@ -423,6 +424,7 @@ namespace PlayerModule.Mouse {
         private void StopPlayerHorizontalMovement()
         {
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
+            if (rb.bodyType == RigidbodyType2D.Static) return;
             var velocity = rb.velocity; // Set X Velocity to 0 to prevent slight camera shake
             velocity.x = 0;
             rb.velocity = velocity;

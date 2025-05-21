@@ -38,7 +38,7 @@ namespace TileMaps.Previewer
         protected override void DoClear()
         {
             tilemap.SetTile(placePosition, null);
-            overlayTilemap.SetTile(placePosition, null);
+            overlayTilemap?.SetTile(placePosition, null);
         }
 
         public override bool RecordMatch(Vector3Int position, string id)

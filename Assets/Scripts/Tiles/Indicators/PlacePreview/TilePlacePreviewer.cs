@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduits;
 using Conduits.Systems;
 using Dimensions;
+using Item.ItemObjects.Interfaces;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMaps.Place;
@@ -88,12 +89,12 @@ namespace TileMaps.Previewer {
                 return;
             }
 
-            TileBase tileBase = placableItem.getTile();
+            TileBase tileBase = placableItem.GetTile();
             if (ReferenceEquals(tileBase, null)) return;
             
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
-            Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
+            Vector3Int placePosition = PlaceTile.GetItemPlacePosition(itemObject,position);
             
             if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
@@ -104,21 +105,24 @@ namespace TileMaps.Previewer {
             if (tileBase is ConduitStateTile conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
-            }
-            else
+            } else if (itemObject is FluidTileItem fluidTileItem)
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject as TileItem, tileBase, placePosition, position);
+                placementRecord = PreviewFluidTile(fluidTileItem, tileBase, placePosition);
+            }
+            else if (itemObject is TileItem tileItem)
+            {
+                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
-            if (itemObject is TileItem tileItem)
+            if (itemObject is TileItem tileItem1)
             {
-                if (tileItem.tileOptions.TransmutableColorOverride)
+                if (tileItem1.tileOptions.TransmutableColorOverride)
                 {
-                    tilemap.color *= tileItem.tileOptions.TransmutableColorOverride.color;
-                } else if (tileItem.tileOptions.TileColor)
+                    tilemap.color *= tileItem1.tileOptions.TransmutableColorOverride.color;
+                } else if (tileItem1.tileOptions.TileColor)
                 {
-                    tilemap.color *= tileItem.tileOptions.TileColor.GetColor();
+                    tilemap.color *= tileItem1.tileOptions.TileColor.GetColor();
                 }
             }
             
@@ -140,6 +144,12 @@ namespace TileMaps.Previewer {
                 default:
                     return Color.white;
             }
+        }
+
+        private SingleTilePlacementRecord PreviewFluidTile(FluidTileItem fluidTileItem, TileBase tileBase, Vector3Int placePosition)
+        {
+            tilemap.SetTile(placePosition,tileBase);
+            return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)

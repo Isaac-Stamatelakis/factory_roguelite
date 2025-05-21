@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.ItemObjects.Interfaces;
+using TileEntity;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Items {
-    public class FluidTileItem : ItemObject
+    public class FluidTileItem : ItemObject, IPlacableItem
     {
         public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
@@ -57,6 +59,10 @@ namespace Items {
 
         [SerializeField] public Tile[] tiles;
         [SerializeField] public FluidOptions fluidOptions;
+        public TileBase GetTile()
+        {
+            return tiles[^1];
+        }
     }
     [System.Serializable]
     public class FluidOptions {

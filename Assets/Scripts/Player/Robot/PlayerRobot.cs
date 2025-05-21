@@ -267,11 +267,7 @@ namespace Player {
 
             if (state is CollisionState.InFluid)
             {
-                var vector2 = rb.velocity;
-                vector2.y = vector2.y * 0.05f;
-                rb.velocity = vector2;
                 fallTime = 0;
-
                 Vector3 position = transform.position;
                 position.z = 2;
                 transform.position = position;
@@ -289,6 +285,23 @@ namespace Player {
         public void AddFluidCollisionData(FluidTileItem fluidTileItem)
         {
             if (!fluidTileItem) return;
+            
+            if (rb.bodyType != RigidbodyType2D.Static)
+            {
+                float slowFactor = fluidTileItem.fluidOptions.SpeedSlowFactor;
+                var vector2 = rb.velocity;
+                if (slowFactor > 0.8f)
+                {
+                    vector2.y *= slowFactor;
+                }
+                else
+                {
+                    vector2.y *= 0.1f * slowFactor;
+                }
+                
+                rb.velocity = vector2;
+            }
+            
             if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
             {
                 // Deal half damage on first collision

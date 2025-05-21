@@ -70,6 +70,7 @@ namespace TileEntity.Instances.Storage {
                 visualElement.enabled = true;
             }
             visualElement.Display(itemSlot);
+            
 
             const float TILE_COVER_RATIO = 0.7f;
 

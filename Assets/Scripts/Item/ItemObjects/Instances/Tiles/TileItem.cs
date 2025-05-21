@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.ItemObjects.Interfaces;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileEntity;
@@ -52,7 +54,7 @@ public static class TileTypeExtension {
 }
 
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
-public class TileItem : ItemObject, IPlacableItem
+public class TileItem : ItemObject, IPlacableItem, ISolidItem
 {
     public GameStageObject gameStage;
     public TileType tileType;
@@ -116,7 +118,7 @@ public class TileItem : ItemObject, IPlacableItem
         return GetDefaultSprites(tile);
     }
 
-    public TileBase getTile()
+    public TileBase GetTile()
     {
         return tile;
     }

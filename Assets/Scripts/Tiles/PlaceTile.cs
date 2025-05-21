@@ -101,6 +101,7 @@ namespace TileMaps.Place {
                 case FluidTileItem fluidTileItem:
                 {
                     IWorldTileMap fluidMap = closedChunkSystem.GetTileMap(TileMapType.Fluid);
+                    
                     if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
                         return false;
                     }
@@ -131,14 +132,12 @@ namespace TileMaps.Place {
                     return false;
             }
         }
-        public static Vector3Int getItemPlacePosition(ItemObject itemObject, Vector2 position) {
-            if (itemObject is TileItem) {
-                TileItem tileItem = (TileItem) itemObject;
-                return (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
-            } else if (itemObject is ConduitItem) {
-                return (Vector3Int) Global.GetCellPositionFromWorld(position);
+        public static Vector3Int GetItemPlacePosition(ItemObject itemObject, Vector2 position) {
+            if (itemObject is TileItem tileItem) {
+                return (Vector3Int)getPlacePosition(tileItem,position.x,position.y);
             }
-            return Vector3Int.zero;
+            return (Vector3Int) Global.GetCellPositionFromWorld(position);
+           
         }
         public static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
@@ -406,10 +405,11 @@ namespace TileMaps.Place {
         }
 
         private static bool placeFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            if (iWorldTileMap is not FluidTileMap fluidTileMap) {
+            if (iWorldTileMap is not FluidTileMap) {
                 return false;
             }
             Vector2Int placePosition = Global.GetCellPositionFromWorld(worldPosition);
+            Debug.Log("A");
             iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,fluidTileItem);
             return true;
         }
