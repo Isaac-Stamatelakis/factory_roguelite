@@ -92,40 +92,58 @@ namespace UI.ToolTip {
             if (toolTipType == ToolTipType.UI)
             {
                 currentToolTip.setText(text);
-                currentToolTip.transform.position = position;
+                SetToolTipPosition(currentToolTip.transform as RectTransform);
                 return;
             }
+            
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
             currentToolTip = newToolTip;
             newToolTip.setText(text);   
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
-            RectTransform rectTransform = (RectTransform)newToolTip.transform;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rectTransform.parent as RectTransform,
-                canvasCamera.WorldToScreenPoint(position),
-                canvasCamera,
-                out Vector2 localPos
-            );
-            Vector3 rightEdgeWorldPos = rectTransform.TransformPoint(
-                new Vector3(localPos.x + rectTransform.sizeDelta.x, 0, 0)
-            );
-            Vector3 rightEdgeViewport = canvasCamera.WorldToViewportPoint(rightEdgeWorldPos);
-          
-            // For some reason my viewport calculation returns a viewport in range [-0.5f,0.5f]
-            bool reverse = rightEdgeViewport.x > 0.4f; // Choose a value a bit less than 0.5f
-            if (reverse)
-            {
-                var pivot = rectTransform.pivot;
-                pivot.x = 1;
-                rectTransform.pivot = pivot;
-            }
-           
-            rectTransform.anchoredPosition = localPos+ (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
+            RectTransform rectTransform  = newToolTip.GetComponent<RectTransform>();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            SetPivot(rectTransform);
+            SetToolTipPosition(rectTransform);
+            
             toolTipType = ToolTipType.UI;
+
+            return;
+
+            void SetPivot(RectTransform toolTipTransform)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    toolTipTransform.parent as RectTransform,
+                    canvasCamera.WorldToScreenPoint(position),
+                    canvasCamera,
+                    out Vector2 localPos
+                );
+                
+                Vector3 rightEdgeWorldPos = toolTipTransform.TransformPoint(
+                    new Vector3(localPos.x + toolTipTransform.sizeDelta.x, 0, 0)
+                );
+                Vector3 rightEdgeViewport = canvasCamera.WorldToViewportPoint(rightEdgeWorldPos);
+                bool reverse = rightEdgeViewport.x > 0.4f; // Choose a value a bit less than 0.5f
+                if (reverse)
+                {
+                    Vector2 pivot = toolTipTransform.pivot;
+                    pivot.x = 1;
+                    toolTipTransform.pivot = pivot;
+                }
+            }
+            void SetToolTipPosition(RectTransform toolTipTransform)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    toolTipTransform.parent as RectTransform,
+                    canvasCamera.WorldToScreenPoint(position),
+                    canvasCamera,
+                    out Vector2 localPos
+                );
+                Vector2 pivot = toolTipTransform.pivot;
+                toolTipTransform.anchoredPosition = localPos+ (useOffset ? (Mathf.Approximately(pivot.x, 1) ? -offset : offset) : Vector2.zero);
+            }
         }
         
         public void HideToolTip()

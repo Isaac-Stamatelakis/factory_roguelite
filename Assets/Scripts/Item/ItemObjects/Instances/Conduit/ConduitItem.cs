@@ -44,9 +44,9 @@ namespace Items {
     {
         public GameStageObject GameStageObject;
         public ConduitStateTile Tile;
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
-            return new Sprite[]{getSprite()};
+            return new Sprite[]{GetSprite()};
         }
         public override ItemDisplayType? getDisplayType()
         {
@@ -59,7 +59,7 @@ namespace Items {
         }
 
         public abstract ConduitType GetConduitType();
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
             return ((Tile)Tile?.GetDefaultTile())?.sprite;
         }

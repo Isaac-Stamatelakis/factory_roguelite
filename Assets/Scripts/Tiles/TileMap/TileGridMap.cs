@@ -63,7 +63,7 @@ namespace TileMaps {
 
             float realXPosition = transform.position.x + hitTilePosition.x / 2f;
             float realYPosition = transform.position.y + hitTilePosition.y / 2f;
-            Sprite[] itemSprites = itemSlot.itemObject.getSprites();
+            Sprite[] itemSprites = itemSlot.itemObject.GetSprites();
             if (itemSprites.Length == 0) {
                 Debug.LogError("Tried to spawn item with no sprite");
                 return;
@@ -185,7 +185,7 @@ namespace TileMaps {
         private void UpdateListeners(Vector2Int position, TileItem tileItem)
         {
             if (!tileItem) return;
-            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.getSprite());
+            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.GetSprite());
             if (spriteSize.x <= 1 && spriteSize.y <= 1)
             {
                 CallListeners(position);
@@ -377,13 +377,13 @@ namespace TileMaps {
            
             Vector2 worldPosition = tilemap.CellToWorld((Vector3Int)position);
             
-            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), baseTileData.rotation);
             if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
             {
                 return;
             }
 
-            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.getSprite());
+            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.GetSprite());
             bool updateOnRotate = spriteSize.x != spriteSize.y;
             if (updateOnRotate) UpdateListeners(position,tileItem);
             

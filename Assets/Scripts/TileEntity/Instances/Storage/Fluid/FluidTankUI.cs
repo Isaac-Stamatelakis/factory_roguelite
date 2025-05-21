@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Storage {
                 return;
             }
             image.gameObject.SetActive(true);
-            image.sprite = fluidTank.ItemSlot.itemObject.getSprite();
+            image.sprite = fluidTank.ItemSlot.itemObject.GetSprite();
             title.text = fluidTank.ItemSlot.itemObject.name;
             Vector3 imagePosition = image.transform.localPosition;
             imagePosition.y = spriteContainer.sizeDelta.y * fluidTank.FillRatio;

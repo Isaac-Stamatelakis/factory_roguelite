@@ -19,7 +19,7 @@ namespace Items {
             return displayType;
         }
 
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
             if (sprites == null || sprites.Length < 1) {
                 return null;
@@ -27,7 +27,7 @@ namespace Items {
             return sprites[0];
         }
 
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
             return sprites;
         }

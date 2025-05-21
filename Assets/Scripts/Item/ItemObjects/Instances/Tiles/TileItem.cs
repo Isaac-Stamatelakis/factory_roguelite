@@ -81,7 +81,7 @@ public class TileItem : ItemObject, IPlacableItem
         gameStage = gameStageObject;
     }
 
-    public override Sprite getSprite()
+    public override Sprite GetSprite()
     {
         return GetDefaultSprite(tile);
     }
@@ -111,7 +111,7 @@ public class TileItem : ItemObject, IPlacableItem
     }
     
 
-    public override Sprite[] getSprites()
+    public override Sprite[] GetSprites()
     {
         return GetDefaultSprites(tile);
     }

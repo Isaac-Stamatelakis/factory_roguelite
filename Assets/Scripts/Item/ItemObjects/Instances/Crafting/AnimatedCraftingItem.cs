@@ -23,12 +23,12 @@ namespace Items {
         public SpriteCollection[] SpriteCollection;
         public ColorScriptableObject ColorScriptableObject;
         public Sprite Sprite;
-        public override Sprite[] getSprites()
+        public override Sprite[] GetSprites()
         {
             return new Sprite[] { Sprite };
         }
 
-        public override Sprite getSprite()
+        public override Sprite GetSprite()
         {
             return Sprite;
         }

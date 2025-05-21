@@ -65,6 +65,7 @@ namespace Tier.Generators.Defaults
     [System.Serializable]
     public class ItemSprites
     {
-        public RobotArmGenerator.RobotArmSprites RobotArmSprites;
+        public RobotArmSprites RobotArmSprites;
+        public Sprite MotorSprite;
     }
 }

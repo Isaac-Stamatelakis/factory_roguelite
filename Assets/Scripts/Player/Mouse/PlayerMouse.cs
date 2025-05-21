@@ -118,22 +118,17 @@ namespace PlayerModule.Mouse {
                         MouseScrollUIUpdate(mousePosition);
                     }
                 }
+                ToolTipController.Instance.HideToolTip(ToolTipType.World);
                 return;
             }
             
             toolHitPosition = autoSelectableTool && enableAutoSelect ? AutoSelectTile(mousePosition) : mousePosition;
 
-            if (eventSystem.IsPointerOverGameObject())
-            {
-                return;
-            }
+            if (!currentSystem)  return;
             
-            if (!currentSystem) {
-                return;
-            }
+            if (!canvasController.IsActive) PreviewHighlight(mousePosition);
             
-            PreviewHighlight(mousePosition);
-           
+            if (eventSystem.IsPointerOverGameObject()) return;
             
             if (!leftClick)
             {
@@ -534,6 +529,10 @@ namespace PlayerModule.Mouse {
         }
     }
 
+    internal class MouseTileHighlighter
+    {
+        
+    }
     internal class AutoTileFinder
     {
         private IWorldTileMap hitTileMap;

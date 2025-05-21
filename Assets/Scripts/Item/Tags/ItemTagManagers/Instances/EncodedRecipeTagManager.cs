@@ -40,7 +40,7 @@ namespace Item.Tags.ItemTagManagers.Instances
                 RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
                 rectTransform.sizeDelta = new Vector2(64, 64);
                 // TODO Update this to include tag data
-                image.sprite = encodedRecipe.Outputs[0].itemObject.getSprite();
+                image.sprite = encodedRecipe.Outputs[0].itemObject.GetSprite();
                 return imageObject;
             }
             return null;

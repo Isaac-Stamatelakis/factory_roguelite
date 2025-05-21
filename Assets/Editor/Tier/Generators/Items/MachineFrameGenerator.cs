@@ -21,7 +21,7 @@ namespace EditorScripts.Tier.Generators
 
         public override void Generate()
         {
-            var itemGenerationData = GenerateDefaultItemData("Machine Frame",ItemType.TileItem,useTierName:true);
+            var itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.MachineFrame,ItemType.TileItem,useTierName:true);
             TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
             tileItem.tile = defaultValues.Tiles.MachineFrame;

@@ -67,13 +67,13 @@ namespace Item.Display
         }
         private void Decorate()
         {
-            Sprite[] itemSprites = itemSlot.itemObject.getSprites();
+            Sprite[] itemSprites = itemSlot.itemObject.GetSprites();
             if (itemSprites == null) return;
             if (itemSprites.Length > 1)
             {
                 spriteAnimators.Add(new WorldSpriteAnimator(spriteRenderer, itemSprites));
             }
-            spriteRenderer.sprite = itemSlot.itemObject.getSprite();
+            spriteRenderer.sprite = itemSlot.itemObject.GetSprite();
             spriteRenderer.material = defaultMaterial;
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {

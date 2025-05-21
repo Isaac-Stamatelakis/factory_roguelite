@@ -127,7 +127,7 @@ namespace Conduits.Ports {
             }
            
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
-            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.getSprite());
+            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.GetSprite());
             List<TileEntityPortData> tileEntityPortDatas = new List<TileEntityPortData>();
             foreach (TileEntityPortData portData in entityPorts)
             {

@@ -73,8 +73,9 @@ namespace EditorScripts.Tier
             }
         }
 
-        protected ItemGenerationData GenerateDefaultItemData(string itemName, ItemType itemType, int recipeMode = 0, bool useTierName = false)
+        protected ItemGenerationData GenerateDefaultItemData(TierGeneratedItemType tierGeneratedItemType, ItemType itemType, int recipeMode = 0, bool useTierName = false)
         {
+            string itemName = GlobalHelper.AddSpaces(tierGeneratedItemType.ToString());
             string folder = TryCreateContentFolder(itemName);
             ItemObject current = itemType switch
             {
@@ -203,10 +204,12 @@ namespace EditorScripts.Tier
 
         
 
-        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(string itemName, int recipeMode = 0, bool useTierName = false) where T : TileEntityObject
+        protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(TierGeneratedItemType tierGeneratedItemType, int recipeMode = 0, bool useTierName = false) where T : TileEntityObject
         {
-            ItemGenerationData itemGenerationData = GenerateDefaultItemData(itemName,ItemType.TileItem,recipeMode,useTierName:useTierName);
+            ItemGenerationData itemGenerationData = GenerateDefaultItemData(tierGeneratedItemType,ItemType.TileItem,recipeMode,useTierName:useTierName);
+            string itemName = GlobalHelper.AddSpaces(tierGeneratedItemType.ToString());
             string folder = Path.Combine(generationPath, itemName);
+            
             T tileEntityObject = GetFirstObjectInFolder<T>(folder);
             if (!tileEntityObject)
             {
@@ -225,6 +228,20 @@ namespace EditorScripts.Tier
                 ItemGenerationData = itemGenerationData,
                 TileEntityObject = tileEntityObject
             };
+        }
+
+        protected string GetItemFolder(TierGeneratedItemType tierGeneratedItemType)
+        {
+            string itemName = GlobalHelper.AddSpaces(tierGeneratedItemType.ToString());
+            return Path.Combine(generationPath, itemName);
+        }
+
+        protected ItemObject LookUpGeneratedItem(TierGeneratedItemType tierGeneratedItemType)
+        {
+            string folder = GetItemFolder(tierGeneratedItemType);
+            ItemObject first = GetFirstObjectInFolder<ItemObject>(folder);
+            if (!first) Debug.LogWarning($"Could not find item {tierGeneratedItemType}. Is your generation order correct?");
+            return first;
         }
 
         protected EditorItemSlot StateToItem(TransmutableItemState state, uint amount)

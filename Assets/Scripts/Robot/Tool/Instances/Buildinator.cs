@@ -219,10 +219,10 @@ namespace Robot.Tool.Instances
 
                     Vector2 worldPosition = worldTileGridMap.GetTilemap().CellToWorld((Vector3Int)tilePosition);
 
-                    FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+                    FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), baseTileData.rotation);
                     if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, system, newRotation, exclusion)) continue;
 
-                    FloatIntervalVector newArea = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.getSprite()), newRotation);
+                    FloatIntervalVector newArea = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.GetSprite()), newRotation);
                     IntervalVector intervalVector = FloatIntervalVector.ToCellIntervalVector(newArea);
 
                     bool Condition(int xv, int yv)
