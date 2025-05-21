@@ -12,7 +12,7 @@ namespace Tiles {
         public TileType GetTileType(int state);
     }
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
-    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, ITypeSwitchType, IStateTile, IStateLayerTile
+    public class MousePositionStateTileSingleStateDoorTile : TileBase, IMousePositionStateTile, ITypeSwitchType, IStateTileSingle, IStateLayerTile
     {
         public Tile left;
         public Tile leftOpen;
@@ -25,7 +25,7 @@ namespace Tiles {
             return MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
         }
 
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             switch (state) {
                 case 0:
@@ -62,7 +62,7 @@ namespace Tiles {
             return TileMapType.Block;
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return 4;
         }

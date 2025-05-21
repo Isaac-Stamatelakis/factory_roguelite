@@ -43,7 +43,7 @@ namespace TileEntity.Instances.Signal {
             } else
             {
                 IChunkPartition partition = GetPartition();
-                if (tileItem.tile is IStateTile && partition.GetLoaded() && !partition.GetScheduledForUnloading())
+                if (tileItem.tile is IStateTileSingle && partition.GetLoaded() && !partition.GetScheduledForUnloading())
                 {
                     TileEntityUtils.stateSwitch(this,0); // set off
                 }
@@ -77,7 +77,7 @@ namespace TileEntity.Instances.Signal {
             lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
             lightObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             IChunkPartition partition = GetPartition();
-            if (tileItem.tile is IStateTile stateTile &&  partition.GetLoaded() && !partition.GetScheduledForUnloading()) {
+            if (tileItem.tile is IStateTileSingle stateTile &&  partition.GetLoaded() && !partition.GetScheduledForUnloading()) {
                 TileEntityUtils.stateSwitch(this,1); // set on
             }
         }

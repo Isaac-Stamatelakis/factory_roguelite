@@ -23,7 +23,7 @@ namespace TileEntity.Instances {
 
         private int GetStateSwitchCount()
         {
-            if (tileItem.tile is IMousePositionStateDoorTile)
+            if (tileItem.tile is MousePositionStateTileSingleStateDoorTile)
             {
                 return 2;
             }
@@ -44,7 +44,7 @@ namespace TileEntity.Instances {
 
         private bool IsCurrentlyOpen(int state)
         {
-            if (tileItem.tile is IMousePositionStateDoorTile)
+            if (tileItem.tile is MousePositionStateTileSingleStateDoorTile)
             {
                 return state > 1;
             }

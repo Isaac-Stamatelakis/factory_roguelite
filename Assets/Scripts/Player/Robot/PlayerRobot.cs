@@ -102,7 +102,6 @@ namespace Player {
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
-        private bool lastIsUsingTool;
         private float defaultLinearDrag;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
@@ -186,7 +185,6 @@ namespace Player {
         public void SetIsUsingTool(bool value)
         {
             if (isUsingTool == value) return;
-            lastIsUsingTool = isUsingTool;
             isUsingTool = value;
             
             animator.SetBool(Action,value);
@@ -221,7 +219,6 @@ namespace Player {
             {
                 // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
                 liveYUpdates = 2;
-                //jumpEvent = null;
                 var vector2 = rb.velocity;
                 vector2.y = 0.005f;
                 rb.velocity = vector2;

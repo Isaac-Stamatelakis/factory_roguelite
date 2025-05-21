@@ -125,7 +125,7 @@ namespace PlayerModule {
                     indicatorManager.RemovePlaceBundles();
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
                     
-                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTile || tileItem.tileOptions.rotatable))
+                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTileSingle || tileItem.tileOptions.rotatable))
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
                         indicatorManager.tilePlacementIndicatorUI.Display(tileItem);

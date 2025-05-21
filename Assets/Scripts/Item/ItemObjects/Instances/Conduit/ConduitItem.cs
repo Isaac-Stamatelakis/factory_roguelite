@@ -45,7 +45,7 @@ namespace Items {
     public abstract class ConduitItem : ItemObject, IPlacableItem, ISolidItem
     {
         public GameStageObject GameStageObject;
-        public ConduitStateTile Tile;
+        public ConduitStateTileSingle Tile;
         public override Sprite[] GetSprites()
         {
             return new Sprite[]{GetSprite()};

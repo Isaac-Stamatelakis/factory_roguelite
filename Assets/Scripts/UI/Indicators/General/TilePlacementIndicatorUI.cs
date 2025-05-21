@@ -28,7 +28,7 @@ namespace UI.Indicators.General
         public void Display([NotNull] TileItem tileItem)
         {
             rotatable = tileItem.tileOptions.rotatable;
-            stateModifiable = tileItem.tile is IStateTile;
+            stateModifiable = tileItem.tile is IStateTileSingle;
             currentItem = tileItem;
             Display();
         }
@@ -53,8 +53,8 @@ namespace UI.Indicators.General
             if (stateModifiable)
             {
                 int state = playerScript.TilePlacementOptions.State;
-                IStateTile stateTile = (IStateTile)currentItem.tile;
-                TileBase tileBase = stateTile.getTileAtState(state);
+                IStateTileSingle stateTileSingle = (IStateTileSingle)currentItem.tile;
+                TileBase tileBase = stateTileSingle.GetTileAtState(state);
                 if (tileBase is IStateRotationTile stateRotationTile)
                 {
                     stateRotatable = true;

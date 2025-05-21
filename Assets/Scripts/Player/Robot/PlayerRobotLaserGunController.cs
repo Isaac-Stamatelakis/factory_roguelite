@@ -26,6 +26,7 @@ namespace Player.Robot
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
             defaultPosition = transform.localPosition;
+            gameObject.SetActive(false);
          
         }
         private void TryInitializeAnimation(MouseButtonKey mouseButtonKey)

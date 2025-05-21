@@ -110,14 +110,14 @@ namespace TileMaps {
             if (!outlineTile) {
                 return;
             }
-            if (outlineTile is not IStateTile stateTile) {
+            if (outlineTile is not IStateTileSingle stateTile) {
                 outlineTileMap.SetTile(new Vector3Int(x,y,0),outlineTile);
                 return;
             }
             
             int state = baseTileData.state;
 
-            TileBase stateOutlineTile = stateTile.getTileAtState(state);
+            TileBase stateOutlineTile = stateTile.GetTileAtState(state);
             outlineTileMap.SetTile(vec3,stateOutlineTile);
 
             int rotation = baseTileData.rotation;

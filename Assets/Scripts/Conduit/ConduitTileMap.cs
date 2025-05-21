@@ -71,7 +71,7 @@ namespace TileMaps.Conduit {
             IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(new Vector2Int(x,y));
             if (conduit == null) return;
             
-            var stateTile = tile.getTileAtState(conduit.GetActivatedState());
+            var stateTile = tile.GetTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }
 
@@ -85,7 +85,7 @@ namespace TileMaps.Conduit {
             if (conduit == null) return;
             
             var conduitItem = conduit.GetConduitItem();
-            var stateTile = conduitItem.Tile.getTileAtState(conduit.GetActivatedState());
+            var stateTile = conduitItem.Tile.GetTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(cellPosition,stateTile);
         }
 

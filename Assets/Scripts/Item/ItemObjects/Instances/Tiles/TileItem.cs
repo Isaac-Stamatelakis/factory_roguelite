@@ -95,7 +95,7 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem
             Tile tile => tile.sprite,
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
             RuleTile ruleTile => ruleTile.m_DefaultSprite,
-            IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
+            IStateTileSingle stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
             _ => null
         };
     }
@@ -107,7 +107,7 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem
             Tile standardTile => new Sprite[] { standardTile.sprite },
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites,
             RuleTile ruleTile => new Sprite[] { ruleTile.m_DefaultSprite },
-            IStateTile stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
+            IStateTileSingle stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
             _ => null
         };
     }

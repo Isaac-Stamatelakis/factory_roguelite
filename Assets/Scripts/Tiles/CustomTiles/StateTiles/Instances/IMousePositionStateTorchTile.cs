@@ -16,7 +16,7 @@ namespace Tiles {
     }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IStateTile, INoDelayPreviewTile, IDirectionStateTile
+    public class MousePositionStateTileSingleStateTorchTile : TileBase, IMousePositionStateTile, IStateTileSingle, INoDelayPreviewTile, IDirectionStateTile
     {
         private enum TorchTileState
         {
@@ -66,7 +66,7 @@ namespace Tiles {
             return (int)TorchTileState.Invalid;
         }
 
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             TorchTileState torchTileState = (TorchTileState)state;
             switch (torchTileState) {
@@ -89,7 +89,7 @@ namespace Tiles {
             return onBlock;
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return 4;
         }

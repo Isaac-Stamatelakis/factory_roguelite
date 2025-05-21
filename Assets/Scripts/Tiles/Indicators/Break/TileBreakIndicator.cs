@@ -16,9 +16,9 @@ namespace Tiles {
             Slant = HammerTileState.Slant,
             Stair = HammerTileState.Stair,
         }
-        [SerializeField] private BreakIndicatorStateTile blockTile;
-        [SerializeField] private BreakIndicatorStateTile slantTile;
-        [SerializeField] private BreakIndicatorStateTile slabTile;
+        [SerializeField] private BreakIndicatorStateTileSingle blockTile;
+        [SerializeField] private BreakIndicatorStateTileSingle slantTile;
+        [SerializeField] private BreakIndicatorStateTileSingle slabTile;
         private Tilemap tilemap;
         private System.Random random;
         public void Start() {
@@ -53,15 +53,15 @@ namespace Tiles {
 
         private void PlaceHammerTileBreak(BreakHammerTileState hammerTileState, float breakRatio, Vector2Int cellPosition, BaseTileData baseTileData)
         {
-            BreakIndicatorStateTile breakStateTile = GetBreakTile(hammerTileState);
+            BreakIndicatorStateTileSingle breakStateTileSingle = GetBreakTile(hammerTileState);
             Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-            TileBase breakTile = breakStateTile.GetTileAtBreakPercent(breakRatio);
+            TileBase breakTile = breakStateTileSingle.GetTileAtBreakPercent(breakRatio);
             tilemap.SetTile(vector3Int,breakTile);
             PlaceTile.SetTileMapMatrix(tilemap,vector3Int,baseTileData.rotation,baseTileData.mirror);
         }
         
 
-        private BreakIndicatorStateTile GetBreakTile(BreakHammerTileState hammerTileState)
+        private BreakIndicatorStateTileSingle GetBreakTile(BreakHammerTileState hammerTileState)
         {
             switch (hammerTileState)
             {

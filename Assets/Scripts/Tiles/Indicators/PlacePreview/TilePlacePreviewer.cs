@@ -102,7 +102,7 @@ namespace TileMaps.Previewer {
             lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
             
-            if (tileBase is ConduitStateTile conduitStateTile)
+            if (tileBase is ConduitStateTileSingle conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
             } else if (itemObject is FluidTileItem fluidTileItem)
@@ -191,8 +191,8 @@ namespace TileMaps.Previewer {
 
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {
-            if (tileBase is IStateTile stateTile) {
-                tileBase = stateTile.getTileAtState(autoState);
+            if (tileBase is IStateTileSingle stateTile) {
+                tileBase = stateTile.GetTileAtState(autoState);
             }
             if (!rotatable)
             {
@@ -230,7 +230,7 @@ namespace TileMaps.Previewer {
 
         
 
-        private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTile conduitStateTile, ItemObject itemObject, Vector3Int position)
+        private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTileSingle conduitStateTileSingle, ItemObject itemObject, Vector3Int position)
         {
             if (itemObject is not ConduitItem conduitItem)
             {
@@ -259,7 +259,7 @@ namespace TileMaps.Previewer {
             {
                 previewState = 15;
             }
-            TileBase previewTile = conduitStateTile.getTileAtState(previewState);
+            TileBase previewTile = conduitStateTileSingle.GetTileAtState(previewState);
             tilemap.SetTile(position, previewTile);
             for (int i = 0; i < directions.Count; i++)
             {
@@ -267,7 +267,7 @@ namespace TileMaps.Previewer {
                 IConduit conduit = manager.GetConduitAtCellPosition((Vector2Int)position+(Vector2Int)direction);
                 if (conduit == null || conduit.GetId() != conduitItem.id) continue;
                 
-                ConduitStateTile adjStateTile = conduitItem.Tile;
+                ConduitStateTileSingle adjStateTileSingle = conduitItem.Tile;
                 int state = conduit.GetState();
                 var directionState = directionStates[i];
                 if (!playerScript.ConduitPlacementOptions.CanConnect(conduit)) continue;
@@ -276,7 +276,7 @@ namespace TileMaps.Previewer {
                     state += (int) directionState;
                 }
                 
-                TileBase tile = adjStateTile.getTileAtState(state);
+                TileBase tile = adjStateTileSingle.GetTileAtState(state);
                 unhighlightedTileMap.SetTile(position + direction, tile);
                 placePositions.Add(position + direction);
             }

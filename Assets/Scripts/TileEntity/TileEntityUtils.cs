@@ -139,7 +139,7 @@ namespace TileEntity {
                 Debug.LogError("Tile Entity belongs to non switch tile");
                 return;
             }
-            if (tile is not IStateTile stateTile) {
+            if (tile is not IStateTileSingle stateTile) {
                 Debug.LogError("Tile Entity belongs to non state tile");
                 return;
             }
@@ -161,13 +161,13 @@ namespace TileEntity {
 
             // Switch to open/closed
             state += iterationAmount; 
-            state %= stateTile.getStateAmount();
+            state %= stateTile.GetStateAmount();
             baseTileData.state = state;
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             Tilemap newMap = loadedChunk.GetTileMap(newType).GetTilemap();
-            newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
+            newMap.SetTile(cellPosition, stateTile.GetTileAtState(state));
         }
 
         public static void stateSwitch(ITileEntityInstance tileEntity, int state) {
@@ -177,7 +177,7 @@ namespace TileEntity {
                 Debug.LogError("Tile Entity belongs to non switch tile");
                 return;
             }
-            if (tile is not IStateTile stateTile) {
+            if (tile is not IStateTileSingle stateTile) {
                 Debug.LogError("Tile Entity belongs to non state tile");
                 return;
             }
@@ -199,7 +199,7 @@ namespace TileEntity {
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             Tilemap newMap = loadedChunk.GetTileMap(newType).GetTilemap();
-            newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
+            newMap.SetTile(cellPosition, stateTile.GetTileAtState(state));
         }
 
         /// <summary>

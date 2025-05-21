@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.CustomTiles.StateTiles.Instances {
     
     [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/State/Sign")]
-    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IStateTile
+    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IStateTileSingle
     {
         public Tile onBlock;
         public Tile onLeft;
@@ -53,7 +53,7 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             return -1;
         }
 
-        public TileBase getTileAtState(int state)
+        public TileBase GetTileAtState(int state)
         {
             switch (state) {
                 case 0:
@@ -74,7 +74,7 @@ namespace Tiles.CustomTiles.StateTiles.Instances {
             return onBlock;
         }
 
-        public int getStateAmount()
+        public int GetStateAmount()
         {
             return 4;
         }

@@ -278,8 +278,8 @@ namespace TileMaps {
         
         protected void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
         {
-            if (tileBase is IStateTile stateTile) {
-                tileBase = stateTile.getTileAtState(baseTileData.state);
+            if (tileBase is IStateTileSingle stateTile) {
+                tileBase = stateTile.GetTileAtState(baseTileData.state);
             } 
             if (!rotatable) 
             {
@@ -417,16 +417,16 @@ namespace TileMaps {
             if (tileItem.tile is not HammerTile hammerTile) return;
             
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
-            int stateCount = hammerTile.getStateAmount();
+            int stateCount = hammerTile.GetStateAmount();
             int newState = ((baseTileData.state+direction) % stateCount + stateCount) % stateCount;
             baseTileData.state = newState;
             
             SetTile(position.x,position.y,tileItem);
             TileBase tile = tileItem.tile;
             
-            if (tile is IStateTile stateTile)
+            if (tile is IStateTileSingle stateTile)
             {
-                tile = stateTile.getTileAtState(baseTileData.state);
+                tile = stateTile.GetTileAtState(baseTileData.state);
             }
 
             if (tile is IStateRotationTile)

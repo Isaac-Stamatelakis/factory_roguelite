@@ -21,7 +21,7 @@ namespace Tiles {
             return 4 + ran;
         }
 
-        public override TileBase getTileAtState(int state)
+        public override TileBase GetTileAtState(int state)
         {
             switch (state)
             {
@@ -58,7 +58,7 @@ namespace Tiles {
             return null;
         }
         
-        public override int getStateAmount()
+        public override int GetStateAmount()
         {
             return 4+natureSlants.Length+natureSlabs.Length;
         }
