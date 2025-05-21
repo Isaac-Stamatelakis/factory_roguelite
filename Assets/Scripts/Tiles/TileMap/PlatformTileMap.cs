@@ -1,5 +1,6 @@
 using System;
 using Chunks.Partitions;
+using Chunks.Systems;
 using Items;
 using Player;
 using TileMaps;
@@ -22,6 +23,9 @@ namespace Tiles.TileMap
         {
             base.Initialize(type);
             slopeTileMap = AddOverlay();
+            slopeTileMap.gameObject.AddComponent<TilemapCollider2D>();
+            TileMapBundleFactory.AddCompositeCollider(slopeTileMap.gameObject,TileMapType.Platform);
+            
             slopeDecoTileMap = AddOverlay();
             tileContainer = new TileBase[3]; // Max 3 tiles placed at once
         }
@@ -47,9 +51,9 @@ namespace Tiles.TileMap
             Color color = GetTileColor(tileItem);
             if (color != Color.white)
             {
-                ColorTileMap(tilemap);
-                ColorTileMap(slopeTileMap);
-                ColorTileMap(slopeDecoTileMap);
+                ColorTileMap(tilemap,vector3Int);
+                ColorTileMap(slopeTileMap,vector3Int);
+                ColorTileMap(slopeDecoTileMap,slopeDecoPosition);
             }
             
             if (rotation == 1)
@@ -63,10 +67,10 @@ namespace Tiles.TileMap
             
             return;
 
-            void ColorTileMap(Tilemap map)
+            void ColorTileMap(Tilemap map,Vector3Int colorPosition)
             {
-                map.SetTileFlags(vector3Int, TileFlags.None);
-                map.SetColor(vector3Int,color);
+                map.SetTileFlags(colorPosition, TileFlags.None);
+                map.SetColor(colorPosition,color);
             }
         }
 
@@ -111,7 +115,6 @@ namespace Tiles.TileMap
                 int rotation = TilePlaceUtils.GetPlacementPlatformRotation(adjacentPosition, tilePlacementData,this);
                 baseTileData.state = (int)state;
                 baseTileData.rotation = rotation;
-                Debug.Log(baseTileData.rotation);
                 SetTile(adjacentPosition.x,adjacentPosition.y,tileItem);
 
             }

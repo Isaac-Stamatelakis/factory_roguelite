@@ -271,7 +271,8 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        public static void PlaceTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, TilePlacementData placementData, ITileEntityInstance presetTileEntity = null, ItemTagCollection itemTagCollection = null) {
+        public static void PlaceTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, TilePlacementData placementData, ITileEntityInstance presetTileEntity = null, ItemTagCollection itemTagCollection = null)
+        {
             if (iWorldTileMap == null || ReferenceEquals(tileItem,null)) {
                 return;
             }
@@ -310,6 +311,18 @@ namespace TileMaps.Place {
             } else if (tileItem.tile is PlatformStateTile)
             {
                 placementData ??= new TilePlacementData(0, 0, 0);
+                if (placementData.PlacementMode == (int)PlatformPlacementMode.Slope && tileRotation.HasValue)
+                {
+                    if (tileRotation == PlayerTileRotation.Auto) // Kind of messy but GetPlacementPlatformRotation returns placementData rotation if sloped
+                    {
+                        int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
+                        placementData.Rotation = (PlayerTileRotation)(MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1);
+                    }
+                    else
+                    {
+                        placementData.Rotation = tileRotation.Value;
+                    }
+                }
                 PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
                 state = (int)GetPlacementPlatformState(placePosition, placementData,platformTileMap);
                 placementData.State = state;
@@ -345,10 +358,13 @@ namespace TileMaps.Place {
                     return PlatformTileState.Slope;
                 case PlatformPlacementMode.Flat:
                 case PlatformPlacementMode.Update:
+                    if (tilePlacementData.State == (int)PlatformTileState.Slope) return PlatformTileState.Slope;
                     bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
-                    bool right =  platformTileMap.HasTile(cellPosition + Vector2Int.right);
-                    if (left && right) return PlatformTileState.FlatConnectAll;
-                    if (!left && !right) return PlatformTileState.FlatConnectNone;
+                    bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
+                    
+                    // This might be reversed
+                    if (!left && !right) return PlatformTileState.FlatConnectAll;
+                    if (left && right) return PlatformTileState.FlatConnectNone;
                     return PlatformTileState.FlatConnectOne;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -360,17 +376,12 @@ namespace TileMaps.Place {
             switch (platformPlacementMode)
             {
                 case PlatformPlacementMode.Slope:
-                    return 0;
-                    //int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
-                   // return MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                    return (int)tilePlacementData.Rotation;
                 case PlatformPlacementMode.Flat:
                 case PlatformPlacementMode.Update:
-                    Debug.Log((PlatformTileState)tilePlacementData.State);
                     if (tilePlacementData.State is (int)PlatformTileState.FlatConnectOne or (int)PlatformTileState.FlatSlopeConnectOne)
                     {
-                        bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
                         bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
-                        Debug.Log(right);
                         if (right) return 1;
                     }
                     return 0;
