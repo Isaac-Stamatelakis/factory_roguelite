@@ -10,9 +10,11 @@ namespace Player.Movement
     public class PlayerPlatformSlopeCollider : MonoBehaviour
     {
         private PlayerRobot playerRobot;
+        private Rigidbody2D rb;
         public void Start()
         {
             playerRobot = GetComponentInParent<PlayerRobot>();
+            rb = playerRobot.GetComponent<Rigidbody2D>();
         }
         
         public void OnTriggerStay2D(Collider2D other)
@@ -27,7 +29,7 @@ namespace Player.Movement
             Tilemap platformTileMap = other.GetComponent<Tilemap>();
             Vector3Int cellPosition = platformTileMap.WorldToCell(collisionPoint);
             Matrix4x4 matrix4 = platformTileMap.GetTransformMatrix(cellPosition);
-            if (matrix4.isIdentity)
+            if (matrix4.rotation == Quaternion.identity)
             {
                 if (collisionPoint.x > transform.position.x)
                 {
