@@ -23,10 +23,11 @@ namespace Player.Movement
                 playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
                 return;
             }
-
-            Tilemap platformTileMap = other.GetComponent<Tilemap>();
-            Vector3Int cellPosition = platformTileMap.WorldToCell(collisionPoint);
-            Matrix4x4 matrix4 = platformTileMap.GetTransformMatrix(cellPosition);
+            
+            Tilemap slopeTilemap = other.GetComponent<Tilemap>();
+            Vector3Int cellPosition = slopeTilemap.WorldToCell(collisionPoint);
+            cellPosition.z = 0;
+            Matrix4x4 matrix4 = slopeTilemap.GetTransformMatrix(cellPosition);
             if (matrix4.rotation == Quaternion.identity)
             {
                 if (collisionPoint.x > transform.position.x)
@@ -37,6 +38,7 @@ namespace Player.Movement
             }
             else
             {
+                Debug.Log("H");
                 if (collisionPoint.x < transform.position.x)
                 {
                     playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);

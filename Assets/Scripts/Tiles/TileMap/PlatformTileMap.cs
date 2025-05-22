@@ -19,6 +19,7 @@ namespace Tiles.TileMap
     {
         private TileBase[] tileContainer;
         private Tilemap slopeTileMap;
+        public Tilemap SlopeTileMap =>  slopeTileMap;
         private Tilemap slopeColliderExtendTileMap;
         private Tilemap slopeDecoTileMap;
         private TileBase slopeColliderExtendTile;
