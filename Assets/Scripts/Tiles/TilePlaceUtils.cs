@@ -77,7 +77,7 @@ namespace TileMaps.Place {
                 case TileItem tileItem:
                 {
                     TileMapType tileMapType = tileItem.tileType.ToTileMapType();
-                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State, playerScript.TilePlacementOptions.PlacementMode);
+                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State);
                     if (!TilePlaceable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
                     
                     PlaceTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData, itemTagCollection: itemSlot?.tags);
@@ -288,21 +288,7 @@ namespace TileMaps.Place {
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             PlayerTileRotation? tileRotation = placementData?.Rotation;
             int rotation = 0;
-            if (tileRotation.HasValue)
-            {
-                if (tileRotation.Value == PlayerTileRotation.Auto)
-                {
-                    if (tileItem.tile is HammerTile)
-                    {
-                        int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData.State);
-                        if (hammerTileRotation > 0) rotation = hammerTileRotation;
-                    }
-                }
-                else
-                {
-                    rotation = (int)tileRotation.Value;
-                }
-            }
+            SetRotation();
             
             int state = placementData?.State ?? 0;
             if (tileItem.tile is IMousePositionStateTile restrictedTile) {
@@ -313,26 +299,8 @@ namespace TileMaps.Place {
                 }
             } else if (tileItem.tile is PlatformStateTile)
             {
-                placementData ??= new TilePlacementData(0, 0, 0);
-                if (placementData.PlacementMode == (int)PlatformPlacementMode.Slope && tileRotation.HasValue)
-                {
-                    if (tileRotation == PlayerTileRotation.Auto) // Kind of messy but GetPlacementPlatformRotation returns placementData rotation if sloped
-                    {
-                        int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
-                        placementData.Rotation = (PlayerTileRotation)(MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1);
-                    }
-                    else
-                    {
-                        placementData.Rotation = tileRotation.Value;
-                    }
-                }
-                PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
-                state = (int)GetPlacementPlatformState(placePosition, placementData,platformTileMap);
-                placementData.State = state;
-                rotation = GetPlacementPlatformRotation(placePosition, placementData,platformTileMap);
-                // TODO NON AUTO ROTATION
+                SetPlatformStateAndRotation();
             }
-            
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
@@ -350,46 +318,75 @@ namespace TileMaps.Place {
                 return;
             }
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
+
+            return;
+            void SetRotation()
+            {
+                switch (tileRotation)
+                {
+                    case null:
+                    case PlayerTileRotation.Auto when tileItem.tile is not HammerTile:
+                        return;
+                    case PlayerTileRotation.Auto:
+                    {
+                        int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData.State);
+                        if (hammerTileRotation > 0) rotation = hammerTileRotation;
+                        break;
+                    }
+                    default:
+                        rotation = (int)tileRotation.Value;
+                        break;
+                }
+            }
+
+            void SetPlatformStateAndRotation()
+            {
+                placementData ??= new TilePlacementData(0, 0);
+                if (placementData.State == (int)PlatformTileState.Slope)
+                {
+                    if (tileRotation == PlayerTileRotation.Auto) // Kind of messy but GetPlacementPlatformRotation returns placementData rotation if sloped
+                    {
+                        int mousePosition = MousePositionUtils.GetMousePlacement(worldPosition);
+                        rotation = (MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1);
+                        return;
+                    }
+                    rotation = (int)placementData.Rotation;
+                    return;
+                }
+                PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
+                state = (int)GetPlacementPlatformState(placePosition, placementData,platformTileMap);
+                placementData.State = state;
+                rotation = GetPlacementPlatformRotation(placePosition, placementData,platformTileMap);
+            }
         }
 
         public static PlatformTileState GetPlacementPlatformState(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
         {
-            PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
-            switch (platformPlacementMode)
-            {
-                case PlatformPlacementMode.Slope:
-                    return PlatformTileState.Slope;
-                case PlatformPlacementMode.Flat:
-                case PlatformPlacementMode.Update:
-                    if (tilePlacementData.State == (int)PlatformTileState.Slope) return PlatformTileState.Slope;
-                    bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
-                    bool upperLeft = 
-                    bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
+            PlatformTileState currentState = (PlatformTileState)tilePlacementData.State;
+            if (currentState == PlatformTileState.Slope) return PlatformTileState.Slope;
+            bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left) || platformTileMap.HasSlopeTile(cellPosition+Vector2Int.left+Vector2Int.up);
+            bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right) || platformTileMap.HasSlopeTile(cellPosition+Vector2Int.right+Vector2Int.up);
                     
-                    // This might be reversed
-                    if (!left && !right) return PlatformTileState.FlatConnectAll;
-                    if (left && right) return PlatformTileState.FlatConnectNone;
-                    return PlatformTileState.FlatConnectOne;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            // This might be reversed
+            if (!left && !right) return PlatformTileState.FlatConnectAll;
+            if (left && right) return PlatformTileState.FlatConnectNone;
+            return PlatformTileState.FlatConnectOne;
         }
         public static int GetPlacementPlatformRotation(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
         {
-            PlatformPlacementMode platformPlacementMode = (PlatformPlacementMode)tilePlacementData.PlacementMode;
-            switch (platformPlacementMode)
+            PlatformTileState state = (PlatformTileState)tilePlacementData.State;
+            switch (state)
             {
-                case PlatformPlacementMode.Slope:
-                    return (int)tilePlacementData.Rotation;
-                case PlatformPlacementMode.Flat:
-                case PlatformPlacementMode.Update:
-                    if (tilePlacementData.State is (int)PlatformTileState.FlatConnectOne or (int)PlatformTileState.FlatSlopeConnectOne)
-                    {
-                        bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
-                        if (right) return 1;
-                    }
+                case PlatformTileState.FlatConnectNone:
+                case PlatformTileState.FlatConnectOne:
+                    bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right)|| platformTileMap.HasSlopeTile(cellPosition+Vector2Int.right+Vector2Int.up);
+                    return right ? 1 : 0;
+                case PlatformTileState.FlatConnectAll:
+                case PlatformTileState.FlatSlopeConnectAll:
+                case PlatformTileState.FlatSlopeConnectOne:
                     return 0;
-                    
+                case PlatformTileState.Slope:
+                    return (int)tilePlacementData.Rotation;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

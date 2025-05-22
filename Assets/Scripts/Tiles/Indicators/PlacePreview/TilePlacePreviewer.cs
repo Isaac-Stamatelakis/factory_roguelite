@@ -146,7 +146,7 @@ namespace TileMaps.Previewer {
             switch (itemObject)
             {
                 case TileItem tileItem:
-                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State,0), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
@@ -179,7 +179,7 @@ namespace TileMaps.Previewer {
             else
             {
                 PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
-                TilePlacementData tilePlacementData = new(0, 0, 0);
+                TilePlacementData tilePlacementData = new(0, 0);
                 state = (int)TilePlaceUtils.GetPlacementPlatformState((Vector2Int)placePosition,tilePlacementData,platformTileMap);
                 tilePlacementData.State = state;
                 rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)placePosition,tilePlacementData,platformTileMap);

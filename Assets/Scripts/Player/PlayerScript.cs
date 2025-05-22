@@ -338,13 +338,11 @@ namespace Player
     {
         public PlayerTileRotation Rotation;
         public int State;
-        public int PlacementMode;
 
-        public TilePlacementData(PlayerTileRotation rotation, int state, int placementMode)
+        public TilePlacementData(PlayerTileRotation rotation, int state)
         {
             Rotation = rotation;
             State = state;
-            PlacementMode = placementMode;
         }
     }
 

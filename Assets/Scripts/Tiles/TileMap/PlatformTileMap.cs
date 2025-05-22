@@ -142,7 +142,7 @@ namespace Tiles.TileMap
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
                 if (!tileItem) return;
-                TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state, (int)PlatformPlacementMode.Update);
+                TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state);
                 PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(adjacentPosition, tilePlacementData,this);
                 tilePlacementData.State = (int)state;
                 int rotation = TilePlaceUtils.GetPlacementPlatformRotation(adjacentPosition, tilePlacementData,this);
@@ -206,9 +206,10 @@ namespace Tiles.TileMap
             return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
         }
 
-        public bool HasSlopeTile(Vector3Int vector3Int)
+        
+        public bool HasSlopeTile(Vector2Int vector2Int)
         {
-            return slopeTileMap.HasTile(vector3Int);
+            return slopeTileMap.HasTile(new Vector3Int(vector2Int.x,vector2Int.y,0));
         }
 
         public override Vector2Int GetHitTilePosition(Vector2 position)
