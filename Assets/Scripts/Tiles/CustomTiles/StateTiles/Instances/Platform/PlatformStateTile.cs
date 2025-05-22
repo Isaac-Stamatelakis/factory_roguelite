@@ -16,7 +16,6 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
         FlatConnectOne,
         FlatConnectAll,
         Slope,
-        FlatSlopeConnectOne,
         FlatSlopeConnectAll,
     }
     public class PlatformStateTile : TileBase, IStateTileMultiple, INamedStateTile, IRestrictedIndicatorStateTile
@@ -63,18 +62,11 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
-                case PlatformTileState.FlatSlopeConnectOne:
-                    container[0] = FlatConnectOne;
-                    container[1] = Slope;
-                    container[2] = SlopeDeco;
-                    break;
                 case PlatformTileState.FlatSlopeConnectAll:
                     container[0] = FlatConnectAll;
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -89,7 +81,6 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                     return "Flat Platform";
                 case PlatformTileState.Slope:
                     return "Sloped Platform";
-                case PlatformTileState.FlatSlopeConnectOne:
                 case PlatformTileState.FlatSlopeConnectAll:
                     return "Flat & Sloped Platform";
                 default:
@@ -105,7 +96,6 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                 case PlatformTileState.FlatConnectNone:
                 case PlatformTileState.FlatConnectOne:
                 case PlatformTileState.FlatConnectAll:
-                case PlatformTileState.FlatSlopeConnectOne:
                 case PlatformTileState.FlatSlopeConnectAll:
                     return (int)PlatformTileState.Slope;
                 case PlatformTileState.Slope:

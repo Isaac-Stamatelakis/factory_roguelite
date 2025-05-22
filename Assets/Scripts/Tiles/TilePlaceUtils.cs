@@ -363,13 +363,27 @@ namespace TileMaps.Place {
         public static PlatformTileState GetPlacementPlatformState(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
         {
             PlatformTileState currentState = (PlatformTileState)tilePlacementData.State;
-            if (currentState == PlatformTileState.Slope) return PlatformTileState.Slope;
+            if (currentState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll)
+            {
+                int rotation = (int)tilePlacementData.Rotation;
+                if (rotation == 1)
+                {
+                    bool leftFlat = platformTileMap.HasFlatTile(cellPosition + Vector2Int.left);
+                    if (leftFlat) return PlatformTileState.FlatSlopeConnectAll;
+                }
+                else
+                {
+                    bool rightFlat = platformTileMap.HasFlatTile(cellPosition + Vector2Int.right);
+                    if (rightFlat) return PlatformTileState.FlatSlopeConnectAll;
+                }
+                return PlatformTileState.Slope;
+            }
             bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left) || platformTileMap.HasSlopeTile(cellPosition+Vector2Int.left+Vector2Int.up);
             bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right) || platformTileMap.HasSlopeTile(cellPosition+Vector2Int.right+Vector2Int.up);
                     
             // This might be reversed
-            if (!left && !right) return PlatformTileState.FlatConnectAll;
-            if (left && right) return PlatformTileState.FlatConnectNone;
+            if (!left && !right) return PlatformTileState.FlatConnectNone;
+            if (left && right) return PlatformTileState.FlatConnectAll;
             return PlatformTileState.FlatConnectOne;
         }
         public static int GetPlacementPlatformRotation(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
@@ -383,7 +397,6 @@ namespace TileMaps.Place {
                     return right ? 1 : 0;
                 case PlatformTileState.FlatConnectAll:
                 case PlatformTileState.FlatSlopeConnectAll:
-                case PlatformTileState.FlatSlopeConnectOne:
                     return 0;
                 case PlatformTileState.Slope:
                     return (int)tilePlacementData.Rotation;

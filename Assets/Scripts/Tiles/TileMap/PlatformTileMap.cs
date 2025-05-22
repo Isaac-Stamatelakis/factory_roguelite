@@ -158,7 +158,7 @@ namespace Tiles.TileMap
             TileItem tileItem = getTileItem(position);
             if (!tileItem) return;
             PlatformTileState platformTileState = (PlatformTileState)baseTileData.state;
-            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll or PlatformTileState.FlatSlopeConnectOne;
+            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll;
             if (!valid) return;
             baseTileData.rotation = (baseTileData.rotation + 1) % 2;
             RemoveTile(position.x, position.y);
@@ -185,13 +185,10 @@ namespace Tiles.TileMap
                     case PlatformTileState.FlatConnectNone:
                         return PlatformTileState.Slope;
                     case PlatformTileState.FlatConnectOne:
-                        return PlatformTileState.FlatSlopeConnectOne;
                     case PlatformTileState.FlatConnectAll:
                         return PlatformTileState.FlatSlopeConnectAll;
                     case PlatformTileState.Slope:
                         return PlatformTileState.FlatConnectNone;
-                    case PlatformTileState.FlatSlopeConnectOne:
-                        return PlatformTileState.FlatConnectOne;
                     case PlatformTileState.FlatSlopeConnectAll:
                         return PlatformTileState.FlatConnectAll;
                     default:
@@ -201,6 +198,10 @@ namespace Tiles.TileMap
         }
 
 
+        public bool HasFlatTile(Vector2Int vector2Int)
+        {
+            return tilemap.HasTile(new Vector3Int(vector2Int.x,vector2Int.y,0));
+        }
         public override bool HasTile(Vector3Int vector3Int)
         {
             return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
