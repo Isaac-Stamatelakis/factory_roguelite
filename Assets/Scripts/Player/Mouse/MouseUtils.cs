@@ -24,29 +24,25 @@ using Item.Slot;
 using Player.Tool;
 using PlayerModule;
 using PlayerModule.IO;
+using Tiles.TileMap;
 using UI;
 
 namespace Player.Mouse
 {
     public static class MouseUtils
     {
-        /// <summary>
-        /// Hits tile at mouse position in tile layer
-        /// </summary>
-        /// <param name="tileMapLayer"></param>
-        /// <param name="mousePosition"></param>
-        /// <param name="power"></param>
-        /// <returns>True if broken false if not</returns>
-        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
+        
+        public static bool HitTileLayer(ClosedChunkSystem closedChunkSystem, TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
         {
-            if (tileMapLayer.Raycastable())
+            if (tileMapLayer == TileMapLayer.Base)
             {
                 int layer = tileMapLayer.ToRaycastLayers();
-                return RaycastHitBlock(mousePosition,layer,power,drop,precise);
+                layer |= 1 << LayerMask.NameToLayer("PlatformSlope");
+                return RaycastHitBlock(mousePosition, layer, power, drop, precise);
             }
             
             foreach (TileMapType tileMapType in tileMapLayer.GetTileMapTypes()) {
-                IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
+                IWorldTileMap iWorldTileMap = closedChunkSystem.GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
                     return hitableTileMap.DeleteTile(mousePosition);

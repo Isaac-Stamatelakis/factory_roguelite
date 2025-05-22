@@ -47,6 +47,7 @@ namespace Player {
         OnSlope,
         HeadContact,
         OnPlatform,
+        OnPlatformSlope,
         InFluid,
     }
     
@@ -454,7 +455,7 @@ namespace Player {
 
         public bool IsGrounded()
         {
-            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
         }
 
         private void FlightMoveUpdate()
@@ -696,9 +697,10 @@ namespace Player {
                 jumpEvent = null;
                 return;
             }
-            if (CollisionStateActive(CollisionState.OnPlatform) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
+            if ((CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope)) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
             {
                 ignorePlatformFrames = 3;
+                if (CollisionStateActive(CollisionState.OnPlatformSlope)) liveYUpdates = 3;
                 return;
             }
             
@@ -847,7 +849,7 @@ namespace Player {
 
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            //slopePlatformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
+            slopePlatformCollider.enabled = ignorePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
 
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
@@ -894,7 +896,7 @@ namespace Player {
 
             if (liveYUpdates > 0) return FREEZE_Z;
             
-            if (CollisionStateActive(CollisionState.OnSlope))
+            if (CollisionStateActive(CollisionState.OnSlope) || CollisionStateActive(CollisionState.OnPlatformSlope))
             {
                 bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
                 bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);

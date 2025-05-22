@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b79b57c0447afd44ca2d7f17ff7c8c92
+guid: 3facd06aa26744e459b63fa897b9f7f9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -20,7 +20,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -118,9 +118,8 @@ TextureImporter:
     sprites: []
     outline: []
     physicsShape:
-    - - {x: 0, y: 8}
-      - {x: 0, y: 0}
-      - {x: -8, y: 0}
+    - - {x: 8, y: 8}
+      - {x: -8, y: -8}
       - {x: -8, y: -8}
       - {x: 8, y: -8}
       - {x: 8, y: 8}

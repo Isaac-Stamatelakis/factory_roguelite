@@ -101,7 +101,9 @@ namespace Robot.Tool.Instances
 
             if (toolData.Layer == TileMapLayer.Base)
             {
-                hitting = MouseUtils.RaycastObject(mousePosition, toolData.Layer.ToRaycastLayers());
+                int layers = toolData.Layer.ToRaycastLayers();
+                layers |= 1 << LayerMask.NameToLayer("PlatformSlope");
+                hitting = MouseUtils.RaycastObject(mousePosition,layers);
                 if (!hitting) return;
             }
 
@@ -124,7 +126,7 @@ namespace Robot.Tool.Instances
             SetParticleSystemColor(tileItem);
             const float minPercent = 0.1f;
             if (!playerRobot.TryConsumeEnergy(RobotDrillUpgradeInfo.COST_PER_HIT,minPercent)) return;
-            bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
+            bool broken = MouseUtils.HitTileLayer(playerScript.CurrentSystem, toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
             if (multiBreak == 0)
             {
                 if (broken)
@@ -149,6 +151,7 @@ namespace Robot.Tool.Instances
                 TileItem multiHitTileItem = worldTileMap.GetTileItem(position);
                 if (!playerRobot.TryConsumeEnergy(RobotDrillUpgradeInfo.COST_PER_HIT,minPercent)) return false;
                 bool broken = MouseUtils.HitTileLayer(
+                    playerScript.CurrentSystem,
                     toolData.Layer, 
                     position, 
                     drop,

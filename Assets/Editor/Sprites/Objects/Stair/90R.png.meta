@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4f22016f57ffca3469a6c315d19778ad
+guid: e180afc044ae3384eadce4103b1eb998
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -20,7 +20,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -119,9 +119,6 @@ TextureImporter:
     outline: []
     physicsShape:
     - - {x: -8, y: 8}
-      - {x: -8, y: 0}
-      - {x: 0, y: 0}
-      - {x: 0, y: -8}
       - {x: 8, y: -8}
       - {x: 8, y: 8}
     bones: []
