@@ -212,8 +212,8 @@ namespace Player {
             Damage(fluidCollisionInformation.Damage);
             fluidCollisionInformation.DamageCounter = 0;
         }
-        
 
+        
         public void AddCollisionState(CollisionState state)
         {
             if (!collisionStates.Add(state)) return;
@@ -456,6 +456,12 @@ namespace Player {
         public bool IsGrounded()
         {
             return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+        }
+
+        public bool IsGroundedAndNotOnPlatformSlope()
+        {
+            // Bug central right here
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
         }
 
         private void FlightMoveUpdate()

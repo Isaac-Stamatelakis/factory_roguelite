@@ -10,9 +10,11 @@ namespace Player.Movement
     public class PlayerPlatformSlopeCollider : MonoBehaviour
     {
         private PlayerRobot playerRobot;
+        private Rigidbody2D rb;
         public void Start()
         {
             playerRobot = GetComponentInParent<PlayerRobot>();
+            rb = playerRobot.GetComponent<Rigidbody2D>();
         }
         
         public void OnTriggerStay2D(Collider2D other)
@@ -23,28 +25,32 @@ namespace Player.Movement
                 playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
                 return;
             }
+
+            if (!playerRobot.CollisionStateActive(CollisionState.OnPlatformSlope) && playerRobot.IsGrounded())
+            {
+                Tilemap slopeTilemap = other.GetComponent<Tilemap>();
+                Vector3Int cellPosition = slopeTilemap.WorldToCell(collisionPoint);
+                cellPosition.z = 0;
+                Matrix4x4 matrix4 = slopeTilemap.GetTransformMatrix(cellPosition);
+                //collisionPoint.x > transform.position.x
+                if (matrix4.rotation == Quaternion.identity)
+                {
+                    if (rb.velocity.x > 0)
+                    {
+                        playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (rb.velocity.x < 0)
+                    {
+                        playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+                        return;
+                    }
+                }
+            }
             
-            Tilemap slopeTilemap = other.GetComponent<Tilemap>();
-            Vector3Int cellPosition = slopeTilemap.WorldToCell(collisionPoint);
-            cellPosition.z = 0;
-            Matrix4x4 matrix4 = slopeTilemap.GetTransformMatrix(cellPosition);
-            if (matrix4.rotation == Quaternion.identity)
-            {
-                if (collisionPoint.x > transform.position.x)
-                {
-                    playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
-                    return;
-                }
-            }
-            else
-            {
-                Debug.Log("H");
-                if (collisionPoint.x < transform.position.x)
-                {
-                    playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
-                    return;
-                }
-            }
             playerRobot.AddCollisionState(CollisionState.OnPlatformSlope);
         }
 
