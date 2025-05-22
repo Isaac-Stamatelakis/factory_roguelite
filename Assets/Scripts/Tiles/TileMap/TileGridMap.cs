@@ -42,13 +42,13 @@ namespace TileMaps {
     }
     public class WorldTileMap : AbstractWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
-        protected Tilemap AddOverlay()
+        protected Tilemap AddOverlay(float z)
         {
             GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
             overlayTileMapObject.transform.SetParent(transform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, OVERLAY_Z);
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, z);
             return overlayTileMap;
         }
 
@@ -246,6 +246,15 @@ namespace TileMaps {
                 closedChunkSystem.BreakIndicator.RemoveBreak(cellPosition);
             }
             return broken;
+        }
+
+        public BaseTileData GetBaseTileData(int x, int y)
+        {
+            Vector2Int position = new Vector2Int(x, y);
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return null;
+            Vector2Int positionInPartition = GetTilePositionInPartition(position);
+            return partition.GetBaseData(positionInPartition);
         }
         
 

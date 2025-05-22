@@ -69,6 +69,42 @@ namespace TileMaps.Previewer
             return position == placePositions[originPosition] && id == Id;
         }
     }
+    
+
+    internal class MultiStateTilePlacementRecord : TilePlacementRecord
+    {
+        private int tiles;
+        private readonly Vector3Int primaryPosition;
+        private readonly List<Vector3Int> secondaryPositions;
+        public MultiStateTilePlacementRecord(string id, Tilemap tilemap, int tiles, Vector3Int primaryPosition, List<Vector3Int> secondaryPositions) : base(id, tilemap)
+        {
+            this.tiles = tiles;
+            this.primaryPosition = primaryPosition;
+            this.secondaryPositions = secondaryPositions;
+        }
+
+        protected override void DoClear()
+        {
+            ClearTile(primaryPosition);
+            foreach (Vector3Int position in secondaryPositions)
+            {
+                ClearTile(position);
+            }
+
+            void ClearTile(Vector3Int pos)
+            {
+                for (int i = 0; i < tiles; i++)
+                {
+                    tilemap.SetTile(pos + Vector3Int.down * (i * TilePlacePreviewer.MULTI_TILE_PLACE_OFFSET),null);
+                }
+            }
+        }
+
+        public override bool RecordMatch(Vector3Int position, string id)
+        {
+            return this.primaryPosition == position && id == Id;
+        }
+    }
 
     public class MultiMapPlacementRecord : TilePlacementRecord
     {
@@ -96,4 +132,5 @@ namespace TileMaps.Previewer
             return position == primaryPosition && id == Id;
         }
     }
+    
 }

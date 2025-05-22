@@ -5,17 +5,20 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.CustomTiles.StateTiles.Instances.Platform
 {
- 
+    public interface IRestrictedIndicatorStateTile : INamedStateTile
+    {
+        public int ShiftState(int currentState, int dir);
+    }
+    
     public enum PlatformTileState
     {
         FlatConnectNone,
         FlatConnectOne,
         FlatConnectAll,
         Slope,
-        FlatSlopeConnectOne,
         FlatSlopeConnectAll,
     }
-    public class PlatformStateTile : TileBase, IStateTileMultiple
+    public class PlatformStateTile : TileBase, IStateTileMultiple, INamedStateTile, IRestrictedIndicatorStateTile
     {
         public TileBase FlatConnectNone;
         public TileBase FlatConnectOne;
@@ -59,16 +62,44 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
-                case PlatformTileState.FlatSlopeConnectOne:
-                    container[0] = FlatConnectOne;
-                    container[1] = Slope;
-                    container[2] = SlopeDeco;
-                    break;
                 case PlatformTileState.FlatSlopeConnectAll:
                     container[0] = FlatConnectAll;
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
+            }
+        }
+
+        public string GetStateName(int state)
+        {
+            PlatformTileState platformTileState =  (PlatformTileState)state;
+            switch (platformTileState)
+            {
+                case PlatformTileState.FlatConnectNone:
+                case PlatformTileState.FlatConnectOne:
+                case PlatformTileState.FlatConnectAll:
+                    return "Flat Platform";
+                case PlatformTileState.Slope:
+                    return "Sloped Platform";
+                case PlatformTileState.FlatSlopeConnectAll:
+                    return "Flat & Sloped Platform";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public int ShiftState(int currentState, int dir)
+        {
+            PlatformTileState platformTileState =  (PlatformTileState)currentState;
+            switch (platformTileState)
+            {
+                case PlatformTileState.FlatConnectNone:
+                case PlatformTileState.FlatConnectOne:
+                case PlatformTileState.FlatConnectAll:
+                case PlatformTileState.FlatSlopeConnectAll:
+                    return (int)PlatformTileState.Slope;
+                case PlatformTileState.Slope:
+                    return (int)PlatformTileState.FlatConnectNone;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

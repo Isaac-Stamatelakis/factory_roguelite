@@ -175,6 +175,7 @@ namespace TileMaps {
         {
             return mTileMap.GetTile(vector3Int);
         }
+        
 
         protected abstract void SetTile(int x, int y,TItem item);
         public static Vector2Int GetChunkPosition(Vector2Int position) {
@@ -256,7 +257,7 @@ namespace TileMaps {
 
         public bool HasTile(Vector2Int position)
         {
-            return mTileMap.GetTile(new Vector3Int(position.x, position.y, 0));
+            return HasTile(new Vector3Int(position.x, position.y, 0));
         }
         /// <summary>
         /// Removes the tile from the tilemap without modifying any data

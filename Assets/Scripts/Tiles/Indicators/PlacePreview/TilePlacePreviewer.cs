@@ -16,8 +16,11 @@ using PlayerModule.KeyPress;
 using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.Options.Overlay;
+using Tiles.TileMap;
 using UI;
+using UnityEditor;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -36,6 +39,8 @@ namespace TileMaps.Previewer {
         private TilemapRenderer overlayRenderer;
         private Material mainMaterial;
         private int lastMousePlacement;
+
+        public const int MULTI_TILE_PLACE_OFFSET = 7;
         // Start is called before the first frame update
         void Start()
         {
@@ -111,7 +116,15 @@ namespace TileMaps.Previewer {
             }
             else if (itemObject is TileItem tileItem)
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
+                if (tileItem.tile is PlatformStateTile)
+                {
+                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, position);
+                }
+                else
+                {
+                    placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
+                }
+                
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
@@ -135,7 +148,7 @@ namespace TileMaps.Previewer {
             switch (itemObject)
             {
                 case TileItem tileItem:
-                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State,0), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
@@ -152,12 +165,87 @@ namespace TileMaps.Previewer {
             return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 
+        private MultiStateTilePlacementRecord PreviewPlatformTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, Vector3Int placePosition, Vector2 position)
+        {
+            PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
+            
+            List<Vector3Int> additionalPlacementPositions = new List<Vector3Int>();
+            PlaceTile(placePosition,tileItem.tile as PlatformStateTile,tilePlacementOptions,platformTileMap.GetTilemap(),platformTileMap.SlopeTileMap);
+            if (!platformTileMap.HasTile(placePosition))
+            {
+                PlaceAdditionalTile(Vector3Int.left);
+                PlaceAdditionalTile(Vector3Int.right);
+            }
+            
+            return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition, additionalPlacementPositions);
+
+            void PlaceAdditionalTile(Vector3Int direction)
+            {
+                Vector3Int adjacentPosition = placePosition + direction;
+                TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
+                if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
+                BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
+                PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
+                {
+                    State = baseTileData.state,
+                    Rotation = (PlayerTileRotation)baseTileData.rotation
+                };
+                PlaceTile(adjacentPosition,platformStateTile,placementOptions,tilemap,tilemap);
+                additionalPlacementPositions.Add(adjacentPosition);
+                
+            }
+            void PlaceTile(Vector3Int cellPosition, PlatformStateTile platformStateTile, PlayerTilePlacementOptions placementOptions, Tilemap flatMap, Tilemap slopeMap)
+            {
+                int rotation;
+                int state = placementOptions.State;
+                if (placementOptions.State == (int)PlatformTileState.Slope && cellPosition == placePosition)
+                {
+                    rotation = (int)placementOptions.Rotation;
+                    if (placementOptions.Rotation == PlayerTileRotation.Auto)
+                    {
+                        int mousePosition = MousePositionUtils.GetMousePlacement(position);
+                        rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                    }
+                }
+                else
+                {
+                    TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
+                    state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,slopeMap);
+                    tilePlacementData.State = state;
+                    rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)cellPosition,tilePlacementData,platformTileMap);
+                }
+                
+                TileBase[] result = new TileBase[3];
+                platformStateTile.GetTiles(state,result);
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    TileBase tileBase = result[i];
+                    Vector3Int tilePlacePosition = cellPosition + Vector3Int.down * (i * MULTI_TILE_PLACE_OFFSET);
+                    tilePlacePosition.z = 0;
+                    
+                    tilemap.SetTile(tilePlacePosition,tileBase);
+                    Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(tilePlacePosition);
+                    
+                    float offset = MULTI_TILE_PLACE_OFFSET*i * Global.TILE_SIZE;
+                    
+                    const int SLOPE_DECO_INDEX = 2;
+                    if (i == SLOPE_DECO_INDEX) offset -= Global.TILE_SIZE; // Deco is one lower
+                    transformMatrix.SetTRS(new Vector3(0,offset,0),Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
+                    tilemap.SetTransformMatrix(tilePlacePosition,transformMatrix);
+                }
+
+            }
+
+        }
+
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
+            
             
             bool rotatable = tileItem.tileOptions.rotatable;
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
@@ -194,12 +282,7 @@ namespace TileMaps.Previewer {
             if (tileBase is IStateTileSingle stateTile) {
                 tileBase = stateTile.GetTileAtState(autoState);
             }
-
-            if (tileBase is IStateTileMultiple stateTileMultiple)
-            {
-                // TODO
-                tileBase = stateTileMultiple.GetDefaultTile();
-            }
+            
             if (!rotatable)
             {
                 placementTilemap.SetTile(placePosition,tileBase);
@@ -233,20 +316,14 @@ namespace TileMaps.Previewer {
         }
         
         
-
-        
-
         private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTile conduitStateTile, ItemObject itemObject, Vector3Int position)
         {
             if (itemObject is not ConduitItem conduitItem)
             {
                 return null;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
-            {
-                return null;
-            }
+            ClosedChunkSystem closedChunkSystem = playerScript.CurrentSystem;
+            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) return null;
             
             List<Vector3Int> placePositions = new List<Vector3Int>{};
             List<Vector3Int> directions = new List<Vector3Int>{Vector3Int.left,Vector3Int.right,Vector3Int.up,Vector3Int.down};

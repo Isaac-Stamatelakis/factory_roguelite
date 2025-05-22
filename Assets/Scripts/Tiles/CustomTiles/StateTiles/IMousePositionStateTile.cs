@@ -29,7 +29,12 @@ namespace Tiles {
     public interface IStateTile
     {
         public TileBase GetDefaultTile();
-        public int GetStateAmount();   
+        public int GetStateAmount();
+    }
+
+    public interface INamedStateTile : IStateTile
+    {
+        public string GetStateName(int state);
     }
 }
 

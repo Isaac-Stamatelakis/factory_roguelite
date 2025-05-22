@@ -9,6 +9,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using JetBrains.Annotations;
 using Tiles;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using Unity.VisualScripting;
 using UnityEngine.Tilemaps;
 
 namespace UI.Indicators.General
@@ -18,8 +20,8 @@ namespace UI.Indicators.General
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
         private bool rotatable;
-        private bool stateModifiable;
         private TileItem currentItem;
+        private INamedStateTile currentStateTile;
         public void Initialize(PlayerScript playerScript)
         {
             this.playerScript = playerScript;
@@ -27,9 +29,9 @@ namespace UI.Indicators.General
 
         public void Display([NotNull] TileItem tileItem)
         {
-            rotatable = tileItem.tileOptions.rotatable;
-            stateModifiable = tileItem.tile is IStateTileSingle;
+            rotatable = tileItem.tileOptions.rotatable || tileItem.tileType == TileType.Platform;
             currentItem = tileItem;
+            currentStateTile = tileItem.tile as INamedStateTile;
             Display();
         }
         
@@ -50,25 +52,26 @@ namespace UI.Indicators.General
             }
 
             bool stateRotatable = false;
-            if (stateModifiable)
+            int state = playerScript.TilePlacementOptions.State;
+            if (currentItem.tile is IStateTileSingle stateTileSingle)
             {
-                int state = playerScript.TilePlacementOptions.State;
-                IStateTileSingle stateTileSingle = (IStateTileSingle)currentItem.tile;
                 TileBase tileBase = stateTileSingle.GetTileAtState(state);
                 if (tileBase is IStateRotationTile stateRotationTile)
                 {
                     stateRotatable = true;
                     tileBase = stateRotationTile.getTile(rotationValue, false);
                 }
-
                 Sprite sprite = TileItem.GetDefaultSprite(tileBase);
+                tileImage.sprite = sprite;
+            } else if (currentItem.tile is PlatformStateTile platformStateTile)
+            {
+                Sprite sprite = TileItem.GetDefaultSprite(state == 0 ? platformStateTile.GetDefaultTile() : platformStateTile.Slope);
+                if (state == 0) rotationValue = 0;
                 tileImage.sprite = sprite;
             }
 
-            tileImage.color = currentItem.tileOptions.TileColor
-                ? currentItem.tileOptions.TileColor.GetColor()
-                : Color.white;
-
+            tileImage.color = currentItem.tileOptions.GetTileColor();
+            
             if (!stateRotatable)
             {
                 tileImage.transform.rotation = Quaternion.Euler(0, 0, 90 * rotationValue);
@@ -85,7 +88,7 @@ namespace UI.Indicators.General
                 rotationText += "DEG";
             }
             string rotationMessage = rotatable ? $"Tile Rotation:{rotationText}" : string.Empty;
-            string stateMessage = stateModifiable ? $"Tile State:{GetStateName(playerScript.TilePlacementOptions.State)}" : string.Empty;
+            string stateMessage = currentStateTile != null ? $"Tile State:{currentStateTile.GetStateName(playerScript.TilePlacementOptions.State)}" : string.Empty;
             string message = rotationMessage;
             if (rotationMessage != string.Empty && stateMessage != string.Empty)
             {
@@ -99,38 +102,20 @@ namespace UI.Indicators.General
         {
             ToolTipController.Instance.HideToolTip();
         }
-
-        private string GetStateName(int state)
-        {
-            switch (state)
-            {
-                case HammerTile.BASE_TILE_STATE:
-                    return "Tile";
-                case HammerTile.SLAB_TILE_STATE:
-                    return "Slab";
-                case HammerTile.SLANT_TILE_STATE:
-                    return "Slant";
-                case HammerTile.STAIR_TILE_STATE:
-                    return "Stair";
-                default:
-                    return null;
-            }
-        }
+        
 
         public void OnPointerClick(PointerEventData eventData)
         {
             PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
             int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
+            
             switch (eventData.button)
             {
                 case PointerEventData.InputButton.Left:
-                    placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
+                    UpdateRotation();
                     break;
                 case PointerEventData.InputButton.Right:
-                    const int MAX_STATE = 3;
-                    placementOptions.State += dir;
-                    if (placementOptions.State > MAX_STATE) placementOptions.State = 0;
-                    if (placementOptions.State < 0) placementOptions.State = MAX_STATE;
+                    UpdateState();
                     break;
                 case PointerEventData.InputButton.Middle:
                     break;
@@ -140,6 +125,39 @@ namespace UI.Indicators.General
 
             Display();
             OnPointerEnter(eventData);
+
+            void UpdateState()
+            {
+                if (currentStateTile is IRestrictedIndicatorStateTile restrictedIndicatorStateTile)
+                {
+                    placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, dir);
+                    return;
+                }
+                int maxStates = currentStateTile.GetStateAmount();
+                placementOptions.State += dir;
+                if (placementOptions.State > maxStates) placementOptions.State = 0;
+                if (placementOptions.State < 0) placementOptions.State = maxStates;
+            }
+
+            void UpdateRotation()
+            {
+                if (currentStateTile is PlatformStateTile)
+                {
+                    placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
+                    bool invalid = placementOptions.Rotation is PlayerTileRotation.Degrees180 or PlayerTileRotation.Degrees270;
+                    if (!invalid) return;
+                    if (dir > 0)
+                    {
+                        placementOptions.Rotation = PlayerTileRotation.Auto;
+                    }
+                    else
+                    {
+                        placementOptions.Rotation = PlayerTileRotation.Degrees90;
+                    }
+                    return;
+                }
+                placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
+            }
         }
         
         public PlayerControl GetPlayerControl()

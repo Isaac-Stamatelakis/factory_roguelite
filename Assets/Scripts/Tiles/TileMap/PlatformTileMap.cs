@@ -26,17 +26,17 @@ namespace Tiles.TileMap
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
-            slopeTileMap = AddOverlay();
+            slopeTileMap = AddOverlay(-0.1f);
             slopeTileMap.gameObject.name = "Slope";
             slopeTileMap.gameObject.AddComponent<TilemapCollider2D>();
             slopeTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
             TileMapBundleFactory.AddCompositeCollider(slopeTileMap.gameObject,TileMapType.Platform);
             
-            slopeDecoTileMap = AddOverlay();
+            slopeDecoTileMap = AddOverlay(0f);
             slopeDecoTileMap.gameObject.name = "SlopeDecoration";
             tileContainer = new TileBase[3]; // Max 3 tiles placed at once
             
-            slopeColliderExtendTileMap = AddOverlay();
+            slopeColliderExtendTileMap = AddOverlay(0f);
             slopeColliderExtendTileMap.gameObject.name = "SlopeColliderExtend";
             slopeColliderExtendTileMap.gameObject.AddComponent<TilemapCollider2D>();
             slopeColliderExtendTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
@@ -142,8 +142,9 @@ namespace Tiles.TileMap
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
                 if (!tileItem) return;
-                TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state, (int)PlatformPlacementMode.Update);
-                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(adjacentPosition, tilePlacementData,this);
+                TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state);
+                Vector3Int vector3Int = new Vector3Int(adjacentPosition.x,adjacentPosition.y,0);
+                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(vector3Int, tilePlacementData,tilemap,slopeTileMap);
                 tilePlacementData.State = (int)state;
                 int rotation = TilePlaceUtils.GetPlacementPlatformRotation(adjacentPosition, tilePlacementData,this);
                 baseTileData.state = (int)state;
@@ -158,7 +159,7 @@ namespace Tiles.TileMap
             TileItem tileItem = getTileItem(position);
             if (!tileItem) return;
             PlatformTileState platformTileState = (PlatformTileState)baseTileData.state;
-            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll or PlatformTileState.FlatSlopeConnectOne;
+            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll;
             if (!valid) return;
             baseTileData.rotation = (baseTileData.rotation + 1) % 2;
             RemoveTile(position.x, position.y);
@@ -168,7 +169,7 @@ namespace Tiles.TileMap
         public override void IterateHammerTile(Vector2Int position, int direction)
         {
             TileItem tileItem = getTileItem(position);
-            if (!tileItem) return;
+            if (!tileItem || tileItem.tileType != TileType.Platform) return;
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) return;
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
@@ -185,13 +186,10 @@ namespace Tiles.TileMap
                     case PlatformTileState.FlatConnectNone:
                         return PlatformTileState.Slope;
                     case PlatformTileState.FlatConnectOne:
-                        return PlatformTileState.FlatSlopeConnectOne;
                     case PlatformTileState.FlatConnectAll:
                         return PlatformTileState.FlatSlopeConnectAll;
                     case PlatformTileState.Slope:
                         return PlatformTileState.FlatConnectNone;
-                    case PlatformTileState.FlatSlopeConnectOne:
-                        return PlatformTileState.FlatConnectOne;
                     case PlatformTileState.FlatSlopeConnectAll:
                         return PlatformTileState.FlatConnectAll;
                     default:
@@ -201,9 +199,19 @@ namespace Tiles.TileMap
         }
 
 
+        public bool HasFlatTile(Vector2Int vector2Int)
+        {
+            return tilemap.HasTile(new Vector3Int(vector2Int.x,vector2Int.y,0));
+        }
         public override bool HasTile(Vector3Int vector3Int)
         {
             return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
+        }
+
+        
+        public bool HasSlopeTile(Vector2Int vector2Int)
+        {
+            return slopeTileMap.HasTile(new Vector3Int(vector2Int.x,vector2Int.y,0));
         }
 
         public override Vector2Int GetHitTilePosition(Vector2 position)

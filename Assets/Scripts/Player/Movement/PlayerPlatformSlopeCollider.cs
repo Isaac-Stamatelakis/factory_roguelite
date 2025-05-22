@@ -3,6 +3,7 @@ using TileMaps;
 using TileMaps.Type;
 using Tiles.TileMap;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Player.Movement
@@ -11,12 +12,36 @@ namespace Player.Movement
     {
         private PlayerRobot playerRobot;
         private Rigidbody2D rb;
+        private BoxCollider2D boxCollider2D;
+        [FormerlySerializedAs("MinSize")] public float MinSizeY = 0.15f;
+        [FormerlySerializedAs("MaxSize")] public float MaxSizeY = 2f;
+        public float MinSizeX = 0.15f;
+        public float MaxSizeX = 0.5f;
+        public float MinActiveSpeed = -10;
+        public float MaxActiveSpeed = -20;
+        private float minY;
+        public float MaxY = 0;
         public void Start()
         {
             playerRobot = GetComponentInParent<PlayerRobot>();
             rb = playerRobot.GetComponent<Rigidbody2D>();
+            boxCollider2D = GetComponent<BoxCollider2D>();
+            minY = transform.localPosition.y;
         }
-        
+
+        public void Update()
+        {
+            float yVelocity = rb.velocity.y;
+            float t = yVelocity > MinActiveSpeed ? 0 : yVelocity / MaxActiveSpeed;
+            var vector3 = transform.localPosition;
+            vector3.y = Mathf.Lerp(minY, MaxY, t);
+            transform.localPosition = vector3;
+            var size = boxCollider2D.size;
+            size.y = Mathf.Lerp(MinSizeY, MaxSizeY, t);
+            size.x = !playerRobot.IsGrounded() ? MaxSizeX : MinSizeX;
+            boxCollider2D.size = size;
+        }
+
         public void OnTriggerStay2D(Collider2D other)
         {
             Vector2 collisionPoint = other.ClosestPoint(transform.position);
