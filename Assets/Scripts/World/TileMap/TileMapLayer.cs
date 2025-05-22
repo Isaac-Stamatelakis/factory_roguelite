@@ -73,6 +73,11 @@ namespace TileMaps.Layer {
             foreach (TileMapType tileMapType in tileMapTypes) {
                 layerMask |= (1 << LayerMask.NameToLayer(tileMapType.ToString()));
             }
+
+            if (layer == TileMapLayer.Base)
+            {
+                layerMask |= 1 << LayerMask.NameToLayer("PlatformSlope");
+            }
             return layerMask;
         }
         public static bool IsTile(this TileMapLayer layer) {

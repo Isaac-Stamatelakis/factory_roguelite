@@ -782,8 +782,6 @@ namespace Player {
             
             
             if (!IsOnGround()) return true;
-
-            if (CanAutoJump(direction)) return true;
             
             if (WalkingIntoSlope(direction))
             {
@@ -816,76 +814,10 @@ namespace Player {
                 default:
                     break;
             }
+            int layer = blockLayer | 1 << LayerMask.NameToLayer("PlatformSlope");
             
-            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,Global.TILE_SIZE/2f),0,Vector2.zero,Mathf.Infinity,blockLayer);
+            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,Global.TILE_SIZE/2f),0,Vector2.zero,Mathf.Infinity,layer);
             return !ReferenceEquals(raycastHit.collider, null);
-        }
-
-        private bool CanAutoJump(Direction direction)
-        {
-            if (autoJumping) return false;
-            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
-            Vector2 adjacentTilePosition = bottomCenter + (spriteRenderer.sprite.bounds.extents.x) * (direction == Direction.Left ? Vector2.left : Vector2.right);
-            
-            const float EPSILON = 0.02f;
-            
-            var cast = Physics2D.BoxCast(adjacentTilePosition, 
-                new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 
-                0f, Vector2.zero, Mathf.Infinity, blockLayer
-            );
-            if (ReferenceEquals(cast.collider,null)) return false;
-            
-            var wallCast = Physics2D.BoxCast(
-                adjacentTilePosition+Vector2.up*Global.TILE_SIZE, 
-                new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 
-                0f, Vector2.zero, Mathf.Infinity, blockLayer
-            );
-            if (!ReferenceEquals(wallCast.collider,null)) return false;
-            
-            WorldTileMap worldTileMap = cast.collider.GetComponent<WorldTileMap>();
-            if (ReferenceEquals(worldTileMap, null)) return false;
-            ILoadedChunkSystem iLoadedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(adjacentTilePosition);
-            var (partition, positionInPartition) = iLoadedChunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
-            if (partition == null) return false;
-
-            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
-            if (tileItem?.tile is not HammerTile hammerTile) return false;
-            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
-            if (hammerTileState is HammerTileState.Stair) 
-            {
-                Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
-                Vector2 dif = tileCenter - (Vector2)transform.position;
-                bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
-                if (standingOnGround && TilePlaceUtils.TileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
-            }
-            if (hammerTileState is not (HammerTileState.Slab or HammerTileState.Stair)) return false;
-            StartCoroutine(AutoJumpCoroutine());
-            return true;
-
-        }
-        
-        private IEnumerator AutoJumpCoroutine()
-        {
-            autoJumping = true;
-            const int STEPS = 3;
-            var jumpDestination = transform.position;
-            jumpDestination.y += Global.TILE_SIZE / 2f;
-            jumpDestination.y = Mathf.CeilToInt(4 * jumpDestination.y) / 4f;
-            var waitForFixedUpdate = new WaitForFixedUpdate();
-            freezeY = true;
-            for (int i = 1; i <= STEPS; i++)
-            {
-                jumpDestination.x = transform.position.x;
-                Vector3 position = Vector3.Lerp(transform.position, jumpDestination, (float)i / STEPS);
-                transform.position = position;
-                yield return waitForFixedUpdate;
-            }
-
-            autoJumping = false;
-            freezeY = false;
-
         }
         public void FixedUpdate()
         {

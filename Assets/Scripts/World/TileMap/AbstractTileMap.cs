@@ -158,6 +158,7 @@ namespace TileMaps {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
             if (!HasTile(vect)) return false;
+
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);

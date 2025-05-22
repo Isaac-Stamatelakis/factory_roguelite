@@ -27,7 +27,9 @@ namespace Tiles.TileMap
             base.Initialize(type);
             slopeTileMap = AddOverlay();
             slopeTileMap.gameObject.name = "Slope";
-            InitializeSlopeCollider(slopeTileMap);
+            slopeTileMap.gameObject.AddComponent<TilemapCollider2D>();
+            slopeTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
+            TileMapBundleFactory.AddCompositeCollider(slopeTileMap.gameObject,TileMapType.Platform);
             
             slopeDecoTileMap = AddOverlay();
             slopeDecoTileMap.gameObject.name = "SlopeDecoration";
@@ -35,15 +37,10 @@ namespace Tiles.TileMap
             
             slopeColliderExtendTileMap = AddOverlay();
             slopeColliderExtendTileMap.gameObject.name = "SlopeColliderExtend";
-            InitializeSlopeCollider(slopeColliderExtendTileMap);
+            slopeColliderExtendTileMap.gameObject.AddComponent<TilemapCollider2D>();
+            slopeColliderExtendTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
+            
             slopeColliderExtendTile = DimensionManager.Instance.MiscDimAssets.SlopeExtendColliderTile;
-
-            void InitializeSlopeCollider(Tilemap map)
-            {
-                map.gameObject.AddComponent<TilemapCollider2D>();
-                map.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
-                TileMapBundleFactory.AddCompositeCollider(map.gameObject,TileMapType.Platform);
-            }
         }
 
         protected override void SetTile(int x, int y, TileItem tileItem)
@@ -119,13 +116,15 @@ namespace Tiles.TileMap
         {
             base.RemoveTile(x, y);
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
-            if (slopeTileMap.GetTile(cellPosition))
-            {
-                slopeTileMap.SetTile(cellPosition, null);
-                slopeDecoTileMap.SetTile(cellPosition, null);
-                slopeColliderExtendTileMap.SetTile(cellPosition, null);
-            }
             
+            if (!slopeTileMap.GetTile(cellPosition)) return;
+            
+            Matrix4x4 transformMatrix = slopeTileMap.GetTransformMatrix(cellPosition);
+            slopeTileMap.SetTile(cellPosition, null);
+            slopeDecoTileMap.SetTile(cellPosition+Vector3Int.down, null);
+
+            Vector3Int extendOffset = transformMatrix.rotation == Quaternion.identity ? Vector3Int.right : Vector3Int.left;
+            slopeColliderExtendTileMap.SetTile(cellPosition+extendOffset, null); 
         }
         
         
@@ -157,6 +156,11 @@ namespace Tiles.TileMap
         public override bool HasTile(Vector3Int vector3Int)
         {
             return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
+        }
+
+        public override Vector2Int GetHitTilePosition(Vector2 position)
+        {
+            return (Vector2Int)tilemap.WorldToCell(position);
         }
     }
     
