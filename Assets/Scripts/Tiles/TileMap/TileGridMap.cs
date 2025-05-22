@@ -247,6 +247,15 @@ namespace TileMaps {
             }
             return broken;
         }
+
+        public BaseTileData GetBaseTileData(int x, int y)
+        {
+            Vector2Int position = new Vector2Int(x, y);
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return null;
+            Vector2Int positionInPartition = GetTilePositionInPartition(position);
+            return partition.GetBaseData(positionInPartition);
+        }
         
 
         protected override void SetTile(int x, int y,TileItem tileItem) {

@@ -143,7 +143,8 @@ namespace Tiles.TileMap
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
                 if (!tileItem) return;
                 TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state);
-                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(adjacentPosition, tilePlacementData,this);
+                Vector3Int vector3Int = new Vector3Int(adjacentPosition.x,adjacentPosition.y,0);
+                PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(vector3Int, tilePlacementData,tilemap,slopeTileMap);
                 tilePlacementData.State = (int)state;
                 int rotation = TilePlaceUtils.GetPlacementPlatformRotation(adjacentPosition, tilePlacementData,this);
                 baseTileData.state = (int)state;

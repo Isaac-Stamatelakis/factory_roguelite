@@ -39,6 +39,8 @@ namespace TileMaps.Previewer {
         private TilemapRenderer overlayRenderer;
         private Material mainMaterial;
         private int lastMousePlacement;
+
+        public const int MULTI_TILE_PLACE_OFFSET = 7;
         // Start is called before the first frame update
         void Start()
         {
@@ -114,9 +116,9 @@ namespace TileMaps.Previewer {
             }
             else if (itemObject is TileItem tileItem)
             {
-                if (tileItem.tile is PlatformStateTile platformStateTile)
+                if (tileItem.tile is PlatformStateTile)
                 {
-                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, platformStateTile, placePosition, position);
+                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, position);
                 }
                 else
                 {
@@ -163,48 +165,77 @@ namespace TileMaps.Previewer {
             return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 
-        private MultiStateTilePlacementRecord PreviewPlatformTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, PlatformStateTile platformStateTile, Vector3Int placePosition, Vector2 position)
+        private MultiStateTilePlacementRecord PreviewPlatformTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, Vector3Int placePosition, Vector2 position)
         {
-            int rotation;
-            int state = tilePlacementOptions.State;
-            if (tilePlacementOptions.State == (int)PlatformTileState.Slope)
+            PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
+            
+            List<Vector3Int> additionalPlacementPositions = new List<Vector3Int>();
+            PlaceTile(placePosition,tileItem.tile as PlatformStateTile,tilePlacementOptions,platformTileMap.GetTilemap(),platformTileMap.SlopeTileMap);
+            if (!platformTileMap.HasTile(placePosition))
             {
-                rotation = (int)tilePlacementOptions.Rotation;
-                if (tilePlacementOptions.Rotation == PlayerTileRotation.Auto)
-                {
-                    int mousePosition = MousePositionUtils.GetMousePlacement(position);
-                    rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
-                }
-            }
-            else
-            {
-                PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
-                TilePlacementData tilePlacementData = new(0, 0);
-                state = (int)TilePlaceUtils.GetPlacementPlatformState((Vector2Int)placePosition,tilePlacementData,platformTileMap);
-                tilePlacementData.State = state;
-                rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)placePosition,tilePlacementData,platformTileMap);
+                PlaceAdditionalTile(Vector3Int.left);
+                PlaceAdditionalTile(Vector3Int.right);
             }
             
-            TileBase[] result = new TileBase[3];
-            platformStateTile.GetTiles(state,result);
-            
-            for (int i = 0; i < 3; i++)
-            {
-                TileBase tileBase = result[i];
-                Vector3Int tilePlacePosition = placePosition + Vector3Int.down * i;
-                tilePlacePosition.z = 0;
-                
-                tilemap.SetTile(tilePlacePosition,tileBase);
-                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(tilePlacePosition);
-                float offset = i * Global.TILE_SIZE;
-                if (i == 2) offset -= Global.TILE_SIZE;
-                transformMatrix.SetTRS(new Vector3(0,offset,0),Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
-                tilemap.SetTransformMatrix(tilePlacePosition,transformMatrix);
-            }
+            return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition, additionalPlacementPositions);
 
-            
-            
-            return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition);
+            void PlaceAdditionalTile(Vector3Int direction)
+            {
+                Vector3Int adjacentPosition = placePosition + direction;
+                TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
+                if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
+                BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
+                PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
+                {
+                    State = baseTileData.state,
+                    Rotation = (PlayerTileRotation)baseTileData.rotation
+                };
+                PlaceTile(adjacentPosition,platformStateTile,placementOptions,tilemap,tilemap);
+                additionalPlacementPositions.Add(adjacentPosition);
+                
+            }
+            void PlaceTile(Vector3Int cellPosition, PlatformStateTile platformStateTile, PlayerTilePlacementOptions placementOptions, Tilemap flatMap, Tilemap slopeMap)
+            {
+                int rotation;
+                int state = placementOptions.State;
+                if (placementOptions.State == (int)PlatformTileState.Slope && cellPosition == placePosition)
+                {
+                    rotation = (int)placementOptions.Rotation;
+                    if (placementOptions.Rotation == PlayerTileRotation.Auto)
+                    {
+                        int mousePosition = MousePositionUtils.GetMousePlacement(position);
+                        rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                    }
+                }
+                else
+                {
+                    TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
+                    state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,slopeMap);
+                    tilePlacementData.State = state;
+                    rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)cellPosition,tilePlacementData,platformTileMap);
+                }
+                
+                TileBase[] result = new TileBase[3];
+                platformStateTile.GetTiles(state,result);
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    TileBase tileBase = result[i];
+                    Vector3Int tilePlacePosition = cellPosition + Vector3Int.down * (i * MULTI_TILE_PLACE_OFFSET);
+                    tilePlacePosition.z = 0;
+                    
+                    tilemap.SetTile(tilePlacePosition,tileBase);
+                    Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(tilePlacePosition);
+                    
+                    float offset = MULTI_TILE_PLACE_OFFSET*i * Global.TILE_SIZE;
+                    
+                    const int SLOPE_DECO_INDEX = 2;
+                    if (i == SLOPE_DECO_INDEX) offset -= Global.TILE_SIZE; // Deco is one lower
+                    transformMatrix.SetTRS(new Vector3(0,offset,0),Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
+                    tilemap.SetTransformMatrix(tilePlacePosition,transformMatrix);
+                }
+
+            }
 
         }
 
