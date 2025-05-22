@@ -10,11 +10,9 @@ namespace Player.Movement
     public class PlayerPlatformSlopeCollider : MonoBehaviour
     {
         private PlayerRobot playerRobot;
-        private Rigidbody2D rb;
         public void Start()
         {
             playerRobot = GetComponentInParent<PlayerRobot>();
-            rb = playerRobot.GetComponent<Rigidbody2D>();
         }
         
         public void OnTriggerStay2D(Collider2D other)

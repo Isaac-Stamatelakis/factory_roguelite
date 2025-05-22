@@ -80,10 +80,9 @@ namespace Tiles.TileMap
                 ColorTileMap(slopeTileMap,vector3Int);
                 ColorTileMap(slopeDecoTileMap,slopeDecoPosition);
             }
-
-            if (rotation != 1) return;
+            
             Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(vector3Int);
-            transformMatrix.SetTRS(Vector3.zero,Quaternion.Euler(0f, 180f, 0f), Vector3.one);
+            transformMatrix.SetTRS(Vector3.zero,Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
             tilemap.SetTransformMatrix(vector3Int,transformMatrix);
             
             if (!sloped) return;
@@ -152,6 +151,54 @@ namespace Tiles.TileMap
 
             }
         }
+
+        public override void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
+        {
+            TileItem tileItem = getTileItem(position);
+            if (!tileItem) return;
+            PlatformTileState platformTileState = (PlatformTileState)baseTileData.state;
+            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll or PlatformTileState.FlatSlopeConnectOne;
+            if (!valid) return;
+            baseTileData.rotation = (baseTileData.rotation + 1) % 2;
+            RemoveTile(position.x, position.y);
+            SetTile(position.x,position.y,getTileItem(position));
+        }
+
+        public override void IterateHammerTile(Vector2Int position, int direction)
+        {
+            TileItem tileItem = getTileItem(position);
+            if (!tileItem) return;
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return;
+            Vector2Int positionInPartition = GetTilePositionInPartition(position);
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            
+            baseTileData.state = (int)GetNewState((PlatformTileState)baseTileData.state);
+            RemoveTile(position.x, position.y);
+            SetTile(position.x,position.y,tileItem);
+            return;
+            PlatformTileState GetNewState(PlatformTileState current)
+            {
+                switch (current)
+                {
+                    case PlatformTileState.FlatConnectNone:
+                        return PlatformTileState.Slope;
+                    case PlatformTileState.FlatConnectOne:
+                        return PlatformTileState.FlatSlopeConnectOne;
+                    case PlatformTileState.FlatConnectAll:
+                        return PlatformTileState.FlatSlopeConnectAll;
+                    case PlatformTileState.Slope:
+                        return PlatformTileState.FlatConnectNone;
+                    case PlatformTileState.FlatSlopeConnectOne:
+                        return PlatformTileState.FlatConnectOne;
+                    case PlatformTileState.FlatSlopeConnectAll:
+                        return PlatformTileState.FlatConnectAll;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
 
         public override bool HasTile(Vector3Int vector3Int)
         {

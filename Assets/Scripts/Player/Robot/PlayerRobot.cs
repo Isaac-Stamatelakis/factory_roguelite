@@ -850,7 +850,7 @@ namespace Player {
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
             slopePlatformCollider.enabled = ignorePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
-
+            
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
             if (grounded)
