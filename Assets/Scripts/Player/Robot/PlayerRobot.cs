@@ -67,6 +67,7 @@ namespace Player {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Collider2D platformCollider;
+        [SerializeField] private Collider2D slopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private bool climbing;
@@ -914,7 +915,7 @@ namespace Player {
 
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            
+            //slopePlatformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
 
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
