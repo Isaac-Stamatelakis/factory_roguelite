@@ -7,6 +7,7 @@ using TileMaps.Place;
 using TileMaps.Layer;
 using TileMaps.Type;
 using TileEntity.Instances.SimonSays;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.Fluid.Simulation;
 using UnityEngine.Serialization;
 
@@ -14,7 +15,7 @@ namespace Tiles {
 
     [CreateAssetMenu(fileName = "T~New Hammer Tile", menuName = "Tile/State/Hammer")]
     
-    public class HammerTile : TileBase, IStateTileSingle
+    public class HammerTile : TileBase, IStateTileSingle, INamedStateTile, IRestrictedIndicatorStateTile
     {
         public const int BASE_TILE_STATE = 0;
         public const int SLAB_TILE_STATE = 1;
@@ -164,6 +165,30 @@ namespace Tiles {
                 }
             }
             return rotatedMap;
+        }
+
+        public string GetStateName(int state)
+        {
+            return state switch
+            {
+                BASE_TILE_STATE => "Tile",
+                SLAB_TILE_STATE => "Slab",
+                SLANT_TILE_STATE => "Slant",
+                STAIR_TILE_STATE => "Stair",
+                _ => null
+            };
+        }
+
+        public int ShiftState(int currentState, int dir)
+        {
+            int stateCount = 4;
+            int newState = currentState + dir;
+            if (newState >= stateCount)
+            {
+                newState = 0;
+            }
+            if (newState < 0) newState = stateCount - 1;
+            return newState;
         }
     }
     

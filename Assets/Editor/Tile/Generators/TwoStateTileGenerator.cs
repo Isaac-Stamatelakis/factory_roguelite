@@ -50,15 +50,15 @@ public class TwoStateTileGenerator : EditorWindow
         ItemEditorFactory.SaveTileWithName(activeTile,tileName,"Active");
 
        
-        TwoStateTileSingle twoStateTileSingle = ScriptableObject.CreateInstance<TwoStateTileSingle>();
-        twoStateTileSingle.activeTile = activeTile;
-        twoStateTileSingle.inactiveTile = inactiveTile;
+        TwoStateTile twoStateTile = ScriptableObject.CreateInstance<TwoStateTile>();
+        twoStateTile.activeTile = activeTile;
+        twoStateTile.inactiveTile = inactiveTile;
         
-        ItemEditorFactory.SaveTileWithName(twoStateTileSingle,tileName);
+        ItemEditorFactory.SaveTileWithName(twoStateTile,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
-            tile: twoStateTileSingle,
+            tile: twoStateTile,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: null

@@ -59,7 +59,20 @@ namespace Tiles {
         public TileColorOptionObject TileColor;
         public TileOverlay Overlay;
         public TileParticleOptions ParticleGradient;
-        
+
+        public Color GetTileColor()
+        {
+            if (TransmutableColorOverride)
+            {
+                return TransmutableColorOverride.color;
+            }
+
+            if (TileColor)
+            {
+                return TileColor.GetColor();
+            }
+            return Color.white;
+        }
     }
 
     [System.Serializable]

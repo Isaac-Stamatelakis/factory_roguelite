@@ -141,19 +141,22 @@ namespace TileMaps.Place {
         }
         public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
-            
-            bool singleCellTile = exclusion == null && tileItem.tileType is TileType.Platform or TileType.Block;
-            if (singleCellTile)
+            if (tileItem.tileType == TileType.Platform)
             {
-                bool playerCollidable = tileItem.tileType == TileType.Block;
-                int layer = TileMapLayer.Base.ToRaycastLayers();
-                if (playerCollidable)
-                {
-                    layer |=  1 << LayerMask.NameToLayer("Player");
-                }
-                Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
-                if (RaycastTileInBox(centeredWorld, layer)) return false;
+                IWorldTileMap platformTileMap = closedChunkSystem.GetTileMap(TileMapType.Platform);
+                Vector2Int tilePosition = platformTileMap.GetHitTilePosition(worldPlaceLocation);
+                return !platformTileMap.HasTile(tilePosition);
             }
+
+            bool playerCollidable = tileItem.tileType == TileType.Block;
+            if (playerCollidable)
+            {
+                int playerLayer =  1 << LayerMask.NameToLayer("Player");
+                Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
+                if (RaycastTileInBox(centeredWorld, playerLayer)) return false;
+            }
+            
+            
             
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
             

@@ -26,17 +26,17 @@ namespace Tiles.TileMap
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
-            slopeTileMap = AddOverlay();
+            slopeTileMap = AddOverlay(-0.1f);
             slopeTileMap.gameObject.name = "Slope";
             slopeTileMap.gameObject.AddComponent<TilemapCollider2D>();
             slopeTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
             TileMapBundleFactory.AddCompositeCollider(slopeTileMap.gameObject,TileMapType.Platform);
             
-            slopeDecoTileMap = AddOverlay();
+            slopeDecoTileMap = AddOverlay(0f);
             slopeDecoTileMap.gameObject.name = "SlopeDecoration";
             tileContainer = new TileBase[3]; // Max 3 tiles placed at once
             
-            slopeColliderExtendTileMap = AddOverlay();
+            slopeColliderExtendTileMap = AddOverlay(0f);
             slopeColliderExtendTileMap.gameObject.name = "SlopeColliderExtend";
             slopeColliderExtendTileMap.gameObject.AddComponent<TilemapCollider2D>();
             slopeColliderExtendTileMap.gameObject.layer = LayerMask.NameToLayer("PlatformSlope");
@@ -168,7 +168,7 @@ namespace Tiles.TileMap
         public override void IterateHammerTile(Vector2Int position, int direction)
         {
             TileItem tileItem = getTileItem(position);
-            if (!tileItem) return;
+            if (!tileItem || tileItem.tileType != TileType.Platform) return;
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) return;
             Vector2Int positionInPartition = GetTilePositionInPartition(position);

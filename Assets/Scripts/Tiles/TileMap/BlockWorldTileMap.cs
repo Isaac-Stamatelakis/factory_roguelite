@@ -38,7 +38,7 @@ namespace TileMaps {
         public override void Initialize(TileMapType tileMapType)
         {
             base.Initialize(tileMapType);
-            overlayTileMap = AddOverlay();
+            overlayTileMap = AddOverlay(OVERLAY_Z);
             GameObject outline = new GameObject();
             outline.name = "Outline";
             outline.AddComponent<TilemapRenderer>();

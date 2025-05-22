@@ -13,7 +13,7 @@ namespace Tiles.TileMap
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
-            overlayTileMap = AddOverlay();
+            overlayTileMap = AddOverlay(OVERLAY_Z);
         }
 
         protected override void SetTile(int x, int y, TileItem tileItem)
