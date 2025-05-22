@@ -363,6 +363,7 @@ namespace TileMaps.Place {
                 case PlatformPlacementMode.Update:
                     if (tilePlacementData.State == (int)PlatformTileState.Slope) return PlatformTileState.Slope;
                     bool left = platformTileMap.HasTile(cellPosition + Vector2Int.left);
+                    bool upperLeft = 
                     bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right);
                     
                     // This might be reversed

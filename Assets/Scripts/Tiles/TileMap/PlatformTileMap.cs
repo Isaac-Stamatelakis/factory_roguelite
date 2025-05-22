@@ -206,6 +206,11 @@ namespace Tiles.TileMap
             return tilemap.HasTile(vector3Int) || slopeTileMap.HasTile(vector3Int);
         }
 
+        public bool HasSlopeTile(Vector3Int vector3Int)
+        {
+            return slopeTileMap.HasTile(vector3Int);
+        }
+
         public override Vector2Int GetHitTilePosition(Vector2 position)
         {
             return (Vector2Int)tilemap.WorldToCell(position);

@@ -16,8 +16,11 @@ using PlayerModule.KeyPress;
 using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.Options.Overlay;
+using Tiles.TileMap;
 using UI;
+using UnityEditor;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -111,7 +114,15 @@ namespace TileMaps.Previewer {
             }
             else if (itemObject is TileItem tileItem)
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
+                if (tileItem.tile is PlatformStateTile platformStateTile)
+                {
+                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, platformStateTile, placePosition, position);
+                }
+                else
+                {
+                    placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
+                }
+                
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
@@ -152,12 +163,58 @@ namespace TileMaps.Previewer {
             return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 
+        private MultiStateTilePlacementRecord PreviewPlatformTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, PlatformStateTile platformStateTile, Vector3Int placePosition, Vector2 position)
+        {
+            int rotation;
+            int state = tilePlacementOptions.State;
+            if (tilePlacementOptions.State == (int)PlatformTileState.Slope)
+            {
+                rotation = (int)tilePlacementOptions.Rotation;
+                if (tilePlacementOptions.Rotation == PlayerTileRotation.Auto)
+                {
+                    int mousePosition = MousePositionUtils.GetMousePlacement(position);
+                    rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                }
+            }
+            else
+            {
+                PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
+                TilePlacementData tilePlacementData = new(0, 0, 0);
+                state = (int)TilePlaceUtils.GetPlacementPlatformState((Vector2Int)placePosition,tilePlacementData,platformTileMap);
+                tilePlacementData.State = state;
+                rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)placePosition,tilePlacementData,platformTileMap);
+            }
+            
+            TileBase[] result = new TileBase[3];
+            platformStateTile.GetTiles(state,result);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                TileBase tileBase = result[i];
+                Vector3Int tilePlacePosition = placePosition + Vector3Int.down * i;
+                tilePlacePosition.z = 0;
+                
+                tilemap.SetTile(tilePlacePosition,tileBase);
+                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(tilePlacePosition);
+                float offset = i * Global.TILE_SIZE;
+                if (i == 2) offset -= Global.TILE_SIZE;
+                transformMatrix.SetTRS(new Vector3(0,offset,0),Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
+                tilemap.SetTransformMatrix(tilePlacePosition,transformMatrix);
+            }
+
+            
+            
+            return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition);
+
+        }
+
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
+            
             
             bool rotatable = tileItem.tileOptions.rotatable;
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
@@ -194,12 +251,7 @@ namespace TileMaps.Previewer {
             if (tileBase is IStateTileSingle stateTile) {
                 tileBase = stateTile.GetTileAtState(autoState);
             }
-
-            if (tileBase is IStateTileMultiple stateTileMultiple)
-            {
-                // TODO
-                tileBase = stateTileMultiple.GetDefaultTile();
-            }
+            
             if (!rotatable)
             {
                 placementTilemap.SetTile(placePosition,tileBase);
@@ -233,20 +285,14 @@ namespace TileMaps.Previewer {
         }
         
         
-
-        
-
         private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTile conduitStateTile, ItemObject itemObject, Vector3Int position)
         {
             if (itemObject is not ConduitItem conduitItem)
             {
                 return null;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
-            {
-                return null;
-            }
+            ClosedChunkSystem closedChunkSystem = playerScript.CurrentSystem;
+            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) return null;
             
             List<Vector3Int> placePositions = new List<Vector3Int>{};
             List<Vector3Int> directions = new List<Vector3Int>{Vector3Int.left,Vector3Int.right,Vector3Int.up,Vector3Int.down};

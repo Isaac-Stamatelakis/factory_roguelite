@@ -70,6 +70,30 @@ namespace TileMaps.Previewer
         }
     }
 
+    internal class MultiStateTilePlacementRecord : TilePlacementRecord
+    {
+        private int tiles;
+        Vector3Int placePosition;
+        public MultiStateTilePlacementRecord(string id, Tilemap tilemap, int tiles, Vector3Int placePosition) : base(id, tilemap)
+        {
+            this.tiles = tiles;
+            this.placePosition = placePosition;
+        }
+
+        protected override void DoClear()
+        {
+            for (int i = 0; i < tiles; i++)
+            {
+                tilemap.SetTile(placePosition + Vector3Int.down*i,null);
+            }
+        }
+
+        public override bool RecordMatch(Vector3Int position, string id)
+        {
+            return this.placePosition == position && id == Id;
+        }
+    }
+
     public class MultiMapPlacementRecord : TilePlacementRecord
     {
         private readonly Vector3Int primaryPosition;
@@ -96,4 +120,5 @@ namespace TileMaps.Previewer
             return position == primaryPosition && id == Id;
         }
     }
+    
 }
