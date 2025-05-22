@@ -74,13 +74,13 @@ namespace Robot.Tool.Instances
             if (!Input.GetMouseButton(mouseButtonKey.ToMouseButton())) return;
             
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
+            int layers = TileMapLayer.Base.ToRaycastLayers() | (1 << LayerMask.NameToLayer("PlatformSlope"));
             
-            if (!TilePlaceUtils.RaycastTileInBox(origin, TileMapLayer.Base.ToRaycastLayers(),true)) return;
+            if (!TilePlaceUtils.RaycastTileInBox(origin, layers,true)) return;
             
             Vector2Int vector2Int = Global.GetCellPositionFromWorld(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
             int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
-            
             switch (toolData.Mode)
             {
                 case BuildinatorMode.Chisel:
@@ -135,44 +135,55 @@ namespace Robot.Tool.Instances
 
         private void Hammer(Vector3Int vector3Int, int direction)
         {
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
-            if (iWorldTileMap is not IHammerTileMap hammerTileMap) return;
+            ClosedChunkSystem system = playerScript.CurrentSystem;
+            List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
+            {
+                system.GetTileMap(TileMapType.Block) as WorldTileMap,
+                system.GetTileMap(TileMapType.Platform) as WorldTileMap
+            };
             Vector2Int cellPosition = (Vector2Int)vector3Int;
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
-            for (int x = -multiHits; x <= multiHits; x++)
+
+            foreach (WorldTileMap worldTileMap in worldTileGridMaps)
             {
-                for (int y = -multiHits; y <= multiHits; y++)
+                for (int x = -multiHits; x <= multiHits; x++)
                 {
-                    hammerTileMap.IterateHammerTile(cellPosition + new Vector2Int(x,y), direction);
+                    for (int y = -multiHits; y <= multiHits; y++)
+                    {
+                        worldTileMap.IterateHammerTile(cellPosition + new Vector2Int(x,y), direction);
+                    }
                 }
             }
+            
         }
 
         private void Rotate(Vector3Int vector3Int, int direction)
         {
             Vector2Int position = (Vector2Int)vector3Int;
-            ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+            ClosedChunkSystem system = playerScript.CurrentSystem;
             ILoadedChunkSystem chunkSystem = system;
 
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
-            HashSet<Vector2Int> hitPositions = new HashSet<Vector2Int>();
+            
             List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
             {
                 system.GetTileMap(TileMapType.Block) as WorldTileMap,
-                system.GetTileMap(TileMapType.Object) as WorldTileMap
+                system.GetTileMap(TileMapType.Object) as WorldTileMap,
+                system.GetTileMap(TileMapType.Platform) as WorldTileMap
             };
             if (multiHits == 0) // No need for all the fancy stuff below when multi hits are zero
             {
                 foreach (WorldTileMap worldTileGridMap in worldTileGridMaps)
                 {
                     Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(position);
-                    if (!hitPositions.Add(tilePosition)) continue;
+                   
                     var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(tilePosition);
 
                     TileItem tileItem = partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
-                
-                    if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) continue;
-
+                    
+                    if (!tileItem) continue;
+                    if (tileItem.tileType != TileType.Platform && !tileItem.tileOptions.rotatable) continue;
+                    
                     RotateTile(tileItem, worldTileGridMap, tilePosition, partition, positionInPartition, direction);
                     break; // Exit after first rotate
                 }

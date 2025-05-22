@@ -142,7 +142,7 @@ namespace TileMaps.Place {
         public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
             
-            bool singleCellTile = tileItem.tileType is TileType.Platform or TileType.Block;
+            bool singleCellTile = exclusion == null && tileItem.tileType is TileType.Platform or TileType.Block;
             if (singleCellTile)
             {
                 bool playerCollidable = tileItem.tileType == TileType.Block;

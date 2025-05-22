@@ -432,6 +432,7 @@ namespace Chunks.Systems {
         public ParticleSystem SplashParticlePrefab;
         public ParticleSystem FluidParticlePrefab;
         public ParticleSystem EntityDeathParticlePrefab;
+        public TileBase SlopeExtendColliderTile;
     }
 }
 

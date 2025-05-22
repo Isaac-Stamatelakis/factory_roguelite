@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.Indicators.Break
 {
     [CreateAssetMenu(fileName ="New Break State Tile",menuName="Tile/State/Break")]
-    public class BreakIndicatorStateTileSingle : TileBase, IStateTileSingle
+    public class BreakIndicatorStateTile : TileBase, IStateTileSingle
     {
         public Tile[] Tiles;
 

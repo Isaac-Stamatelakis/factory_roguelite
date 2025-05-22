@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: fec146a74009aa7429e45da7088ba9e3
+guid: a1126121840963443bada2372a68d586
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -20,7 +20,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -121,9 +121,6 @@ TextureImporter:
     - - {x: -8, y: 8}
       - {x: -8, y: -8}
       - {x: 8, y: -8}
-      - {x: 8, y: 0}
-      - {x: 0, y: 0}
-      - {x: 0, y: 8}
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
     internalID: 1537655665

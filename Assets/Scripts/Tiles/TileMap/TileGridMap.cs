@@ -377,7 +377,7 @@ namespace TileMaps {
             WriteTile(partition,tilePositionInPartition,newChiselTileItem);
         }
 
-        public void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
+        public virtual void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
         {
             TileItem tileItem = getTileItem(position);
             int newRotation = Buildinator.CalculateNewRotation(baseTileData.rotation, direction);
@@ -413,7 +413,7 @@ namespace TileMaps {
             closedChunkSystem.BreakIndicator.RotateTile(position,direction);
         }
 
-        public void IterateHammerTile(Vector2Int position, int direction)
+        public virtual void IterateHammerTile(Vector2Int position, int direction)
         {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) return;

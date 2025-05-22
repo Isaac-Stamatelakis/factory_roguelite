@@ -24,29 +24,25 @@ using Item.Slot;
 using Player.Tool;
 using PlayerModule;
 using PlayerModule.IO;
+using Tiles.TileMap;
 using UI;
 
 namespace Player.Mouse
 {
     public static class MouseUtils
     {
-        /// <summary>
-        /// Hits tile at mouse position in tile layer
-        /// </summary>
-        /// <param name="tileMapLayer"></param>
-        /// <param name="mousePosition"></param>
-        /// <param name="power"></param>
-        /// <returns>True if broken false if not</returns>
-        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
+        
+        public static bool HitTileLayer(ClosedChunkSystem closedChunkSystem, TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
         {
-            if (tileMapLayer.Raycastable())
+            if (tileMapLayer == TileMapLayer.Base)
             {
                 int layer = tileMapLayer.ToRaycastLayers();
-                return RaycastHitBlock(mousePosition,layer,power,drop,precise);
+                layer |= 1 << LayerMask.NameToLayer("PlatformSlope");
+                return RaycastHitBlock(mousePosition, layer, power, drop, precise);
             }
             
             foreach (TileMapType tileMapType in tileMapLayer.GetTileMapTypes()) {
-                IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
+                IWorldTileMap iWorldTileMap = closedChunkSystem.GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
                     return hitableTileMap.DeleteTile(mousePosition);
@@ -67,7 +63,6 @@ namespace Player.Mouse
         ///
         private static bool RaycastHitBlock(Vector2 position, int layer, int power, bool drop, bool precise)
         {
-
             IHitableTileMap hitableTileMap = GetHitableTileMap(position, precise,layer);
             if (hitableTileMap == null) return false;
             
@@ -81,11 +76,12 @@ namespace Player.Mouse
                     }
                 }
             }
+            
             if (DevMode.Instance.instantBreak) {
                 hitableTileMap.DeleteTile(position);
                 return true;
             }
-
+            
             if (hitableTileMap is IConditionalHitableTileMap conditionalHitableTileMap)
             {
                 if (!conditionalHitableTileMap.CanHitTile(power, position)) return false;
@@ -98,13 +94,22 @@ namespace Player.Mouse
             if (precise)
             {
                 RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
-                return hit.collider?.gameObject.GetComponent<IHitableTileMap>();
+                return GetTileMapFromCollider(hit);
             }
             else
             {
                 Vector2 tileCenter = TileHelper.getRealTileCenter(position);
                 RaycastHit2D hit = Physics2D.BoxCast(tileCenter, Vector2.one * (Global.TILE_SIZE-0.02f), 0, Vector2.zero,Mathf.Infinity, layer);
-                return hit.collider?.gameObject.GetComponent<IHitableTileMap>();
+                return GetTileMapFromCollider(hit);
+            }
+
+            IHitableTileMap GetTileMapFromCollider(RaycastHit2D hit)
+            {
+                if (!hit.collider) return null;
+                IHitableTileMap hitableTileMap = hit.collider.gameObject.GetComponent<IHitableTileMap>();
+                if (hitableTileMap != null) return hitableTileMap;
+                hitableTileMap = hit.collider.gameObject.GetComponentInParent<IHitableTileMap>();
+                return hitableTileMap;
             }
             
         }
