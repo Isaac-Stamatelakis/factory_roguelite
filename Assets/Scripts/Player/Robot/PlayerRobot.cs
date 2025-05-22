@@ -95,6 +95,7 @@ namespace Player {
         private int blockLayer;
         private int baseCollidableLayer;
         private int ignorePlatformFrames;
+        private int ignoreSlopePlatformFrames;
         private int slipperyFrames;
         private float moveDirTime;
         private int coyoteFrames;
@@ -705,8 +706,12 @@ namespace Player {
             }
             if ((CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope)) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
             {
-                ignorePlatformFrames = 3;
-                if (CollisionStateActive(CollisionState.OnPlatformSlope)) liveYUpdates = 3;
+                if (CollisionStateActive(CollisionState.OnPlatform)) ignorePlatformFrames = 3;
+                if (CollisionStateActive(CollisionState.OnPlatformSlope))
+                {
+                    liveYUpdates = 3;
+                    ignoreSlopePlatformFrames = 3;
+                }
                 return;
             }
             
@@ -832,6 +837,7 @@ namespace Player {
             coyoteFrames--;
             slipperyFrames--;
             ignorePlatformFrames--;
+            ignoreSlopePlatformFrames--;
             iFrames--;
             highDragFrames--;
             
@@ -854,8 +860,8 @@ namespace Player {
             }
 
             
-            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            slopePlatformCollider.enabled = ignorePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
+            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f && !collisionStates.Contains(CollisionState.OnPlatformSlope);
+            slopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
             
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
