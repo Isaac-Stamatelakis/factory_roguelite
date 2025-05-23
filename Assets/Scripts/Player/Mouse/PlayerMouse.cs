@@ -280,7 +280,7 @@ namespace PlayerModule.Mouse {
             playerRobot.SetIsUsingTool(true);
             PlayerRobotLaserGunController gunController = playerRobot.gunController;
             gunController.AngleToPosition(mousePosition);
-            gunController.OnClick(mouseButtonKey);
+            gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
         }
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
@@ -297,11 +297,13 @@ namespace PlayerModule.Mouse {
             
             if (placable)
             {
+                /*
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
                     ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
                     return;
                 }
+                */
                 if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
             }
             
@@ -309,9 +311,10 @@ namespace PlayerModule.Mouse {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
-            
+            /*
             if (placable) return;
             ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
+            */
         }
 
         private ConduitType? GetPortClickType()

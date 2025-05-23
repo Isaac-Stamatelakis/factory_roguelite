@@ -107,6 +107,7 @@ namespace Chunks.Systems {
             gameObject.GetComponent<TilemapCollider2D>().usedByComposite = true;
             CompositeCollider2D compositeCollider2D = gameObject.AddComponent<CompositeCollider2D>();
             compositeCollider2D.geometryType = CompositeCollider2D.GeometryType.Polygons;
+            compositeCollider2D.offsetDistance = 0;
             if (tileType is TileMapType.Fluid)
             {
                 compositeCollider2D.isTrigger = true;

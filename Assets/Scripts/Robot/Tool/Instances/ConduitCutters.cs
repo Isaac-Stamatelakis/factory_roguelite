@@ -7,6 +7,7 @@ using Item.Slot;
 using Items;
 using Player;
 using Player.Mouse;
+using Player.Robot;
 using Player.Tool.Object;
 using PlayerModule;
 using Robot.Upgrades;
@@ -165,7 +166,12 @@ namespace Robot.Tool.Instances
         {
             
         }
-        
+
+        public override RobotArmState GetRobotArmAnimation()
+        {
+            return RobotArmState.ConduitCutter;
+        }
+
 
         private Color GetConduitColor(ConduitCutterMode conduitCutterMode)
         {

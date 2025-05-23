@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Player;
+using Player.Robot;
 using Player.Tool.Object;
 using Robot.Tool;
 using Robot.Tool.Instances.Gun;
@@ -10,9 +12,15 @@ using UnityEngine;
 
 namespace Robot.Tool.Instances
 {
+    public enum LaserGunMode
+    {
+        Light,
+        Blast
+    }
+    
     public class LaserGunData : RobotToolData
     {
-        
+        public LaserGunMode LaserGunMode;
     }
 
     public class ToolObjectPool
@@ -48,6 +56,7 @@ namespace Robot.Tool.Instances
     }
     public class LaserGun : RobotToolInstance<LaserGunData, RobotLaserGunObject>
     {
+        
         private ToolObjectPool bombParticlePool;
         private ToolObjectPool laserParticlePool;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
@@ -64,17 +73,40 @@ namespace Robot.Tool.Instances
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
-            
+            switch (toolData.LaserGunMode)
+            {
+                case LaserGunMode.Light:
+                    toolData.LaserGunMode = LaserGunMode.Blast;
+                    break;
+                case LaserGunMode.Blast:
+                    toolData.LaserGunMode = LaserGunMode.Light;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public override string GetModeName()
         {
-            return "?";
+            return toolData.LaserGunMode.ToString();
         }
 
         public override void Preview(Vector2Int cellPosition)
         {
             
+        }
+
+        public override RobotArmState GetRobotArmAnimation()
+        {
+            switch (toolData.LaserGunMode)
+            {
+                case LaserGunMode.Light:
+                    return RobotArmState.LaserGun;
+                case LaserGunMode.Blast:
+                    return RobotArmState.LaserExplosion;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
@@ -89,18 +121,18 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            
-            if (mouseButtonKey == MouseButtonKey.Right)
+            switch (toolData.LaserGunMode)
             {
-                bool explosions = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.AoE) > 0;
-                if (!explosions) return;
-                FireExplosions(mousePosition);
-                return;
-            }
-
-            if (mouseButtonKey == MouseButtonKey.Left)
-            {
-                FireLasers(mousePosition);
+                case LaserGunMode.Light:
+                    FireLasers(mousePosition);
+                    break;
+                case LaserGunMode.Blast:
+                    bool explosions = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.AoE) > 0;
+                    if (!explosions) return;
+                    FireExplosions(mousePosition);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -182,7 +214,7 @@ namespace Robot.Tool.Instances
             
             float fireRate = GetFireRate(RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate));
             const float EXPLOSION_RATE_REDUCTION = 4;
-            if (mouseButtonKey == MouseButtonKey.Right) fireRate *= EXPLOSION_RATE_REDUCTION;
+            if (toolData.LaserGunMode == LaserGunMode.Blast) fireRate *= EXPLOSION_RATE_REDUCTION;
             if (time < fireRate) return false;
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;

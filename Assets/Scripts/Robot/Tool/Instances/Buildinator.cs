@@ -8,6 +8,7 @@ using Item.ItemObjects.Instances.Tile.Chisel;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
+using Player.Robot;
 using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
@@ -350,6 +351,11 @@ namespace Robot.Tool.Instances
                 }
             }
             tileBreakHighlighter.Display(tiles);
+        }
+
+        public override RobotArmState GetRobotArmAnimation()
+        {
+            return RobotArmState.Buildinator;
         }
     }
 

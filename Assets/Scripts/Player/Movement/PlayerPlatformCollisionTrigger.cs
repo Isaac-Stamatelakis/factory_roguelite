@@ -12,12 +12,9 @@ namespace Player.Movement
     public class PlayerPlatformCollisionTrigger : MonoBehaviour
     {
         private PlayerRobot playerRobot;
-        private float colliderBounds;
         public void Start()
         {
             playerRobot = transform.parent.GetComponentInParent<PlayerRobot>();
-            Collider2D platformCollider = GetComponent<Collider2D>();
-            colliderBounds = platformCollider.bounds.extents.y;
         }
 
         public void OnTriggerEnter2D(Collider2D other)
@@ -46,7 +43,7 @@ namespace Player.Movement
         private bool OnPlatform(Collider2D other)
         {
             Vector3 collisionPoint = other.ClosestPoint(transform.position);
-            return collisionPoint.y < transform.position.y-colliderBounds;
+            return collisionPoint.y < transform.position.y;
         }
         
 

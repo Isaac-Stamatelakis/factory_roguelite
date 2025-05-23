@@ -135,7 +135,7 @@ namespace Robot.Tool
                     case RobotToolType.Buildinator:
                         return JsonConvert.DeserializeObject<BuildinatorData>(toolData);
                     case RobotToolType.LaserGun:
-                        return JsonConvert.DeserializeObject<LaserDrillData>(toolData);
+                        return JsonConvert.DeserializeObject<LaserGunData>(toolData);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
