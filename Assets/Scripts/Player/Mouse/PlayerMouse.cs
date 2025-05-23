@@ -288,6 +288,7 @@ namespace PlayerModule.Mouse {
                 return;
             }
             ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Left);
+            
         }
         private void RightClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem)
         {
@@ -311,7 +312,6 @@ namespace PlayerModule.Mouse {
             
             if (placable) return;
             ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
-            
         }
 
         private ConduitType? GetPortClickType()
