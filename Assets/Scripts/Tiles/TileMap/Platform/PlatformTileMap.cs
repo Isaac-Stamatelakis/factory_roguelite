@@ -163,8 +163,12 @@ namespace Tiles.TileMap
             leftSlopeMaps.Clear(cellPosition);
             rightSlopeMaps.Clear(cellPosition);
         }
-        
-        
+
+        public override bool HasTile(Vector3Int vector3Int)
+        {
+            return tilemap.HasTile(vector3Int) || leftSlopeMaps.GetSlopeTileMap().HasTile(vector3Int) ||  rightSlopeMaps.GetSlopeTileMap().HasTile(vector3Int);
+        }
+
         private void UpdateAdjacentTiles(Vector2Int cellPosition)
         {
             UpdateAdjacentTile(Vector2Int.left);
@@ -175,19 +179,28 @@ namespace Tiles.TileMap
                 Vector2Int adjacentPosition = cellPosition + direction;
                 IChunkPartition partition = GetPartitionAtPosition(adjacentPosition);
                 if (partition == null) return;
+                
                 Vector2Int positionInPartition = GetTilePositionInPartition(adjacentPosition);
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
                 if (!tileItem) return;
+                
                 TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state);
                 Vector3Int vector3Int = new Vector3Int(adjacentPosition.x,adjacentPosition.y,0);
                 Tilemap leftSlopeMap = GetSlopeTilemap(SlopeRotation.Left);
                 Tilemap rightSlopeMap = GetSlopeTilemap(SlopeRotation.Right);
+                
+                int initialState = baseTileData.state;
+                int initialRotation = baseTileData.rotation;
+                
                 PlatformTileState state = TilePlaceUtils.GetPlacementPlatformState(vector3Int, tilePlacementData,tilemap,leftSlopeMap,rightSlopeMap);
                 tilePlacementData.State = (int)state;
-                int rotation = TilePlaceUtils.GetPlacementPlatformRotation(vector3Int, tilePlacementData,tilemap,leftSlopeMap,rightSlopeMap);
                 baseTileData.state = (int)state;
+                int rotation = TilePlaceUtils.GetPlacementPlatformRotation(vector3Int, tilePlacementData,tilemap,leftSlopeMap,rightSlopeMap);
                 baseTileData.rotation = rotation;
+                
+                if (initialState == baseTileData.state && initialRotation == baseTileData.rotation) return;
+                RemoveTile(adjacentPosition.x,adjacentPosition.y);
                 SetTile(adjacentPosition.x,adjacentPosition.y,tileItem);
             }
         }

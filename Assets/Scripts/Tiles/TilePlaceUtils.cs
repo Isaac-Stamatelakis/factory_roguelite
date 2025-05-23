@@ -352,7 +352,6 @@ namespace TileMaps.Place {
                         return;
                     }
                     rotation = (int)placementData.Rotation;
-                    return;
                 }
                 PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
                 Vector3Int cellPosition = new Vector3Int(placePosition.x,placePosition.y,0);
@@ -408,9 +407,9 @@ namespace TileMaps.Place {
                                 rightTilemap.HasTile(cellPosition + Vector3Int.left);
                     return left ? 0 : 1;
                 case PlatformTileState.FlatConnectAll:
-                case PlatformTileState.FlatSlopeConnectAll:
                     return 0;
                 case PlatformTileState.Slope:
+                case PlatformTileState.FlatSlopeConnectAll:
                     return (int)tilePlacementData.Rotation;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -74,7 +74,7 @@ namespace Robot.Tool.Instances
             if (!Input.GetMouseButton(mouseButtonKey.ToMouseButton())) return;
             
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
-            int layers = TileMapLayer.Base.ToRaycastLayers() | (1 << LayerMask.NameToLayer("PlatformSlope"));
+            int layers = TileMapLayer.Base.ToRaycastLayers();
             
             if (!TilePlaceUtils.RaycastTileInBox(origin, layers,true)) return;
             

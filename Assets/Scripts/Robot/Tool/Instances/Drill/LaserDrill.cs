@@ -102,7 +102,6 @@ namespace Robot.Tool.Instances
             if (toolData.Layer == TileMapLayer.Base)
             {
                 int layers = toolData.Layer.ToRaycastLayers();
-                layers |= 1 << LayerMask.NameToLayer("PlatformSlope");
                 hitting = MouseUtils.RaycastObject(mousePosition,layers);
                 if (!hitting) return;
             }

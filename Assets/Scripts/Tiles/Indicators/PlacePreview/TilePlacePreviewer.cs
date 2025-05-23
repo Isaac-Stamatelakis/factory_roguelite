@@ -186,6 +186,7 @@ namespace TileMaps.Previewer {
                 TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
                 if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
                 BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
+                if (baseTileData.state != (int)PlatformTileState.Slope) return;
                 PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
                 {
                     State = baseTileData.state,
@@ -207,14 +208,12 @@ namespace TileMaps.Previewer {
                         int mousePosition = MousePositionUtils.GetMousePlacement(position);
                         rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
                     }
+                    placementOptions.Rotation = (PlayerTileRotation)rotation;
                 }
-                else
-                {
-                    TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
-                    state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
-                    tilePlacementData.State = state;
-                    rotation = TilePlaceUtils.GetPlacementPlatformRotation(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
-                }
+                TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
+                state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
+                tilePlacementData.State = state;
+                rotation = TilePlaceUtils.GetPlacementPlatformRotation(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
                 
                 TileBase[] result = new TileBase[3];
                 platformStateTile.GetTiles(state,result);
