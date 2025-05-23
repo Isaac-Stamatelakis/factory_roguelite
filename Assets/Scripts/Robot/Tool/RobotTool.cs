@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
+using Player.Robot;
 using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
@@ -34,9 +35,14 @@ namespace Robot.Tool
         Right
     }
 
-    public interface IAutoSelectTool
+    public interface IAutoSelectTool : IColorableTool
     {
         public TileMapLayer GetAutoSelectLayer();
+        
+    }
+
+    public interface IColorableTool
+    {
         public Color GetColor(); 
     }
     
@@ -49,6 +55,7 @@ namespace Robot.Tool
         public string GetModeName();
         public RobotToolObject GetToolObject();
         public void Preview(Vector2Int cellPosition);
+        public RobotArmState GetRobotArmAnimation();
     }
 
     public interface IDestructiveTool
@@ -100,6 +107,7 @@ namespace Robot.Tool
             return robotObject;
         }
         public abstract void Preview(Vector2Int cellPosition);
+        public abstract RobotArmState GetRobotArmAnimation();
     }
 
     public abstract class RobotToolData

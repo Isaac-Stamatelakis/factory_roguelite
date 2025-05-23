@@ -10,6 +10,7 @@ using Items;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
+using Player.Robot;
 using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
@@ -370,6 +371,11 @@ namespace Robot.Tool.Instances
                 case TileMapLayer.Background: // TODO
                     break;
             }
+        }
+
+        public override RobotArmState GetRobotArmAnimation()
+        {
+            return RobotArmState.LaserDrill;
         }
 
         private void PreviewBaseLayer(Vector2Int cellPosition)

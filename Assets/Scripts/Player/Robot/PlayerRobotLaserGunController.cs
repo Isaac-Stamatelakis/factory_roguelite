@@ -9,9 +9,21 @@ using UnityEngine;
 
 namespace Player.Robot
 {
+    public enum RobotArmState
+    {
+        LaserDrill,
+        Buildinator,
+        LaserGun,
+        LaserExplosion,
+        ConduitCutter,
+            
+    }
     public class PlayerRobotLaserGunController : MonoBehaviour
     {
+        
         private static readonly int Shooting = Animator.StringToHash("Shooting");
+        private static readonly int ActiveParameter = Animator.StringToHash("Active");
+        private static readonly int ToolColorMatParameter = Shader.PropertyToID("_ToolColor");
         private Animator animator;
         private SpriteRenderer spriteRenderer;
         private Vector3 defaultPosition;
@@ -19,7 +31,8 @@ namespace Player.Robot
         private Direction shootDirection;
         public Direction ShootDirection => shootDirection;
         private float shootAngle;
-        
+        private RobotArmState? currentState;
+
         public void Initialize(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
@@ -29,26 +42,65 @@ namespace Player.Robot
             gameObject.SetActive(false);
          
         }
-        private void TryInitializeAnimation(MouseButtonKey mouseButtonKey)
+
+        public void PlayAnimationState(RobotArmState state)
         {
-            if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Static")) return;
-            RobotStatLoadOutCollection laserLoadOut = playerRobot.RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(RobotToolType.LaserGun);
-            float speed = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
-            float fireRate = LaserGun.GetFireRate(speed);
-            if (mouseButtonKey == MouseButtonKey.Right) fireRate *= 4;
-            animator.speed = 1/fireRate;
-            animator.Play(mouseButtonKey == MouseButtonKey.Left ? "ShootLaser" : "ShootExplosion");
+            animator.SetBool(ActiveParameter,true);
+            if (state == currentState) return;
+            currentState = state;
+            animator.Play(GetStateAnimation(state),0,0);
+            
+            animator.speed = 1f;
         }
 
-        public void OnClick(MouseButtonKey mouseButtonKey)
+        public void SetToolColor(Color color)
         {
-            TryInitializeAnimation(mouseButtonKey); 
-            animator.SetBool(Shooting,true);
+            spriteRenderer.material.SetColor(ToolColorMatParameter,color);
         }
+ 
+        private string GetStateAnimation(RobotArmState state)
+        {
+            switch (state)
+            {
+                case RobotArmState.LaserGun:
+                    return "Gun";
+                case RobotArmState.LaserExplosion:
+                    return "Blast";
+                case RobotArmState.ConduitCutter:
+                    return "Conduit";
+                case RobotArmState.LaserDrill:
+                    return "Drill";
+                case RobotArmState.Buildinator:
+                    return "Drill";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        private float GetAnimationSpeed(RobotArmState state)
+        {
+            switch (state)
+            {
+                case RobotArmState.LaserGun:
+                case RobotArmState.LaserExplosion:
+                    RobotStatLoadOutCollection laserLoadOut = playerRobot.RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(RobotToolType.LaserGun);
+                    float speed = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
+                    float fireRate = LaserGun.GetFireRate(speed);
+                    if (state == RobotArmState.LaserExplosion) fireRate *= 4;
+                    return fireRate;
+                case RobotArmState.ConduitCutter:
+                    return 1;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
         
         public void OnNoClick()
         {
-            animator.SetBool(Shooting,false);
+            if (!currentState.HasValue) return;
+            currentState = null;
+            animator.SetBool(ActiveParameter,false);
         }
 
         public Vector3 GetEdgePosition()

@@ -76,12 +76,11 @@ namespace TileMaps.Previewer {
         // Update is called once per frame
         void Update()
         {
-            if (CanvasController.Instance.BlockKeyInput)
+            if (CanvasController.Instance.BlockKeyInput || Input.GetMouseButton(0))
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();
                 placementRecord = null;
-
                 return;
             }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -191,7 +190,8 @@ namespace TileMaps.Previewer {
                 TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
                 if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
                 BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
-                if (baseTileData.state != (int)PlatformTileState.SlopeDeco) return;
+                bool flat = baseTileData.state < (int)PlatformTileState.SlopeDeco;
+                if (flat) return;
                 PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
                 {
                     State = baseTileData.state,
