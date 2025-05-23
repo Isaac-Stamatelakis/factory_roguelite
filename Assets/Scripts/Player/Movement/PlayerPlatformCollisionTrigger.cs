@@ -20,7 +20,17 @@ namespace Player.Movement
             colliderBounds = platformCollider.bounds.extents.y;
         }
 
+        public void OnTriggerEnter2D(Collider2D other)
+        {
+            CheckCollisionState(other);
+        }
+
         public void OnTriggerStay2D(Collider2D other)
+        {
+            CheckCollisionState(other);
+        }
+
+        private void CheckCollisionState(Collider2D other)
         {
             if (!other.CompareTag("Ground")) return;
             if (OnPlatform(other))
@@ -32,7 +42,7 @@ namespace Player.Movement
                 playerRobot.RemoveCollisionState(CollisionState.OnPlatform);
             }
         }
-
+        
         private bool OnPlatform(Collider2D other)
         {
             Vector3 collisionPoint = other.ClosestPoint(transform.position);

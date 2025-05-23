@@ -19,6 +19,7 @@ using TileMaps.Type;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.Options.Overlay;
 using Tiles.TileMap;
+using Tiles.TileMap.Platform;
 using UI;
 using UnityEditor;
 
@@ -170,11 +171,16 @@ namespace TileMaps.Previewer {
             PlatformTileMap platformTileMap = (PlatformTileMap)playerScript.CurrentSystem.GetTileMap(TileMapType.Platform);
             
             List<Vector3Int> additionalPlacementPositions = new List<Vector3Int>();
-            PlaceTile(placePosition,tileItem.tile as PlatformStateTile,tilePlacementOptions,platformTileMap.GetTilemap(),platformTileMap.SlopeTileMap);
+            PlaceTile(placePosition,tileItem.tile as PlatformStateTile,tilePlacementOptions,platformTileMap.GetTilemap(),platformTileMap.GetSlopeTilemap(SlopeRotation.Left),platformTileMap.GetSlopeTilemap(SlopeRotation.Right));
             if (!platformTileMap.HasTile(placePosition))
             {
                 PlaceAdditionalTile(Vector3Int.left);
+                PlaceAdditionalTile(Vector3Int.left+Vector3Int.up);
+                PlaceAdditionalTile(Vector3Int.left+Vector3Int.down);
+                
                 PlaceAdditionalTile(Vector3Int.right);
+                PlaceAdditionalTile(Vector3Int.right+Vector3Int.up);
+                PlaceAdditionalTile(Vector3Int.right+Vector3Int.down);
             }
             
             return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition, additionalPlacementPositions);
@@ -185,20 +191,21 @@ namespace TileMaps.Previewer {
                 TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
                 if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
                 BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
+                if (baseTileData.state != (int)PlatformTileState.SlopeDeco) return;
                 PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
                 {
                     State = baseTileData.state,
                     Rotation = (PlayerTileRotation)baseTileData.rotation
                 };
-                PlaceTile(adjacentPosition,platformStateTile,placementOptions,tilemap,tilemap);
+                PlaceTile(adjacentPosition,platformStateTile,placementOptions,tilemap,tilemap,tilemap);
                 additionalPlacementPositions.Add(adjacentPosition);
                 
             }
-            void PlaceTile(Vector3Int cellPosition, PlatformStateTile platformStateTile, PlayerTilePlacementOptions placementOptions, Tilemap flatMap, Tilemap slopeMap)
+            void PlaceTile(Vector3Int cellPosition, PlatformStateTile platformStateTile, PlayerTilePlacementOptions placementOptions, Tilemap flatMap, Tilemap leftSlopeMap, Tilemap rightSlopeMap)
             {
                 int rotation;
                 int state = placementOptions.State;
-                if (placementOptions.State == (int)PlatformTileState.Slope && cellPosition == placePosition)
+                if (placementOptions.State == (int)PlatformTileState.SlopeDeco && cellPosition == placePosition)
                 {
                     rotation = (int)placementOptions.Rotation;
                     if (placementOptions.Rotation == PlayerTileRotation.Auto)
@@ -206,14 +213,12 @@ namespace TileMaps.Previewer {
                         int mousePosition = MousePositionUtils.GetMousePlacement(position);
                         rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
                     }
+                    placementOptions.Rotation = (PlayerTileRotation)rotation;
                 }
-                else
-                {
-                    TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
-                    state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,slopeMap);
-                    tilePlacementData.State = state;
-                    rotation = TilePlaceUtils.GetPlacementPlatformRotation((Vector2Int)cellPosition,tilePlacementData,platformTileMap);
-                }
+                TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
+                state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
+                tilePlacementData.State = state;
+                rotation = TilePlaceUtils.GetPlacementPlatformRotation(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
                 
                 TileBase[] result = new TileBase[3];
                 platformStateTile.GetTiles(state,result);

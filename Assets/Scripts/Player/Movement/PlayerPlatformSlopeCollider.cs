@@ -2,6 +2,7 @@ using System;
 using TileMaps;
 using TileMaps.Type;
 using Tiles.TileMap;
+using Tiles.TileMap.Platform;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
@@ -12,76 +13,95 @@ namespace Player.Movement
     {
         private PlayerRobot playerRobot;
         private Rigidbody2D rb;
-        private BoxCollider2D boxCollider2D;
-        [FormerlySerializedAs("MinSize")] public float MinSizeY = 0.15f;
-        [FormerlySerializedAs("MaxSize")] public float MaxSizeY = 2f;
-        public float MinSizeX = 0.15f;
-        public float MaxSizeX = 0.5f;
-        public float MinActiveSpeed = -10;
-        public float MaxActiveSpeed = -20;
-        private float minY;
-        public float MaxY = 0;
+        public SlopeRotation SlopeDirection;
+        private CollisionState collisionState;
+        
         public void Start()
         {
             playerRobot = GetComponentInParent<PlayerRobot>();
             rb = playerRobot.GetComponent<Rigidbody2D>();
-            boxCollider2D = GetComponent<BoxCollider2D>();
-            minY = transform.localPosition.y;
+            switch (SlopeDirection)
+            {
+                case SlopeRotation.Left:
+                    collisionState = CollisionState.OnLeftSlopePlatform;
+                    break;
+                case SlopeRotation.Right:
+                    collisionState = CollisionState.OnRightSlopePlatform;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
+        
 
-        public void Update()
+        public void OnTriggerEnter2D(Collider2D other)
         {
-            float yVelocity = rb.velocity.y;
-            float t = yVelocity > MinActiveSpeed ? 0 : yVelocity / MaxActiveSpeed;
-            var vector3 = transform.localPosition;
-            vector3.y = Mathf.Lerp(minY, MaxY, t);
-            transform.localPosition = vector3;
-            var size = boxCollider2D.size;
-            size.y = Mathf.Lerp(MinSizeY, MaxSizeY, t);
-            size.x = !playerRobot.IsGrounded() ? MaxSizeX : MinSizeX;
-            boxCollider2D.size = size;
+            UpdateCollisionState(other);
         }
 
         public void OnTriggerStay2D(Collider2D other)
         {
+            UpdateCollisionState(other);
+        }
+
+        public void UpdateCollisionState(Collider2D other)
+        {
             Vector2 collisionPoint = other.ClosestPoint(transform.position);
-            if (collisionPoint.y > transform.position.y)
+            if (collisionPoint.y >= transform.position.y)
             {
-                playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+                playerRobot.RemoveCollisionState(collisionState);
                 return;
             }
-
-            if (!playerRobot.CollisionStateActive(CollisionState.OnPlatformSlope) && playerRobot.IsGrounded())
+            
+            switch (SlopeDirection)
             {
-                Tilemap slopeTilemap = other.GetComponent<Tilemap>();
-                Vector3Int cellPosition = slopeTilemap.WorldToCell(collisionPoint);
-                cellPosition.z = 0;
-                Matrix4x4 matrix4 = slopeTilemap.GetTransformMatrix(cellPosition);
-                //collisionPoint.x > transform.position.x
-                if (matrix4.rotation == Quaternion.identity)
-                {
-                    if (rb.velocity.x > 0)
+                case SlopeRotation.Left:
+                    if (collisionPoint.x >= transform.position.x)
                     {
-                        playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+                        playerRobot.RemoveCollisionState(collisionState);
                         return;
                     }
-                }
-                else
-                {
-                    if (rb.velocity.x < 0)
+                    break;
+                case SlopeRotation.Right:
+                    if (collisionPoint.x <= transform.position.x)
                     {
-                        playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+                        playerRobot.RemoveCollisionState(collisionState);
                         return;
                     }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            if (!playerRobot.CollisionStateActive(collisionState) && playerRobot.IsGrounded())
+            {
+                switch (SlopeDirection)
+                {
+                    case SlopeRotation.Left:
+                        if (rb.velocity.x > 0)
+                        {
+                            playerRobot.RemoveCollisionState(collisionState);
+                            return;
+                        }
+                        break;
+                    case SlopeRotation.Right:
+                        if (rb.velocity.x < 0)
+                        {
+                            playerRobot.RemoveCollisionState(collisionState);
+                            return;
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             
-            playerRobot.AddCollisionState(CollisionState.OnPlatformSlope);
+            playerRobot.AddCollisionState(collisionState);
         }
 
         public void OnTriggerExit2D(Collider2D other)
         {
-            playerRobot.RemoveCollisionState(CollisionState.OnPlatformSlope);
+            playerRobot.RemoveCollisionState(collisionState);
         }
     }
 }

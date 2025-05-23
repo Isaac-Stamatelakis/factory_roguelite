@@ -47,7 +47,8 @@ namespace Player {
         OnSlope,
         HeadContact,
         OnPlatform,
-        OnPlatformSlope,
+        OnLeftSlopePlatform,
+        OnRightSlopePlatform,
         InFluid,
     }
     
@@ -68,7 +69,8 @@ namespace Player {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Collider2D platformCollider;
-        [SerializeField] private Collider2D slopePlatformCollider;
+        [SerializeField] private Collider2D leftSlopePlatformCollider;
+        [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private bool climbing;
@@ -218,13 +220,8 @@ namespace Player {
         public void AddCollisionState(CollisionState state)
         {
             if (!collisionStates.Add(state)) return;
-            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
+            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform or CollisionState.OnLeftSlopePlatform or CollisionState.OnRightSlopePlatform)
             {
-                // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
-                liveYUpdates = 2;
-                var vector2 = rb.velocity;
-                vector2.y = 0.005f;
-                rb.velocity = vector2;
                 if (bonusJumps <= 0)
                 {
                     bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
@@ -241,7 +238,15 @@ namespace Player {
                 {
                     rocketBoots = null;
                 }
-                
+            }
+
+            if (state is CollisionState.OnGround or CollisionState.OnSlope)
+            {
+                // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
+                liveYUpdates = 2;
+                var vector2 = rb.velocity;
+                vector2.y = 0.005f;
+                rb.velocity = vector2;
             }
 
             if (state is CollisionState.OnGround)
@@ -456,15 +461,14 @@ namespace Player {
 
         public bool IsGrounded()
         {
-            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform();
         }
 
-        public bool IsGroundedAndNotOnPlatformSlope()
+        public bool IsOnSlopedPlatform()
         {
-            // Bug central right here
-            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+            return CollisionStateActive(CollisionState.OnLeftSlopePlatform) || CollisionStateActive(CollisionState.OnRightSlopePlatform);
         }
-
+        
         private void FlightMoveUpdate()
         {
             rb.gravityScale = 0;
@@ -704,10 +708,10 @@ namespace Player {
                 jumpEvent = null;
                 return;
             }
-            if ((CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnPlatformSlope)) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
+            if ((CollisionStateActive(CollisionState.OnPlatform) || IsOnSlopedPlatform()) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
             {
                 if (CollisionStateActive(CollisionState.OnPlatform)) ignorePlatformFrames = 3;
-                if (CollisionStateActive(CollisionState.OnPlatformSlope))
+                if (IsOnSlopedPlatform())
                 {
                     liveYUpdates = 3;
                     ignoreSlopePlatformFrames = 3;
@@ -859,10 +863,10 @@ namespace Player {
                 rb.drag = defaultLinearDrag;
             }
 
-            
-            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f && !collisionStates.Contains(CollisionState.OnPlatformSlope);
-            slopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
-            
+            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
+            bool ignoreSlopedPlatforms = ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform);
+            leftSlopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
+            rightSlopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
             bool grounded = IsGrounded();
             animator.SetBool(Air,coyoteFrames < 0 && !grounded);
             if (grounded)
@@ -908,7 +912,7 @@ namespace Player {
 
             if (liveYUpdates > 0) return FREEZE_Z;
             
-            if (CollisionStateActive(CollisionState.OnSlope) || CollisionStateActive(CollisionState.OnPlatformSlope))
+            if (CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform())
             {
                 bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
                 bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);

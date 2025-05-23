@@ -64,6 +64,11 @@ namespace TileMaps.Layer {
                     return false;
             }
         }
+
+        private static int GetAdditionalBaseLayers()
+        {
+            return  (1 << LayerMask.NameToLayer("PlatformSlopeLeft")) | (1 << LayerMask.NameToLayer("PlatformSlopeRight"));
+        }
         public static int ToRaycastLayers(this TileMapLayer layer) {
             List<TileMapType> tileMapTypes = layer.GetTileMapTypes();
             if (tileMapTypes == null) {
@@ -73,6 +78,8 @@ namespace TileMaps.Layer {
             foreach (TileMapType tileMapType in tileMapTypes) {
                 layerMask |= (1 << LayerMask.NameToLayer(tileMapType.ToString()));
             }
+
+            if (layer == TileMapLayer.Base) layerMask |= GetAdditionalBaseLayers();
             return layerMask;
         }
         public static bool IsTile(this TileMapLayer layer) {
