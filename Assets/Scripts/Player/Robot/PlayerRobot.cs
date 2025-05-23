@@ -218,13 +218,8 @@ namespace Player {
         public void AddCollisionState(CollisionState state)
         {
             if (!collisionStates.Add(state)) return;
-            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
+            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform or CollisionState.OnPlatformSlope)
             {
-                // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
-                liveYUpdates = 2;
-                var vector2 = rb.velocity;
-                vector2.y = 0.005f;
-                rb.velocity = vector2;
                 if (bonusJumps <= 0)
                 {
                     bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
@@ -241,7 +236,15 @@ namespace Player {
                 {
                     rocketBoots = null;
                 }
-                
+            }
+
+            if (state is CollisionState.OnGround or CollisionState.OnSlope)
+            {
+                // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
+                liveYUpdates = 2;
+                var vector2 = rb.velocity;
+                vector2.y = 0.005f;
+                rb.velocity = vector2;
             }
 
             if (state is CollisionState.OnGround)
@@ -858,7 +861,6 @@ namespace Player {
             {
                 rb.drag = defaultLinearDrag;
             }
-
             
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f && !collisionStates.Contains(CollisionState.OnPlatformSlope);
             slopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnPlatformSlope) && !(ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform));
