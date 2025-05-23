@@ -735,6 +735,7 @@ namespace Player {
                 rb.drag = defaultLinearDrag;
                 fallTime = 0;
                 slipperyFrames /= 2;
+                ignoreSlopePlatformFrames = 2;
                 jumpEvent = new JumpEvent();
                 return;
             }
