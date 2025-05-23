@@ -175,7 +175,12 @@ namespace TileMaps.Previewer {
             if (!platformTileMap.HasTile(placePosition))
             {
                 PlaceAdditionalTile(Vector3Int.left);
+                PlaceAdditionalTile(Vector3Int.left+Vector3Int.up);
+                PlaceAdditionalTile(Vector3Int.left+Vector3Int.down);
+                
                 PlaceAdditionalTile(Vector3Int.right);
+                PlaceAdditionalTile(Vector3Int.right+Vector3Int.up);
+                PlaceAdditionalTile(Vector3Int.right+Vector3Int.down);
             }
             
             return new MultiStateTilePlacementRecord(tileItem.id, tilemap, 3, placePosition, additionalPlacementPositions);
@@ -186,7 +191,7 @@ namespace TileMaps.Previewer {
                 TileItem adjacentTileItem = platformTileMap.getTileItem((Vector2Int)adjacentPosition);
                 if (adjacentTileItem?.tile is not PlatformStateTile platformStateTile) return;
                 BaseTileData baseTileData = platformTileMap.GetBaseTileData(adjacentPosition.x, adjacentPosition.y);
-                if (baseTileData.state != (int)PlatformTileState.Slope) return;
+                if (baseTileData.state != (int)PlatformTileState.SlopeDeco) return;
                 PlayerTilePlacementOptions placementOptions = new PlayerTilePlacementOptions
                 {
                     State = baseTileData.state,
@@ -200,7 +205,7 @@ namespace TileMaps.Previewer {
             {
                 int rotation;
                 int state = placementOptions.State;
-                if (placementOptions.State == (int)PlatformTileState.Slope && cellPosition == placePosition)
+                if (placementOptions.State == (int)PlatformTileState.SlopeDeco && cellPosition == placePosition)
                 {
                     rotation = (int)placementOptions.Rotation;
                     if (placementOptions.Rotation == PlayerTileRotation.Auto)

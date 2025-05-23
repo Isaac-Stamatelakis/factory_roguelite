@@ -343,7 +343,7 @@ namespace TileMaps.Place {
             void SetPlatformStateAndRotation()
             {
                 placementData ??= new TilePlacementData(0, 0);
-                if (placementData.State == (int)PlatformTileState.Slope)
+                if (placementData.State == (int)PlatformTileState.SlopeDeco)
                 {
                     if (tileRotation == PlayerTileRotation.Auto) // Kind of messy but GetPlacementPlatformRotation returns placementData rotation if sloped
                     {
@@ -366,20 +366,22 @@ namespace TileMaps.Place {
         public static PlatformTileState GetPlacementPlatformState(Vector3Int cellPosition, TilePlacementData tilePlacementData, Tilemap flatTileMap, Tilemap leftSlopeMap, Tilemap rightSlopeMap)
         {
             PlatformTileState currentState = (PlatformTileState)tilePlacementData.State;
-            if (currentState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll)
+            if (currentState is PlatformTileState.SlopeDeco or PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAllDeco or PlatformTileState.FlatSlopeConnectAll)
             {
                 int rotation = (int)tilePlacementData.Rotation;
-                if (rotation == 1)
+                Vector3Int offset;
+                Tilemap slopeMap;
+                if (rotation == (int)SlopeRotation.Left)
                 {
-                    bool leftFlat = flatTileMap.HasTile(cellPosition + Vector3Int.left);
-                    if (leftFlat) return PlatformTileState.FlatSlopeConnectAll;
+                    offset = Vector3Int.right;
+                    slopeMap = leftSlopeMap;
                 }
                 else
                 {
-                    bool rightFlat = flatTileMap.HasTile(cellPosition + Vector3Int.right);
-                    if (rightFlat) return PlatformTileState.FlatSlopeConnectAll;
+                    offset = Vector3Int.left;
+                    slopeMap = rightSlopeMap;
                 }
-                return PlatformTileState.Slope;
+                return GetSlopeState(offset,slopeMap);
             }
             bool left = flatTileMap.HasTile(cellPosition + Vector3Int.left) || SlopeHasTile(leftSlopeMap,Vector3Int.left) || SlopeHasTile(rightSlopeMap,Vector3Int.left);
             bool right = flatTileMap.HasTile(cellPosition + Vector3Int.right) || SlopeHasTile(leftSlopeMap,Vector3Int.right) || SlopeHasTile(rightSlopeMap,Vector3Int.right);
@@ -388,6 +390,18 @@ namespace TileMaps.Place {
             if (left && right) return PlatformTileState.FlatConnectAll;
             return PlatformTileState.FlatConnectOne;
 
+            PlatformTileState GetSlopeState(Vector3Int offset, Tilemap slopeMap)
+            {
+                bool offsetFlat = flatTileMap.HasTile(cellPosition + offset);
+                bool decorate = slopeMap.HasTile(cellPosition + offset + Vector3Int.down) || flatTileMap.HasTile(cellPosition + offset + Vector3Int.down);
+                if (offsetFlat && decorate)
+                {
+                    return PlatformTileState.FlatSlopeConnectAllDeco;
+                }
+                if (decorate) return PlatformTileState.SlopeDeco;
+                if (offsetFlat) return PlatformTileState.FlatSlopeConnectAll;
+                return PlatformTileState.Slope;
+            }
             bool SlopeHasTile(Tilemap slopeTilemap, Vector3Int offset)
             {
                 return slopeTilemap.HasTile(cellPosition+offset+Vector3Int.up) || slopeTilemap.HasTile(cellPosition+offset);
@@ -409,7 +423,9 @@ namespace TileMaps.Place {
                 case PlatformTileState.FlatConnectAll:
                     return 0;
                 case PlatformTileState.Slope:
-                case PlatformTileState.FlatSlopeConnectAll:
+                case PlatformTileState.SlopeDeco:
+                case PlatformTileState.FlatSlopeConnectAllDeco:
+                case PlatformTileState.FlatSlopeConnectAll: 
                     return (int)tilePlacementData.Rotation;
                 default:
                     throw new ArgumentOutOfRangeException();

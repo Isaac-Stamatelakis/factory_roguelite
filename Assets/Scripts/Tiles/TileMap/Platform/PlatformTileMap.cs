@@ -102,6 +102,7 @@ namespace Tiles.TileMap
                     tilemap.SetTransformMatrix(vector3Int,cachedMatrix);
                     break;
                 }
+                case PlatformTileState.SlopeDeco:
                 case PlatformTileState.Slope:
                 {
                     TileBase slopeTile = tileContainer[1];
@@ -116,6 +117,7 @@ namespace Tiles.TileMap
                     slopeTileMaps.SetTransformMatrix(ref  vector3Int, ref cachedMatrix);
                 }
                     break;
+                case PlatformTileState.FlatSlopeConnectAllDeco:
                 case PlatformTileState.FlatSlopeConnectAll:
                 {
                     PlatformSlopeTileMaps slopeTileMaps = GetSlopeTileMaps(rotation);
@@ -172,7 +174,12 @@ namespace Tiles.TileMap
         private void UpdateAdjacentTiles(Vector2Int cellPosition)
         {
             UpdateAdjacentTile(Vector2Int.left);
+            UpdateAdjacentTile(Vector2Int.left+Vector2Int.down);
+            UpdateAdjacentTile(Vector2Int.left+Vector2Int.up);
+            
             UpdateAdjacentTile(Vector2Int.right);
+            UpdateAdjacentTile(Vector2Int.right+Vector2Int.down);
+            UpdateAdjacentTile(Vector2Int.right+Vector2Int.up);
             return;
             void UpdateAdjacentTile(Vector2Int direction)
             {
@@ -210,7 +217,7 @@ namespace Tiles.TileMap
             TileItem tileItem = getTileItem(position);
             if (!tileItem) return;
             PlatformTileState platformTileState = (PlatformTileState)baseTileData.state;
-            bool valid = platformTileState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll;
+            bool valid = platformTileState is PlatformTileState.SlopeDeco or PlatformTileState.FlatSlopeConnectAllDeco;
             if (!valid) return;
             baseTileData.rotation = (baseTileData.rotation + 1) % 2;
             RemoveTile(position.x, position.y);
@@ -235,13 +242,13 @@ namespace Tiles.TileMap
                 switch (current)
                 {
                     case PlatformTileState.FlatConnectNone:
-                        return PlatformTileState.Slope;
+                        return PlatformTileState.SlopeDeco;
                     case PlatformTileState.FlatConnectOne:
                     case PlatformTileState.FlatConnectAll:
-                        return PlatformTileState.FlatSlopeConnectAll;
-                    case PlatformTileState.Slope:
+                        return PlatformTileState.FlatSlopeConnectAllDeco;
+                    case PlatformTileState.SlopeDeco:
                         return PlatformTileState.FlatConnectNone;
-                    case PlatformTileState.FlatSlopeConnectAll:
+                    case PlatformTileState.FlatSlopeConnectAllDeco:
                         return PlatformTileState.FlatConnectAll;
                     default:
                         throw new ArgumentOutOfRangeException();

@@ -12,11 +12,14 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
     
     public enum PlatformTileState
     {
-        FlatConnectNone,
-        FlatConnectOne,
-        FlatConnectAll,
-        Slope,
-        FlatSlopeConnectAll,
+        FlatConnectNone = 0,
+        FlatConnectOne = 1,
+        FlatConnectAll = 2,
+        SlopeDeco = 3,
+        FlatSlopeConnectAllDeco = 4,
+        Slope = 5,
+        FlatSlopeConnectAll = 6,
+        
     }
     public class PlatformStateTile : TileBase, IStateTileMultiple, INamedStateTile, IRestrictedIndicatorStateTile
     {
@@ -57,16 +60,28 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                     container[1] = null;
                     container[2] = null;
                     break;
-                case PlatformTileState.Slope:
+                case PlatformTileState.SlopeDeco:
                     container[0] = null;
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
-                case PlatformTileState.FlatSlopeConnectAll:
+                case PlatformTileState.FlatSlopeConnectAllDeco:
                     container[0] = FlatConnectAll;
                     container[1] = Slope;
                     container[2] = SlopeDeco;
                     break;
+                case PlatformTileState.Slope:
+                    container[0] = null;
+                    container[1] = Slope;
+                    container[2] = null;
+                    break;
+                case PlatformTileState.FlatSlopeConnectAll:
+                    container[0] = FlatConnectAll;
+                    container[1] = Slope;
+                    container[2] = null;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -79,9 +94,9 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                 case PlatformTileState.FlatConnectOne:
                 case PlatformTileState.FlatConnectAll:
                     return "Flat Platform";
-                case PlatformTileState.Slope:
+                case PlatformTileState.SlopeDeco:
                     return "Sloped Platform";
-                case PlatformTileState.FlatSlopeConnectAll:
+                case PlatformTileState.FlatSlopeConnectAllDeco:
                     return "Flat & Sloped Platform";
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -96,9 +111,9 @@ namespace Tiles.CustomTiles.StateTiles.Instances.Platform
                 case PlatformTileState.FlatConnectNone:
                 case PlatformTileState.FlatConnectOne:
                 case PlatformTileState.FlatConnectAll:
-                case PlatformTileState.FlatSlopeConnectAll:
-                    return (int)PlatformTileState.Slope;
-                case PlatformTileState.Slope:
+                case PlatformTileState.FlatSlopeConnectAllDeco:
+                    return (int)PlatformTileState.SlopeDeco;
+                case PlatformTileState.SlopeDeco:
                     return (int)PlatformTileState.FlatConnectNone;
                 default:
                     throw new ArgumentOutOfRangeException();
