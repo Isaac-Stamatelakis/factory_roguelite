@@ -22,7 +22,7 @@ using UnityEngine;
 
 namespace Robot.Tool.Instances
 {
-    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, IDestructiveTool
+    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, IDestructiveTool, IColorableTool
     {
         private MultiButtonRobotToolLaserManager laserManager;
         private List<ConduitType> targets = new List<ConduitType>(5);
@@ -48,7 +48,7 @@ namespace Robot.Tool.Instances
 
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            laserManager.Update(ref mousePosition,GetConduitColor(toolData.Type), mouseButtonKey);
+            laserManager.Update(ref mousePosition,GetColor(toolData.Type), mouseButtonKey);
             laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
 
@@ -61,7 +61,7 @@ namespace Robot.Tool.Instances
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
-            laserManager.Update(ref mousePosition,GetConduitColor(toolData.Type), mouseButtonKey);
+            laserManager.Update(ref mousePosition,GetColor(toolData.Type), mouseButtonKey);
             switch (mouseButtonKey)
             {
                 case MouseButtonKey.Left:
@@ -173,7 +173,7 @@ namespace Robot.Tool.Instances
         }
 
 
-        private Color GetConduitColor(ConduitCutterMode conduitCutterMode)
+        private Color GetColor(ConduitCutterMode conduitCutterMode)
         {
             switch (conduitCutterMode)
             {
@@ -188,10 +188,15 @@ namespace Robot.Tool.Instances
                 case ConduitCutterMode.Matrix:
                     return Color.magenta;
                 case ConduitCutterMode.All:
-                    return Color.white;
+                    return Color.cyan;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(conduitCutterMode), conduitCutterMode, null);
             }
+        }
+
+        public Color GetColor()
+        {
+            return GetColor(toolData.Type);
         }
     }
 

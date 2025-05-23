@@ -35,9 +35,14 @@ namespace Robot.Tool
         Right
     }
 
-    public interface IAutoSelectTool
+    public interface IAutoSelectTool : IColorableTool
     {
         public TileMapLayer GetAutoSelectLayer();
+        
+    }
+
+    public interface IColorableTool
+    {
         public Color GetColor(); 
     }
     

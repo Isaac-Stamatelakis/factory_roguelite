@@ -23,6 +23,7 @@ namespace Player.Robot
         
         private static readonly int Shooting = Animator.StringToHash("Shooting");
         private static readonly int ActiveParameter = Animator.StringToHash("Active");
+        private static readonly int ToolColorMatParameter = Shader.PropertyToID("_ToolColor");
         private Animator animator;
         private SpriteRenderer spriteRenderer;
         private Vector3 defaultPosition;
@@ -31,7 +32,7 @@ namespace Player.Robot
         public Direction ShootDirection => shootDirection;
         private float shootAngle;
         private RobotArmState? currentState;
-        
+
         public void Initialize(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
@@ -52,6 +53,11 @@ namespace Player.Robot
             animator.speed = 1f;
         }
 
+        public void SetToolColor(Color color)
+        {
+            spriteRenderer.material.SetColor(ToolColorMatParameter,color);
+        }
+ 
         private string GetStateAnimation(RobotArmState state)
         {
             switch (state)
