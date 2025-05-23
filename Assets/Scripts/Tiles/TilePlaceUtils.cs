@@ -26,6 +26,7 @@ using TileEntity.MultiBlock;
 using TileMaps.Previewer;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.TileMap;
+using Tiles.TileMap.Platform;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Place {
@@ -355,13 +356,15 @@ namespace TileMaps.Place {
                 }
                 PlatformTileMap platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
                 Vector3Int cellPosition = new Vector3Int(placePosition.x,placePosition.y,0);
-                state = (int)GetPlacementPlatformState(cellPosition, placementData,platformTileMap.GetTilemap(),platformTileMap.SlopeTileMap);
+                Tilemap leftSlopeMap = platformTileMap.GetSlopeTilemap(SlopeRotation.Left);
+                Tilemap rightSlopeMap = platformTileMap.GetSlopeTilemap(SlopeRotation.Right);
+                state = (int)GetPlacementPlatformState(cellPosition, placementData,platformTileMap.GetTilemap(),leftSlopeMap,rightSlopeMap);
                 placementData.State = state;
-                rotation = GetPlacementPlatformRotation(placePosition, placementData,platformTileMap);
+                rotation = GetPlacementPlatformRotation(cellPosition, placementData,platformTileMap.GetTilemap(),leftSlopeMap,rightSlopeMap);
             }
         }
 
-        public static PlatformTileState GetPlacementPlatformState(Vector3Int cellPosition, TilePlacementData tilePlacementData, Tilemap flatTileMap, Tilemap slopeTileMap)
+        public static PlatformTileState GetPlacementPlatformState(Vector3Int cellPosition, TilePlacementData tilePlacementData, Tilemap flatTileMap, Tilemap leftSlopeMap, Tilemap rightSlopeMap)
         {
             PlatformTileState currentState = (PlatformTileState)tilePlacementData.State;
             if (currentState is PlatformTileState.Slope or PlatformTileState.FlatSlopeConnectAll)
@@ -379,23 +382,31 @@ namespace TileMaps.Place {
                 }
                 return PlatformTileState.Slope;
             }
-            bool left = flatTileMap.HasTile(cellPosition + Vector3Int.left) || slopeTileMap.HasTile(cellPosition+Vector3Int.left+Vector3Int.up) || slopeTileMap.HasTile(cellPosition+Vector3Int.left);
-            bool right = flatTileMap.HasTile(cellPosition + Vector3Int.right) || slopeTileMap.HasTile(cellPosition+Vector3Int.right+Vector3Int.up) || slopeTileMap.HasTile(cellPosition+Vector3Int.right);
-                    
-            // This might be reversed
+            bool left = flatTileMap.HasTile(cellPosition + Vector3Int.left) || SlopeHasTile(leftSlopeMap,Vector3Int.left) || SlopeHasTile(rightSlopeMap,Vector3Int.left);
+            bool right = flatTileMap.HasTile(cellPosition + Vector3Int.right) || SlopeHasTile(leftSlopeMap,Vector3Int.right) || SlopeHasTile(rightSlopeMap,Vector3Int.right);
+            
             if (!left && !right) return PlatformTileState.FlatConnectNone;
             if (left && right) return PlatformTileState.FlatConnectAll;
             return PlatformTileState.FlatConnectOne;
+
+            bool SlopeHasTile(Tilemap slopeTilemap, Vector3Int offset)
+            {
+                return slopeTilemap.HasTile(cellPosition+offset+Vector3Int.up) || slopeTilemap.HasTile(cellPosition+offset);
+            }
         }
-        public static int GetPlacementPlatformRotation(Vector2Int cellPosition, TilePlacementData tilePlacementData, PlatformTileMap platformTileMap)
+        public static int GetPlacementPlatformRotation(Vector3Int cellPosition, TilePlacementData tilePlacementData, Tilemap flatTilemap, Tilemap leftTileMap, Tilemap rightTilemap)
         {
             PlatformTileState state = (PlatformTileState)tilePlacementData.State;
             switch (state)
             {
                 case PlatformTileState.FlatConnectNone:
                 case PlatformTileState.FlatConnectOne:
-                    bool right = platformTileMap.HasTile(cellPosition + Vector2Int.right)|| platformTileMap.HasSlopeTile(cellPosition+Vector2Int.right+Vector2Int.up);
-                    return right ? 1 : 0;
+                    bool left = flatTilemap.HasTile(cellPosition + Vector3Int.left)
+                                || leftTileMap.HasTile(cellPosition + Vector3Int.left + Vector3Int.up) ||
+                                leftTileMap.HasTile(cellPosition + Vector3Int.left)
+                                || rightTilemap.HasTile(cellPosition + Vector3Int.left + Vector3Int.up) ||
+                                rightTilemap.HasTile(cellPosition + Vector3Int.left);
+                    return left ? 0 : 1;
                 case PlatformTileState.FlatConnectAll:
                 case PlatformTileState.FlatSlopeConnectAll:
                     return 0;
