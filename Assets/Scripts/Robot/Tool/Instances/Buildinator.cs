@@ -34,11 +34,11 @@ namespace Robot.Tool.Instances
     }
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool
     {
-        private MultiButtonRobotToolLaserManager laserManager;
+        private RobotToolLaserManager laserManager;
         
         public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
-            laserManager = new MultiButtonRobotToolLaserManager(base.playerScript, robotObject.LineRendererPrefab);
+            
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -57,22 +57,22 @@ namespace Robot.Tool.Instances
         }
 
 
-        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void BeginClickHold(Vector2 mousePosition)
         {
-            laserManager.Update(ref mousePosition, GetColor(), mouseButtonKey);
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform),playerScript);
+            laserManager.UpdateLineRenderer(mousePosition, GetColor());
         }
 
-        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
+        public override void TerminateClickHold()
         {
-            laserManager.DeActivate(mouseButtonKey);
+            laserManager.Terminate();
             playerScript.TileViewers.TileBreakHighlighter.Clear();
-            
             playerScript.PlayerMouse.ClearToolPreview();
         }
 
-        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void ClickUpdate(Vector2 mousePosition)
         {
-            if (!Input.GetMouseButton(mouseButtonKey.ToMouseButton())) return;
+            if (!Input.GetMouseButton(0)) return;
             
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
             int layers = TileMapLayer.Base.ToRaycastLayers();
@@ -81,7 +81,7 @@ namespace Robot.Tool.Instances
             
             Vector2Int vector2Int = Global.GetCellPositionFromWorld(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
-            int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
+            int direction = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
             switch (toolData.Mode)
             {
                 case BuildinatorMode.Chisel:
@@ -285,11 +285,11 @@ namespace Robot.Tool.Instances
             
         }
 
-        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        public override bool HoldClickUpdate(Vector2 mousePosition, float time)
         {
-            laserManager?.Update(ref mousePosition,GetColor(),mouseButtonKey);
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             if (time < 0.25f) return false;
-            ClickUpdate(mousePosition, mouseButtonKey);
+            ClickUpdate(mousePosition);
             return true;
         }
 
@@ -356,6 +356,11 @@ namespace Robot.Tool.Instances
         public override RobotArmState GetRobotArmAnimation()
         {
             return RobotArmState.Buildinator;
+        }
+
+        public override int GetSubState()
+        {
+            return (int)toolData.Mode;
         }
     }
 

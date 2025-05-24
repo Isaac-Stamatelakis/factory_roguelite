@@ -1,48 +1,42 @@
 using System.Collections.Generic;
 using Player.Tool;
+using PlayerModule;
 using Robot.Tool;
+using UnityEngine;
 
 namespace Player.Mouse
 {
     public class ToolClickHandlerCollection
     {
-        private Dictionary<MouseButtonKey, HoldClickHandler> recentlyUsed =
-            new Dictionary<MouseButtonKey, HoldClickHandler>();
+        private HoldClickHandler recentlyUsed;
        
-        private Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>> clickHandlerDict =
-            new Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>>();
-        
-        public HoldClickHandler GetOrAddTool(RobotToolType robotToolType, MouseButtonKey mouseButtonKey, IRobotToolInstance toolInstance)
-        {
-            if (!clickHandlerDict.ContainsKey(robotToolType))
-            {
-                clickHandlerDict.Add(robotToolType, new Dictionary<MouseButtonKey, HoldClickHandler>());
-            }
+        private Dictionary<RobotToolType, HoldClickHandler> clickHandlerDict = new();
 
-            if (!clickHandlerDict[robotToolType].ContainsKey(mouseButtonKey))
+        public ToolClickHandlerCollection(PlayerRobot playerRobot)
+        {
+            for (var index = 0; index < playerRobot.ToolTypes.Count; index++)
             {
-                clickHandlerDict[robotToolType][mouseButtonKey] = new HoldClickHandler(toolInstance,mouseButtonKey) ;
-            
+                var toolType = playerRobot.ToolTypes[index];
+                var robotToolInstance = playerRobot.RobotTools[index];
+                clickHandlerDict[toolType] = new HoldClickHandler(robotToolInstance);
             }
-            var handler = clickHandlerDict[robotToolType][mouseButtonKey];
-            var last = recentlyUsed.GetValueOrDefault(mouseButtonKey);
-            if (!ReferenceEquals(handler, last))
+        }
+        public HoldClickHandler GetOrAddTool(RobotToolType robotToolType, IRobotToolInstance toolInstance)
+        {
+            var handler = clickHandlerDict[robotToolType];
+            if (!ReferenceEquals(handler, recentlyUsed))
             {
-                last?.Terminate();
+                recentlyUsed?.Terminate();
             }
-            recentlyUsed[mouseButtonKey] = handler;
+            recentlyUsed = handler;
             return handler;
         }
 
-        public void Terminate(MouseButtonKey mouseButtonKey)
+        public void Terminate()
         {
-            if (!recentlyUsed.ContainsKey(mouseButtonKey)) return;
-            recentlyUsed[mouseButtonKey].Terminate();
-            recentlyUsed.Remove(mouseButtonKey);
-        }
-
-        public ToolClickHandlerCollection()
-        {
+            if (recentlyUsed == null) return;
+            recentlyUsed.Terminate();
+            recentlyUsed = null;
         }
     }
 }

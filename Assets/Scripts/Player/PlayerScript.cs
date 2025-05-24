@@ -58,7 +58,6 @@ namespace Player
         public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
-        public PlayerIO PlayerIO => playerIO;
         public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
         public PlayerTilePlacementOptions TilePlacementOptions => tilePlacementOptions;
         public ConduitViewOptions ConduitViewOptions => conduitViewOptions;
@@ -97,6 +96,8 @@ namespace Player
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
             playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
+
+            playerMouse.InitializeToolClickHandlers();
             
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);

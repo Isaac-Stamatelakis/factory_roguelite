@@ -125,7 +125,7 @@ namespace Player {
         private FluidCollisionInformation fluidCollisionInformation = new();
 
         public const float BASE_MOVE_SPEED = 5f;
-        public PlayerRobotLaserGunController gunController;
+        public RobotArmController gunController;
         private float defaultBoxColliderWidth;
         private float defaultBoxColliderEdge;
         private CanvasController canvasController;
@@ -193,7 +193,9 @@ namespace Player {
             isUsingTool = value;
             
             animator.SetBool(Action,value);
-            gunController.gameObject.SetActive(value);
+            gunController.gameObject.GetComponent<SpriteRenderer>().enabled = value;
+            gunController.gameObject.GetComponent<Animator>().enabled = value;
+            
             if (!value)
             {
                 gunController.OnNoClick();

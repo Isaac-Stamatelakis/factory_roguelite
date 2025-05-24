@@ -56,6 +56,7 @@ namespace Robot.Tool
         public RobotToolObject GetToolObject();
         public void Preview(Vector2Int cellPosition);
         public RobotArmState GetRobotArmAnimation();
+        public int GetSubState();
     }
 
     public interface IDestructiveTool
@@ -91,10 +92,10 @@ namespace Robot.Tool
         }
         public abstract Sprite GetPrimaryModeSprite();
 
-        public abstract void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
-        public abstract void TerminateClickHold(MouseButtonKey mouseButtonKey);
-        public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
-        public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
+        public abstract void BeginClickHold(Vector2 mousePosition);
+        public abstract void TerminateClickHold();
+        public abstract void ClickUpdate(Vector2 mousePosition);
+        public abstract bool HoldClickUpdate(Vector2 mousePosition, float time);
         public abstract void ModeSwitch(MoveDirection moveDirection, bool subMode);
         public string GetName()
         {
@@ -108,6 +109,7 @@ namespace Robot.Tool
         }
         public abstract void Preview(Vector2Int cellPosition);
         public abstract RobotArmState GetRobotArmAnimation();
+        public abstract int GetSubState();
     }
 
     public abstract class RobotToolData
