@@ -279,13 +279,8 @@ namespace PlayerModule.Mouse {
             playerRobot.FaceMousePosition(mousePosition);
             playerRobot.SetIsUsingTool(true);
             PlayerRobotLaserGunController gunController = playerRobot.gunController;
-            gunController.AngleToPosition(mousePosition);
             gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
-
-            if (playerInventory.CurrentTool is IColorableTool colorableTool)
-            {
-                gunController.SetToolColor(colorableTool.GetColor());
-            }
+            gunController.AngleToPosition(mousePosition);
         }
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
@@ -522,9 +517,14 @@ namespace PlayerModule.Mouse {
             PlayerRobotLaserGunController gunController = playerRobot.gunController;
             gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
             
-            if (playerInventory.CurrentTool is IAutoSelectTool autoSelectTool)
+            if (playerInventory.CurrentTool is IColorableTool colorableTool)
             {
-                gunController.SetToolColor(autoSelectTool.GetColor());
+                gunController.SetToolColor(colorableTool.GetColor());
+            }
+            
+            if (playerInventory.CurrentTool is IAutoSelectTool)
+            {
+                
                 indicatorManager.AddViewBundle(IndicatorDisplayBundle.AutoSelect);
             }
             else

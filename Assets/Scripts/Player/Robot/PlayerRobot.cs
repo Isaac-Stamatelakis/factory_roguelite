@@ -193,7 +193,7 @@ namespace Player {
             isUsingTool = value;
             
             animator.SetBool(Action,value);
-            gunController.gameObject.SetActive(value);
+            gunController.gameObject.GetComponent<SpriteRenderer>().enabled = value;
             if (!value)
             {
                 gunController.OnNoClick();

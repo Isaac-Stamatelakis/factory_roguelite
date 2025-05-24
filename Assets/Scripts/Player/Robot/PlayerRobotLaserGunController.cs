@@ -21,7 +21,6 @@ namespace Player.Robot
     public class PlayerRobotLaserGunController : MonoBehaviour
     {
         
-        private static readonly int Shooting = Animator.StringToHash("Shooting");
         private static readonly int ActiveParameter = Animator.StringToHash("Active");
         private static readonly int ToolColorMatParameter = Shader.PropertyToID("_ToolColor");
         private Animator animator;
@@ -32,6 +31,7 @@ namespace Player.Robot
         public Direction ShootDirection => shootDirection;
         private float shootAngle;
         private RobotArmState? currentState;
+        private Vector2 radialPosition;
 
         public void Initialize(PlayerRobot playerRobot)
         {
@@ -39,8 +39,7 @@ namespace Player.Robot
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
             defaultPosition = transform.localPosition;
-            gameObject.SetActive(false);
-         
+            spriteRenderer.enabled = false;
         }
 
         public void PlayAnimationState(RobotArmState state)
@@ -76,7 +75,7 @@ namespace Player.Robot
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
         }
-
+        
         private float GetAnimationSpeed(RobotArmState state)
         {
             switch (state)
@@ -105,7 +104,12 @@ namespace Player.Robot
 
         public Vector3 GetEdgePosition()
         {
-            return transform.position;
+            return (Vector2)transform.position + radialPosition*spriteRenderer.bounds.extents;
+        }
+
+        public Vector2 GetLocalEdgePosition()
+        {
+            return (Vector2)transform.localPosition + radialPosition* spriteRenderer.bounds.extents;
         }
 
         public void AngleToPosition(Vector3 target)
@@ -115,6 +119,7 @@ namespace Player.Robot
             float angle = Mathf.Atan2(direction.y, direction.x);
             float cos = Mathf.Cos(angle);
             float sin = Mathf.Sin(angle);
+            radialPosition = new Vector2(cos, sin);
             float sign = shootDirection == Direction.Left ? -1 : 1;
             spriteRenderer.flipY = shootDirection == Direction.Left;
             transform.localPosition =  new Vector3(defaultPosition.x * cos + defaultPosition.y * sin, defaultPosition.x * sin + sign*defaultPosition.y * cos, 1f);

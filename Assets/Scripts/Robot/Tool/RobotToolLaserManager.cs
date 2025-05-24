@@ -8,22 +8,21 @@ namespace Robot.Tool
         private static readonly int ColorKey = Shader.PropertyToID("_Color");
         private LineRenderer lineRenderer;
         private Material defaultMaterial;
-    
+        private readonly PlayerRobot playerRobot;
         public void UpdateLineRenderer(Vector2 mousePosition, Color color)
         {
             if (!lineRenderer) return;
             Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
-            lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
+            lineRenderer.SetPositions(new Vector3[] { playerRobot.gunController.GetEdgePosition()-lineRenderer.transform.position, dif });
             
             lineRenderer.material.SetColor(ColorKey,color);
-            
-            
         }
 
-        public RobotToolLaserManager(LineRenderer lineRenderer)
+        public RobotToolLaserManager(LineRenderer lineRenderer, PlayerScript playerScript)
         {
             this.lineRenderer = lineRenderer;
             defaultMaterial = lineRenderer.sharedMaterials[0];
+            playerRobot = playerScript.PlayerRobot;
         }
 
         public void Terminate()
@@ -54,7 +53,7 @@ namespace Robot.Tool
         public void Update(ref Vector2 mousePosition, Color color, MouseButtonKey mouseButtonKey)
         {
             mouseBitMap |= (int)mouseButtonKey;
-            laserManager ??= new RobotToolLaserManager(GameObject.Instantiate(lineRendererPrefab, playerScript.transform));
+            laserManager ??= new RobotToolLaserManager(GameObject.Instantiate(lineRendererPrefab, playerScript.transform),playerScript);
             laserManager.UpdateLineRenderer(mousePosition, color);
         }
         

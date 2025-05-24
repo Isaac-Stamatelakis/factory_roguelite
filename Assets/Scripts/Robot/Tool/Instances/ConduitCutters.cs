@@ -60,8 +60,8 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
             laserManager.Update(ref mousePosition,GetColor(toolData.Type), mouseButtonKey);
+            if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
             switch (mouseButtonKey)
             {
                 case MouseButtonKey.Left:

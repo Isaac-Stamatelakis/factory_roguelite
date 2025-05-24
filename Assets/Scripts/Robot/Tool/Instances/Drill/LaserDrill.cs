@@ -65,7 +65,7 @@ namespace Robot.Tool.Instances
         {
             if (mouseButtonKey == MouseButtonKey.Right) return;
             
-            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform),playerScript);
             laserManager.UpdateLineRenderer(mousePosition,GetColor());
             audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
