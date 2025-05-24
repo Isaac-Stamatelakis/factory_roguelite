@@ -61,18 +61,15 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void BeginClickHold(Vector2 mousePosition)
         {
-            if (mouseButtonKey == MouseButtonKey.Right) return;
-            
             laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform),playerScript);
             laserManager.UpdateLineRenderer(mousePosition,GetColor());
             audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
 
-        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
+        public override void TerminateClickHold()
         {
-            if (mouseButtonKey == MouseButtonKey.Right) return;
             playerScript.TileViewers.TileBreakHighlighter.Clear();
             laserManager?.Terminate();
             if (audioController)
@@ -83,9 +80,8 @@ namespace Robot.Tool.Instances
             
         }
 
-        private void HitFluid(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        private void HitFluid(Vector2 mousePosition)
         {
-            if (mouseButtonKey != MouseButtonKey.Left) return;
             laserManager.UpdateLineRenderer(mousePosition,GetColor());
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             FluidTileMap fluidTileMap = closedChunkSystem.GetFluidTileMap();
@@ -94,9 +90,8 @@ namespace Robot.Tool.Instances
             playerScript.PlayerInventory.GiveFluid(fluidTileItem,fill);
             fluidTileMap.DeleteTile(mousePosition);
         }
-        private void HitTile(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        private void HitTile(Vector2 mousePosition)
         {
-            if (mouseButtonKey != MouseButtonKey.Left) return;
             laserManager.UpdateLineRenderer(mousePosition,GetColor());
             particleSystem.transform.position = mousePosition;
 
@@ -194,16 +189,16 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void ClickUpdate(Vector2 mousePosition)
         {
             switch (toolData.Layer)
             {
                 case TileMapLayer.Base:
                 case TileMapLayer.Background:
-                    HitTile(mousePosition,mouseButtonKey);
+                    HitTile(mousePosition);
                     break;
                 case TileMapLayer.Fluid:
-                    HitFluid(mousePosition,mouseButtonKey);
+                    HitFluid(mousePosition);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -276,14 +271,8 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        public override bool HoldClickUpdate(Vector2 mousePosition, float time)
         {
-            if (mouseButtonKey != MouseButtonKey.Left)
-            {
-                hitting = false;
-                return false;
-            }
-
             UpdateParticles();
             
             
@@ -293,7 +282,7 @@ namespace Robot.Tool.Instances
                 laserManager.UpdateLineRenderer(mousePosition,GetColor());
                 return false;
             }
-            ClickUpdate(mousePosition, mouseButtonKey);
+            ClickUpdate(mousePosition);
             return true;
         }
 

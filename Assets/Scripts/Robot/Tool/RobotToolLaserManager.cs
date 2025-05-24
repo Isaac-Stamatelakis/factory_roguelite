@@ -38,41 +38,4 @@ namespace Robot.Tool
             lineRenderer.material = material ? material : defaultMaterial;
         }
     }
-
-    public class MultiButtonRobotToolLaserManager
-    {
-        private int mouseBitMap;
-        private RobotToolLaserManager laserManager;
-        private readonly PlayerScript playerScript;
-        private readonly LineRenderer lineRendererPrefab;
-        public MultiButtonRobotToolLaserManager(PlayerScript playerScript, LineRenderer lineRendererPrefab)
-        {
-            this.playerScript = playerScript;
-            this.lineRendererPrefab = lineRendererPrefab;
-        }
-        public void Update(ref Vector2 mousePosition, Color color, MouseButtonKey mouseButtonKey)
-        {
-            mouseBitMap |= (int)mouseButtonKey;
-            laserManager ??= new RobotToolLaserManager(GameObject.Instantiate(lineRendererPrefab, playerScript.transform),playerScript);
-            laserManager.UpdateLineRenderer(mousePosition, color);
-        }
-        
-
-        public void DeActivate(MouseButtonKey mouseButtonKey)
-        {
-            mouseBitMap &= ~(int)mouseButtonKey;
-            if (laserManager != null && mouseBitMap == 0)
-            {
-                laserManager.Terminate();
-                laserManager = null;
-            }
-        }
-
-        public void SetMaterial(Material material)
-        {
-            laserManager?.SetMaterial(material);
-        }
-
-        
-    }
 }

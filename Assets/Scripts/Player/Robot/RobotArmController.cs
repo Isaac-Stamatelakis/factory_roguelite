@@ -56,7 +56,6 @@ namespace Player.Robot
             currentState = robotArmState;
             float speed = GetAnimationSpeed(robotArmState);
             animator.speed = speed;
-            Debug.Log(time*speed);
             animator.Play(GetStateAnimation(robotArmState),0,time*speed);
         }
 

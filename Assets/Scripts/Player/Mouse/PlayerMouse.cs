@@ -55,7 +55,7 @@ namespace PlayerModule.Mouse {
         private PlayerScript playerScript;
         private Camera mainCamera;
         private EventSystem eventSystem;
-        private ToolClickHandlerCollection toolClickHandlerCollection = new ToolClickHandlerCollection();
+        private ToolClickHandlerCollection toolClickHandlerCollection;
         private ToolPreviewController previewController = new ToolPreviewController();
         private AutoTileFinder autoTileFinder;
         private TileHighlighter tileHighlighter;
@@ -133,27 +133,19 @@ namespace PlayerModule.Mouse {
             
             if (!leftClick)
             {
-                toolClickHandlerCollection.Terminate(MouseButtonKey.Left);
+                toolClickHandlerCollection.Terminate();
+                playerRobot.SetIsUsingTool(false);
             }
             
-            if (!rightClick)
-            {
-                toolClickHandlerCollection.Terminate(MouseButtonKey.Right);
-            }
-
-            if (!leftClick && !rightClick)
-            {
-                playerRobot.SetIsUsingTool(false);
-                return;
-            }
+            if (!leftClick && !rightClick)  return;
             
             if (!DevMode.Instance.NoReachLimit && Vector2.Distance(transform.position, mousePosition) > range) return;
             
             if (leftClick) {
-                LeftClickUpdate(mousePosition,toolHitPosition,currentSystem);
+                LeftClickUpdate(mousePosition,currentSystem);
             }
             if (rightClick) {
-                RightClickUpdate(mousePosition,toolHitPosition,currentSystem);
+                RightClickUpdate(mousePosition,currentSystem);
             }
         }
 
@@ -259,7 +251,6 @@ namespace PlayerModule.Mouse {
 
         public static ILoadedChunk GetChunk(Vector2 mousePosition)
         {
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
                 return null;
@@ -268,51 +259,35 @@ namespace PlayerModule.Mouse {
             return closedChunkSystem.GetChunk(chunkPosition);
         }
 
-        private void ToolClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem, MouseButtonKey mouseButtonKey)
+        private void ToolClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
         {
-            var clickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType,mouseButtonKey, playerInventory.CurrentTool);
-            if (clickHandler == null) return;
+            var clickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, playerInventory.CurrentTool);
             
             RobotArmController gunController = playerRobot.gunController;
-            clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
-            playerRobot.FaceMousePosition(mousePosition);
-            playerRobot.SetIsUsingTool(true);
-            
             gunController.AngleToPosition(mousePosition);
+            
+            playerRobot.SetIsUsingTool(true);
+            clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
+            
+            playerRobot.FaceMousePosition(mousePosition);
         }
-        private void LeftClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem) {
+        private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
             if (drop) {
                 return;
             }
-            ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Left);
+            ToolClickUpdate(toolHitPosition, closedChunkSystem);
             
         }
-        private void RightClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem)
+        private void RightClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
         {
             ItemObject currentPlayerItem = playerInventory.getSelectedItemSlot()?.itemObject;
-            bool placable = currentPlayerItem is IPlacableItem;
             
-            if (placable)
-            {
-                /*
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
-                    return;
-                }
-                */
-                if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
-            }
-            
-            if (Input.GetMouseButtonDown(1)) {
-                if (RightClickPort(mousePosition)) return;
-                if (TryClickTileEntity(mousePosition)) return;
-            }
-            /*
-            if (placable) return;
-            ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
-            */
+            if (currentPlayerItem is IPlacableItem && HandlePlace(mousePosition, closedChunkSystem)) return;
+
+            if (!Input.GetMouseButtonDown(1)) return;
+            if (RightClickPort(mousePosition)) return;
+            TryClickTileEntity(mousePosition);
         }
 
         private ConduitType? GetPortClickType()
@@ -541,12 +516,14 @@ namespace PlayerModule.Mouse {
             playerScript.TileViewers.TileBreakHighlighter.Clear();
             previewController.ResetRecord();
         }
+
+        public void InitializeToolClickHandlers()
+        {
+            toolClickHandlerCollection = new ToolClickHandlerCollection(playerRobot);
+        }
     }
 
-    internal class MouseTileHighlighter
-    {
-        
-    }
+    
     internal class AutoTileFinder
     {
         private IWorldTileMap hitTileMap;

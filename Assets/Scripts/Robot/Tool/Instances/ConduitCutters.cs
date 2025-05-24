@@ -24,11 +24,10 @@ namespace Robot.Tool.Instances
 {
     public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, IDestructiveTool, IColorableTool
     {
-        private MultiButtonRobotToolLaserManager laserManager;
+        private RobotToolLaserManager laserManager;
         private List<ConduitType> targets = new List<ConduitType>(5);
         public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
-            laserManager = new MultiButtonRobotToolLaserManager(base.playerScript, robotObject.LineRendererPrefab);
             SetTargets();
         }
         
@@ -46,35 +45,33 @@ namespace Robot.Tool.Instances
             };
         }
 
-        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void BeginClickHold(Vector2 mousePosition)
         {
-            laserManager.Update(ref mousePosition,GetColor(toolData.Type), mouseButtonKey);
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform),playerScript);
+            laserManager.UpdateLineRenderer(mousePosition,GetColor(toolData.Type));
             laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
 
         
-        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
+        public override void TerminateClickHold()
         {
-            laserManager.DeActivate(mouseButtonKey);
+            laserManager.Terminate();
         }
 
-        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void ClickUpdate(Vector2 mousePosition)
         {
-            laserManager.Update(ref mousePosition,GetColor(toolData.Type), mouseButtonKey);
+            laserManager.UpdateLineRenderer(mousePosition,GetColor(toolData.Type));
             if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
-            switch (mouseButtonKey)
+            bool disconnect = Input.GetKey(KeyCode.LeftControl);
+            if (disconnect)
             {
-                case MouseButtonKey.Left:
-                    BreakConduit(mousePosition);
-                    break;
-                case MouseButtonKey.Right:
-                    if (!Input.GetMouseButtonDown(mouseButtonKey.ToMouseButton())) return;
-                    DisconnectConduits(mousePosition);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                BreakConduit(mousePosition);
             }
-            
+            else
+            {
+                if (!Input.GetMouseButtonDown(0)) return;
+                DisconnectConduits(mousePosition);
+            }
         }
 
         private void DisconnectConduits(Vector2 mousePosition)
@@ -123,9 +120,9 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        public override bool HoldClickUpdate(Vector2 mousePosition, float time)
         {
-            ClickUpdate(mousePosition, mouseButtonKey);
+            ClickUpdate(mousePosition);
             return true;
         }
 

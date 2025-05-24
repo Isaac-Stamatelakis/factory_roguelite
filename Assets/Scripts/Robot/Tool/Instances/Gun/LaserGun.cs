@@ -112,17 +112,17 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void BeginClickHold(Vector2 mousePosition)
         {
             
         }
 
-        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
+        public override void TerminateClickHold()
         {
            
         }
 
-        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        public override void ClickUpdate(Vector2 mousePosition)
         {
             Fire(mousePosition);
         }
@@ -218,7 +218,7 @@ namespace Robot.Tool.Instances
             laserGunExplosionProjectile.Initialize(1f, direction, 10f,bombParticlePool);
         }
 
-        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        public override bool HoldClickUpdate(Vector2 mousePosition, float time)
         {
             float fireRate = GetFireRate(RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate),toolData.LaserGunMode);
             if (time < fireRate) return false;
