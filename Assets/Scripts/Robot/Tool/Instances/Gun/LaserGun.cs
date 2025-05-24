@@ -56,7 +56,10 @@ namespace Robot.Tool.Instances
     }
     public class LaserGun : RobotToolInstance<LaserGunData, RobotLaserGunObject>
     {
-        
+        const float MAX_FIRE_RATE_UPGRADES = 10;
+        const float BASE_FIRE_RATE = 0.417f;
+        const float MIN_FIRE_RATE = 0.05f;   
+        const float EXPLOSION_RATE_REDUCTION = 4;
         private ToolObjectPool bombParticlePool;
         private ToolObjectPool laserParticlePool;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
@@ -121,6 +124,11 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
+            Fire(mousePosition);
+        }
+
+        private void Fire(Vector2 mousePosition)
+        {
             switch (toolData.LaserGunMode)
             {
                 case LaserGunMode.Light:
@@ -134,6 +142,7 @@ namespace Robot.Tool.Instances
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            playerRobot.gunController.SyncAnimation(toolData.LaserGunMode == LaserGunMode.Light ? RobotArmState.LaserGun : RobotArmState.LaserExplosion,0);
         }
 
         private void FireLasers(Vector2 mousePosition)
@@ -185,7 +194,7 @@ namespace Robot.Tool.Instances
             if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_LASER,0.1f)) return;
             BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.TemporaryObjectContainer,false);
             float z = basicLaserGunProjectile.transform.position.z;
-            var vector3 = playerRobot.gunController.GetEdgePosition();
+            var vector3 = playerRobot.gunController.GetEdgePosition(1f);
             vector3.z = z;
             basicLaserGunProjectile.transform.position = vector3;
             basicLaserGunProjectile.Initialize(1f, direction, speed, usePool ? laserParticlePool : null);
@@ -203,7 +212,7 @@ namespace Robot.Tool.Instances
             
             LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.TemporaryObjectContainer,false);
             float z = laserGunExplosionProjectile.transform.position.z;
-            var vector3 = playerRobot.gunController.GetEdgePosition();
+            var vector3 = playerRobot.gunController.GetEdgePosition(1f);
             vector3.z = z;
             laserGunExplosionProjectile.transform.position = vector3;
             laserGunExplosionProjectile.Initialize(1f, direction, 10f,bombParticlePool);
@@ -211,22 +220,25 @@ namespace Robot.Tool.Instances
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            
-            float fireRate = GetFireRate(RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate));
-            const float EXPLOSION_RATE_REDUCTION = 4;
-            if (toolData.LaserGunMode == LaserGunMode.Blast) fireRate *= EXPLOSION_RATE_REDUCTION;
+            float fireRate = GetFireRate(RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate),toolData.LaserGunMode);
             if (time < fireRate) return false;
-            ClickUpdate(mousePosition, mouseButtonKey);
+            Fire(mousePosition);
             return true;
         }
 
-        public static float GetFireRate(float upgrades)
+        public static float GetFireRate(float upgrades, LaserGunMode mode)
         {
-            const float MAX_FIRE_RATE_UPGRADES = 10;
-            const float BASE_FIRE_RATE = 0.33f;
-            const float MIN_FIRE_RATE = 0.05f;
             if (upgrades > MAX_FIRE_RATE_UPGRADES) upgrades = MAX_FIRE_RATE_UPGRADES;
-            return Mathf.Lerp(BASE_FIRE_RATE, MIN_FIRE_RATE, upgrades/MAX_FIRE_RATE_UPGRADES);
+            float fireRate = Mathf.Lerp(BASE_FIRE_RATE, MIN_FIRE_RATE, upgrades/MAX_FIRE_RATE_UPGRADES);
+            if (mode == LaserGunMode.Blast) fireRate *= EXPLOSION_RATE_REDUCTION;
+            return fireRate;
+        }
+
+        public static float GetAnimationSpeed(float upgrades,LaserGunMode mode)
+        {
+            float fireRate = GetFireRate(upgrades,mode);
+            const float ANIMATION_SPEED = BASE_FIRE_RATE;
+            return ANIMATION_SPEED / fireRate;
         }
     }
 }

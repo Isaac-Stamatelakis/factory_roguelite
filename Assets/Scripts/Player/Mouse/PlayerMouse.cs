@@ -271,15 +271,13 @@ namespace PlayerModule.Mouse {
         private void ToolClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem, MouseButtonKey mouseButtonKey)
         {
             var clickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType,mouseButtonKey, playerInventory.CurrentTool);
-            if (clickHandler == null)
-            {
-                return;
-            }
+            if (clickHandler == null) return;
+            
+            RobotArmController gunController = playerRobot.gunController;
             clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
             playerRobot.FaceMousePosition(mousePosition);
             playerRobot.SetIsUsingTool(true);
-            PlayerRobotLaserGunController gunController = playerRobot.gunController;
-            gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
+            
             gunController.AngleToPosition(mousePosition);
         }
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem) {
@@ -514,7 +512,7 @@ namespace PlayerModule.Mouse {
             autoSelectableTool = playerInventory.CurrentTool is IAutoSelectTool;
             IndicatorManager indicatorManager = playerScript.PlayerUIContainer.IndicatorManager;
             
-            PlayerRobotLaserGunController gunController = playerRobot.gunController;
+            RobotArmController gunController = playerRobot.gunController;
             gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
             
             if (playerInventory.CurrentTool is IColorableTool colorableTool)

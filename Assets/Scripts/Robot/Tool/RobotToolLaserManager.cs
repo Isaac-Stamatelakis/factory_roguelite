@@ -13,7 +13,7 @@ namespace Robot.Tool
         {
             if (!lineRenderer) return;
             Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
-            lineRenderer.SetPositions(new Vector3[] { playerRobot.gunController.GetEdgePosition()-lineRenderer.transform.position, dif });
+            lineRenderer.SetPositions(new Vector3[] { playerRobot.gunController.GetEdgePosition(.5f)-lineRenderer.transform.position, dif });
             
             lineRenderer.material.SetColor(ColorKey,color);
         }

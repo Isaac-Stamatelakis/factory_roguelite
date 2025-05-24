@@ -23,7 +23,9 @@ namespace Player.Mouse
         private readonly IPlayerClickHandler clickHandler;
         private MouseButtonKey mouseButtonKey;
         private bool active;
+        public bool IsActive => active;
         private float lastUse;
+        public float StoredTime => lastUse;
         private IAcceleratedClickHandler acceleratedClickHandler;
         private bool resetCounterOnClick;
         public HoldClickHandler(IPlayerClickHandler clickHandler, MouseButtonKey mouseButtonKey)
@@ -35,6 +37,7 @@ namespace Player.Mouse
             resetCounterOnClick = clickHandler is IClickSpammableTool;
         }
 
+        
         public void Tick(Vector2 mousePosition, bool blockDestruction)
         {
             if (blockDestruction && clickHandler is IDestructiveTool) return;

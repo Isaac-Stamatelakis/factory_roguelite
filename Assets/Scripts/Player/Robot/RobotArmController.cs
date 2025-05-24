@@ -18,9 +18,8 @@ namespace Player.Robot
         ConduitCutter,
             
     }
-    public class PlayerRobotLaserGunController : MonoBehaviour
+    public class RobotArmController : MonoBehaviour
     {
-        
         private static readonly int ActiveParameter = Animator.StringToHash("Active");
         private static readonly int ToolColorMatParameter = Shader.PropertyToID("_ToolColor");
         private Animator animator;
@@ -49,9 +48,19 @@ namespace Player.Robot
             currentState = state;
             animator.Play(GetStateAnimation(state),0,0);
             
-            animator.speed = 1f;
+            animator.speed = GetAnimationSpeed(state);
         }
 
+        public void SyncAnimation(RobotArmState robotArmState, float time)
+        {
+            currentState = robotArmState;
+            float speed = GetAnimationSpeed(robotArmState);
+            animator.speed = speed;
+            Debug.Log(time*speed);
+            animator.Play(GetStateAnimation(robotArmState),0,time*speed);
+        }
+
+        
         public void SetToolColor(Color color)
         {
             spriteRenderer.material.SetColor(ToolColorMatParameter,color);
@@ -59,21 +68,15 @@ namespace Player.Robot
  
         private string GetStateAnimation(RobotArmState state)
         {
-            switch (state)
+            return state switch
             {
-                case RobotArmState.LaserGun:
-                    return "Gun";
-                case RobotArmState.LaserExplosion:
-                    return "Blast";
-                case RobotArmState.ConduitCutter:
-                    return "Conduit";
-                case RobotArmState.LaserDrill:
-                    return "Drill";
-                case RobotArmState.Buildinator:
-                    return "Drill";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
+                RobotArmState.LaserGun => "Gun",
+                RobotArmState.LaserExplosion => "Blast",
+                RobotArmState.ConduitCutter => "Conduit",
+                RobotArmState.LaserDrill => "Drill",
+                RobotArmState.Buildinator => "Drill",
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
         }
         
         private float GetAnimationSpeed(RobotArmState state)
@@ -83,11 +86,12 @@ namespace Player.Robot
                 case RobotArmState.LaserGun:
                 case RobotArmState.LaserExplosion:
                     RobotStatLoadOutCollection laserLoadOut = playerRobot.RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(RobotToolType.LaserGun);
-                    float speed = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
-                    float fireRate = LaserGun.GetFireRate(speed);
-                    if (state == RobotArmState.LaserExplosion) fireRate *= 4;
-                    return fireRate;
+                    float upgrades = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
+                    LaserGunMode mode = state == RobotArmState.LaserGun ? LaserGunMode.Light : LaserGunMode.Blast;
+                    return LaserGun.GetAnimationSpeed(upgrades,mode);
                 case RobotArmState.ConduitCutter:
+                case RobotArmState.LaserDrill:
+                case RobotArmState.Buildinator:
                     return 1;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -102,9 +106,9 @@ namespace Player.Robot
             animator.SetBool(ActiveParameter,false);
         }
 
-        public Vector3 GetEdgePosition()
+        public Vector3 GetEdgePosition(float radius)
         {
-            return (Vector2)transform.position + radialPosition*spriteRenderer.bounds.extents;
+            return (Vector2)transform.position + radialPosition* spriteRenderer.bounds.extents * radius;
         }
 
         public Vector2 GetLocalEdgePosition()
