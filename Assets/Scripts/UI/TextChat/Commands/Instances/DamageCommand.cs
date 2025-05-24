@@ -16,7 +16,7 @@ namespace UI.Chat {
         {
             float amount = ChatCommandParameterParser.ParseFloat(parameters, 0, "amount");
             if (amount < 0) throw new ChatParseException("Damage amount must be positive number.");
-            PlayerManager.Instance.GetPlayer().PlayerRobot.Damage(amount);
+            PlayerManager.Instance.GetPlayer().PlayerRobot.PlayerDamage.Damage(amount);
         }
 
         public override string getDescription()

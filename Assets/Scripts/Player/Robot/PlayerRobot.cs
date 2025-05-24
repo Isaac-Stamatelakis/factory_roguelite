@@ -37,6 +37,7 @@ using UI.Statistics;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace Player {
     public enum CollisionState
@@ -51,15 +52,16 @@ namespace Player {
         OnRightSlopePlatform,
         InFluid,
     }
+
+    public enum PlayerMovementState
+    {
+        Standard,
+        Climbing,
+        Flying
+    }
     
     public class PlayerRobot : MonoBehaviour
     {
-        private enum RobotParticleSystems
-        {
-            Teleport,
-            BonusJump,
-            Heal
-        }
         private static readonly int Walk = Animator.StringToHash("IsWalking");
         private static readonly int Air = Animator.StringToHash("InAir");
         private static readonly int Action = Animator.StringToHash("Action");
@@ -72,10 +74,12 @@ namespace Player {
         [SerializeField] private Collider2D leftSlopePlatformCollider;
         [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
-        private PolygonCollider2D polygonCollider;
-        private bool climbing;
-        private bool autoJumping;
+
+        private StandardPlayerMovement playerMovement;
+        private PlayerMovementState movementState;
         private Animator animator;
+        private bool climbing;
+        
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
@@ -89,6 +93,7 @@ namespace Player {
         private float defaultGravityScale;
         private bool immuneToNextFall = false;
         private int iFrames;
+        public int InvincibilityFrames => iFrames;
         private TileMovementType currentTileMovementType;
         public bool Dead => robotData.Health <= 0;
 
@@ -129,8 +134,29 @@ namespace Player {
         private float defaultBoxColliderWidth;
         private float defaultBoxColliderEdge;
         private CanvasController canvasController;
-        
-        void Start() {
+        public DevMode DevMode { get; private set; }
+
+        public PlayerDamage PlayerDamage { get; private set; }
+
+        private void Awake()
+        {
+            playerMovement = new StandardPlayerMovement();
+            playerMovement.PlayerMovement.Enable();
+            playerMovement.PlayerMovement.Jump.performed += OnJump;
+            playerMovement.PlayerMovement.Jump.canceled += OnJumpCancel;
+        }
+
+
+        private void OnJump(InputAction.CallbackContext context)
+        {
+            Debug.Log("Jump");
+        }
+
+        private void OnJumpCancel(InputAction.CallbackContext context)
+        {
+            Debug.Log("Jump Canceled");
+        }
+        private void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
             playerScript = GetComponent<PlayerScript>();
@@ -145,6 +171,9 @@ namespace Player {
             defaultBoxColliderWidth = boxCollider.size.x;
             defaultBoxColliderEdge = boxCollider.edgeRadius;
             canvasController = CanvasController.Instance;
+
+            PlayerDamage = new PlayerDamage(this);
+            DevMode = GetComponent<DevMode>();
         }
 
         private void LoadAsyncAssets()
@@ -214,7 +243,7 @@ namespace Player {
             if (!fluidCollisionInformation.Colliding || fluidCollisionInformation.Damage <= 0.05f) return;
             fluidCollisionInformation.DamageCounter += Time.deltaTime;
             if (fluidCollisionInformation.DamageCounter < 1f) return;
-            Damage(fluidCollisionInformation.Damage);
+            PlayerDamage.Damage(fluidCollisionInformation.Damage);
             fluidCollisionInformation.DamageCounter = 0;
         }
 
@@ -312,7 +341,7 @@ namespace Player {
             if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
             {
                 // Deal half damage on first collision
-                Damage(fluidTileItem.fluidOptions.DamagePerSecond/2f);
+                PlayerDamage.Damage(fluidTileItem.fluidOptions.DamagePerSecond/2f);
             }
             fluidCollisionInformation.SetFluidItem(fluidTileItem);
             
@@ -418,7 +447,7 @@ namespace Player {
             // TODO some sound effect and animation
             const float RECALL_DELAY = 0.2f;
             yield return new WaitForSeconds(RECALL_DELAY);
-            DimensionManager.Instance.SetPlayerSystem(GetComponent<PlayerScript>(),0,Vector2Int.zero);
+            DimensionManager.Instance.SetPlayerSystem(playerScript,0,Vector2Int.zero);
             recalling = false;
         }
 
@@ -834,7 +863,8 @@ namespace Player {
                 default:
                     break;
             }
-            int layer = blockLayer | 1 << LayerMask.NameToLayer("PlatformSlope");
+
+            int layer = blockLayer;
             
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,Global.TILE_SIZE/2f),0,Vector2.zero,Mathf.Infinity,layer);
             return !ReferenceEquals(raycastHit.collider, null);
@@ -1067,7 +1097,7 @@ namespace Player {
             fallTime = 0f;
             if (damage < MIN_DAMAGE) return;
             
-            Damage(damage);
+            PlayerDamage.Damage(damage);
         }
 
         public void SetFlightProperties()
@@ -1123,20 +1153,17 @@ namespace Player {
             robotData.Health += maxHealth * 0.0025f;
             if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
+        
 
-        public bool Damage(float amount)
+        public void ResetInvinicibleFrames()
         {
-            if (DevMode.Instance.noHit || iFrames > 0 || robotData.Health < 0) return false;
             iFrames = 15;
-            liveYUpdates = 3;
-            robotData.Health -= amount;
-            timeSinceDamaged = 0;
-            if (robotData.Health > 0) return true;
-            
-            Die();
-            return false;
         }
 
+        public void ResetLiveYFrames()
+        {
+            liveYUpdates = 3;
+        }
         public void Respawn()
         {
             spriteRenderer.enabled = true;
