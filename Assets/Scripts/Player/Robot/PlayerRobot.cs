@@ -63,11 +63,6 @@ namespace Player {
     
     public class PlayerRobot : MonoBehaviour
     {
-        private static readonly int Walk = Animator.StringToHash("IsWalking");
-        private static readonly int Air = Animator.StringToHash("InAir");
-        private static readonly int Action = Animator.StringToHash("Action");
-        private static readonly int AnimationDirection = Animator.StringToHash("Direction");
-
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
@@ -82,7 +77,6 @@ namespace Player {
         
         private PlayerMovementInput playerMovement;
         private PlayerMovementState movementState;
-        private Animator animator;
         private bool climbing;
         
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
@@ -114,8 +108,9 @@ namespace Player {
         private float moveDirTime;
         public int CoyoteFrames{ get; private set; }
         public int HighDragFrames { get; private set; }
+        public bool IsUsingTool { get; private set; }
         private bool recalling;
-        private bool isUsingTool;
+        
         private bool freezeY;
         
         // Upgrades
@@ -127,6 +122,7 @@ namespace Player {
         private CanvasController canvasController;
         public bool BlockMovement => canvasController.BlockKeyInput;
         public DevMode DevMode { get; private set; }
+        public PlayerAnimationController AnimationController { get; private set; }
 
         public PlayerDamage PlayerDamage { get; private set; }
         
@@ -167,7 +163,6 @@ namespace Player {
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             DefaultGravityScale = rb.gravityScale;
             DefaultLinearDrag = rb.drag;
-            animator = GetComponent<Animator>();
             LoadAsyncAssets();
             gunController.Initialize(this);
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
@@ -178,6 +173,7 @@ namespace Player {
             PlayerDamage = new PlayerDamage(this);
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
+            AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
         }
 
         private void LoadAsyncAssets()
@@ -222,8 +218,8 @@ namespace Player {
 
         public void SetIsUsingTool(bool value)
         {
-            if (isUsingTool == value) return;
-            isUsingTool = value;
+            if (IsUsingTool == value) return;
+            IsUsingTool = value;
             
             animator.SetBool(Action,value);
             gunController.gameObject.GetComponent<SpriteRenderer>().enabled = value;
@@ -416,7 +412,7 @@ namespace Player {
             {
                 animator.speed = 1;
                 animator.SetBool(Walk,false);
-                animator.Play(isUsingTool ? "AirAction" : "Air");
+                animator.Play(IsUsingTool ? "AirAction" : "Air");
                 bool exitKeyCode = ControlUtils.GetControlKeyDown(PlayerControl.MoveLeft) || ControlUtils.GetControlKeyDown(PlayerControl.MoveRight) || ControlUtils.GetControlKeyDown(PlayerControl.Jump);
                 if (!exitKeyCode) return;
                 
@@ -560,14 +556,14 @@ namespace Player {
         {
             if (time > 0)
             {
-                animator.Play(isUsingTool ? "WalkAction" : "Walk",0,time);
+                animator.Play(IsUsingTool ? "WalkAction" : "Walk",0,time);
             }
             else
             {
-                animator.Play(isUsingTool ? "WalkAction" : "Walk");
+                animator.Play(IsUsingTool ? "WalkAction" : "Walk");
             }
             
-            bool walkingBackwards = isUsingTool && (
+            bool walkingBackwards = IsUsingTool && (
                 (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
                 (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
             animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
@@ -692,7 +688,7 @@ namespace Player {
             }
             else
             {
-                if (CoyoteFrames < 0) animator.Play(isUsingTool ? "AirAction" : "Air");
+                if (CoyoteFrames < 0) animator.Play(IsUsingTool ? "AirAction" : "Air");
                 
                 if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
                 {

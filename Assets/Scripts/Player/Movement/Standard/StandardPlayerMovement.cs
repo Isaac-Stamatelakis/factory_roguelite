@@ -1,4 +1,5 @@
 using Player.Controls;
+using Player.Robot;
 using Robot.Upgrades;
 using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.RocketBoots;
@@ -23,13 +24,14 @@ namespace Player.Movement.Standard
 
     public class StandardPlayerMovement : BasePlayerMovement
     {
-        private PlayerMovementInput playerMovementInput;
-        private DirectionalMovementStats movementStats;
-        private JumpMovementStats jumpStats;
+        private readonly PlayerMovementInput playerMovementInput;
+        private readonly DirectionalMovementStats movementStats;
+        private readonly JumpMovementStats jumpStats;
+        private readonly Rigidbody2D rb;
+        
         private float inputDir;
         private float moveDirTime;
         private JumpEvent jumpEvent;
-        private Rigidbody2D rb;
         private bool holdingJump;
         private bool holdingDown;
         private int bonusJumps;
@@ -122,18 +124,19 @@ namespace Player.Movement.Standard
 
             void UpdateMovementAnimations()
             {
-                animator.SetBool(Walk, moveUpdate);
-                if (!IsGrounded()) return;
+                var animationController = playerRobot.AnimationController;
+                animationController.ToggleBool(PlayerAnimationState.Walk, moveUpdate);
+                if (!playerRobot.IsGrounded()) return;
                 if (!moveUpdate)
                 {
-                    animator.speed = 1;
-                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
+                    animationController.SetAnimationSpeed(1);
+                    animationController.PlayAnimation(PlayerAnimation.Idle,playerRobot.IsUsingTool);
                     return;
                 }
 
                 const float ANIMATOR_SPEED_INCREASE = 0.25f;
-                animator.speed = 1 + ANIMATOR_SPEED_INCREASE *
-                    RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                float animationSpeed = 1+ANIMATOR_SPEED_INCREASE * RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                animationController.SetAnimationSpeed(animationSpeed);
                 const float NO_TIME_CHANGE = -1;
                 PlayWalkAnimation(NO_TIME_CHANGE);
             }
@@ -164,19 +167,21 @@ namespace Player.Movement.Standard
 
         private void PlayWalkAnimation(float time)
         {
+            PlayerAnimationController animationController = playerRobot.AnimationController;
+            RobotArmController armController = playerRobot.gunController;
             if (time > 0)
             {
-                animator.Play(isUsingTool ? "WalkAction" : "Walk", 0, time);
+                animationController.PlayAnimation(PlayerAnimation.Walk, playerRobot.IsUsingTool,time);
             }
             else
             {
-                animator.Play(isUsingTool ? "WalkAction" : "Walk");
+                animationController.PlayAnimation(PlayerAnimation.Walk, playerRobot.IsUsingTool);
             }
 
-            bool walkingBackwards = isUsingTool && (
-                (gunController.ShootDirection == Direction.Left && moveDirTime > 0) ||
-                (gunController.ShootDirection == Direction.Right && moveDirTime < 0));
-            animator.SetFloat(AnimationDirection, walkingBackwards ? -1 : 1);
+            bool walkingBackwards = playerRobot.IsUsingTool && (
+                (armController.ShootDirection == Direction.Left && moveDirTime > 0) ||
+                (armController.ShootDirection == Direction.Right && moveDirTime < 0));
+            animationController.SetAnimationDirection(walkingBackwards ? -1 : 1);
         }
 
 
