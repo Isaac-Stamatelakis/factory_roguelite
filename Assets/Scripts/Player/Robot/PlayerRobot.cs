@@ -75,13 +75,15 @@ namespace Player {
         [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
 
+        [SerializeField] public ItemSlot robotItemSlot;
+        
         private StandardPlayerMovement playerMovement;
         private PlayerMovementState movementState;
         private Animator animator;
         private bool climbing;
         
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
-        [SerializeField] public ItemSlot robotItemSlot;
+        
         private RobotObject currentRobot;
         public RobotObject CurrentRobot => currentRobot;
         private RobotItemData robotData;
@@ -98,21 +100,22 @@ namespace Player {
         public bool Dead => robotData.Health <= 0;
 
         private const float TERMINAL_VELOCITY = 20f;
-        private int liveYUpdates = 0;
-        private int blockLayer;
-        private int baseCollidableLayer;
-        private int ignorePlatformFrames;
-        private int ignoreSlopePlatformFrames;
-        private int slipperyFrames;
+        public int LiveYUpdates { get; private set; }
+        public int IgnorePlatformFrames { get; private set; }
+        public int IgnoreSlopePlatformFrames { get; private set; }
+        public int SlipperyFrames { get; private set; }
         private float moveDirTime;
-        private int coyoteFrames;
-        private int bonusJumps;
-        private int highDragFrames;
-        private bool recalling;
+        public int CoyoteFrames{ get; private set; }
+        public int BonusJumps { get; private set; }
+        public int HighDragFrames { get; private set; }
+        private bool recalling ;
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
         private float defaultLinearDrag;
+        
+        private int blockLayer;
+        private int baseCollidableLayer;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
@@ -253,9 +256,9 @@ namespace Player {
             if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform or CollisionState.OnLeftSlopePlatform or CollisionState.OnRightSlopePlatform)
             {
-                if (bonusJumps <= 0)
+                if (BonusJumps <= 0)
                 {
-                    bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
+                    BonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
                 }
 
                 int rocketBootUpgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
@@ -274,7 +277,7 @@ namespace Player {
             if (state is CollisionState.OnGround or CollisionState.OnSlope)
             {
                 // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
-                liveYUpdates = 2;
+                LiveYUpdates = 2;
                 var vector2 = rb.velocity;
                 vector2.y = 0.005f;
                 rb.velocity = vector2;
@@ -291,14 +294,14 @@ namespace Player {
 
             if (state is CollisionState.OnWallLeft or CollisionState.OnWallRight)
             {
-                slipperyFrames = 0;
+                SlipperyFrames = 0;
             }
 
             if (state is CollisionState.OnSlope)
             {
                 float bonusSpeed = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
                 rb.drag = MovementStats.defaultDragOnSlope + bonusSpeed*MovementStats.speedUpgradeDragIncrease;
-                highDragFrames = int.MaxValue;
+                HighDragFrames = int.MaxValue;
             }
 
             if (state is CollisionState.InFluid)
@@ -372,7 +375,7 @@ namespace Player {
             if (state is CollisionState.OnSlope)
             {
                 //rb.drag = defaultLinearDrag;
-                highDragFrames = 3;
+                HighDragFrames = 3;
             }
         }
 
@@ -487,7 +490,7 @@ namespace Player {
 
         public bool CanJump()
         {
-            return IsGrounded() || (bonusJumps > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.BONUS_JUMP_COST, 0));
+            return IsGrounded() || (BonusJumps > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.BONUS_JUMP_COST, 0));
         }
 
         public bool IsGrounded()
@@ -741,32 +744,32 @@ namespace Player {
             }
             if ((CollisionStateActive(CollisionState.OnPlatform) || IsOnSlopedPlatform()) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
             {
-                if (CollisionStateActive(CollisionState.OnPlatform)) ignorePlatformFrames = 3;
+                if (CollisionStateActive(CollisionState.OnPlatform)) IgnorePlatformFrames = 3;
                 if (IsOnSlopedPlatform())
                 {
-                    liveYUpdates = 3;
-                    ignoreSlopePlatformFrames = 3;
+                    LiveYUpdates = 3;
+                    IgnoreSlopePlatformFrames = 3;
                 }
                 return;
             }
             
-            if (ControlUtils.GetControlKeyDown(PlayerControl.Jump) && ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.Jump) && IgnorePlatformFrames <= 0 && (CanJump() || CoyoteFrames > 0))
             {
-                if (bonusJumps > 0 && coyoteFrames <= 0)
+                if (BonusJumps > 0 && CoyoteFrames <= 0)
                 {
                     bonusJumpParticles.Play();
-                    bonusJumps--;
+                    BonusJumps--;
                 }
 
                 float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
-                coyoteFrames = 0;
-                liveYUpdates = 3;
+                CoyoteFrames = 0;
+                LiveYUpdates = 3;
                 rb.drag = defaultLinearDrag;
                 fallTime = 0;
-                slipperyFrames /= 2;
-                ignoreSlopePlatformFrames = 2;
+                SlipperyFrames /= 2;
+                IgnoreSlopePlatformFrames = 2;
                 jumpEvent = new JumpEvent();
                 return;
             }
@@ -804,7 +807,7 @@ namespace Player {
         
         private float GetFriction()
         {
-            if (slipperyFrames > 0) return MovementStats.iceFriction;
+            if (SlipperyFrames > 0) return MovementStats.iceFriction;
 
             return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
@@ -834,7 +837,7 @@ namespace Player {
             
             if (WalkingIntoSlope(direction))
             {
-                liveYUpdates = 3;
+                LiveYUpdates = 3;
             }
             
 
@@ -843,7 +846,7 @@ namespace Player {
 
         private bool IsOnGround()
         {
-            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
+            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && IgnorePlatformFrames < 0 && rb.velocity.y < 0.05;
         }
 
         private bool WalkingIntoSlope(Direction direction)
@@ -871,12 +874,12 @@ namespace Player {
         }
         public void FixedUpdate()
         {
-            coyoteFrames--;
-            slipperyFrames--;
-            ignorePlatformFrames--;
-            ignoreSlopePlatformFrames--;
+            CoyoteFrames--;
+            SlipperyFrames--;
+            IgnorePlatformFrames--;
+            IgnoreSlopePlatformFrames--;
             iFrames--;
-            highDragFrames--;
+            HighDragFrames--;
             
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
@@ -891,24 +894,24 @@ namespace Player {
                 return;
             }
 
-            if (highDragFrames == 0)
+            if (HighDragFrames == 0)
             {
                 rb.drag = defaultLinearDrag;
             }
 
-            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
+            platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
             bool ignoreSlopedPlatforms = ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform);
-            leftSlopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
-            rightSlopePlatformCollider.enabled = ignoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
+            leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
+            rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
             bool grounded = IsGrounded();
-            animator.SetBool(Air,coyoteFrames < 0 && !grounded);
+            animator.SetBool(Air,CoyoteFrames < 0 && !grounded);
             if (grounded)
             {
-                coyoteFrames = JumpStats.coyoteFrames;
+                CoyoteFrames = JumpStats.coyoteFrames;
             }
             else
             {
-                if (coyoteFrames < 0) animator.Play(isUsingTool ? "AirAction" : "Air");
+                if (CoyoteFrames < 0) animator.Play(isUsingTool ? "AirAction" : "Air");
                 
                 if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
                 {
@@ -919,14 +922,14 @@ namespace Player {
             if (!InFluid() && IsOnGround())
             {
                 currentTileMovementType = GetTileMovementModifier();
-                slipperyFrames = currentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
+                SlipperyFrames = currentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
             }
             
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
-                liveYUpdates--;
+                LiveYUpdates--;
                 
 
                 rb.constraints = GetFreezeConstraints();
@@ -943,7 +946,7 @@ namespace Player {
             if (freezeY) return FREEZE_Y;
             if (currentTileMovementType == TileMovementType.Slippery && CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
 
-            if (liveYUpdates > 0) return FREEZE_Z;
+            if (LiveYUpdates > 0) return FREEZE_Z;
             
             if (CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform())
             {
@@ -1162,7 +1165,7 @@ namespace Player {
 
         public void ResetLiveYFrames()
         {
-            liveYUpdates = 3;
+            LiveYUpdates = 3;
         }
         public void Respawn()
         {
