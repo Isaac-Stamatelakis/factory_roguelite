@@ -12,6 +12,7 @@ using Items.Tags;
 using Player.Controls;
 using Player.Inventory;
 using Player.Movement;
+using Player.Movement.Standard;
 using Player.Robot;
 using Player.Tool;
 using Player.UI;
@@ -75,15 +76,20 @@ namespace Player {
         [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
 
-        [SerializeField] public ItemSlot robotItemSlot;
+        [SerializeField] internal DirectionalMovementStats MovementStats { get; private set; }
+        [SerializeField] internal JumpMovementStats JumpStats;
+        [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
         
-        private StandardPlayerMovement playerMovement;
+        private PlayerMovementInput playerMovement;
         private PlayerMovementState movementState;
         private Animator animator;
         private bool climbing;
         
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         
+        
+        // Robot Data
+        public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
         public RobotObject CurrentRobot => currentRobot;
         private RobotItemData robotData;
@@ -91,12 +97,13 @@ namespace Player {
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
+        public RobotUpgradeLoadOut RobotUpgradeLoadOut;
+        
+        // State Information
         private float fallTime;
-        private float defaultGravityScale;
         private bool immuneToNextFall = false;
-        private int iFrames;
-        public int InvincibilityFrames => iFrames;
-        private TileMovementType currentTileMovementType;
+        public int InvincibilityFrames { get; private set; }
+        public TileMovementType CurrentTileMovementType { get; private set; }
         public bool Dead => robotData.Health <= 0;
 
         private const float TERMINAL_VELOCITY = 20f;
@@ -106,67 +113,60 @@ namespace Player {
         public int SlipperyFrames { get; private set; }
         private float moveDirTime;
         public int CoyoteFrames{ get; private set; }
-        public int BonusJumps { get; private set; }
         public int HighDragFrames { get; private set; }
-        private bool recalling ;
-        private RocketBoots rocketBoots;
-        private PlayerScript playerScript;
+        private bool recalling;
         private bool isUsingTool;
-        private float defaultLinearDrag;
+        private bool freezeY;
         
+        // Upgrades
+        
+        // References
+        private PlayerScript playerScript;
+        public FluidCollisionInformation fluidCollisionInformation {get; private set;}
+        public RobotArmController gunController;
+        private CanvasController canvasController;
+        public bool BlockMovement => canvasController.BlockKeyInput;
+        public DevMode DevMode { get; private set; }
+
+        public PlayerDamage PlayerDamage { get; private set; }
+        
+        // Default values
+        public float DefaultLinearDrag  { get; private set; }
+        public float DefaultGravityScale { get; private set; }
+        private float defaultBoxColliderWidth;
+        private float defaultBoxColliderEdge;
+        
+        // Layers
         private int blockLayer;
         private int baseCollidableLayer;
         
-        [SerializeField] internal DirectionalMovementStats MovementStats;
-        [SerializeField] internal JumpMovementStats JumpStats;
-        [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
-
-        public RobotUpgradeLoadOut RobotUpgradeLoadOut;
         
-        private JumpEvent jumpEvent;
-        private bool freezeY;
         private PlayerTeleportEvent playerTeleportEvent;
         private ParticleSystem bonusJumpParticles;
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
         private float timeSinceDamaged = 0;
-        private FluidCollisionInformation fluidCollisionInformation = new();
-
+        
+        // Movement
+        private StandardPlayerMovement standardPlayerMovement;
+        
         public const float BASE_MOVE_SPEED = 5f;
-        public RobotArmController gunController;
-        private float defaultBoxColliderWidth;
-        private float defaultBoxColliderEdge;
-        private CanvasController canvasController;
-        public DevMode DevMode { get; private set; }
-
-        public PlayerDamage PlayerDamage { get; private set; }
-
+        
         private void Awake()
         {
-            playerMovement = new StandardPlayerMovement();
+            playerMovement = new PlayerMovementInput();
             playerMovement.PlayerMovement.Enable();
-            playerMovement.PlayerMovement.Jump.performed += OnJump;
-            playerMovement.PlayerMovement.Jump.canceled += OnJumpCancel;
         }
 
-
-        private void OnJump(InputAction.CallbackContext context)
-        {
-            Debug.Log("Jump");
-        }
-
-        private void OnJumpCancel(InputAction.CallbackContext context)
-        {
-            Debug.Log("Jump Canceled");
-        }
+        
         private void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
             playerScript = GetComponent<PlayerScript>();
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
-            defaultGravityScale = rb.gravityScale;
-            defaultLinearDrag = rb.drag;
+            DefaultGravityScale = rb.gravityScale;
+            DefaultLinearDrag = rb.drag;
             animator = GetComponent<Animator>();
             LoadAsyncAssets();
             gunController.Initialize(this);
@@ -177,6 +177,7 @@ namespace Player {
 
             PlayerDamage = new PlayerDamage(this);
             DevMode = GetComponent<DevMode>();
+            fluidCollisionInformation = new();
         }
 
         private void LoadAsyncAssets()
@@ -256,22 +257,7 @@ namespace Player {
             if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform or CollisionState.OnLeftSlopePlatform or CollisionState.OnRightSlopePlatform)
             {
-                if (BonusJumps <= 0)
-                {
-                    BonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
-                }
-
-                int rocketBootUpgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
-                if (rocketBootUpgrades > 0)
-                {
-                    rocketBoots?.Terminate();
-                    rocketBoots ??= new RocketBoots();
-                    rocketBoots.FlightTime = 1+rocketBootUpgrades;
-                }
-                else
-                {
-                    rocketBoots = null;
-                }
+                standardPlayerMovement.OnGrounded();
             }
 
             if (state is CollisionState.OnGround or CollisionState.OnSlope)
@@ -436,11 +422,9 @@ namespace Player {
                 
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 climbing = false;
-                rb.gravityScale = defaultGravityScale;
+                rb.gravityScale = DefaultGravityScale;
                 return;
             }
-            StandardMoveUpdate();
-
         }
         
 
@@ -486,11 +470,15 @@ namespace Player {
 
             StartCoroutine(DelayForceUpdate());
         }
-        
 
-        public bool CanJump()
+        public void OnJump()
         {
-            return IsGrounded() || (BonusJumps > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.BONUS_JUMP_COST, 0));
+            CoyoteFrames = 0;
+            LiveYUpdates = 3;
+            rb.drag = DefaultLinearDrag;
+            fallTime = 0;
+            SlipperyFrames /= 2;
+            IgnoreSlopePlatformFrames = 2;
         }
 
         public bool IsGrounded()
@@ -565,83 +553,7 @@ namespace Player {
             
         }
 
-        private void StandardMoveUpdate()
-        {
-            bool blockInput = canvasController.BlockKeyInput;
-            Vector2 velocity = rb.velocity;
-            
-            bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, PlayerControl.MoveLeft);
-            bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, PlayerControl.MoveRight);
-
-            bool moveUpdate = movedLeft != movedRight; // xor
-            if (!moveUpdate)
-            {
-                float dif = GetFriction();
-                
-                if (moveDirTime > 0)
-                {
-                    moveDirTime -= dif;
-                    if (moveDirTime < 0) moveDirTime = 0;
-                }
-                if (moveDirTime < 0)
-                {
-                    moveDirTime += dif;
-                    if (moveDirTime > 0) moveDirTime = 0;
-                }
-            }
-
-            UpdateMovementAnimations();
-
-            const float MAX_MOVE_DIR = 1;
-            
-            if (moveDirTime > MAX_MOVE_DIR) moveDirTime = MAX_MOVE_DIR;
-            if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
-            
-            int sign = moveDirTime < 0 ? -1 : 1;
-            float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
-            
-            float speed = MovementStats.speed;
-            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
-            if (wishdir > 0.05f && TryConsumeEnergy(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND*Time.deltaTime, 0.1f))
-            {
-                speed += speedUpgrades;
-            }
-
-            if (fluidCollisionInformation.Colliding) speed *= fluidCollisionInformation.SpeedModifier;
-            switch (currentTileMovementType)
-            {
-                case TileMovementType.None:
-                    break;
-                case TileMovementType.Slippery:
-                    speed *= 1.2f;
-                    break;
-                case TileMovementType.Slow:
-                    speed *= MovementStats.slowSpeedReduction;
-                    break;
-            }
-            if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
-            velocity.x = sign * Mathf.Lerp(0,speed,wishdir);
-
-            SpaceBarMovementUpdate(ref velocity);
-            UpdateVerticalMovement(ref velocity);
-            rb.velocity = velocity;
-
-            void UpdateMovementAnimations()
-            {
-                animator.SetBool(Walk,moveUpdate);
-                if (!IsGrounded()) return;
-                if (!moveUpdate)
-                {
-                    animator.speed = 1;
-                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
-                    return;
-                }
-                const float ANIMATOR_SPEED_INCREASE = 0.25f;
-                animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                const float NO_TIME_CHANGE = -1;
-                PlayWalkAnimation(NO_TIME_CHANGE);
-            }
-        }
+        
         
 
         private void PlayWalkAnimation(float time)
@@ -671,141 +583,8 @@ namespace Player {
             return currentRobot.MaxEnergy * 2 << RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Energy);
         }
 
-        private void UpdateVerticalMovement(ref Vector2 velocity)
-        {
-            float fluidGravityModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
-            if (climbing) return;
-            if (jumpEvent != null)
-            {
-                if (collisionStates.Contains(CollisionState.HeadContact))
-                {
-                    rb.gravityScale = fluidGravityModifer * defaultGravityScale;
-                    jumpEvent = null;
-                } else if (ControlUtils.GetControlKey(PlayerControl.Jump))
-                {
-                    rb.gravityScale = fluidGravityModifer * jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
-                    jumpEvent.IterateTime();
-                    if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) 
-                    {
-                        jumpEvent.IterateTime();
-                        rb.gravityScale *= 1.5f;
-                    }
-                }
-                else
-                {
-                    rb.gravityScale = fluidGravityModifer*defaultGravityScale;   
-                }
-                if (Input.GetKeyUp(KeyCode.Space))
-                {
-                    jumpEvent = null;
-                }
-                return;
-            }
-            
-            float fluidSpeedModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
-            
-            bool blockInput = canvasController.BlockKeyInput;
-            if (rocketBoots != null && rocketBoots.Active)
-            {
-                if (blockInput)
-                {
-                    rocketBoots.Terminate();
-                    rocketBoots = null;
-                    return;
-                }
-                if (rocketBoots.Boost > 0)
-                {
-                    rb.gravityScale = 0;
-                    float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
-                    velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
-                }
-                else
-                {
-                    rb.gravityScale = fluidGravityModifer*defaultGravityScale;
-                }
-            }
-            if (!blockInput)
-            {
-                const float BONUS_FALL_MODIFIER = 1.25f;
-                rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
-            }
-            rb.gravityScale *= fluidGravityModifer;
-        }
-
-        private void SpaceBarMovementUpdate(ref Vector2 velocity)
-        {
-            if (canvasController.BlockKeyInput)
-            {
-                if (climbing) return;
-                
-                rb.gravityScale = defaultGravityScale;   
-                jumpEvent = null;
-                return;
-            }
-            if ((CollisionStateActive(CollisionState.OnPlatform) || IsOnSlopedPlatform()) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
-            {
-                if (CollisionStateActive(CollisionState.OnPlatform)) IgnorePlatformFrames = 3;
-                if (IsOnSlopedPlatform())
-                {
-                    LiveYUpdates = 3;
-                    IgnoreSlopePlatformFrames = 3;
-                }
-                return;
-            }
-            
-            if (ControlUtils.GetControlKeyDown(PlayerControl.Jump) && IgnorePlatformFrames <= 0 && (CanJump() || CoyoteFrames > 0))
-            {
-                if (BonusJumps > 0 && CoyoteFrames <= 0)
-                {
-                    bonusJumpParticles.Play();
-                    BonusJumps--;
-                }
-
-                float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
-                float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
-                velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
-                CoyoteFrames = 0;
-                LiveYUpdates = 3;
-                rb.drag = defaultLinearDrag;
-                fallTime = 0;
-                SlipperyFrames /= 2;
-                IgnoreSlopePlatformFrames = 2;
-                jumpEvent = new JumpEvent();
-                return;
-            }
-            
-            if (!IsOnGround() && rocketBoots != null)
-            {
-                if (!rocketBoots.Active && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
-                {
-                    StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
-                }
-
-                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST_PER_SECOND * Time.deltaTime, 0))
-                {
-                    if (rocketBoots.Boost <= 0)
-                    {
-                        if (rb.velocity.y < 0)
-                        {
-                            var vector2 = rb.velocity;
-                            vector2.y = 0;
-                            rb.velocity = vector2;
-                        }
-                        rocketBoots.Boost = rb.velocity.y/2f;
-                    }
-                    rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
-                    
-                    if (rocketBoots.FlightTime < 0)
-                    {
-                        rocketBoots.Terminate();
-                        rocketBoots = null;
-                        rb.gravityScale =  fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f * defaultGravityScale;
-                    }
-                }
-            }
-        }
         
-        private float GetFriction()
+        public float GetFriction()
         {
             if (SlipperyFrames > 0) return MovementStats.iceFriction;
 
@@ -844,7 +623,7 @@ namespace Player {
             return true;
         }
 
-        private bool IsOnGround()
+        public bool IsOnGround()
         {
             return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && IgnorePlatformFrames < 0 && rb.velocity.y < 0.05;
         }
@@ -872,13 +651,15 @@ namespace Player {
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,Global.TILE_SIZE/2f),0,Vector2.zero,Mathf.Infinity,layer);
             return !ReferenceEquals(raycastHit.collider, null);
         }
+        
+        
         public void FixedUpdate()
         {
             CoyoteFrames--;
             SlipperyFrames--;
             IgnorePlatformFrames--;
             IgnoreSlopePlatformFrames--;
-            iFrames--;
+            InvincibilityFrames--;
             HighDragFrames--;
             
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
@@ -896,7 +677,7 @@ namespace Player {
 
             if (HighDragFrames == 0)
             {
-                rb.drag = defaultLinearDrag;
+                rb.drag = DefaultLinearDrag;
             }
 
             platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
@@ -921,8 +702,8 @@ namespace Player {
 
             if (!InFluid() && IsOnGround())
             {
-                currentTileMovementType = GetTileMovementModifier();
-                SlipperyFrames = currentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
+                CurrentTileMovementType = GetTileMovementModifier();
+                SlipperyFrames = CurrentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
             }
             
             if (!DevMode.Instance.flight)
@@ -944,7 +725,7 @@ namespace Player {
             ;
             const float epilson = 0.1f;
             if (freezeY) return FREEZE_Y;
-            if (currentTileMovementType == TileMovementType.Slippery && CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
+            if (CurrentTileMovementType == TileMovementType.Slippery && CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
 
             if (LiveYUpdates > 0) return FREEZE_Z;
             
@@ -1035,11 +816,7 @@ namespace Player {
             vector2.y = -TERMINAL_VELOCITY;
             rb.velocity = vector2;
         }
-
-        public void SetIFrames(int frames)
-        {
-            iFrames = frames;
-        }
+        
 
         private PlayerPickUp GetPlayerPick()
         {
@@ -1052,7 +829,7 @@ namespace Player {
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
-            iFrames = int.MaxValue;
+            InvincibilityFrames = int.MaxValue;
             freezeY = true;
             StartCoroutine(UnPausePlayer());
         }
@@ -1060,7 +837,7 @@ namespace Player {
         private IEnumerator UnPausePlayer()
         {
             yield return new WaitForSeconds(0.2f);
-            iFrames = 0;
+            InvincibilityFrames = 0;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
@@ -1160,7 +937,7 @@ namespace Player {
 
         public void ResetInvinicibleFrames()
         {
-            iFrames = 15;
+            InvincibilityFrames = 15;
         }
 
         public void ResetLiveYFrames()
@@ -1260,7 +1037,7 @@ namespace Player {
             {
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 climbing = false;
-                rb.gravityScale = defaultGravityScale;
+                rb.gravityScale = DefaultGravityScale;
                 return;
             }
             IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
@@ -1348,7 +1125,7 @@ namespace Player {
             }
         }
 
-        private class FluidCollisionInformation
+        public class FluidCollisionInformation
         {
             public float DamageCounter;
             public bool Colliding;
@@ -1370,21 +1147,7 @@ namespace Player {
                 Colliding = false;
             }
         }
-
-        private class JumpEvent
-        {
-            private float holdTime;
-            public void IterateTime()
-            {
-                holdTime += Time.deltaTime;
-            }
-            
-            public float GetGravityModifier(float initialGravityPercent, float maxGravityTime)
-            {
-                return Mathf.Lerp(initialGravityPercent,1,1/maxGravityTime*holdTime);
-            }
-        }
-
+        
         
 
         [System.Serializable]
@@ -1394,6 +1157,16 @@ namespace Player {
             public AssetReference BonusJumpParticles;
             public AssetReference TeleportParticles;
             public AssetReference NanoBotParticles;
+        }
+
+        public void ResetIgnorePlatformFrames()
+        {
+            IgnorePlatformFrames = 3;
+        }
+
+        public void ResetIgnoreSlopePlatformFrames()
+        {
+            IgnoreSlopePlatformFrames = 3;
         }
     }
     [System.Serializable]

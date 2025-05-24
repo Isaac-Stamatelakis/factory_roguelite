@@ -15,10 +15,10 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-public partial class @StandardPlayerMovement: IInputActionCollection2, IDisposable
+public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
 {
     public InputActionAsset asset { get; }
-    public @StandardPlayerMovement()
+    public @PlayerMovementInput()
     {
         asset = InputActionAsset.FromJson(@"{
     ""name"": ""PlayerMovement"",
@@ -253,8 +253,8 @@ public partial class @StandardPlayerMovement: IInputActionCollection2, IDisposab
     private readonly InputAction m_PlayerMovement_FallPlatform;
     public struct PlayerMovementActions
     {
-        private @StandardPlayerMovement m_Wrapper;
-        public PlayerMovementActions(@StandardPlayerMovement wrapper) { m_Wrapper = wrapper; }
+        private @PlayerMovementInput m_Wrapper;
+        public PlayerMovementActions(@PlayerMovementInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_PlayerMovement_Move;
         public InputAction @Jump => m_Wrapper.m_PlayerMovement_Jump;
         public InputAction @Down => m_Wrapper.m_PlayerMovement_Down;
