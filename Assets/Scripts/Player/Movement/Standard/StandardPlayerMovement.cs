@@ -77,7 +77,7 @@ namespace Player.Movement.Standard
             bool moveUpdate = movedLeft != movedRight; // xor
             if (!moveUpdate)
             {
-
+                OnNoMoveUpdate();
             }
 
             UpdateMovementAnimations();
@@ -141,7 +141,7 @@ namespace Player.Movement.Standard
                 PlayWalkAnimation(NO_TIME_CHANGE);
             }
 
-            void OnNoMove()
+            void OnNoMoveUpdate()
             {
                 float dif = playerRobot.GetFriction();
 

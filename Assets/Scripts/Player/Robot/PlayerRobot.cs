@@ -123,6 +123,7 @@ namespace Player {
         public bool BlockMovement => canvasController.BlockKeyInput;
         public DevMode DevMode { get; private set; }
         public PlayerAnimationController AnimationController { get; private set; }
+        public PlayerParticles PlayerParticles { get; private set; }
 
         public PlayerDamage PlayerDamage { get; private set; }
         
@@ -138,9 +139,6 @@ namespace Player {
         
         
         private PlayerTeleportEvent playerTeleportEvent;
-        private ParticleSystem bonusJumpParticles;
-        private ParticleSystem teleportParticles;
-        private ParticleSystem nanoBotParticles;
         private float timeSinceDamaged = 0;
         
         // Movement
@@ -163,7 +161,7 @@ namespace Player {
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             DefaultGravityScale = rb.gravityScale;
             DefaultLinearDrag = rb.drag;
-            LoadAsyncAssets();
+            
             gunController.Initialize(this);
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
             defaultBoxColliderWidth = boxCollider.size.x;
@@ -174,9 +172,11 @@ namespace Player {
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
+            
+            StartCoroutine(LoadAsyncAssets());
         }
 
-        private void LoadAsyncAssets()
+        private IEnumerator LoadAsyncAssets()
         {
             GameObject container = new GameObject("ParticleContainer");
             container.transform.SetParent(transform,false);
@@ -190,20 +190,25 @@ namespace Player {
                 onLoad(instantiated);
                 Addressables.Release(handle);
             }
-            
-            
-            StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
+            ParticleSystem bonusJumpParticles = null;
+            ParticleSystem teleportParticles = null;
+            ParticleSystem nanoBotParticles = null;
+            var a = StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
             {
                 bonusJumpParticles = result.gameObject.GetComponent<ParticleSystem>();
             }));
-            StartCoroutine(LoadAsset(RobotUpgradeAssets.TeleportParticles, (GameObject result) =>
+            var b = StartCoroutine(LoadAsset(RobotUpgradeAssets.TeleportParticles, (GameObject result) =>
             {
                 teleportParticles = result.gameObject.GetComponent<ParticleSystem>();
             }));
-            StartCoroutine(LoadAsset(RobotUpgradeAssets.NanoBotParticles, (GameObject result) =>
+            var c = StartCoroutine(LoadAsset(RobotUpgradeAssets.NanoBotParticles, (GameObject result) =>
             {
                 nanoBotParticles = result.gameObject.GetComponent<ParticleSystem>();
             }));
+            yield return a;
+            yield return b;
+            yield return c;
+            PlayerParticles = new PlayerParticles(this,bonusJumpParticles,teleportParticles,nanoBotParticles);
         }
 
         public void Update()
@@ -221,7 +226,7 @@ namespace Player {
             if (IsUsingTool == value) return;
             IsUsingTool = value;
             
-            animator.SetBool(Action,value);
+            AnimationController.ToggleBool(PlayerAnimationState.Action, IsUsingTool);
             gunController.gameObject.GetComponent<SpriteRenderer>().enabled = value;
             gunController.gameObject.GetComponent<Animator>().enabled = value;
             
@@ -232,8 +237,8 @@ namespace Player {
             
             if (IsGrounded() && Mathf.Abs(rb.velocity.x) > 0.05f)
             {
-                float time = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                PlayWalkAnimation(time);
+                float time = AnimationController.GetCurrentAnimationTime();
+                AnimationController.PlayAnimation(PlayerAnimation.Walk,IsUsingTool,time);
             }
         }
         
@@ -550,25 +555,6 @@ namespace Player {
         }
 
         
-        
-
-        private void PlayWalkAnimation(float time)
-        {
-            if (time > 0)
-            {
-                animator.Play(IsUsingTool ? "WalkAction" : "Walk",0,time);
-            }
-            else
-            {
-                animator.Play(IsUsingTool ? "WalkAction" : "Walk");
-            }
-            
-            bool walkingBackwards = IsUsingTool && (
-                (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
-                (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
-            animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
-        }
-
         public float GetMaxHealth()
         {
             return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
@@ -681,14 +667,17 @@ namespace Player {
             leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
             rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
             bool grounded = IsGrounded();
-            animator.SetBool(Air,CoyoteFrames < 0 && !grounded);
+            AnimationController.ToggleBool(PlayerAnimationState.Air,CoyoteFrames < 0 && !grounded);
             if (grounded)
             {
                 CoyoteFrames = JumpStats.coyoteFrames;
             }
             else
             {
-                if (CoyoteFrames < 0) animator.Play(IsUsingTool ? "AirAction" : "Air");
+                if (CoyoteFrames < 0)
+                {
+                    AnimationController.PlayAnimation(PlayerAnimation.Air, IsUsingTool);
+                }
                 
                 if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
                 {

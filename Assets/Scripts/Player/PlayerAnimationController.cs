@@ -13,7 +13,8 @@ namespace Player
     public enum PlayerAnimationState
     {
         Walk,
-        Action
+        Action,
+        Air
     }
     public class PlayerAnimationController
     {
@@ -35,6 +36,11 @@ namespace Player
             string animationName = GetAnimationName(playerAnimation, usingTool);
             animator.Play(animationName);
         }
+
+        public float GetCurrentAnimationTime()
+        {
+            return animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        }
         
         public void PlayAnimation(PlayerAnimation playerAnimation, bool usingTool, float time)
         {
@@ -54,6 +60,7 @@ namespace Player
             {
                 PlayerAnimationState.Walk => Walk,
                 PlayerAnimationState.Action => Action,
+                PlayerAnimationState.Air => Air,
                 _ => throw new ArgumentOutOfRangeException(nameof(playerAnimationState), playerAnimationState, null)
             };
             animator.SetBool(stateHash, state);
