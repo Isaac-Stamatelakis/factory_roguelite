@@ -56,6 +56,7 @@ namespace Robot.Tool
         public RobotToolObject GetToolObject();
         public void Preview(Vector2Int cellPosition);
         public RobotArmState GetRobotArmAnimation();
+        public int GetSubState();
     }
 
     public interface IDestructiveTool
@@ -108,6 +109,7 @@ namespace Robot.Tool
         }
         public abstract void Preview(Vector2Int cellPosition);
         public abstract RobotArmState GetRobotArmAnimation();
+        public abstract int GetSubState();
     }
 
     public abstract class RobotToolData

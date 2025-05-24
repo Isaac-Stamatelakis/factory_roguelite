@@ -367,6 +367,11 @@ namespace Robot.Tool.Instances
             return RobotArmState.LaserDrill;
         }
 
+        public override int GetSubState()
+        {
+            return (int)toolData.Layer;
+        }
+
         private void PreviewBaseLayer(Vector2Int cellPosition)
         {
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);

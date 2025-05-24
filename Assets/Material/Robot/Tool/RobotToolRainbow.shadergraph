@@ -461,9 +461,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -582.0000610351563,
-            "y": -382.0000305175781,
-            "width": 207.99996948242188,
+            "x": -720.0,
+            "y": -521.0,
+            "width": 207.99993896484376,
             "height": 278.0
         }
     },
@@ -1316,7 +1316,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "_Speed",
     "m_StageCapability": 3,
-    "m_Value": 0.10000000149011612,
+    "m_Value": 0.5,
     "m_DefaultValue": 0.0,
     "m_Labels": []
 }

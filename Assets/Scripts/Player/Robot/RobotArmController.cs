@@ -31,6 +31,9 @@ namespace Player.Robot
         private float shootAngle;
         private RobotArmState? currentState;
         private Vector2 radialPosition;
+        
+        public Material defaultMaterial;
+        public Material rainbowMaterial;
 
         public void Initialize(PlayerRobot playerRobot)
         {
@@ -41,14 +44,13 @@ namespace Player.Robot
             spriteRenderer.enabled = false;
         }
 
-        public void PlayAnimationState(RobotArmState state)
+        public void PlayAnimationState(RobotArmState state, int subState)
         {
             animator.SetBool(ActiveParameter,true);
-            if (state == currentState) return;
             currentState = state;
             animator.Play(GetStateAnimation(state),0,0);
-            
             animator.speed = GetAnimationSpeed(state);
+            spriteRenderer.material = GetStateMaterial(state,subState);
         }
 
         public void SyncAnimation(RobotArmState robotArmState, float time)
@@ -76,6 +78,22 @@ namespace Player.Robot
                 RobotArmState.Buildinator => "Drill",
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
+        }
+
+        private Material GetStateMaterial(RobotArmState state, int subState)
+        {
+            switch (state)
+            {
+                case RobotArmState.LaserDrill:
+                case RobotArmState.Buildinator:
+                case RobotArmState.LaserGun:
+                case RobotArmState.LaserExplosion:
+                    return defaultMaterial;
+                case RobotArmState.ConduitCutter:
+                    return subState == (int)ConduitCutterMode.All ? rainbowMaterial : defaultMaterial;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
         }
         
         private float GetAnimationSpeed(RobotArmState state)

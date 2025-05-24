@@ -357,6 +357,11 @@ namespace Robot.Tool.Instances
         {
             return RobotArmState.Buildinator;
         }
+
+        public override int GetSubState()
+        {
+            return (int)toolData.Mode;
+        }
     }
 
     public enum BuildinatorMode

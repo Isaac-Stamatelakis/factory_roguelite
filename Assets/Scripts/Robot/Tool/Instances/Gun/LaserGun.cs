@@ -112,6 +112,11 @@ namespace Robot.Tool.Instances
             }
         }
 
+        public override int GetSubState()
+        {
+            return (int)toolData.LaserGunMode;
+        }
+
         public override void BeginClickHold(Vector2 mousePosition)
         {
             

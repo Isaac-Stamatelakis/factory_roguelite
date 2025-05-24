@@ -33,6 +33,7 @@ using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
 using Robot.Upgrades;
+using RobotModule;
 using TileEntity.AssetManagement;
 using Tiles.Highlight;
 using Tiles.Indicators;
@@ -488,7 +489,8 @@ namespace PlayerModule.Mouse {
             IndicatorManager indicatorManager = playerScript.PlayerUIContainer.IndicatorManager;
             
             RobotArmController gunController = playerRobot.gunController;
-            gunController.PlayAnimationState(playerInventory.CurrentTool.GetRobotArmAnimation());
+            IRobotToolInstance currentTool = playerInventory.CurrentTool;
+            gunController.PlayAnimationState(currentTool.GetRobotArmAnimation(),currentTool.GetSubState());
             
             if (playerInventory.CurrentTool is IColorableTool colorableTool)
             {

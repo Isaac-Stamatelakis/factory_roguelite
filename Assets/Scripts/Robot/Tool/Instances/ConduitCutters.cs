@@ -169,6 +169,11 @@ namespace Robot.Tool.Instances
             return RobotArmState.ConduitCutter;
         }
 
+        public override int GetSubState()
+        {
+            return (int)toolData.Type;
+        }
+
 
         private Color GetColor(ConduitCutterMode conduitCutterMode)
         {
