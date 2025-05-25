@@ -24,9 +24,9 @@ namespace UI
         public static CanvasController Instance => instance;
         protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
+        private bool blockMovement => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
         private bool canTerminate;
         private AudioSource audioSource;
-        public bool IsTyping => isTyping;
         private PlayerScript playerScript;
         public void Awake()
         {
@@ -50,18 +50,14 @@ namespace UI
         {
             tmpInputField.onSelect.AddListener((text) =>
             {
-                playerScript.SyncKeyPressListeners(IsActive,true);
-                isTyping = true;
+                playerScript.SyncKeyPressListeners(IsActive,true, blockMovement);
             });
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
-                playerScript.SyncKeyPressListeners(IsActive,false);
-                isTyping = false;
+                playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
             });
         }
-        private bool isTyping;
-        public bool BlockKeyInput => (uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement) || isTyping;
 
         public void Update()
         {
@@ -86,8 +82,7 @@ namespace UI
             {
                 return;
             }
-
-            if (isTyping) return;
+            
             DisplayedUIInfo top = uiObjectStack.Peek();
             List<KeyCode> additionalTerminators = top.additionalTerminators;
             if (additionalTerminators == null) return;
@@ -117,13 +112,12 @@ namespace UI
         public void ClearStack()
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
-            isTyping = false;
             while (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
-            playerScript?.SyncKeyPressListeners(false,isTyping);
+            playerScript?.SyncKeyPressListeners(false,false, blockMovement);
             mBlocker?.gameObject.SetActive(false);
             
         }
@@ -133,7 +127,6 @@ namespace UI
             {
                 return;
             }
-            isTyping = false;
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             DisplayedUIInfo top = uiObjectStack.Pop();
             if (ReferenceEquals(top.originalParent, null))
@@ -154,7 +147,7 @@ namespace UI
             }
             else
             {
-                playerScript?.SyncKeyPressListeners(false,isTyping);
+                playerScript?.SyncKeyPressListeners(false,false, blockMovement);
                 mBlocker?.gameObject.SetActive(false);
             }
         }
@@ -182,7 +175,7 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
-            playerScript?.SyncKeyPressListeners(true,isTyping);
+            playerScript?.SyncKeyPressListeners(true,false, blockMovement);
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             
             if (uiObjectStack.Count > 0)

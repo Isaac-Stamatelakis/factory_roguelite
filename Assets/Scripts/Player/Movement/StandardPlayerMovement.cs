@@ -20,6 +20,20 @@ namespace Player.Movement.Standard
 
         public abstract void MovementUpdate();
         public abstract void Dispose();
+        protected abstract InputActionMap GetInputActionMap();
+
+        public void SetMovementStatus(bool active)
+        {
+            var inputMap = GetInputActionMap();
+            if (active)
+            {
+                inputMap.Enable();
+            }
+            else
+            {
+                inputMap.Disable();
+            }
+        }
     }
 
     public interface IMovementGroundedListener
@@ -72,12 +86,11 @@ namespace Player.Movement.Standard
 
         public override void MovementUpdate()
         {
-            bool blockInput = playerRobot.BlockMovement;
             Vector2 velocity = rb.velocity;
 
-            bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) && !blockInput &&
+            bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
                              inputDir < 0;
-            bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) && !blockInput &&
+            bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) &&
                               inputDir > 0;
             bool moveUpdate = movedLeft != movedRight; // xor
             
@@ -86,13 +99,6 @@ namespace Player.Movement.Standard
             if (movedRight) ApplyMovement(Direction.Right);
             
             UpdateMovementAnimations();
-            
-            if (blockInput)
-            {
-                rb.gravityScale = playerRobot.DefaultGravityScale;   
-                jumpEvent = null;
-            }
-            
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
@@ -171,6 +177,11 @@ namespace Player.Movement.Standard
             playerMovementInput.Down.performed -= OnDownPressed;
             playerMovementInput.Down.canceled -= OnDownReleased;
             playerMovementInput.Disable();
+        }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return playerMovementInput;
         }
 
         private void OnMovePerformed(InputAction.CallbackContext context)
@@ -340,7 +351,6 @@ namespace Player.Movement.Standard
         void OnJumpPressed(InputAction.CallbackContext context)
         {
             holdingJump = true;
-            if (playerRobot.BlockMovement) return;
             if (holdingDown)
             {
                 bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);

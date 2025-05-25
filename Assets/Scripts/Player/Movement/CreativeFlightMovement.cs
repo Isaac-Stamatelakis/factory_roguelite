@@ -41,7 +41,7 @@ namespace Player.Movement
 
         public override void MovementUpdate()
         {
-            if (playerRobot.BlockMovement || movementVector == Vector2.zero) return;
+            if (movementVector == Vector2.zero) return;
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             position += (Vector3)movementVector * movementSpeed;
@@ -54,6 +54,11 @@ namespace Player.Movement
             flightMovement.Move.performed -= OnMovePress;
             flightMovement.Move.canceled -= OnMoveRelease;
             flightMovement.Disable();
+        }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return flightMovement;
         }
     }
 }

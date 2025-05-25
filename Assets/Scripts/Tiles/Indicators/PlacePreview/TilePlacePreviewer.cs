@@ -76,7 +76,7 @@ namespace TileMaps.Previewer {
         // Update is called once per frame
         void Update()
         {
-            if (CanvasController.Instance.BlockKeyInput || Input.GetMouseButton(0))
+            if (CanvasController.Instance.IsActive || Input.GetMouseButton(0))
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();

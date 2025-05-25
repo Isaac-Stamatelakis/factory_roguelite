@@ -322,7 +322,7 @@ namespace UI.NodeNetwork {
             HandleZoom();
             HandleRightClick();
             bool selectingNodes = selectedNodes.Count > 0;
-            if (CanvasController.Instance.IsTyping) return;
+            if (CanvasController.Instance.IsActive) return;
             if (!selectingNodes) KeyPressMoveUpdate();
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {

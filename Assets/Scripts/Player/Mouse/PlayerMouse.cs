@@ -115,7 +115,7 @@ namespace PlayerModule.Mouse {
             
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
             
-            if (canvasController.BlockKeyInput)
+            if (canvasController.IsActive)
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
                 return;
@@ -465,7 +465,7 @@ namespace PlayerModule.Mouse {
 
         private void InventoryControlUpdate()
         {
-            if (canvasController.BlockKeyInput) return;
+            if (canvasController.IsActive) return;
             float y = UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y;
             if (y < 0) {
                 playerInventory.IterateSelectedTile(1);

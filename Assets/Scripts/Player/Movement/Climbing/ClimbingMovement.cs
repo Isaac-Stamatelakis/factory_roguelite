@@ -75,5 +75,10 @@ namespace Player.Movement
             movementActions.Escape.performed -= OnEscapePress;
             movementActions.Disable();
         }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return movementActions;
+        }
     }
 }

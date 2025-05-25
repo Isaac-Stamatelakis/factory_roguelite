@@ -57,7 +57,7 @@ namespace DevTools.CraftingTrees.TreeEditor
 
         public void Update()
         {
-            if (canvasController.IsTyping) return;
+            //if (canvasController.IsTyping) return;
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 SwitchCraftingType(mItemButton, CraftingTreeNodeType.Item);

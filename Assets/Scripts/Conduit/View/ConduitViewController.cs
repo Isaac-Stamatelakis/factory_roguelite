@@ -39,18 +39,7 @@ namespace Conduit.View
         private ConduitType? currentViewType;
         private PlayerScript playerScript;
         private ConduitTileClosedChunkSystem chunkSystem;
-        private CanvasController canvasController;
-
-        public void Start()
-        {
-            canvasController = CanvasController.Instance;
-        }
-
-        public void Update()
-        {
-            KeyPressListen();
-        }
-
+        
         public void FixedUpdate()
         {
             UpdateAuto();
@@ -70,13 +59,7 @@ namespace Conduit.View
                 manager.SetTileMapVisibility(visible);
             }
         }
-
-        private void KeyPressListen()
-        {
-            if (canvasController.BlockKeyInput) return;
-            if (!ControlUtils.GetControlKeyDown(PlayerControl.ChangeConduitViewMode) || ReferenceEquals(chunkSystem, null)) return;
-            DisplayRadialMenu();
-        }
+        
 
         public void DisplayRadialMenu()
         {

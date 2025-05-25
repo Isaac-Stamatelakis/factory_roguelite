@@ -50,31 +50,41 @@ namespace PlayerModule.KeyPress {
             miscKeys.ItemSearch.performed += OpenSearch;
             miscKeys.Inventory.performed += _ => playerInventory.ToggleInventoryMode();
             miscKeys.PlacementMode.performed += SwitchPlacementMode;
-            //miscKeys.ConduitOptions.performed += ConduitPlacementOptions;
-            //miscKeys.ConduitPortView.performed += _ => ChangePortModePress();
+            miscKeys.ConduitOptions.performed += _ => playerScript.TileViewers.ConduitViewController.DisplayRadialMenu();
+            miscKeys.ConduitPortView.performed += _ => ChangePortModePress();
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
             
-            miscKeys.Enable();
+           
 
             var toolBindings = playerScript.InputActions.ToolBindings;
             toolBindings.AutoSelect.performed += AutoSelect;
             toolBindings.SwitchMode.performed += SwitchToolMode;
             toolBindings.OpenLoadout.performed += OpenRobotLoadOut;
             toolBindings.SwitchLoadout.performed += SwitchRobotLoadout;
-            toolBindings.Enable();
+            
             
             var inventoryNavigation = playerScript.InputActions.InventoryNavigation;
-            inventoryNavigation.Select0.performed += _ => playerInventory.ChangeSelectedSlot(0);
-            inventoryNavigation.Select1.performed += _ => playerInventory.ChangeSelectedSlot(1);
-            inventoryNavigation.Select2.performed += _ => playerInventory.ChangeSelectedSlot(2);
-            inventoryNavigation.Select3.performed += _ => playerInventory.ChangeSelectedSlot(3);
-            inventoryNavigation.Select4.performed += _ => playerInventory.ChangeSelectedSlot(4);
-            inventoryNavigation.Select5.performed += _ => playerInventory.ChangeSelectedSlot(5);
-            inventoryNavigation.Select6.performed += _ => playerInventory.ChangeSelectedSlot(6);
-            inventoryNavigation.Select7.performed += _ => playerInventory.ChangeSelectedSlot(7);
-            inventoryNavigation.Select8.performed += _ => playerInventory.ChangeSelectedSlot(8);
-            inventoryNavigation.Select9.performed += _ => playerInventory.ChangeSelectedSlot(9);
+            inventoryNavigation.Select1.performed += _ => playerInventory.ChangeSelectedSlot(0);
+            inventoryNavigation.Select2.performed += _ => playerInventory.ChangeSelectedSlot(1);
+            inventoryNavigation.Select3.performed += _ => playerInventory.ChangeSelectedSlot(2);
+            inventoryNavigation.Select4.performed += _ => playerInventory.ChangeSelectedSlot(3);
+            inventoryNavigation.Select5.performed += _ => playerInventory.ChangeSelectedSlot(4);
+            inventoryNavigation.Select6.performed += _ => playerInventory.ChangeSelectedSlot(5);
+            inventoryNavigation.Select7.performed += _ => playerInventory.ChangeSelectedSlot(6);
+            inventoryNavigation.Select8.performed += _ => playerInventory.ChangeSelectedSlot(7);
+            inventoryNavigation.Select9.performed += _ => playerInventory.ChangeSelectedSlot(8);
+            inventoryNavigation.Select0.performed += _ => playerInventory.ChangeSelectedSlot(9);
+
+            var inventoryUtils = playerScript.InputActions.InventoryUtils;
+            inventoryUtils.ShowRecipes.performed += ShowItemRecipes;
+            inventoryUtils.ShowUses.performed += ShowItemUses;
+            inventoryUtils.EditTag.performed += EditItemTags;
+            
+            toolBindings.Enable();
+            miscKeys.Enable();
+            inventoryNavigation.Enable();
+            inventoryUtils.Enable();
         }
 
         public void SyncEventsWithUIMode(bool active)

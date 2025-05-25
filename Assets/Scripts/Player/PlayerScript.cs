@@ -126,9 +126,10 @@ namespace Player
             return playerData;
         }
 
-        public void SyncKeyPressListeners(bool uiActive, bool typing)
+        public void SyncKeyPressListeners(bool uiActive, bool typing, bool blockMovement)
         {
             GetComponent<PlayerKeyPress>().SyncEventsWithUIMode(uiActive || typing);
+            playerRobot.SetMovementEventListenerState(!typing && !blockMovement);  
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem, DimensionManager dimensionManager, Dimension dimension)

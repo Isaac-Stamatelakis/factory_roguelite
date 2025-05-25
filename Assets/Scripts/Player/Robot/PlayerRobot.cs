@@ -117,8 +117,6 @@ namespace Player {
         private PlayerScript playerScript;
         public FluidCollisionInformation fluidCollisionInformation {get; private set;}
         public RobotArmController gunController;
-        private CanvasController canvasController;
-        public bool BlockMovement => canvasController.BlockKeyInput;
         public DevMode DevMode { get; private set; }
         public PlayerAnimationController AnimationController { get; private set; }
         public PlayerParticles PlayerParticles { get; private set; }
@@ -154,8 +152,7 @@ namespace Player {
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
             defaultBoxColliderWidth = boxCollider.size.x;
             defaultBoxColliderEdge = boxCollider.edgeRadius;
-            canvasController = CanvasController.Instance;
-
+            
             PlayerDamage = new PlayerDamage(this);
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
@@ -215,6 +212,11 @@ namespace Player {
                 initialState = PlayerMovementState.Flight;
             }
             SetMovementState(initialState);
+        }
+
+        public void SetMovementEventListenerState(bool allowMovement)
+        {
+            currentMovement?.SetMovementStatus(allowMovement);
         }
         public void SetMovementState(PlayerMovementState newMovementState)
         {
