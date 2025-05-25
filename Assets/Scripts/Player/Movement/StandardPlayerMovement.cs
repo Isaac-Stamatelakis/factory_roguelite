@@ -112,7 +112,7 @@ namespace Player.Movement.Standard
                 if (!moveUpdate)
                 {
                     animationController.SetAnimationSpeed(1);
-                    animationController.PlayAnimation(PlayerAnimation.Idle,playerRobot.IsUsingTool);
+                    animationController.PlayAnimation(PlayerAnimation.Idle);
                     return;
                 }
 
@@ -212,7 +212,7 @@ namespace Player.Movement.Standard
             }
             else
             {
-                animationController.PlayAnimation(PlayerAnimation.Walk, playerRobot.IsUsingTool);
+                animationController.PlayAnimation(PlayerAnimation.Walk);
             }
 
             bool walkingBackwards = playerRobot.IsUsingTool && (

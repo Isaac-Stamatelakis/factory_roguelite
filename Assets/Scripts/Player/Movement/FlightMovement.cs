@@ -22,13 +22,11 @@ namespace Player.Movement
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
-
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
-
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
-
             movementActions.Enable();
         }
 
@@ -61,7 +59,8 @@ namespace Player.Movement
             }
 
             Vector2 velocity = movementVector * speed;
-            spriteRenderer.flipX = velocity.x < 0;
+            if (movementVector.x != 0) spriteRenderer.flipX = velocity.x < 0;
+            
             rb.velocity = velocity;
         }
 

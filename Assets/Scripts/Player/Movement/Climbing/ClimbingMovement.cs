@@ -23,11 +23,13 @@ namespace Player.Movement
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
             playerRobot.FallTime = 0;
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
             movementActions.Escape.performed += OnEscapePress;
+            
             movementActions.Enable();
         }
 

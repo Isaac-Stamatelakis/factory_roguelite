@@ -543,7 +543,10 @@ namespace Player {
                 {
                     statistics.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime; 
                 }
-                
+                AnimationController.PlayAnimation(PlayerAnimation.Air);
+            } else if (movementState == PlayerMovementState.Climb)
+            {
+                AnimationController.PlayAnimation(PlayerAnimation.Air);
             }
 
             return;
@@ -568,7 +571,7 @@ namespace Player {
                 {
                     if (CoyoteFrames < 0)
                     {
-                        AnimationController.PlayAnimation(PlayerAnimation.Air, IsUsingTool);
+                        AnimationController.PlayAnimation(PlayerAnimation.Air);
                     }
                 }
 
