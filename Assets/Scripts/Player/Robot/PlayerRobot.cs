@@ -239,6 +239,7 @@ namespace Player {
             
             if (IsGrounded() && Mathf.Abs(rb.velocity.x) > 0.05f)
             {
+                // Makes it so using a tool doesn't reset walk animation
                 float time = AnimationController.GetCurrentAnimationTime();
                 AnimationController.PlayAnimation(PlayerAnimation.Walk,IsUsingTool,time);
             }
@@ -454,7 +455,7 @@ namespace Player {
             if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
             Camera mainCamera = Camera.main;
             if (!mainCamera) return;
-            Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
             playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
             bool teleported = playerTeleportEvent.TryTeleport();
             if (!teleported) return;

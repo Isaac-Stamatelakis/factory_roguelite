@@ -41,6 +41,7 @@ using UI;
 using UI.Indicators;
 using UI.Indicators.General;
 using UI.ToolTip;
+using UnityEngine.InputSystem;
 using MoveDirection = Robot.Tool.MoveDirection;
 
 namespace PlayerModule.Mouse {
@@ -70,6 +71,8 @@ namespace PlayerModule.Mouse {
         private float range;
         private Vector2 toolHitPosition;
         private CanvasController canvasController;
+        private bool holdingShift;
+        
         void Start()
         {
             mainCamera = Camera.main;
@@ -107,26 +110,20 @@ namespace PlayerModule.Mouse {
         {
             InventoryControlUpdate();
             
-            bool leftClick = Input.GetMouseButton(0);
-            bool rightClick = Input.GetMouseButton(1);
-            bool scroll = Input.mouseScrollDelta.y != 0;
-            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            bool leftClick = UnityEngine.InputSystem.Mouse.current.leftButton.isPressed;
+            bool rightClick = UnityEngine.InputSystem.Mouse.current.rightButton.isPressed;
+            
+            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
+            
             if (canvasController.BlockKeyInput)
             {
-                if (eventSystem.IsPointerOverGameObject())
-                {
-                    if (scroll)
-                    {
-                        MouseScrollUIUpdate(mousePosition);
-                    }
-                }
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
                 return;
             }
             
             toolHitPosition = autoSelectableTool && enableAutoSelect ? AutoSelectTile(mousePosition) : mousePosition;
 
-            if (!currentSystem)  return;
+            if (!currentSystem) return;
             
             if (!canvasController.IsActive) PreviewHighlight(mousePosition);
             
@@ -149,6 +146,7 @@ namespace PlayerModule.Mouse {
                 RightClickUpdate(mousePosition,currentSystem);
             }
         }
+        
 
         private Vector2 AutoSelectTile(Vector2 mousePosition)
         {
@@ -212,7 +210,7 @@ namespace PlayerModule.Mouse {
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);
-            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not IWorldToolTipTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
+            if (Keyboard.current.leftShiftKey.isPressed || tileEntityInstance is not IWorldToolTipTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
@@ -244,12 +242,7 @@ namespace PlayerModule.Mouse {
             if (system && !system.Interactable && tileEntityInstance is ILockUnInteractableRightClickTileEntity) return false;
             return tileEntityInstance is not IConditionalRightClickableTileEntity conditionalRightClickableTileEntity || conditionalRightClickableTileEntity.CanRightClick();
         }
-        private void MouseScrollUIUpdate(Vector2 mousePosition)
-        {
-            ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();
-            clickHandler?.MiddleMouseScroll();
-        }
-
+        
         public static ILoadedChunk GetChunk(Vector2 mousePosition)
         {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
@@ -286,7 +279,7 @@ namespace PlayerModule.Mouse {
             
             if (currentPlayerItem is IPlacableItem && HandlePlace(mousePosition, closedChunkSystem)) return;
 
-            if (!Input.GetMouseButtonDown(1)) return;
+            if (!UnityEngine.InputSystem.Mouse.current.rightButton.wasPressedThisFrame) return;
             if (RightClickPort(mousePosition)) return;
             TryClickTileEntity(mousePosition);
         }
@@ -378,7 +371,7 @@ namespace PlayerModule.Mouse {
             IRightClickableTileEntity rightClickableTileEntity = tileEntityInstance as IRightClickableTileEntity;
             
             // In cases where the tile entity has both ui and click behavior, holding left shit lets the player interact with the entity instance
-            bool clickInstanceInterface = rightClickableTileEntity != null && Input.GetKey(KeyCode.LeftShift);
+            bool clickInstanceInterface = rightClickableTileEntity != null && Keyboard.current.leftShiftKey.isPressed;
             if (rightClickableTileEntity is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
                 StopPlayerHorizontalMovement();
@@ -473,13 +466,11 @@ namespace PlayerModule.Mouse {
         private void InventoryControlUpdate()
         {
             if (canvasController.BlockKeyInput) return;
-            if (Input.mouseScrollDelta.y != 0) {
-                float y = Input.mouseScrollDelta.y;
-                if (y < 0) {
-                    playerInventory.IterateSelectedTile(1);
-                } else {
-                    playerInventory.IterateSelectedTile(-1);
-                }
+            float y = UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y;
+            if (y < 0) {
+                playerInventory.IterateSelectedTile(1);
+            } else if (y > 0) {
+                playerInventory.IterateSelectedTile(-1);
             }
         }
 
