@@ -164,12 +164,7 @@ namespace Player {
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
-            miscMovementActions.TryClimb.performed += TryStartClimbing;
-                /*
-            {
-                canStartClimbing = true;
-            };
-            */
+            
             miscMovementActions.Enable();
             
             StartCoroutine(LoadAsyncAssets());
@@ -536,12 +531,10 @@ namespace Player {
                 NanoBotHeal();
             }
             
-            /*
-            if (climbing) {
-                HandleClimbing();
-                return;
+            if (movementState == PlayerMovementState.Standard && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+            {
+                TryStartClimbing(new InputAction.CallbackContext()); // Or your own method
             }
-            */
 
             if (HighDragFrames == 0)
             {

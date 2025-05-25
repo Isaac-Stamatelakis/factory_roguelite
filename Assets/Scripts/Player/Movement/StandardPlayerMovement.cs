@@ -341,6 +341,7 @@ namespace Player.Movement.Standard
         void OnJumpPressed(InputAction.CallbackContext context)
         {
             holdingJump = true;
+            if (playerRobot.BlockMovement) return;
             if (holdingDown)
             {
                 bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);
