@@ -321,15 +321,16 @@ namespace Player.Movement.Standard
             {
                 bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);
                 bool onSlopePlatform = playerRobot.IsOnSlopedPlatform();
-                if (!onPlatform && !onSlopePlatform) return;
-
-                if (onPlatform) playerRobot.ResetIgnorePlatformFrames();
-                if (onSlopePlatform)
+                if (onPlatform || onSlopePlatform)
                 {
-                    playerRobot.SetLiveY(12);
-                    playerRobot.ResetIgnoreSlopePlatformFrames();
+                    if (onPlatform) playerRobot.ResetIgnorePlatformFrames();
+                    if (onSlopePlatform)
+                    {
+                        playerRobot.SetLiveY(12);
+                        playerRobot.ResetIgnoreSlopePlatformFrames();
+                    }
+                    return;
                 }
-                return;
             }
             if (playerRobot.IgnorePlatformFrames > 0 || (!CanJump() && playerRobot.CoyoteFrames <= 0)) return;
 
