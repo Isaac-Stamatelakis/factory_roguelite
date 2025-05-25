@@ -65,6 +65,11 @@ namespace Player.Movement.Standard
             playerMovementInput.Enable();
         }
 
+        public void SetInputDir(float value)
+        {
+            inputDir = value;
+        }
+
         public override void MovementUpdate()
         {
             bool blockInput = playerRobot.BlockMovement;

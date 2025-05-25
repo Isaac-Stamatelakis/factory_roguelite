@@ -265,26 +265,101 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ""id"": ""ba725a58-afc4-4cf2-91ef-747f2c52a3e5"",
             ""actions"": [
                 {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
                     ""id"": ""6d3fa3b2-3f18-4b95-b6e6-865c9a13e4c9"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": ""Analog"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Escape"",
+                    ""type"": ""Value"",
+                    ""id"": ""4fffb34d-c1b7-494c-9c69-e6a415db2f5e"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": """",
-                    ""id"": ""45c7e3d6-1028-411b-b6ca-a02c1d73ef87"",
-                    ""path"": """",
+                    ""name"": ""1D Axis"",
+                    ""id"": ""37c9238a-2091-44ed-b6d2-ea817b028399"",
+                    ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""cd4b802e-f061-480e-831d-b73ba1c58a09"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""831b8a46-fd83-46b8-8167-d7f674f3ff99"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2298fbe1-feef-4af6-88b2-5694b568db59"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""ae15968e-7944-451a-9654-b1e57c3ea97f"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""630b3ce3-cce6-4827-8150-ca51ace7217b"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""ca6cc5da-5652-4212-b130-03a5a714f56d"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -300,6 +375,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TryClimb"",
+                    ""type"": ""Button"",
+                    ""id"": ""02709779-9bab-4d0f-a6b1-4d84c8ba36a7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -311,6 +395,28 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Teleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""379df6f6-b3cf-440e-8f42-e04476596df6"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TryClimb"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1bb2f18a-865c-424c-b2cd-73c29bd6c929"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TryClimb"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -330,10 +436,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_FlightMovement_Move = m_FlightMovement.FindAction("Move", throwIfNotFound: true);
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
-        m_LadderMovement_Newaction = m_LadderMovement.FindAction("New action", throwIfNotFound: true);
+        m_LadderMovement_Move = m_LadderMovement.FindAction("Move", throwIfNotFound: true);
+        m_LadderMovement_Escape = m_LadderMovement.FindAction("Escape", throwIfNotFound: true);
         // MiscMovement
         m_MiscMovement = asset.FindActionMap("MiscMovement", throwIfNotFound: true);
         m_MiscMovement_Teleport = m_MiscMovement.FindAction("Teleport", throwIfNotFound: true);
+        m_MiscMovement_TryClimb = m_MiscMovement.FindAction("TryClimb", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -511,12 +619,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     // LadderMovement
     private readonly InputActionMap m_LadderMovement;
     private List<ILadderMovementActions> m_LadderMovementActionsCallbackInterfaces = new List<ILadderMovementActions>();
-    private readonly InputAction m_LadderMovement_Newaction;
+    private readonly InputAction m_LadderMovement_Move;
+    private readonly InputAction m_LadderMovement_Escape;
     public struct LadderMovementActions
     {
         private @InputActions m_Wrapper;
         public LadderMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_LadderMovement_Newaction;
+        public InputAction @Move => m_Wrapper.m_LadderMovement_Move;
+        public InputAction @Escape => m_Wrapper.m_LadderMovement_Escape;
         public InputActionMap Get() { return m_Wrapper.m_LadderMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -526,16 +636,22 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_LadderMovementActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_LadderMovementActionsCallbackInterfaces.Add(instance);
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
+            @Escape.started += instance.OnEscape;
+            @Escape.performed += instance.OnEscape;
+            @Escape.canceled += instance.OnEscape;
         }
 
         private void UnregisterCallbacks(ILadderMovementActions instance)
         {
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
+            @Escape.started -= instance.OnEscape;
+            @Escape.performed -= instance.OnEscape;
+            @Escape.canceled -= instance.OnEscape;
         }
 
         public void RemoveCallbacks(ILadderMovementActions instance)
@@ -558,11 +674,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_MiscMovement;
     private List<IMiscMovementActions> m_MiscMovementActionsCallbackInterfaces = new List<IMiscMovementActions>();
     private readonly InputAction m_MiscMovement_Teleport;
+    private readonly InputAction m_MiscMovement_TryClimb;
     public struct MiscMovementActions
     {
         private @InputActions m_Wrapper;
         public MiscMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Teleport => m_Wrapper.m_MiscMovement_Teleport;
+        public InputAction @TryClimb => m_Wrapper.m_MiscMovement_TryClimb;
         public InputActionMap Get() { return m_Wrapper.m_MiscMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -575,6 +693,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Teleport.started += instance.OnTeleport;
             @Teleport.performed += instance.OnTeleport;
             @Teleport.canceled += instance.OnTeleport;
+            @TryClimb.started += instance.OnTryClimb;
+            @TryClimb.performed += instance.OnTryClimb;
+            @TryClimb.canceled += instance.OnTryClimb;
         }
 
         private void UnregisterCallbacks(IMiscMovementActions instance)
@@ -582,6 +703,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Teleport.started -= instance.OnTeleport;
             @Teleport.performed -= instance.OnTeleport;
             @Teleport.canceled -= instance.OnTeleport;
+            @TryClimb.started -= instance.OnTryClimb;
+            @TryClimb.performed -= instance.OnTryClimb;
+            @TryClimb.canceled -= instance.OnTryClimb;
         }
 
         public void RemoveCallbacks(IMiscMovementActions instance)
@@ -612,10 +736,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     }
     public interface ILadderMovementActions
     {
-        void OnNewaction(InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
+        void OnEscape(InputAction.CallbackContext context);
     }
     public interface IMiscMovementActions
     {
         void OnTeleport(InputAction.CallbackContext context);
+        void OnTryClimb(InputAction.CallbackContext context);
     }
 }

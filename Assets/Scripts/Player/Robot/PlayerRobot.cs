@@ -78,10 +78,8 @@ namespace Player {
         [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
         
         private PlayerMovementState movementState;
-        private bool climbing;
-        
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
-        
+        public Collider2D PlatformCollider => platformCollider;
         
         // Robot Data
         public ItemSlot robotItemSlot;
@@ -95,7 +93,7 @@ namespace Player {
         public RobotUpgradeLoadOut RobotUpgradeLoadOut;
         
         // State Information
-        private float fallTime;
+        public float FallTime { get; set; }
         private bool immuneToNextFall = false;
         public int InvincibilityFrames { get; private set; }
         public TileMovementType CurrentTileMovementType { get; private set; }
@@ -110,8 +108,6 @@ namespace Player {
         public int CoyoteFrames{ get; private set; }
         public int HighDragFrames { get; private set; }
         public bool IsUsingTool { get; private set; }
-        private bool recalling;
-        
         private bool freezeY;
         
         // Upgrades
@@ -167,6 +163,7 @@ namespace Player {
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
+            miscMovementActions.TryClimb.performed += TryClimbing;
             miscMovementActions.Enable();
             
             StartCoroutine(LoadAsyncAssets());
@@ -225,6 +222,12 @@ namespace Player {
             currentMovement = GetMovementHandler(movementState);
         }
 
+        public void SetStandardMovementWithSpeed(float initial)
+        {
+            SetMovementState(PlayerMovementState.Standard);
+            ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
+        }
+
         private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
         {
             switch (state)
@@ -232,7 +235,7 @@ namespace Player {
                 case PlayerMovementState.Standard:
                     return new StandardPlayerMovement(this);
                 case PlayerMovementState.Climb:
-                    return new CreativeFlightMovement(this);
+                    return new ClimbingMovement(this);
                 case PlayerMovementState.Flight:
                     return new FlightMovement(this);
                 case PlayerMovementState.CreativeFlight:
@@ -247,7 +250,7 @@ namespace Player {
             if (robotData == null) return; // Don't like this
             mPlayerRobotUI.Display(this);
             if (robotData.Health <= 0) return;
-            MoveUpdate();
+            currentMovement.MovementUpdate();
             FluidDamageUpdate();
             PlayerDamage.IterateDamageTime(Time.deltaTime);
         }
@@ -325,7 +328,7 @@ namespace Player {
 
             if (state is CollisionState.InFluid)
             {
-                fallTime = 0;
+                FallTime = 0;
                 Vector3 position = transform.position;
                 position.z = 2;
                 transform.position = position;
@@ -413,65 +416,7 @@ namespace Player {
             return collisionStates.Contains(CollisionState.InFluid);
         }
 
-        private void MoveUpdate()
-        {
-            if (!canvasController.BlockKeyInput)
-            {
-                if (!recalling && ControlUtils.GetControlKeyDown(PlayerControl.Recall))
-                {
-                    StartCoroutine(RecallCoroutine());
-                }
-            }
-            
-            currentMovement.MovementUpdate();
-            
-            /*
-            if (DevMode.Instance.flight)
-            {
-                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
-                if (canvasController.BlockKeyInput) return;
-                CreativeFlightMovementUpdate(transform);
-                return;
-            }
-            
-            float flight = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Flight);
-
-
-            if (flight > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.FLIGHT_COST, 0))
-            {
-                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
-                FlightMoveUpdate();
-                return;
-            }
-            
-            if (climbing)
-            {
-                AnimationController.SetAnimationSpeed(1);
-                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
-                AnimationController.PlayAnimation(PlayerAnimation.Air,IsUsingTool);
-                bool exitKeyCode = ControlUtils.GetControlKeyDown(PlayerControl.MoveLeft) || ControlUtils.GetControlKeyDown(PlayerControl.MoveRight) || ControlUtils.GetControlKeyDown(PlayerControl.Jump);
-                if (!exitKeyCode) return;
-                
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                climbing = false;
-                rb.gravityScale = DefaultGravityScale;
-                return;
-            }
-            standardPlayerMovement.MovementUpdate();
-            */
-        }
         
-
-        private IEnumerator RecallCoroutine()
-        {
-            recalling = true;
-            // TODO some sound effect and animation
-            const float RECALL_DELAY = 0.2f;
-            yield return new WaitForSeconds(RECALL_DELAY);
-            DimensionManager.Instance.SetPlayerSystem(playerScript,0,Vector2Int.zero);
-            recalling = false;
-        }
-
         private void Teleport(InputAction.CallbackContext context)
         {
             if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) <= 0) return;
@@ -486,7 +431,7 @@ namespace Player {
             if (!teleported) return;
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
             PlayerParticles.PlayParticle(PlayerParticle.Teleportation);
-            fallTime = 0;
+            FallTime = 0;
 
             
             IEnumerator DelayForceUpdate()
@@ -506,7 +451,7 @@ namespace Player {
             CoyoteFrames = 0;
             LiveYUpdates = 3;
             rb.drag = DefaultLinearDrag;
-            fallTime = 0;
+            FallTime = 0;
             SlipperyFrames /= 2;
             IgnoreSlopePlatformFrames = 2;
         }
@@ -579,16 +524,17 @@ namespace Player {
             HighDragFrames--;
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
-            CanStartClimbing();
             if (PlayerDamage.TimeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
             {
                 NanoBotHeal();
             }
             
+            /*
             if (climbing) {
                 HandleClimbing();
                 return;
             }
+            */
 
             if (HighDragFrames == 0)
             {
@@ -772,27 +718,27 @@ namespace Player {
         {
             if (!IsOnGround() && !InFluid())
             {
-                if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
+                if (rb.velocity.y < 0) FallTime += Time.fixedDeltaTime;
                 return;
             }
             
             if (immuneToNextFall)
             {
                 immuneToNextFall = false;
-                fallTime = 0;
+                FallTime = 0;
                 return;
             }
             
-            if (fallTime <= 0) return;
+            if (FallTime <= 0) return;
             
             
             
             const float DAMAGE_RATE = 2;
             const float MIN_DAMAGE = 1f;
 
-            float damage = DAMAGE_RATE * fallTime * fallTime;
+            float damage = DAMAGE_RATE * FallTime * FallTime;
     
-            fallTime = 0f;
+            FallTime = 0f;
             if (damage < MIN_DAMAGE) return;
             
             PlayerDamage.Damage(damage);
@@ -863,15 +809,14 @@ namespace Player {
             playerScript.PlayerInventory.DropAll();
             
         }
-        private void CanStartClimbing() {
-            if (rb.bodyType == RigidbodyType2D.Static) {
-                return;
-            }
+
+        public void TryClimbing(InputAction.CallbackContext context)
+        {
+            // Can only start climbing when not climbing, or flying
+            if (movementState != PlayerMovementState.Standard) return;
             
-            bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
-            if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
+            if (GetClimbable(transform.position) == null) return;
             
-            climbing = true;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
             Vector3 position = transform.position;
@@ -879,8 +824,9 @@ namespace Player {
             x = Mathf.Floor(x*2)/2f+0.25f;
             position.x = x;
             transform.position = position;
+            SetMovementState(PlayerMovementState.Climb);
         }
-
+        
         private TileMovementType GetTileMovementModifier()
         {
             Vector2 extent = spriteRenderer.sprite.bounds.extents;
@@ -913,7 +859,7 @@ namespace Player {
             TileItem tileItem = GetTileItemBelow(position);
             return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
         }
-        private IClimableTileEntity GetClimbable(Vector2 position) {
+        public IClimableTileEntity GetClimbable(Vector2 position) {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
             RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
             
@@ -924,28 +870,7 @@ namespace Player {
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 
-        private void HandleClimbing() {
-            IClimableTileEntity climableTileEntity = GetClimbable(transform.position);
-            if (climableTileEntity == null)
-            {
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                climbing = false;
-                rb.gravityScale = DefaultGravityScale;
-                return;
-            }
-            IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
-            platformCollider.enabled = below == null;
-            Vector2 velocity = rb.velocity;
-            fallTime = 0;
-            if (ControlUtils.GetControlKey(PlayerControl.MoveUp)) {
-                velocity.y = climableTileEntity.GetSpeed();
-            } else if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) {
-                velocity.y = -climableTileEntity.GetSpeed();
-            } else {
-                velocity.y = 0;
-            }
-            rb.velocity = velocity;
-        }
+        
 
         public void InitializeRobot(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
         {

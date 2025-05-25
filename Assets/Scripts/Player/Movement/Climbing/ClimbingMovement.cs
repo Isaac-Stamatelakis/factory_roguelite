@@ -1,0 +1,76 @@
+using Player.Controls;
+using Player.Movement.Standard;
+using Robot.Upgrades;
+using Robot.Upgrades.Info.Instances;
+using TileEntity;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace Player.Movement
+{
+    
+    public class ClimbingMovement : BasePlayerMovement
+    {
+        private Rigidbody2D rb;
+        private InputActions.LadderMovementActions movementActions;
+
+        private float movementDirection;
+        // Start is called before the first frame update
+        public ClimbingMovement(PlayerRobot playerRobot) : base(playerRobot)
+        {
+            rb = playerRobot.GetComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.gravityScale = 0;
+            playerRobot.FallTime = 0;
+            
+            movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
+            movementActions.Move.performed += OnMovePress;
+            movementActions.Move.canceled += OnMoveRelease;
+            movementActions.Escape.performed += OnEscapePress;
+            movementActions.Enable();
+        }
+
+        private void OnMovePress(InputAction.CallbackContext context)
+        {
+            movementDirection = context.ReadValue<float>();
+        }
+
+        private void OnMoveRelease(InputAction.CallbackContext context)
+        {
+            movementDirection = 0;
+        }
+
+        private void OnEscapePress(InputAction.CallbackContext context)
+        {
+            playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
+        }
+
+        public override void MovementUpdate()
+        {
+            if (movementDirection == 0)
+            {
+                rb.velocity = Vector2.zero;
+                return;
+            }
+            Vector2 position = playerRobot.transform.position;
+            IClimableTileEntity climableTileEntity = playerRobot.GetClimbable(position);
+            if (climableTileEntity == null)
+            {
+                //rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                playerRobot.SetMovementState(PlayerMovementState.Standard);
+                return;
+            }
+            IClimableTileEntity below = playerRobot.GetClimbable(position + Vector2.down);
+            playerRobot.PlatformCollider.enabled = below == null;
+            Vector2 velocity = rb.velocity;
+            velocity.y = climableTileEntity.GetSpeed() * movementDirection;
+            rb.velocity = velocity;
+        }
+        
+        public override void Dispose()
+        {
+            movementActions.Disable();
+        }
+    }
+}
