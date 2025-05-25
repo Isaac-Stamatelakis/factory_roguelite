@@ -231,7 +231,6 @@ namespace Player {
 
         public void SetStandardMovementWithSpeed(float initial)
         {
-            Debug.Log(initial);
             SetMovementState(PlayerMovementState.Standard);
             ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
         }

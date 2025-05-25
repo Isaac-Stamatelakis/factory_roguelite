@@ -358,7 +358,6 @@ namespace Player.Movement.Standard
             }
             if (playerRobot.IgnorePlatformFrames > 0 || (!CanJump() && playerRobot.CoyoteFrames <= 0)) return;
             
-            Debug.Log(playerRobot.CoyoteFrames);
             if (bonusJumps > 0 && playerRobot.CoyoteFrames <= 0)
             {
                 playerRobot.PlayerParticles.PlayParticle(PlayerParticle.BonusJump);

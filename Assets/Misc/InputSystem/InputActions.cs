@@ -322,7 +322,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""id"": ""2298fbe1-feef-4af6-88b2-5694b568db59"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Clamp"",
                     ""groups"": """",
                     ""action"": ""Escape"",
                     ""isComposite"": false,
