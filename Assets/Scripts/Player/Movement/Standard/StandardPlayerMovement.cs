@@ -45,11 +45,15 @@ namespace Player.Movement.Standard
             jumpStats = playerRobot.JumpStats;
             
             playerMovementInput = new PlayerMovementInput();
+            
             playerMovementInput.PlayerMovement.Move.performed += OnMovePerformed;
             playerMovementInput.PlayerMovement.Move.canceled += OnMoveCancelled;
             
             playerMovementInput.PlayerMovement.Jump.performed += OnJumpPressed;
-            playerMovementInput.PlayerMovement.Jump.canceled -= OnJumpReleased;
+            playerMovementInput.PlayerMovement.Jump.canceled += OnJumpReleased;
+            
+            playerMovementInput.PlayerMovement.Down.performed += OnDownPressed;
+            playerMovementInput.PlayerMovement.Down.canceled += OnDownReleased;
             
             playerMovementInput.Enable();
         }
@@ -64,11 +68,8 @@ namespace Player.Movement.Standard
             bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) && !blockInput &&
                               inputDir > 0;
             bool moveUpdate = movedLeft != movedRight; // xor
-            if (!moveUpdate)
-            {
-                ReduceMoveDir();
-            }
-
+            
+            if (!moveUpdate) ReduceMoveDir();
             if (movedLeft) ApplyMovement(Direction.Left);
             if (movedRight) ApplyMovement(Direction.Right);
             
@@ -316,6 +317,20 @@ namespace Player.Movement.Standard
         void OnJumpPressed(InputAction.CallbackContext context)
         {
             holdingJump = true;
+            if (holdingDown)
+            {
+                bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);
+                bool onSlopePlatform = playerRobot.IsOnSlopedPlatform();
+                if (!onPlatform && !onSlopePlatform) return;
+
+                if (onPlatform) playerRobot.ResetIgnorePlatformFrames();
+                if (onSlopePlatform)
+                {
+                    playerRobot.SetLiveY(12);
+                    playerRobot.ResetIgnoreSlopePlatformFrames();
+                }
+                return;
+            }
             if (playerRobot.IgnorePlatformFrames > 0 || (!CanJump() && playerRobot.CoyoteFrames <= 0)) return;
 
             if (bonusJumps > 0 && playerRobot.CoyoteFrames <= 0)
@@ -339,24 +354,9 @@ namespace Player.Movement.Standard
         void OnJumpReleased(InputAction.CallbackContext context)
         {
             holdingJump = false;
-            Debug.Log("Release");
         }
-
-        void OnDropDownPlatformPressed(InputAction.CallbackContext context)
-        {
-            bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);
-            bool onSlopePlatform = playerRobot.IsOnSlopedPlatform();
-            if (!onPlatform && !onSlopePlatform) return;
-
-            if (onPlatform) playerRobot.ResetIgnorePlatformFrames();
-            if (onSlopePlatform)
-            {
-                playerRobot.ResetLiveYFrames();
-                playerRobot.ResetIgnoreSlopePlatformFrames();
-            }
-        }
-
-        void OnDownPressed()
+        
+        void OnDownPressed(InputAction.CallbackContext context)
         {
             holdingDown = true;
         }

@@ -614,7 +614,6 @@ namespace Player {
             IgnoreSlopePlatformFrames--;
             InvincibilityFrames--;
             HighDragFrames--;
-            
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
             CanStartClimbing();
@@ -1117,12 +1116,17 @@ namespace Player {
 
         public void ResetIgnorePlatformFrames()
         {
-            IgnorePlatformFrames = 3;
+            IgnorePlatformFrames = 8;
         }
 
         public void ResetIgnoreSlopePlatformFrames()
         {
-            IgnoreSlopePlatformFrames = 3;
+            IgnoreSlopePlatformFrames = 12;
+        }
+
+        public void SetLiveY(int frames)
+        {
+            LiveYUpdates = frames;
         }
     }
     [System.Serializable]

@@ -24,15 +24,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Down",
-                    "type": "Button",
-                    "id": "01b673a6-048d-4e1c-bfa5-52a42db4d36e",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Teleport",
                     "type": "Button",
                     "id": "9e5d4ec9-9eb8-4ad7-8ff3-066a90eea542",
@@ -42,9 +33,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "FallPlatform",
+                    "name": "Down",
                     "type": "Button",
-                    "id": "59d46a24-b722-4879-9176-e299cfb007a4",
+                    "id": "01b673a6-048d-4e1c-bfa5-52a42db4d36e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -52,39 +43,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "1D Axis",
-                    "id": "81329860-ec99-4414-a58b-f82dff8503f6",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "5c0b8185-fec8-458a-b279-f6f85dd414c2",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "e4f273c3-db16-4fb9-95ac-fd050c638987",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
                 {
                     "name": "",
                     "id": "54a2bf0c-ee44-486a-aaec-617ee85026aa",
@@ -119,35 +77,35 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "One Modifier",
-                    "id": "cc4c16ad-1334-4613-bca4-23711dccd77c",
-                    "path": "OneModifier",
+                    "name": "1D Axis",
+                    "id": "81329860-ec99-4414-a58b-f82dff8503f6",
+                    "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FallPlatform",
+                    "action": "Move",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "modifier",
-                    "id": "f3c778b5-01cb-48e0-890d-c3fe7fc0f188",
-                    "path": "<Keyboard>/s",
+                    "name": "negative",
+                    "id": "5c0b8185-fec8-458a-b279-f6f85dd414c2",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FallPlatform",
+                    "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "binding",
-                    "id": "8d03b257-c5d7-40e4-aae7-f55feb8be0fb",
-                    "path": "<Keyboard>/space",
+                    "name": "positive",
+                    "id": "e4f273c3-db16-4fb9-95ac-fd050c638987",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FallPlatform",
+                    "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 }

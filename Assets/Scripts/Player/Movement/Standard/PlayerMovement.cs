@@ -46,15 +46,6 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Down"",
-                    ""type"": ""Button"",
-                    ""id"": ""01b673a6-048d-4e1c-bfa5-52a42db4d36e"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Teleport"",
                     ""type"": ""Button"",
                     ""id"": ""9e5d4ec9-9eb8-4ad7-8ff3-066a90eea542"",
@@ -64,9 +55,9 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""FallPlatform"",
+                    ""name"": ""Down"",
                     ""type"": ""Button"",
-                    ""id"": ""59d46a24-b722-4879-9176-e299cfb007a4"",
+                    ""id"": ""01b673a6-048d-4e1c-bfa5-52a42db4d36e"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -74,39 +65,6 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": ""1D Axis"",
-                    ""id"": ""81329860-ec99-4414-a58b-f82dff8503f6"",
-                    ""path"": ""1DAxis"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""negative"",
-                    ""id"": ""5c0b8185-fec8-458a-b279-f6f85dd414c2"",
-                    ""path"": ""<Keyboard>/a"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""positive"",
-                    ""id"": ""e4f273c3-db16-4fb9-95ac-fd050c638987"",
-                    ""path"": ""<Keyboard>/d"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
                 {
                     ""name"": """",
                     ""id"": ""54a2bf0c-ee44-486a-aaec-617ee85026aa"",
@@ -141,35 +99,35 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""One Modifier"",
-                    ""id"": ""cc4c16ad-1334-4613-bca4-23711dccd77c"",
-                    ""path"": ""OneModifier"",
+                    ""name"": ""1D Axis"",
+                    ""id"": ""81329860-ec99-4414-a58b-f82dff8503f6"",
+                    ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""FallPlatform"",
+                    ""action"": ""Move"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""modifier"",
-                    ""id"": ""f3c778b5-01cb-48e0-890d-c3fe7fc0f188"",
-                    ""path"": ""<Keyboard>/s"",
+                    ""name"": ""negative"",
+                    ""id"": ""5c0b8185-fec8-458a-b279-f6f85dd414c2"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""FallPlatform"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""binding"",
-                    ""id"": ""8d03b257-c5d7-40e4-aae7-f55feb8be0fb"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""name"": ""positive"",
+                    ""id"": ""e4f273c3-db16-4fb9-95ac-fd050c638987"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""FallPlatform"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 }
@@ -182,9 +140,8 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
         m_PlayerMovement = asset.FindActionMap("PlayerMovement", throwIfNotFound: true);
         m_PlayerMovement_Move = m_PlayerMovement.FindAction("Move", throwIfNotFound: true);
         m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
-        m_PlayerMovement_Down = m_PlayerMovement.FindAction("Down", throwIfNotFound: true);
         m_PlayerMovement_Teleport = m_PlayerMovement.FindAction("Teleport", throwIfNotFound: true);
-        m_PlayerMovement_FallPlatform = m_PlayerMovement.FindAction("FallPlatform", throwIfNotFound: true);
+        m_PlayerMovement_Down = m_PlayerMovement.FindAction("Down", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -248,18 +205,16 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
     private List<IPlayerMovementActions> m_PlayerMovementActionsCallbackInterfaces = new List<IPlayerMovementActions>();
     private readonly InputAction m_PlayerMovement_Move;
     private readonly InputAction m_PlayerMovement_Jump;
-    private readonly InputAction m_PlayerMovement_Down;
     private readonly InputAction m_PlayerMovement_Teleport;
-    private readonly InputAction m_PlayerMovement_FallPlatform;
+    private readonly InputAction m_PlayerMovement_Down;
     public struct PlayerMovementActions
     {
         private @PlayerMovementInput m_Wrapper;
         public PlayerMovementActions(@PlayerMovementInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_PlayerMovement_Move;
         public InputAction @Jump => m_Wrapper.m_PlayerMovement_Jump;
-        public InputAction @Down => m_Wrapper.m_PlayerMovement_Down;
         public InputAction @Teleport => m_Wrapper.m_PlayerMovement_Teleport;
-        public InputAction @FallPlatform => m_Wrapper.m_PlayerMovement_FallPlatform;
+        public InputAction @Down => m_Wrapper.m_PlayerMovement_Down;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -275,15 +230,12 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
-            @Down.started += instance.OnDown;
-            @Down.performed += instance.OnDown;
-            @Down.canceled += instance.OnDown;
             @Teleport.started += instance.OnTeleport;
             @Teleport.performed += instance.OnTeleport;
             @Teleport.canceled += instance.OnTeleport;
-            @FallPlatform.started += instance.OnFallPlatform;
-            @FallPlatform.performed += instance.OnFallPlatform;
-            @FallPlatform.canceled += instance.OnFallPlatform;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
         }
 
         private void UnregisterCallbacks(IPlayerMovementActions instance)
@@ -294,15 +246,12 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
-            @Down.started -= instance.OnDown;
-            @Down.performed -= instance.OnDown;
-            @Down.canceled -= instance.OnDown;
             @Teleport.started -= instance.OnTeleport;
             @Teleport.performed -= instance.OnTeleport;
             @Teleport.canceled -= instance.OnTeleport;
-            @FallPlatform.started -= instance.OnFallPlatform;
-            @FallPlatform.performed -= instance.OnFallPlatform;
-            @FallPlatform.canceled -= instance.OnFallPlatform;
+            @Down.started -= instance.OnDown;
+            @Down.performed -= instance.OnDown;
+            @Down.canceled -= instance.OnDown;
         }
 
         public void RemoveCallbacks(IPlayerMovementActions instance)
@@ -324,8 +273,7 @@ public partial class @PlayerMovementInput: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
-        void OnDown(InputAction.CallbackContext context);
         void OnTeleport(InputAction.CallbackContext context);
-        void OnFallPlatform(InputAction.CallbackContext context);
+        void OnDown(InputAction.CallbackContext context);
     }
 }
