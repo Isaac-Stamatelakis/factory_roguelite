@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Player;
 using Player.Controls;
 using Player.Controls.Bindings;
+using PlayerModule.KeyPress;
 using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
@@ -25,6 +27,7 @@ namespace UI
         private bool canTerminate;
         private AudioSource audioSource;
         public bool IsTyping => isTyping;
+        private PlayerScript playerScript;
         public void Awake()
         {
             instance = this;
@@ -38,16 +41,22 @@ namespace UI
         }
         public abstract void EmptyListen();
         public abstract void ListenKeyPresses();
-        
+
+        public void SetPlayerScript(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
+        }
         public void AddTypingListener(TMP_InputField tmpInputField)
         {
             tmpInputField.onSelect.AddListener((text) =>
             {
+                playerScript.SyncKeyPressListeners(IsActive,true);
                 isTyping = true;
             });
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
+                playerScript.SyncKeyPressListeners(IsActive,false);
                 isTyping = false;
             });
         }
@@ -114,6 +123,7 @@ namespace UI
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
+            playerScript?.SyncKeyPressListeners(false,isTyping);
             mBlocker?.gameObject.SetActive(false);
             
         }
@@ -144,6 +154,7 @@ namespace UI
             }
             else
             {
+                playerScript?.SyncKeyPressListeners(false,isTyping);
                 mBlocker?.gameObject.SetActive(false);
             }
         }
@@ -171,6 +182,7 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
+            playerScript?.SyncKeyPressListeners(true,isTyping);
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             
             if (uiObjectStack.Count > 0)

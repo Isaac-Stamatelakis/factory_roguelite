@@ -29,6 +29,8 @@ using MoveDirection = UnityEngine.EventSystems.MoveDirection;
 
 namespace PlayerModule.KeyPress {
     
+    
+    
     public class PlayerKeyPress : MonoBehaviour
     {
         [SerializeField] private UIRingSelector ringSelectorPrefab;
@@ -75,22 +77,25 @@ namespace PlayerModule.KeyPress {
             inventoryNavigation.Select9.performed += _ => playerInventory.ChangeSelectedSlot(9);
         }
 
-        public void SetUIMode(bool active)
+        public void SyncEventsWithUIMode(bool active)
         {
+            SetState(playerScript.InputActions.MiscKeys.Get());
+            SetState(playerScript.InputActions.InventoryNavigation.Get());
+            SetState(playerScript.InputActions.ToolBindings);
             
-            var miscKeys = playerScript.InputActions.MiscKeys;
-            miscKeys.Disable();
-
-            void SetState()
+            void SetState(InputActionMap inputActionMap)
             {
-                
+                if (active)
+                {
+                    inputActionMap.Disable();
+                }
+                else
+                {
+                    inputActionMap.Enable();
+                }
             }
         }
-
-        public void OnDestroy()
-        {
-            
-        }
+        
 
         void OpenSearch(InputAction.CallbackContext context)
         {

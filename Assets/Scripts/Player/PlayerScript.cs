@@ -18,6 +18,7 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using Robot.Upgrades;
 using Robot.Upgrades.LoadOut;
@@ -26,6 +27,7 @@ using TileMaps.Previewer;
 using Tiles;
 using Tiles.Highlight;
 using Tiles.Indicators;
+using UI;
 using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UI.RingSelector;
@@ -116,10 +118,17 @@ namespace Player
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
             
+            
+            CanvasController.Instance.SetPlayerScript(this);
+            
             OnReachUpgradeChange();
-
             
             return playerData;
+        }
+
+        public void SyncKeyPressListeners(bool uiActive, bool typing)
+        {
+            GetComponent<PlayerKeyPress>().SyncEventsWithUIMode(uiActive || typing);
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem, DimensionManager dimensionManager, Dimension dimension)

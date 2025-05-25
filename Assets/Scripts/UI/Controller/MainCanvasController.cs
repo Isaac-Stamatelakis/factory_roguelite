@@ -45,10 +45,7 @@ namespace UI
             }
         }
 
-        public Canvas GetCanvas()
-        {
-            return canvas;
-        }
+       
         public T DisplayUIElement<T>(MainSceneUIElement mainSceneUIElement)
         {
             GameObject clone = GetMainSceneUIElement(mainSceneUIElement);
