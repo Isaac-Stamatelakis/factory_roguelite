@@ -44,12 +44,17 @@ namespace Robot.Tool.UI
         {
             this.playerScript = playerScript;
             this.playerInventory = playerScript.PlayerInventory;
-
             List<ItemSlot> toolItemSlots = new List<ItemSlot>();
             foreach (IRobotToolInstance robotToolInstance in tools)
             {
                 toolItemSlots.Add(new ItemSlot(robotToolInstance.GetToolObject().ToolIconItem,1,null));
+                Debug.Log(robotToolInstance.GetName());
+                var itemObject = robotToolInstance.GetToolObject().ToolIconItem;
+                if (!itemObject) continue;
+                Debug.Log(itemObject.name);
+                //Debug.Log(itemObject?.GetSprite()?.name);
             }
+     
             mToolCollectionUI.DisplayInventory(toolItemSlots,clear:false);
             mToolCollectionUI.InventoryInteractMode = InventoryInteractMode.OverrideAction;
 
