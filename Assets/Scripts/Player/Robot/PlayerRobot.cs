@@ -208,6 +208,16 @@ namespace Player {
             PlayerParticles = new PlayerParticles(this,bonusJumpParticles,teleportParticles,nanoBotParticles);
         }
 
+        public void InitializeMovementState()
+        {
+            PlayerMovementState initialState = PlayerMovementState.Standard;
+            if (DevMode.flight) initialState = PlayerMovementState.CreativeFlight;
+            else if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0)
+            {
+                initialState = PlayerMovementState.Flight;
+            }
+            SetMovementState(initialState);
+        }
         public void SetMovementState(PlayerMovementState newMovementState)
         {
             if (movementState == newMovementState && currentMovement != null) return;
@@ -224,7 +234,7 @@ namespace Player {
                 case PlayerMovementState.Climb:
                     return new CreativeFlightMovement(this);
                 case PlayerMovementState.Flight:
-                    return new CreativeFlightMovement(this);
+                    return new FlightMovement(this);
                 case PlayerMovementState.CreativeFlight:
                     return new CreativeFlightMovement(this);
                 default:
@@ -511,69 +521,6 @@ namespace Player {
             return CollisionStateActive(CollisionState.OnLeftSlopePlatform) || CollisionStateActive(CollisionState.OnRightSlopePlatform);
         }
         
-        private void FlightMoveUpdate()
-        {
-            rb.gravityScale = 0;
-            bool blockInput = canvasController.BlockKeyInput;
-            if (blockInput)
-            {
-                rb.velocity = Vector2.zero;
-                return;
-            }
-            bool leftInput = ControlUtils.GetControlKey(PlayerControl.MoveLeft);
-            bool rightInput = ControlUtils.GetControlKey(PlayerControl.MoveRight);
-            bool upInput = ControlUtils.GetControlKey(PlayerControl.MoveUp);
-            bool downInput = ControlUtils.GetControlKey(PlayerControl.MoveDown);
-             
-            Vector2 velocity = rb.velocity;
-            
-            float speed = BASE_MOVE_SPEED; 
-            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-            if (TryConsumeEnergy((ulong)(speedUpgrades * 16 * (SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND*Time.deltaTime)), 0.1f))
-            {
-                speed += speedUpgrades;
-            }
-            
-            bool horizontalMovement = leftInput != rightInput;
-            bool verticalMovement = upInput != downInput;
-            
-            if (!horizontalMovement)
-            {
-                velocity.x = 0;
-            }
-            else
-            {
-                if (leftInput)
-                {
-                    velocity.x = -speed;
-                    spriteRenderer.flipX = true;
-                }
-                else
-                {
-                    velocity.x = speed;
-                    spriteRenderer.flipX = false;
-                }
-            }
-            if (!verticalMovement)
-            {
-                velocity.y = 0;
-            }
-            else
-            {
-                if (upInput)
-                {
-                    velocity.y = speed;
-                }
-                else
-                {
-                    velocity.y = -speed;
-                }
-            }
-            rb.velocity = velocity;
-            
-        }
-
-        
         public float GetMaxHealth()
         {
             return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
@@ -851,12 +798,7 @@ namespace Player {
             PlayerDamage.Damage(damage);
         }
 
-        public void SetFlightProperties()
-        {
-            rb.bodyType = DevMode.Instance.flight ? RigidbodyType2D.Static : RigidbodyType2D.Dynamic;
-        }
         
-
         public void Heal(float amount)
         {
             robotData.Health += amount;
@@ -1030,7 +972,6 @@ namespace Player {
             }
             
             robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
-            SetFlightProperties();
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 

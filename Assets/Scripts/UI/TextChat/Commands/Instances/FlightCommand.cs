@@ -22,7 +22,7 @@ namespace UI.Chat {
                 bool state = ChatCommandParameterParser.parseBool(parameters,0,"state");
                 DevMode.Instance.flight = state;
             }
-            PlayerManager.Instance.GetPlayer().PlayerRobot.SetFlightProperties();
+            PlayerManager.Instance.GetPlayer().PlayerRobot.InitializeMovementState();
         }
 
         public override string getDescription()

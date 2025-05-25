@@ -10,7 +10,7 @@ namespace Player.Movement
     {
         private Transform playerTransform;
         private SpriteRenderer spriteRenderer;
-        private InputActions.CreativeMovementActions creativeMovementActions;
+        private InputActions.FlightMovementActions flightMovement;
 
         private Vector2 movementVector;
         // Start is called before the first frame update
@@ -22,25 +22,26 @@ namespace Player.Movement
             playerTransform = playerRobot.transform;
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             
-            creativeMovementActions = playerRobot.GetComponent<PlayerScript>().InputActions.CreativeMovement;
-            creativeMovementActions.Move.performed += OnMovePress;
-            creativeMovementActions.Move.canceled += OnMoveRelease;
+            flightMovement = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
+            flightMovement.Move.performed += OnMovePress;
+            flightMovement.Move.canceled += OnMoveRelease;
             
-            creativeMovementActions.Enable();
+            flightMovement.Enable();
         }
 
-        public void OnMovePress(InputAction.CallbackContext context)
+        private void OnMovePress(InputAction.CallbackContext context)
         {
             movementVector = context.ReadValue<Vector2>();
         }
 
-        public void OnMoveRelease(InputAction.CallbackContext context)
+        private void OnMoveRelease(InputAction.CallbackContext context)
         {
             movementVector = Vector2.zero;
         }
 
         public override void MovementUpdate()
         {
+            if (playerRobot.BlockMovement) return;
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             position += (Vector3)movementVector * movementSpeed;
@@ -50,7 +51,7 @@ namespace Player.Movement
         
         public override void Dispose()
         {
-            creativeMovementActions.Disable();
+            flightMovement.Disable();
         }
     }
 }

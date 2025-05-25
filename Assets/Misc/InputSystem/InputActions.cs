@@ -134,7 +134,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ]
         },
         {
-            ""name"": ""CreativeMovement"",
+            ""name"": ""FlightMovement"",
             ""id"": ""ce5c64b6-443c-4fd9-a5ab-ba6029866e86"",
             ""actions"": [
                 {
@@ -325,9 +325,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_StandardMovement_Jump = m_StandardMovement.FindAction("Jump", throwIfNotFound: true);
         m_StandardMovement_Teleport = m_StandardMovement.FindAction("Teleport", throwIfNotFound: true);
         m_StandardMovement_Down = m_StandardMovement.FindAction("Down", throwIfNotFound: true);
-        // CreativeMovement
-        m_CreativeMovement = asset.FindActionMap("CreativeMovement", throwIfNotFound: true);
-        m_CreativeMovement_Move = m_CreativeMovement.FindAction("Move", throwIfNotFound: true);
+        // FlightMovement
+        m_FlightMovement = asset.FindActionMap("FlightMovement", throwIfNotFound: true);
+        m_FlightMovement_Move = m_FlightMovement.FindAction("Move", throwIfNotFound: true);
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
         m_LadderMovement_Newaction = m_LadderMovement.FindAction("New action", throwIfNotFound: true);
@@ -462,51 +462,51 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     }
     public StandardMovementActions @StandardMovement => new StandardMovementActions(this);
 
-    // CreativeMovement
-    private readonly InputActionMap m_CreativeMovement;
-    private List<ICreativeMovementActions> m_CreativeMovementActionsCallbackInterfaces = new List<ICreativeMovementActions>();
-    private readonly InputAction m_CreativeMovement_Move;
-    public struct CreativeMovementActions
+    // FlightMovement
+    private readonly InputActionMap m_FlightMovement;
+    private List<IFlightMovementActions> m_FlightMovementActionsCallbackInterfaces = new List<IFlightMovementActions>();
+    private readonly InputAction m_FlightMovement_Move;
+    public struct FlightMovementActions
     {
         private @InputActions m_Wrapper;
-        public CreativeMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Move => m_Wrapper.m_CreativeMovement_Move;
-        public InputActionMap Get() { return m_Wrapper.m_CreativeMovement; }
+        public FlightMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Move => m_Wrapper.m_FlightMovement_Move;
+        public InputActionMap Get() { return m_Wrapper.m_FlightMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(CreativeMovementActions set) { return set.Get(); }
-        public void AddCallbacks(ICreativeMovementActions instance)
+        public static implicit operator InputActionMap(FlightMovementActions set) { return set.Get(); }
+        public void AddCallbacks(IFlightMovementActions instance)
         {
-            if (instance == null || m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_FlightMovementActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_FlightMovementActionsCallbackInterfaces.Add(instance);
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
         }
 
-        private void UnregisterCallbacks(ICreativeMovementActions instance)
+        private void UnregisterCallbacks(IFlightMovementActions instance)
         {
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
         }
 
-        public void RemoveCallbacks(ICreativeMovementActions instance)
+        public void RemoveCallbacks(IFlightMovementActions instance)
         {
-            if (m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_FlightMovementActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
-        public void SetCallbacks(ICreativeMovementActions instance)
+        public void SetCallbacks(IFlightMovementActions instance)
         {
-            foreach (var item in m_Wrapper.m_CreativeMovementActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_FlightMovementActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_FlightMovementActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
-    public CreativeMovementActions @CreativeMovement => new CreativeMovementActions(this);
+    public FlightMovementActions @FlightMovement => new FlightMovementActions(this);
 
     // LadderMovement
     private readonly InputActionMap m_LadderMovement;
@@ -606,7 +606,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnTeleport(InputAction.CallbackContext context);
         void OnDown(InputAction.CallbackContext context);
     }
-    public interface ICreativeMovementActions
+    public interface IFlightMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
     }

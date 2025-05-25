@@ -112,7 +112,7 @@
             ]
         },
         {
-            "name": "CreativeMovement",
+            "name": "FlightMovement",
             "id": "ce5c64b6-443c-4fd9-a5ab-ba6029866e86",
             "actions": [
                 {
