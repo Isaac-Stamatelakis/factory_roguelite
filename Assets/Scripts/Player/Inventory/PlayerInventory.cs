@@ -90,27 +90,11 @@ namespace PlayerModule {
         {
             playerInventoryGrid.RefreshSlots();
         }
-        
-        
-        void Update()
-        {
-            if (canvasController.BlockKeyInput) return;
-            
-            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
-            {
-                ToggleInventoryMode();
-            }
-            if (Input.GetKeyDown(KeyCode.LeftShift))
-            {
-                mode = InteractMode.Tools;
-                playerToolListUI.Highlight(true);
-            }
 
-            if (Input.GetKeyUp(KeyCode.LeftShift))
-            {
-                mode = InteractMode.Inventory;
-                playerToolListUI.Highlight(false);
-            }
+        public void SetInteractMode(InteractMode interactMode)
+        {
+            mode = interactMode;
+            playerToolListUI.Highlight(interactMode==InteractMode.Tools);
         }
         
         public void ChangeSelectedSlot(int slot) {

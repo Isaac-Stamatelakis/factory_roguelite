@@ -144,7 +144,7 @@ namespace Robot.Tool.Instances
             if (index >= orderedModes.Count) index = 0;
             toolData.Type = orderedModes[index];
             SetTargets();
-            laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
+            laserManager?.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
 
         private void SetTargets()

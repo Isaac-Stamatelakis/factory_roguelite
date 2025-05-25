@@ -421,6 +421,560 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""InventoryNavigation"",
+            ""id"": ""4d1871e3-a185-4da5-8521-5d64701179e3"",
+            ""actions"": [
+                {
+                    ""name"": ""Select0"",
+                    ""type"": ""Button"",
+                    ""id"": ""068f9ba7-e6d2-423f-8449-9e612119c176"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select1"",
+                    ""type"": ""Button"",
+                    ""id"": ""da8df564-161a-4059-b90a-ac5bdb9b853f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select2"",
+                    ""type"": ""Button"",
+                    ""id"": ""4e0e309f-f381-4c41-ab1a-d7eea3d5a7f2"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select3"",
+                    ""type"": ""Button"",
+                    ""id"": ""e1bbb70d-57b8-47a6-857a-b7cd2730c02b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select4"",
+                    ""type"": ""Button"",
+                    ""id"": ""2d70effe-c7a7-45fc-a86f-13028dc8c611"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select5"",
+                    ""type"": ""Button"",
+                    ""id"": ""0dedf070-536e-4a8a-a3f7-050516ba2115"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select6"",
+                    ""type"": ""Button"",
+                    ""id"": ""d8052775-0e89-4717-896c-341e17b8a994"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select7"",
+                    ""type"": ""Button"",
+                    ""id"": ""383c62cc-ade2-4457-b432-664bcef92909"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select8"",
+                    ""type"": ""Button"",
+                    ""id"": ""4b5e9084-e673-4297-8546-5ce7d0ccad9d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select9"",
+                    ""type"": ""Button"",
+                    ""id"": ""dd6bc4c1-1cf4-480a-87e4-71804c696247"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""eaec8975-2f36-417f-ba63-2c51f85951ea"",
+                    ""path"": ""<Keyboard>/0"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select0"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0cac58d9-6647-4d4a-bdc2-b10144bbbfdc"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""21cae940-58a4-4438-8bf7-8b2032a9f359"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""401d9864-fd5f-425c-93d4-6f72c0643af7"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4e53332c-8572-4a3f-896f-7470a5795fca"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3d44e20-3487-4fb1-bd29-ba9461b4e6e2"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select5"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d7b23f4-05b8-4add-8815-5e06c6e44cc3"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select6"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2c735b5d-39ec-439d-989f-d04efd94d095"",
+                    ""path"": ""<Keyboard>/7"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select7"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e8edad34-7b6f-4910-aafd-070e8109bb56"",
+                    ""path"": ""<Keyboard>/8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select8"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a856b519-3730-4c42-88ed-df424429a511"",
+                    ""path"": ""<Keyboard>/9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select9"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""InventoryUtils"",
+            ""id"": ""dfbb426f-cafb-44da-bdd4-c117f3dc732d"",
+            ""actions"": [
+                {
+                    ""name"": ""ShowRecipes"",
+                    ""type"": ""Button"",
+                    ""id"": ""f49e97ac-46b4-4c36-a69c-8e6434e8af68"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShowUses"",
+                    ""type"": ""Button"",
+                    ""id"": ""bedc70f2-2f3a-484e-b388-82cf2c7463ff"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EditTag"",
+                    ""type"": ""Button"",
+                    ""id"": ""0864746b-9c4f-4d8e-b5e8-c336d387f6a3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""8ce9198b-9427-4484-972b-357d5b23fdef"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShowRecipes"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""38af0bc8-e34c-4033-8f03-09e3c4f5f3e0"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShowUses"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c71d1a67-ecc7-4e4d-a76b-105dc8b4f8f3"",
+                    ""path"": ""<Keyboard>/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EditTag"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""MiscKeys"",
+            ""id"": ""7b3fcf79-9838-47a1-97b8-06b3d6f39824"",
+            ""actions"": [
+                {
+                    ""name"": ""ItemSearch"",
+                    ""type"": ""Button"",
+                    ""id"": ""52fd38a6-0cd5-4513-93db-ee81b2e73464"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Inventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c475558-e98b-4298-a797-e70ffd85cb49"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuestBook"",
+                    ""type"": ""Button"",
+                    ""id"": ""40ffec9c-dab6-4b79-9d72-dd13aa1986ba"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PlacementMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""6457e67c-e59d-40bf-b93a-b9ab320374f8"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ConduitOptions"",
+                    ""type"": ""Button"",
+                    ""id"": ""1d122680-509b-4c70-9a7b-32b11949095f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ConduitPortView"",
+                    ""type"": ""Button"",
+                    ""id"": ""dc25925f-fffa-429f-abae-fdebd71ff619"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ConduitView"",
+                    ""type"": ""Button"",
+                    ""id"": ""c95cd6ec-e45c-4f09-b597-583d23d3d67f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""InteractTools"",
+                    ""type"": ""Button"",
+                    ""id"": ""897417ad-56fa-4132-9e96-a700b8f4ce48"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""208db1aa-3817-45a6-b5e7-6463c412f43b"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ItemSearch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8406ea29-1d7f-4c92-a72d-bbf501f6b2a0"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Inventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""327b1d6f-56ab-45c5-a56f-260b56daefb3"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuestBook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""1149609c-acf6-4a22-8c6a-90ffbcb92b3f"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlacementMode"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""eb01c747-9d36-4870-b9f0-03cfcc33e62c"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlacementMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""c054873b-63f4-4163-9b71-b2be8636fb31"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlacementMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9516feaa-173e-4ff8-89a7-74a8d554ab1d"",
+                    ""path"": ""<Keyboard>/n"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ConduitOptions"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b451f48e-50fb-4275-b870-d1bd7e24700e"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ConduitPortView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""40a6cbd6-9cb8-4bb2-801b-919d8886f88d"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ConduitView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1eeebc87-9860-4923-afde-0f63fe371aa3"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InteractTools"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""ToolBindings"",
+            ""id"": ""6a787e22-73da-4278-8716-6f3afb48f675"",
+            ""actions"": [
+                {
+                    ""name"": ""SwitchMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""95525401-e420-4d81-8733-7616e0d439cf"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AutoSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""30102cdd-a6c7-4dfd-95d1-7d6f4d86860a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenLoadout"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba31cfce-8a6a-4f28-958b-3ff54a432eb9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchLoadout"",
+                    ""type"": ""Button"",
+                    ""id"": ""376900dc-1b1e-459c-9b4c-19b7987c91d1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""becc79f9-17c6-44fa-aab6-16d670fe6e4f"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c6272301-ac9a-4b5c-9448-699d78d484c5"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AutoSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""741dccc3-b4f2-4cfa-98b7-cdddf4cf9e01"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OpenLoadout"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1ee986ec-8f68-476a-a732-689e754d6fc3"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchLoadout"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -442,6 +996,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MiscMovement = asset.FindActionMap("MiscMovement", throwIfNotFound: true);
         m_MiscMovement_Teleport = m_MiscMovement.FindAction("Teleport", throwIfNotFound: true);
         m_MiscMovement_TryClimb = m_MiscMovement.FindAction("TryClimb", throwIfNotFound: true);
+        // InventoryNavigation
+        m_InventoryNavigation = asset.FindActionMap("InventoryNavigation", throwIfNotFound: true);
+        m_InventoryNavigation_Select0 = m_InventoryNavigation.FindAction("Select0", throwIfNotFound: true);
+        m_InventoryNavigation_Select1 = m_InventoryNavigation.FindAction("Select1", throwIfNotFound: true);
+        m_InventoryNavigation_Select2 = m_InventoryNavigation.FindAction("Select2", throwIfNotFound: true);
+        m_InventoryNavigation_Select3 = m_InventoryNavigation.FindAction("Select3", throwIfNotFound: true);
+        m_InventoryNavigation_Select4 = m_InventoryNavigation.FindAction("Select4", throwIfNotFound: true);
+        m_InventoryNavigation_Select5 = m_InventoryNavigation.FindAction("Select5", throwIfNotFound: true);
+        m_InventoryNavigation_Select6 = m_InventoryNavigation.FindAction("Select6", throwIfNotFound: true);
+        m_InventoryNavigation_Select7 = m_InventoryNavigation.FindAction("Select7", throwIfNotFound: true);
+        m_InventoryNavigation_Select8 = m_InventoryNavigation.FindAction("Select8", throwIfNotFound: true);
+        m_InventoryNavigation_Select9 = m_InventoryNavigation.FindAction("Select9", throwIfNotFound: true);
+        // InventoryUtils
+        m_InventoryUtils = asset.FindActionMap("InventoryUtils", throwIfNotFound: true);
+        m_InventoryUtils_ShowRecipes = m_InventoryUtils.FindAction("ShowRecipes", throwIfNotFound: true);
+        m_InventoryUtils_ShowUses = m_InventoryUtils.FindAction("ShowUses", throwIfNotFound: true);
+        m_InventoryUtils_EditTag = m_InventoryUtils.FindAction("EditTag", throwIfNotFound: true);
+        // MiscKeys
+        m_MiscKeys = asset.FindActionMap("MiscKeys", throwIfNotFound: true);
+        m_MiscKeys_ItemSearch = m_MiscKeys.FindAction("ItemSearch", throwIfNotFound: true);
+        m_MiscKeys_Inventory = m_MiscKeys.FindAction("Inventory", throwIfNotFound: true);
+        m_MiscKeys_QuestBook = m_MiscKeys.FindAction("QuestBook", throwIfNotFound: true);
+        m_MiscKeys_PlacementMode = m_MiscKeys.FindAction("PlacementMode", throwIfNotFound: true);
+        m_MiscKeys_ConduitOptions = m_MiscKeys.FindAction("ConduitOptions", throwIfNotFound: true);
+        m_MiscKeys_ConduitPortView = m_MiscKeys.FindAction("ConduitPortView", throwIfNotFound: true);
+        m_MiscKeys_ConduitView = m_MiscKeys.FindAction("ConduitView", throwIfNotFound: true);
+        m_MiscKeys_InteractTools = m_MiscKeys.FindAction("InteractTools", throwIfNotFound: true);
+        // ToolBindings
+        m_ToolBindings = asset.FindActionMap("ToolBindings", throwIfNotFound: true);
+        m_ToolBindings_SwitchMode = m_ToolBindings.FindAction("SwitchMode", throwIfNotFound: true);
+        m_ToolBindings_AutoSelect = m_ToolBindings.FindAction("AutoSelect", throwIfNotFound: true);
+        m_ToolBindings_OpenLoadout = m_ToolBindings.FindAction("OpenLoadout", throwIfNotFound: true);
+        m_ToolBindings_SwitchLoadout = m_ToolBindings.FindAction("SwitchLoadout", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -723,6 +1310,358 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public MiscMovementActions @MiscMovement => new MiscMovementActions(this);
+
+    // InventoryNavigation
+    private readonly InputActionMap m_InventoryNavigation;
+    private List<IInventoryNavigationActions> m_InventoryNavigationActionsCallbackInterfaces = new List<IInventoryNavigationActions>();
+    private readonly InputAction m_InventoryNavigation_Select0;
+    private readonly InputAction m_InventoryNavigation_Select1;
+    private readonly InputAction m_InventoryNavigation_Select2;
+    private readonly InputAction m_InventoryNavigation_Select3;
+    private readonly InputAction m_InventoryNavigation_Select4;
+    private readonly InputAction m_InventoryNavigation_Select5;
+    private readonly InputAction m_InventoryNavigation_Select6;
+    private readonly InputAction m_InventoryNavigation_Select7;
+    private readonly InputAction m_InventoryNavigation_Select8;
+    private readonly InputAction m_InventoryNavigation_Select9;
+    public struct InventoryNavigationActions
+    {
+        private @InputActions m_Wrapper;
+        public InventoryNavigationActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select0 => m_Wrapper.m_InventoryNavigation_Select0;
+        public InputAction @Select1 => m_Wrapper.m_InventoryNavigation_Select1;
+        public InputAction @Select2 => m_Wrapper.m_InventoryNavigation_Select2;
+        public InputAction @Select3 => m_Wrapper.m_InventoryNavigation_Select3;
+        public InputAction @Select4 => m_Wrapper.m_InventoryNavigation_Select4;
+        public InputAction @Select5 => m_Wrapper.m_InventoryNavigation_Select5;
+        public InputAction @Select6 => m_Wrapper.m_InventoryNavigation_Select6;
+        public InputAction @Select7 => m_Wrapper.m_InventoryNavigation_Select7;
+        public InputAction @Select8 => m_Wrapper.m_InventoryNavigation_Select8;
+        public InputAction @Select9 => m_Wrapper.m_InventoryNavigation_Select9;
+        public InputActionMap Get() { return m_Wrapper.m_InventoryNavigation; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(InventoryNavigationActions set) { return set.Get(); }
+        public void AddCallbacks(IInventoryNavigationActions instance)
+        {
+            if (instance == null || m_Wrapper.m_InventoryNavigationActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InventoryNavigationActionsCallbackInterfaces.Add(instance);
+            @Select0.started += instance.OnSelect0;
+            @Select0.performed += instance.OnSelect0;
+            @Select0.canceled += instance.OnSelect0;
+            @Select1.started += instance.OnSelect1;
+            @Select1.performed += instance.OnSelect1;
+            @Select1.canceled += instance.OnSelect1;
+            @Select2.started += instance.OnSelect2;
+            @Select2.performed += instance.OnSelect2;
+            @Select2.canceled += instance.OnSelect2;
+            @Select3.started += instance.OnSelect3;
+            @Select3.performed += instance.OnSelect3;
+            @Select3.canceled += instance.OnSelect3;
+            @Select4.started += instance.OnSelect4;
+            @Select4.performed += instance.OnSelect4;
+            @Select4.canceled += instance.OnSelect4;
+            @Select5.started += instance.OnSelect5;
+            @Select5.performed += instance.OnSelect5;
+            @Select5.canceled += instance.OnSelect5;
+            @Select6.started += instance.OnSelect6;
+            @Select6.performed += instance.OnSelect6;
+            @Select6.canceled += instance.OnSelect6;
+            @Select7.started += instance.OnSelect7;
+            @Select7.performed += instance.OnSelect7;
+            @Select7.canceled += instance.OnSelect7;
+            @Select8.started += instance.OnSelect8;
+            @Select8.performed += instance.OnSelect8;
+            @Select8.canceled += instance.OnSelect8;
+            @Select9.started += instance.OnSelect9;
+            @Select9.performed += instance.OnSelect9;
+            @Select9.canceled += instance.OnSelect9;
+        }
+
+        private void UnregisterCallbacks(IInventoryNavigationActions instance)
+        {
+            @Select0.started -= instance.OnSelect0;
+            @Select0.performed -= instance.OnSelect0;
+            @Select0.canceled -= instance.OnSelect0;
+            @Select1.started -= instance.OnSelect1;
+            @Select1.performed -= instance.OnSelect1;
+            @Select1.canceled -= instance.OnSelect1;
+            @Select2.started -= instance.OnSelect2;
+            @Select2.performed -= instance.OnSelect2;
+            @Select2.canceled -= instance.OnSelect2;
+            @Select3.started -= instance.OnSelect3;
+            @Select3.performed -= instance.OnSelect3;
+            @Select3.canceled -= instance.OnSelect3;
+            @Select4.started -= instance.OnSelect4;
+            @Select4.performed -= instance.OnSelect4;
+            @Select4.canceled -= instance.OnSelect4;
+            @Select5.started -= instance.OnSelect5;
+            @Select5.performed -= instance.OnSelect5;
+            @Select5.canceled -= instance.OnSelect5;
+            @Select6.started -= instance.OnSelect6;
+            @Select6.performed -= instance.OnSelect6;
+            @Select6.canceled -= instance.OnSelect6;
+            @Select7.started -= instance.OnSelect7;
+            @Select7.performed -= instance.OnSelect7;
+            @Select7.canceled -= instance.OnSelect7;
+            @Select8.started -= instance.OnSelect8;
+            @Select8.performed -= instance.OnSelect8;
+            @Select8.canceled -= instance.OnSelect8;
+            @Select9.started -= instance.OnSelect9;
+            @Select9.performed -= instance.OnSelect9;
+            @Select9.canceled -= instance.OnSelect9;
+        }
+
+        public void RemoveCallbacks(IInventoryNavigationActions instance)
+        {
+            if (m_Wrapper.m_InventoryNavigationActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IInventoryNavigationActions instance)
+        {
+            foreach (var item in m_Wrapper.m_InventoryNavigationActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_InventoryNavigationActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public InventoryNavigationActions @InventoryNavigation => new InventoryNavigationActions(this);
+
+    // InventoryUtils
+    private readonly InputActionMap m_InventoryUtils;
+    private List<IInventoryUtilsActions> m_InventoryUtilsActionsCallbackInterfaces = new List<IInventoryUtilsActions>();
+    private readonly InputAction m_InventoryUtils_ShowRecipes;
+    private readonly InputAction m_InventoryUtils_ShowUses;
+    private readonly InputAction m_InventoryUtils_EditTag;
+    public struct InventoryUtilsActions
+    {
+        private @InputActions m_Wrapper;
+        public InventoryUtilsActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @ShowRecipes => m_Wrapper.m_InventoryUtils_ShowRecipes;
+        public InputAction @ShowUses => m_Wrapper.m_InventoryUtils_ShowUses;
+        public InputAction @EditTag => m_Wrapper.m_InventoryUtils_EditTag;
+        public InputActionMap Get() { return m_Wrapper.m_InventoryUtils; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(InventoryUtilsActions set) { return set.Get(); }
+        public void AddCallbacks(IInventoryUtilsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_InventoryUtilsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InventoryUtilsActionsCallbackInterfaces.Add(instance);
+            @ShowRecipes.started += instance.OnShowRecipes;
+            @ShowRecipes.performed += instance.OnShowRecipes;
+            @ShowRecipes.canceled += instance.OnShowRecipes;
+            @ShowUses.started += instance.OnShowUses;
+            @ShowUses.performed += instance.OnShowUses;
+            @ShowUses.canceled += instance.OnShowUses;
+            @EditTag.started += instance.OnEditTag;
+            @EditTag.performed += instance.OnEditTag;
+            @EditTag.canceled += instance.OnEditTag;
+        }
+
+        private void UnregisterCallbacks(IInventoryUtilsActions instance)
+        {
+            @ShowRecipes.started -= instance.OnShowRecipes;
+            @ShowRecipes.performed -= instance.OnShowRecipes;
+            @ShowRecipes.canceled -= instance.OnShowRecipes;
+            @ShowUses.started -= instance.OnShowUses;
+            @ShowUses.performed -= instance.OnShowUses;
+            @ShowUses.canceled -= instance.OnShowUses;
+            @EditTag.started -= instance.OnEditTag;
+            @EditTag.performed -= instance.OnEditTag;
+            @EditTag.canceled -= instance.OnEditTag;
+        }
+
+        public void RemoveCallbacks(IInventoryUtilsActions instance)
+        {
+            if (m_Wrapper.m_InventoryUtilsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IInventoryUtilsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_InventoryUtilsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_InventoryUtilsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public InventoryUtilsActions @InventoryUtils => new InventoryUtilsActions(this);
+
+    // MiscKeys
+    private readonly InputActionMap m_MiscKeys;
+    private List<IMiscKeysActions> m_MiscKeysActionsCallbackInterfaces = new List<IMiscKeysActions>();
+    private readonly InputAction m_MiscKeys_ItemSearch;
+    private readonly InputAction m_MiscKeys_Inventory;
+    private readonly InputAction m_MiscKeys_QuestBook;
+    private readonly InputAction m_MiscKeys_PlacementMode;
+    private readonly InputAction m_MiscKeys_ConduitOptions;
+    private readonly InputAction m_MiscKeys_ConduitPortView;
+    private readonly InputAction m_MiscKeys_ConduitView;
+    private readonly InputAction m_MiscKeys_InteractTools;
+    public struct MiscKeysActions
+    {
+        private @InputActions m_Wrapper;
+        public MiscKeysActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @ItemSearch => m_Wrapper.m_MiscKeys_ItemSearch;
+        public InputAction @Inventory => m_Wrapper.m_MiscKeys_Inventory;
+        public InputAction @QuestBook => m_Wrapper.m_MiscKeys_QuestBook;
+        public InputAction @PlacementMode => m_Wrapper.m_MiscKeys_PlacementMode;
+        public InputAction @ConduitOptions => m_Wrapper.m_MiscKeys_ConduitOptions;
+        public InputAction @ConduitPortView => m_Wrapper.m_MiscKeys_ConduitPortView;
+        public InputAction @ConduitView => m_Wrapper.m_MiscKeys_ConduitView;
+        public InputAction @InteractTools => m_Wrapper.m_MiscKeys_InteractTools;
+        public InputActionMap Get() { return m_Wrapper.m_MiscKeys; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(MiscKeysActions set) { return set.Get(); }
+        public void AddCallbacks(IMiscKeysActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MiscKeysActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MiscKeysActionsCallbackInterfaces.Add(instance);
+            @ItemSearch.started += instance.OnItemSearch;
+            @ItemSearch.performed += instance.OnItemSearch;
+            @ItemSearch.canceled += instance.OnItemSearch;
+            @Inventory.started += instance.OnInventory;
+            @Inventory.performed += instance.OnInventory;
+            @Inventory.canceled += instance.OnInventory;
+            @QuestBook.started += instance.OnQuestBook;
+            @QuestBook.performed += instance.OnQuestBook;
+            @QuestBook.canceled += instance.OnQuestBook;
+            @PlacementMode.started += instance.OnPlacementMode;
+            @PlacementMode.performed += instance.OnPlacementMode;
+            @PlacementMode.canceled += instance.OnPlacementMode;
+            @ConduitOptions.started += instance.OnConduitOptions;
+            @ConduitOptions.performed += instance.OnConduitOptions;
+            @ConduitOptions.canceled += instance.OnConduitOptions;
+            @ConduitPortView.started += instance.OnConduitPortView;
+            @ConduitPortView.performed += instance.OnConduitPortView;
+            @ConduitPortView.canceled += instance.OnConduitPortView;
+            @ConduitView.started += instance.OnConduitView;
+            @ConduitView.performed += instance.OnConduitView;
+            @ConduitView.canceled += instance.OnConduitView;
+            @InteractTools.started += instance.OnInteractTools;
+            @InteractTools.performed += instance.OnInteractTools;
+            @InteractTools.canceled += instance.OnInteractTools;
+        }
+
+        private void UnregisterCallbacks(IMiscKeysActions instance)
+        {
+            @ItemSearch.started -= instance.OnItemSearch;
+            @ItemSearch.performed -= instance.OnItemSearch;
+            @ItemSearch.canceled -= instance.OnItemSearch;
+            @Inventory.started -= instance.OnInventory;
+            @Inventory.performed -= instance.OnInventory;
+            @Inventory.canceled -= instance.OnInventory;
+            @QuestBook.started -= instance.OnQuestBook;
+            @QuestBook.performed -= instance.OnQuestBook;
+            @QuestBook.canceled -= instance.OnQuestBook;
+            @PlacementMode.started -= instance.OnPlacementMode;
+            @PlacementMode.performed -= instance.OnPlacementMode;
+            @PlacementMode.canceled -= instance.OnPlacementMode;
+            @ConduitOptions.started -= instance.OnConduitOptions;
+            @ConduitOptions.performed -= instance.OnConduitOptions;
+            @ConduitOptions.canceled -= instance.OnConduitOptions;
+            @ConduitPortView.started -= instance.OnConduitPortView;
+            @ConduitPortView.performed -= instance.OnConduitPortView;
+            @ConduitPortView.canceled -= instance.OnConduitPortView;
+            @ConduitView.started -= instance.OnConduitView;
+            @ConduitView.performed -= instance.OnConduitView;
+            @ConduitView.canceled -= instance.OnConduitView;
+            @InteractTools.started -= instance.OnInteractTools;
+            @InteractTools.performed -= instance.OnInteractTools;
+            @InteractTools.canceled -= instance.OnInteractTools;
+        }
+
+        public void RemoveCallbacks(IMiscKeysActions instance)
+        {
+            if (m_Wrapper.m_MiscKeysActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IMiscKeysActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MiscKeysActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MiscKeysActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public MiscKeysActions @MiscKeys => new MiscKeysActions(this);
+
+    // ToolBindings
+    private readonly InputActionMap m_ToolBindings;
+    private List<IToolBindingsActions> m_ToolBindingsActionsCallbackInterfaces = new List<IToolBindingsActions>();
+    private readonly InputAction m_ToolBindings_SwitchMode;
+    private readonly InputAction m_ToolBindings_AutoSelect;
+    private readonly InputAction m_ToolBindings_OpenLoadout;
+    private readonly InputAction m_ToolBindings_SwitchLoadout;
+    public struct ToolBindingsActions
+    {
+        private @InputActions m_Wrapper;
+        public ToolBindingsActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @SwitchMode => m_Wrapper.m_ToolBindings_SwitchMode;
+        public InputAction @AutoSelect => m_Wrapper.m_ToolBindings_AutoSelect;
+        public InputAction @OpenLoadout => m_Wrapper.m_ToolBindings_OpenLoadout;
+        public InputAction @SwitchLoadout => m_Wrapper.m_ToolBindings_SwitchLoadout;
+        public InputActionMap Get() { return m_Wrapper.m_ToolBindings; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ToolBindingsActions set) { return set.Get(); }
+        public void AddCallbacks(IToolBindingsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Add(instance);
+            @SwitchMode.started += instance.OnSwitchMode;
+            @SwitchMode.performed += instance.OnSwitchMode;
+            @SwitchMode.canceled += instance.OnSwitchMode;
+            @AutoSelect.started += instance.OnAutoSelect;
+            @AutoSelect.performed += instance.OnAutoSelect;
+            @AutoSelect.canceled += instance.OnAutoSelect;
+            @OpenLoadout.started += instance.OnOpenLoadout;
+            @OpenLoadout.performed += instance.OnOpenLoadout;
+            @OpenLoadout.canceled += instance.OnOpenLoadout;
+            @SwitchLoadout.started += instance.OnSwitchLoadout;
+            @SwitchLoadout.performed += instance.OnSwitchLoadout;
+            @SwitchLoadout.canceled += instance.OnSwitchLoadout;
+        }
+
+        private void UnregisterCallbacks(IToolBindingsActions instance)
+        {
+            @SwitchMode.started -= instance.OnSwitchMode;
+            @SwitchMode.performed -= instance.OnSwitchMode;
+            @SwitchMode.canceled -= instance.OnSwitchMode;
+            @AutoSelect.started -= instance.OnAutoSelect;
+            @AutoSelect.performed -= instance.OnAutoSelect;
+            @AutoSelect.canceled -= instance.OnAutoSelect;
+            @OpenLoadout.started -= instance.OnOpenLoadout;
+            @OpenLoadout.performed -= instance.OnOpenLoadout;
+            @OpenLoadout.canceled -= instance.OnOpenLoadout;
+            @SwitchLoadout.started -= instance.OnSwitchLoadout;
+            @SwitchLoadout.performed -= instance.OnSwitchLoadout;
+            @SwitchLoadout.canceled -= instance.OnSwitchLoadout;
+        }
+
+        public void RemoveCallbacks(IToolBindingsActions instance)
+        {
+            if (m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IToolBindingsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_ToolBindingsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public ToolBindingsActions @ToolBindings => new ToolBindingsActions(this);
     public interface IStandardMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
@@ -743,5 +1682,42 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnTeleport(InputAction.CallbackContext context);
         void OnTryClimb(InputAction.CallbackContext context);
+    }
+    public interface IInventoryNavigationActions
+    {
+        void OnSelect0(InputAction.CallbackContext context);
+        void OnSelect1(InputAction.CallbackContext context);
+        void OnSelect2(InputAction.CallbackContext context);
+        void OnSelect3(InputAction.CallbackContext context);
+        void OnSelect4(InputAction.CallbackContext context);
+        void OnSelect5(InputAction.CallbackContext context);
+        void OnSelect6(InputAction.CallbackContext context);
+        void OnSelect7(InputAction.CallbackContext context);
+        void OnSelect8(InputAction.CallbackContext context);
+        void OnSelect9(InputAction.CallbackContext context);
+    }
+    public interface IInventoryUtilsActions
+    {
+        void OnShowRecipes(InputAction.CallbackContext context);
+        void OnShowUses(InputAction.CallbackContext context);
+        void OnEditTag(InputAction.CallbackContext context);
+    }
+    public interface IMiscKeysActions
+    {
+        void OnItemSearch(InputAction.CallbackContext context);
+        void OnInventory(InputAction.CallbackContext context);
+        void OnQuestBook(InputAction.CallbackContext context);
+        void OnPlacementMode(InputAction.CallbackContext context);
+        void OnConduitOptions(InputAction.CallbackContext context);
+        void OnConduitPortView(InputAction.CallbackContext context);
+        void OnConduitView(InputAction.CallbackContext context);
+        void OnInteractTools(InputAction.CallbackContext context);
+    }
+    public interface IToolBindingsActions
+    {
+        void OnSwitchMode(InputAction.CallbackContext context);
+        void OnAutoSelect(InputAction.CallbackContext context);
+        void OnOpenLoadout(InputAction.CallbackContext context);
+        void OnSwitchLoadout(InputAction.CallbackContext context);
     }
 }

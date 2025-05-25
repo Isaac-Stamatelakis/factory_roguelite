@@ -43,9 +43,8 @@ namespace Player.Movement
 
         public override void MovementUpdate()
         {
-            rb.gravityScale = 0;
             bool blockInput = playerRobot.BlockMovement;
-            if (blockInput)
+            if (blockInput || movementVector == Vector2.zero)
             {
                 rb.velocity = Vector2.zero;
                 return;

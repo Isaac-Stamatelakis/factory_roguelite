@@ -41,7 +41,7 @@ namespace Player.Movement
 
         public override void MovementUpdate()
         {
-            if (playerRobot.BlockMovement) return;
+            if (playerRobot.BlockMovement || movementVector == Vector2.zero) return;
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             position += (Vector3)movementVector * movementSpeed;

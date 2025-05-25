@@ -116,7 +116,7 @@ namespace Dimensions {
             WorldMetaData metaData = worldManager.GetMetaData();
             playerScript.Cheats = metaData.CheatsEnabled;
             QuestBookUIManager questBookUIManager = GameObject.FindObjectOfType<QuestBookUIManager>();
-            questBookUIManager.Initialize(metaData.QuestBook);
+            questBookUIManager.Initialize(metaData.QuestBook,playerScript);
         }
 
         public void OnCaveRegistryLoad(CaveRegistry caveRegistry)
