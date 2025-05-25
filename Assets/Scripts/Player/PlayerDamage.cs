@@ -4,7 +4,7 @@ namespace Player
 {
     public class PlayerDamage
     {
-        private float timeSinceDamaged = 0;
+        public float TimeSinceDamaged { get; private set; }
         private PlayerRobot playerRobot;
 
         public PlayerDamage(PlayerRobot playerRobot)
@@ -14,7 +14,7 @@ namespace Player
 
         public void IterateDamageTime(float deltaTime)
         {
-            timeSinceDamaged += deltaTime;
+            TimeSinceDamaged += deltaTime;
         }
         public bool Damage(float amount)
         {
@@ -22,7 +22,7 @@ namespace Player
             playerRobot.ResetInvinicibleFrames();
             playerRobot.ResetLiveYFrames();
             playerRobot.RobotData.Health -= amount;
-            timeSinceDamaged = 0;
+            TimeSinceDamaged = 0;
             if (playerRobot.RobotData.Health > 0) return true;
             
             playerRobot.Die();

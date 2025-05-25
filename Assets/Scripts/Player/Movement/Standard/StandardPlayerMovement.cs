@@ -19,7 +19,6 @@ namespace Player.Movement.Standard
         }
 
         public abstract void MovementUpdate();
-        public abstract void InitializeListeners();
     }
 
     public class StandardPlayerMovement : BasePlayerMovement
@@ -36,89 +35,54 @@ namespace Player.Movement.Standard
         private bool holdingDown;
         private int bonusJumps;
         private RocketBoots rocketBoots;
+        private SpriteRenderer spriteRenderer;
 
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
-            rb = playerRobot.GetComponentInChildren<Rigidbody2D>();
+            rb = playerRobot.GetComponent<Rigidbody2D>();
+            spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
             jumpStats = playerRobot.JumpStats;
+            
+            playerMovementInput = new PlayerMovementInput();
+            playerMovementInput.PlayerMovement.Move.performed += OnMovePerformed;
+            playerMovementInput.PlayerMovement.Move.canceled += OnMoveCancelled;
+            
+            playerMovementInput.PlayerMovement.Jump.performed += OnJumpPressed;
+            playerMovementInput.PlayerMovement.Jump.canceled -= OnJumpReleased;
+            
+            playerMovementInput.Enable();
         }
 
         public override void MovementUpdate()
-        {
-
-        }
-
-        public override void InitializeListeners()
-        {
-            playerMovementInput.PlayerMovement.Move.performed += OnMovePerformed;
-            playerMovementInput.PlayerMovement.Move.canceled += OnMoveCancelled;
-        }
-
-        private void OnMovePerformed(InputAction.CallbackContext context)
-        {
-            inputDir = context.ReadValue<float>();
-        }
-
-        private void OnMoveCancelled(InputAction.CallbackContext context)
-        {
-            inputDir = 0;
-        }
-
-        private void StandardMoveUpdate()
         {
             bool blockInput = playerRobot.BlockMovement;
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) && !blockInput &&
-                             inputDir > 0;
+                             inputDir < 0;
             bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) && !blockInput &&
-                              inputDir < 0;
+                              inputDir > 0;
             bool moveUpdate = movedLeft != movedRight; // xor
             if (!moveUpdate)
             {
-                OnNoMoveUpdate();
+                ReduceMoveDir();
             }
 
+            if (movedLeft) ApplyMovement(Direction.Left);
+            if (movedRight) ApplyMovement(Direction.Right);
+            
             UpdateMovementAnimations();
-
-            const float MAX_MOVE_DIR = 1;
-
-            if (moveDirTime > MAX_MOVE_DIR) moveDirTime = MAX_MOVE_DIR;
-            if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
-
-            int sign = moveDirTime < 0 ? -1 : 1;
-            float wishdir = movementStats.accelationModifier * moveDirTime * sign;
-
-            float speed = movementStats.speed;
-            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts,
-                (int)RobotUpgrade.Speed);
-            ;
-            if (wishdir > 0.05f &&
-                playerRobot.TryConsumeEnergy(
-                    speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND * Time.deltaTime, 0.1f))
+            
+            if (blockInput)
             {
-                speed += speedUpgrades;
+                rb.gravityScale = playerRobot.DefaultGravityScale;   
+                jumpEvent = null;
+                return;
             }
-
-            var fluidInformation = playerRobot.fluidCollisionInformation;
-            if (fluidInformation.Colliding) speed *= fluidInformation.SpeedModifier;
-            switch (playerRobot.CurrentTileMovementType)
-            {
-                case TileMovementType.None:
-                    break;
-                case TileMovementType.Slippery:
-                    speed *= 1.2f;
-                    break;
-                case TileMovementType.Slow:
-                    speed *= movementStats.slowSpeedReduction;
-                    break;
-            }
-
-            if (!playerRobot.IsOnGround()) speed *= movementStats.airSpeedIncrease;
-            velocity.x = sign * Mathf.Lerp(0, speed, wishdir);
-
-            SpaceBarMovementUpdate(ref velocity);
+            
+            
+            UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
 
@@ -141,7 +105,7 @@ namespace Player.Movement.Standard
                 PlayWalkAnimation(NO_TIME_CHANGE);
             }
 
-            void OnNoMoveUpdate()
+            void ReduceMoveDir()
             {
                 float dif = playerRobot.GetFriction();
 
@@ -157,7 +121,44 @@ namespace Player.Movement.Standard
                     if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
+            
+            void ApplyMovement(Direction direction)
+            {
+                int dirSign = direction == Direction.Right ? 1 : -1;
+                bool isMovingInCurrentDirection = (dirSign > 0 && moveDirTime > 0) || (dirSign < 0 && moveDirTime < 0);
+                
+                float modifier = isMovingInCurrentDirection 
+                    ? movementStats.moveModifier 
+                    : movementStats.turnRate;
+    
+        
+                moveDirTime += dirSign * modifier * Time.deltaTime;
+                spriteRenderer.flipX = direction == Direction.Left;
+                
+                float minMove = movementStats.minMove * dirSign;
+                if ((dirSign > 0 && moveDirTime > 0 && moveDirTime < movementStats.minMove) ||
+                    (dirSign < 0 && moveDirTime < 0 && moveDirTime > -movementStats.minMove))
+                {
+                    moveDirTime = minMove;
+                }
+                
+                if (playerRobot.WalkingIntoSlope(direction))
+                {
+                    playerRobot.ResetLiveYFrames();
+                }
+            }
         }
+
+        private void OnMovePerformed(InputAction.CallbackContext context)
+        {
+            inputDir = context.ReadValue<float>();
+        }
+
+        private void OnMoveCancelled(InputAction.CallbackContext context)
+        {
+            inputDir = 0;
+        }
+        
         
         public bool CanJump()
         {
@@ -185,12 +186,48 @@ namespace Player.Movement.Standard
         }
 
 
+        private void UpdateHorizontalMovement(ref Vector2 velocity)
+        {
+            const float MAX_MOVE_DIR = 1;
+
+            if (moveDirTime > MAX_MOVE_DIR) moveDirTime = MAX_MOVE_DIR;
+            if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
+
+            int sign = moveDirTime < 0 ? -1 : 1;
+            float wishdir = movementStats.accelationModifier * moveDirTime * sign;
+
+            float speed = movementStats.speed;
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts,
+                (int)RobotUpgrade.Speed);
+            
+            if (wishdir > 0.05f && playerRobot.TryConsumeEnergy(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND * Time.deltaTime, 0.1f))
+            {
+                speed += speedUpgrades;
+            }
+
+            var fluidInformation = playerRobot.fluidCollisionInformation;
+            if (fluidInformation.Colliding) speed *= fluidInformation.SpeedModifier;
+            switch (playerRobot.CurrentTileMovementType)
+            {
+                case TileMovementType.None:
+                    break;
+                case TileMovementType.Slippery:
+                    speed *= 1.2f;
+                    break;
+                case TileMovementType.Slow:
+                    speed *= movementStats.slowSpeedReduction;
+                    break;
+            }
+           
+            if (!playerRobot.IsOnGround()) speed *= movementStats.airSpeedIncrease;
+            velocity.x = sign * Mathf.Lerp(0, speed, wishdir);
+        }
+
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
             var fluidCollisionInformation = playerRobot.fluidCollisionInformation;
-            float fluidGravityModifer =
-                fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
-
+            float fluidGravityModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
+            
             if (jumpEvent != null)
             {
                 if (playerRobot.CollisionStateActive(CollisionState.HeadContact))
@@ -200,11 +237,9 @@ namespace Player.Movement.Standard
                 }
                 else if (holdingJump)
                 {
-                    rb.gravityScale = fluidGravityModifer *
-                                      jumpEvent.GetGravityModifier(jumpStats.initialGravityPercent,
-                                          jumpStats.maxGravityTime) * playerRobot.DefaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer * jumpEvent.GetGravityModifier(jumpStats.initialGravityPercent, jumpStats.maxGravityTime) * playerRobot.DefaultGravityScale;
                     jumpEvent.IterateTime();
-                    if (ControlUtils.GetControlKey(PlayerControl.MoveDown))
+                    if (holdingDown)
                     {
                         jumpEvent.IterateTime();
                         rb.gravityScale *= 1.5f;
@@ -214,50 +249,21 @@ namespace Player.Movement.Standard
                 {
                     rb.gravityScale = fluidGravityModifer * playerRobot.DefaultGravityScale;
                 }
-
-                if (Input.GetKeyUp(KeyCode.Space))
-                {
-                    jumpEvent = null;
-                }
-
                 return;
             }
 
-            float fluidSpeedModifier =
-                fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
+            float fluidSpeedModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
 
-            bool blockInput = playerRobot.BlockMovement;
-            if (rocketBoots != null && rocketBoots.Active)
+           
+            if (rocketBoots != null && holdingJump)
             {
-                if (blockInput)
-                {
-                    rocketBoots.Terminate();
-                    rocketBoots = null;
-                    return;
-                }
-
-                if (rocketBoots.Boost > 0)
-                {
-                    rb.gravityScale = 0;
-                    float bonusJumpHeight =
-                        RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,
-                            (int)RobotUpgrade.JumpHeight);
-                    velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1 + 0.33f * bonusJumpHeight);
-                }
-                else
-                {
-                    rb.gravityScale = fluidGravityModifer * playerRobot.DefaultGravityScale;
-                }
+                RocketBootUpdate(ref velocity,fluidSpeedModifier);
+                if (rocketBoots != null) return;
             }
-
-            if (!blockInput)
-            {
-                const float BONUS_FALL_MODIFIER = 1.25f;
-                rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown)
-                    ? playerRobot.DefaultGravityScale * BONUS_FALL_MODIFIER
-                    : playerRobot.DefaultGravityScale;
-            }
+      
             rb.gravityScale *= fluidGravityModifer;
+            const float BONUS_FALL_MODIFIER = 1.25f;
+            if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
         }
 
         public void OnGrounded()
@@ -280,6 +286,33 @@ namespace Player.Movement.Standard
             }
         }
 
+        public void RocketBootUpdate(ref Vector2 velocity, float fluidSpeedModifier)
+        {
+            if (holdingJump)
+            {
+                if (rocketBoots.Boost > 0)
+                {
+                    rb.gravityScale = 0;
+                    float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
+                    velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1 + 0.33f * bonusJumpHeight);
+                }
+                else
+                {
+                    if (rb.velocity.y < 0)
+                    {
+                        var vector2 = rb.velocity;
+                        vector2.y = 0;
+                        rb.velocity = vector2;
+                    }
+                    rocketBoots.Boost = rb.velocity.y/2f;
+                }
+            }
+            rocketBoots.UpdateBoost(holdingJump);
+            if (rocketBoots.FlightTime >= 0) return;
+            rocketBoots.Terminate();
+            rocketBoots = null;
+        }
+
         void OnJumpPressed(InputAction.CallbackContext context)
         {
             holdingJump = true;
@@ -287,7 +320,7 @@ namespace Player.Movement.Standard
 
             if (bonusJumps > 0 && playerRobot.CoyoteFrames <= 0)
             {
-                bonusJumpParticles.Play();
+                playerRobot.PlayerParticles.PlayParticle(PlayerParticle.BonusJump);
                 bonusJumps--;
             }
 
@@ -306,6 +339,7 @@ namespace Player.Movement.Standard
         void OnJumpReleased(InputAction.CallbackContext context)
         {
             holdingJump = false;
+            Debug.Log("Release");
         }
 
         void OnDropDownPlatformPressed(InputAction.CallbackContext context)
@@ -322,7 +356,7 @@ namespace Player.Movement.Standard
             }
         }
 
-        void OnDownPressed(InputAction.CallbackContext context)
+        void OnDownPressed()
         {
             holdingDown = true;
         }
@@ -332,47 +366,7 @@ namespace Player.Movement.Standard
             holdingDown = false;
         }
 
-
-        private void SpaceBarMovementUpdate(ref Vector2 velocity)
-        {
-            if (playerRobot.BlockMovement)
-            {
-                rb.gravityScale = playerRobot.DefaultGravityScale;   
-                jumpEvent = null;
-                return;
-            }
-            
-            if (!IsOnGround() && rocketBoots != null)
-            {
-                if (!rocketBoots.Active && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
-                {
-                    
-                    StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
-                }
-
-                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST_PER_SECOND * Time.deltaTime, 0))
-                {
-                    if (rocketBoots.Boost <= 0)
-                    {
-                        if (rb.velocity.y < 0)
-                        {
-                            var vector2 = rb.velocity;
-                            vector2.y = 0;
-                            rb.velocity = vector2;
-                        }
-                        rocketBoots.Boost = rb.velocity.y/2f;
-                    }
-                    rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
-                    
-                    if (rocketBoots.FlightTime < 0)
-                    {
-                        rocketBoots.Terminate();
-                        rocketBoots = null;
-                        rb.gravityScale =  fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f * defaultGravityScale;
-                    }
-                }
-            }
-        }
+        
         private class JumpEvent
         {
             private float holdTime;

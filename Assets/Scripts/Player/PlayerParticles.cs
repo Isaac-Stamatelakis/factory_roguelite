@@ -8,7 +8,9 @@ namespace Player
 {
     public enum PlayerParticle
     {
-        BonusJump
+        BonusJump,
+        Teleportation,
+        NanoBots
     }
     public class PlayerParticles
     {
@@ -31,6 +33,13 @@ namespace Player
             switch (particle)
             {
                 case PlayerParticle.BonusJump:
+                    bonusJumpParticles.Play();
+                    break;
+                case PlayerParticle.Teleportation:
+                    teleportParticles.Play();
+                    break;
+                case PlayerParticle.NanoBots:
+                    nanoBotParticles.Play();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(particle), particle, null);

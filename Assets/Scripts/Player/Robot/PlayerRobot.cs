@@ -35,6 +35,7 @@ using TileMaps.Place;
 using Tiles;
 using UI;
 using UI.Statistics;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
@@ -71,7 +72,7 @@ namespace Player {
         [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
 
-        [SerializeField] internal DirectionalMovementStats MovementStats { get; private set; }
+        [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
         [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
         
@@ -139,7 +140,6 @@ namespace Player {
         
         
         private PlayerTeleportEvent playerTeleportEvent;
-        private float timeSinceDamaged = 0;
         
         // Movement
         private StandardPlayerMovement standardPlayerMovement;
@@ -172,7 +172,9 @@ namespace Player {
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
-            
+
+            standardPlayerMovement = new StandardPlayerMovement(this);
+
             StartCoroutine(LoadAsyncAssets());
         }
 
@@ -218,7 +220,7 @@ namespace Player {
             if (robotData.Health <= 0) return;
             MoveUpdate();
             FluidDamageUpdate();
-            timeSinceDamaged += Time.deltaTime;
+            PlayerDamage.IterateDamageTime(Time.deltaTime);
         }
 
         public void SetIsUsingTool(bool value)
@@ -397,7 +399,7 @@ namespace Player {
             }
             if (DevMode.Instance.flight)
             {
-                animator.SetBool(Walk,false);
+                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
                 if (canvasController.BlockKeyInput) return;
                 CreativeFlightMovementUpdate(transform);
                 return;
@@ -408,16 +410,16 @@ namespace Player {
 
             if (flight > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.FLIGHT_COST, 0))
             {
-                animator.SetBool(Walk,false);
+                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
                 FlightMoveUpdate();
                 return;
             }
             
             if (climbing)
             {
-                animator.speed = 1;
-                animator.SetBool(Walk,false);
-                animator.Play(IsUsingTool ? "AirAction" : "Air");
+                AnimationController.SetAnimationSpeed(1);
+                AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
+                AnimationController.PlayAnimation(PlayerAnimation.Air,IsUsingTool);
                 bool exitKeyCode = ControlUtils.GetControlKeyDown(PlayerControl.MoveLeft) || ControlUtils.GetControlKeyDown(PlayerControl.MoveRight) || ControlUtils.GetControlKeyDown(PlayerControl.Jump);
                 if (!exitKeyCode) return;
                 
@@ -426,6 +428,7 @@ namespace Player {
                 rb.gravityScale = DefaultGravityScale;
                 return;
             }
+            standardPlayerMovement.MovementUpdate();
         }
         
 
@@ -456,7 +459,7 @@ namespace Player {
             bool teleported = playerTeleportEvent.TryTeleport();
             if (!teleported) return;
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
-            teleportParticles.Play();
+            PlayerParticles.PlayParticle(PlayerParticle.Teleportation);
             fallTime = 0;
 
             
@@ -572,45 +575,13 @@ namespace Player {
 
             return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
-
-        private bool DirectionalMovementUpdate(Direction direction, PlayerControl playerControl)
-        {
-            if (!ControlUtils.GetControlKey(playerControl)) return false;
-            switch (direction)
-            {
-                case Direction.Left:
-                    float lmodifier = moveDirTime < 0 ? MovementStats.moveModifier : MovementStats.turnRate;
-                    moveDirTime -= lmodifier * Time.deltaTime;
-                    
-                    spriteRenderer.flipX = true;
-                    if (moveDirTime < 0 && moveDirTime > -MovementStats.minMove) moveDirTime = -MovementStats.minMove;
-                    break;
-                case Direction.Right:
-                    float rmodifier = moveDirTime > 0 ? MovementStats.moveModifier : MovementStats.turnRate;
-                    moveDirTime += rmodifier * Time.deltaTime;
-                    spriteRenderer.flipX = false;
-                    if (moveDirTime > 0 && moveDirTime < MovementStats.minMove) moveDirTime = MovementStats.minMove;
-                    break;
-            }
-            
-            
-            if (!IsOnGround()) return true;
-            
-            if (WalkingIntoSlope(direction))
-            {
-                LiveYUpdates = 3;
-            }
-            
-
-            return true;
-        }
-
+        
         public bool IsOnGround()
         {
             return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && IgnorePlatformFrames < 0 && rb.velocity.y < 0.05;
         }
 
-        private bool WalkingIntoSlope(Direction direction)
+        public bool WalkingIntoSlope(Direction direction)
         {
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
@@ -647,7 +618,7 @@ namespace Player {
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
             CanStartClimbing();
-            if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
+            if (PlayerDamage.TimeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
             {
                 NanoBotHeal();
             }
@@ -894,7 +865,7 @@ namespace Player {
         public void Heal(float amount)
         {
             robotData.Health += amount;
-            nanoBotParticles.Play();
+            PlayerParticles.PlayParticle(PlayerParticle.NanoBots);
             float maxHealth = GetMaxHealth();
             if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
@@ -905,13 +876,13 @@ namespace Player {
             if (robotData.Health >= maxHealth) return;
             robotData.Health += maxHealth * 0.0025f;
             robotData.nanoBotTime -= Time.fixedDeltaTime;
-            nanoBotParticles.Play();
+            PlayerParticles.PlayParticle(PlayerParticle.NanoBots);
             if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
         
         public void RefreshNanoBots()
         {
-            nanoBotParticles.Play();
+            PlayerParticles.PlayParticle(PlayerParticle.NanoBots);
             robotData.nanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
             float maxHealth = GetMaxHealth();
             if (robotData.Health >= maxHealth) return;
