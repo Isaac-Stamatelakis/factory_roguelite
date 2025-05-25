@@ -20,7 +20,7 @@ namespace Entities.Mob
             if (!other.CompareTag("Player")) return;
             PlayerRobot playerRobot = other.GetComponent<PlayerRobot>();
             if (!playerRobot) return;
-            if (!playerRobot.Damage(Damage)) return;
+            if (!playerRobot.PlayerDamage.Damage(Damage)) return;
             Vector2 collisionPoint = other.ClosestPoint(transform.position);
             Vector2 direction = collisionPoint.normalized;
             Rigidbody2D rb = other.GetComponent<Rigidbody2D>();

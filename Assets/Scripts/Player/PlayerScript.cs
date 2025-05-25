@@ -31,6 +31,7 @@ using UI.QuestBook;
 using UI.RingSelector;
 using UI.Statistics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using World.Dimensions.Serialization;
 using WorldModule;
@@ -52,6 +53,8 @@ namespace Player
         [SerializeField] private TileViewerCollection tileViewers;
         [SerializeField] private ParticleSystem particles;
         [SerializeField] private PlayerToolSpawnedObjectCollection SpawnedObjectCollection;
+        private InputActions inputActions;
+        public InputActions InputActions => inputActions;
         public Transform PersistentObjectContainer => SpawnedObjectCollection.Persistent;
         public Transform TemporaryObjectContainer => SpawnedObjectCollection.Temporary;
         private PlayerGameStageCollection gameStageCollection;
@@ -75,6 +78,12 @@ namespace Player
         private ClosedChunkSystem currentSystem;
         public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
+
+        public void Awake()
+        {
+            inputActions = new InputActions();
+        }
+
         public void Start()
         {
             PlayerManager.Instance.RegisterPlayer(this);
@@ -95,8 +104,8 @@ namespace Player
             
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
-            playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
-
+            playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
+            
             playerMouse.InitializeToolClickHandlers();
             
             playerInventory.InitializeToolDisplay();

@@ -30,7 +30,7 @@ public class CameraView : MonoBehaviour
     {
         int height = Screen.height;
         int width = Screen.width;
-        float scale = GetCameraScale(cameraViewSize);
+        float scale = GetCameraSize(cameraViewSize);
         int cameraWidth = Mathf.RoundToInt(width * scale);
         int cameraHeight = Mathf.RoundToInt(height * scale);
         PixelPerfectCamera pixelPerfectCamera = GetComponent<PixelPerfectCamera>();
@@ -47,7 +47,7 @@ public class CameraView : MonoBehaviour
         StartCoroutine(SetCameraSizeDelayed());
     }
 
-    private float GetCameraScale(CameraViewSize cameraViewSize)
+    private float GetCameraSize(CameraViewSize cameraViewSize)
     {
         switch (cameraViewSize)
         {

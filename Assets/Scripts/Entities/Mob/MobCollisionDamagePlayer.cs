@@ -11,6 +11,6 @@ public class MobCollisionDamagePlayer : MonoBehaviour
     {
         if (!other.gameObject.CompareTag("Player")) return;
         Debug.Log(other.gameObject.name);
-        other.gameObject.GetComponent<PlayerRobot>()?.Damage(Damage);
+        other.gameObject.GetComponent<PlayerRobot>().PlayerDamage.Damage(Damage);
     }
 }

@@ -10,23 +10,19 @@ namespace Player.Movement
         private Bounds playerBounds;
         private Transform playerTransform;
         private const float COOLDOWN = 0.2f;
-        public float time;
-
-        public void IterateTime(float deltaTime)
-        {
-            time += Time.deltaTime;
-        }
+        private float timeStamp;
 
         public bool Expired()
         {
-            return time >= COOLDOWN;
+            return Time.time - timeStamp >= COOLDOWN;
         }
 
-        public PlayerTeleportEvent(Transform playerTransform, Vector2 teleportPosition, Bounds playerBounds)
+        public PlayerTeleportEvent(Transform playerTransform, Vector2 teleportPosition, Bounds playerBounds, float time)
         {
             this.teleportPosition = teleportPosition;
             this.playerBounds = playerBounds;
             this.playerTransform = playerTransform;
+            this.timeStamp = time;
         }
 
         public bool TryTeleport()
