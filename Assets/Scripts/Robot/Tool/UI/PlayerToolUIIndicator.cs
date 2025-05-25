@@ -31,7 +31,7 @@ namespace Robot.Tool.UI
         public void Refresh()
         {
             image.sprite = GetIndicatorSprite();
-            playerToolListUI.RefreshMaterialColor(index);
+            playerToolListUI.RefreshToolSprite(index);
         }
 
         private Sprite GetIndicatorSprite()

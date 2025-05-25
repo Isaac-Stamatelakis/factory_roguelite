@@ -56,7 +56,9 @@ namespace Robot.Tool.UI
             
             for (var index = 0; index < tools.Count; index++)
             {
-                RefreshMaterialColor(index);
+                var itemSlotUI = mToolCollectionUI.GetItemSlotUI(index);
+                itemSlotUI.ItemImage.material = new Material(mToolMaterial);
+                RefreshToolSprite(index);
             }
 
             string ToolTipOverride(int index)
@@ -130,16 +132,22 @@ namespace Robot.Tool.UI
             }
         }
 
-        public void RefreshMaterialColor(int index)
+        public void RefreshToolSprite(int index)
         {
             int toolColorProperty = Shader.PropertyToID("_ToolColor");
             
             var robotToolInstance = playerScript.PlayerRobot.RobotTools[index];
             ItemSlotUI itemSlotUI = mToolCollectionUI.GetItemSlotUI(index);
-            itemSlotUI.ItemImage.material = new Material(mToolMaterial);
+            
             if (robotToolInstance is IColorableTool colorableTool)
             {
                 itemSlotUI.ItemImage.material.SetColor(toolColorProperty,colorableTool.GetColor());
+            }
+
+            if (robotToolInstance is IMultiSpriteTool multiSpriteTool)
+            {
+                ItemSlot displaySlot = new ItemSlot(multiSpriteTool.GetDisplayItem(), 1, null);
+                mToolCollectionUI.SetItem(index,displaySlot); // This will reset material, but doesn't matter for laser gun
             }
         }
     

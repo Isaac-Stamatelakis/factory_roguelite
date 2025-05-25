@@ -164,11 +164,11 @@ namespace Player {
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
-            
             miscMovementActions.Enable();
             
+            InitializeMovementState();
+            
             StartCoroutine(LoadAsyncAssets());
-            SetMovementState( PlayerMovementState.Flight);
         }
 
         private IEnumerator LoadAsyncAssets()

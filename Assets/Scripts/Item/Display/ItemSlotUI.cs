@@ -133,8 +133,9 @@ namespace Items {
                 SetAmountText();
                 return;
             }
-            if (!ItemImage) return;
             
+            if (!ItemImage) return;
+          
             ItemImage.gameObject.SetActive(true);
             displaying = true;
             displayedSlot = itemSlot;
