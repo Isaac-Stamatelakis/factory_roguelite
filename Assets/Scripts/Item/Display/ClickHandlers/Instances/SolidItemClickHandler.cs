@@ -9,6 +9,7 @@ using Items.Tags;
 using Player.UI.Inventory;
 using PlayerModule;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Item.Inventory.ClickHandlers.Instances
 
@@ -128,7 +129,7 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         private bool TransferConnections(List<ItemSlot> inventory)
         {
-            if (!Input.GetKey(KeyCode.LeftShift)) return false;
+            if (!Keyboard.current.shiftKey.isPressed) return false;
             ItemSlot transferItem = inventory[index];
             if (ReferenceEquals(inventoryUI.Connection, null))
             {

@@ -48,7 +48,7 @@ namespace Player.Mouse
                 counter -= timeSinceLastUse;
                 if (counter > 0 && !resetCounterOnClick) return;
                
-                if (Input.GetMouseButtonDown(0))
+                if (UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
                 {
                     clickHandler.ClickUpdate(mousePosition);
                 }

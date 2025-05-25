@@ -131,8 +131,8 @@ namespace PlayerModule.KeyPress {
             IRobotToolInstance current = playerInventory?.CurrentTool;
             if (current != null)
             {
-                Robot.Tool.MoveDirection moveDirection = Input.GetKey(KeyCode.LeftShift) ? Robot.Tool.MoveDirection.Right : Robot.Tool.MoveDirection.Left;
-                current.ModeSwitch(moveDirection,Input.GetKey(KeyCode.LeftControl));
+                Robot.Tool.MoveDirection moveDirection = Keyboard.current.shiftKey.wasPressedThisFrame ? Robot.Tool.MoveDirection.Right : Robot.Tool.MoveDirection.Left;
+                current.ModeSwitch(moveDirection,Keyboard.current.ctrlKey.wasPressedThisFrame);
                 playerScript.PlayerMouse.UpdateOnToolChange();
                 playerScript.PlayerInventory.PlayerRobotToolUI.UpdateIndicators();
             }
@@ -220,7 +220,7 @@ namespace PlayerModule.KeyPress {
         {
             PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
             {
-                position = Input.mousePosition
+                position = UnityEngine.InputSystem.Mouse.current.position.ReadValue()
             };
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerEventData, results);

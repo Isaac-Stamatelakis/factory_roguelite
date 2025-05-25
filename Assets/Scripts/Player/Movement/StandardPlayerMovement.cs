@@ -50,6 +50,7 @@ namespace Player.Movement.Standard
         private float moveDirTime;
         private JumpEvent jumpEvent;
         private bool holdingJump;
+        public bool HoldingDown =>  holdingDown;
         private bool holdingDown;
         private int bonusJumps;
         private RocketBoots rocketBoots;
