@@ -6,6 +6,7 @@ using Items;
 using PlayerModule.KeyPress;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace Item.GrabbedItem {
     public class GrabbedItemProperties : MonoBehaviour
@@ -36,12 +37,12 @@ namespace Item.GrabbedItem {
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rectTransform.parent as RectTransform,
-                Input.mousePosition,
+                Mouse.current.position.ReadValue(),
                 uiCamera,
                 out Vector2 localPos
             );
             rectTransform.anchoredPosition = localPos;
-            bool leftClick = Input.GetMouseButtonDown(0);
+            bool leftClick = Mouse.current.leftButton.wasPressedThisFrame;
             if (leftClick && EventSystem.current.IsPointerOverGameObject())
             {
                 if (!ItemSlotUtils.IsItemSlotNull(itemSlot))
@@ -57,10 +58,11 @@ namespace Item.GrabbedItem {
                 if (doubleClickEvent.Expired()) doubleClickEvent = null;
             }
         }
+        
 
         private void FixedUpdate()
         {
-            mouseDown = listenMouse && Input.GetMouseButton(0);
+            mouseDown = listenMouse && Mouse.current.leftButton.isPressed;
             if (mouseDown)
             {
                 SolidItemClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>();

@@ -81,9 +81,9 @@ namespace Player
         public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
 
-        public void Awake()
+        public void SetInputActions(InputActions inputActions)
         {
-            inputActions = new InputActions();
+            this.inputActions = inputActions;
         }
 
         public void Start()

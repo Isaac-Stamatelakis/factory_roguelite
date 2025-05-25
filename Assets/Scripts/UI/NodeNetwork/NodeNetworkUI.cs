@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UI.QuestBook;
+using UnityEngine.InputSystem;
 
 namespace UI.NodeNetwork {
     public interface INodeNetworkUI {
@@ -61,19 +62,63 @@ namespace UI.NodeNetwork {
         protected Bounds? viewBounds;
         private Camera canvasCamera;
         protected NodeConnectionFilterer connectionFilterer;
+        private Vector2 moveDirection;
+        private InputActions.NodeNetworkUIActions actions;
+        private float moveTimer;
         public void Start()
         {
             canvasCamera = GetComponentInParent<Canvas>().worldCamera;
+            InputActions inputActions = CanvasController.Instance.InputActions;
+            actions = inputActions.NodeNetworkUI;
+            actions.Delete.performed += DeletePress;
+            actions.Deselect.performed += Deselect;
+            actions.Open.performed += Open;
+            actions.Move.performed += SetMoveDirection;
+            actions.Move.canceled += ResetMoveDirection;
+            actions.Enable();
         }
 
-        List<(KeyCode[], Direction)> moveDirections = new List<(KeyCode[], Direction)>
+        public void OnDestroy()
         {
-            (new KeyCode[] { KeyCode.LeftArrow, KeyCode.A }, Direction.Left),
-            (new KeyCode[] { KeyCode.RightArrow, KeyCode.D }, Direction.Right),
-            (new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up),
-            (new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down)
-        };
+            actions.Delete.performed -= DeletePress;
+            actions.Deselect.performed -= Deselect;
+            actions.Open.performed -= Open;
+            actions.Move.performed -= SetMoveDirection;
+            actions.Move.canceled -= ResetMoveDirection;
+            actions.Disable();
+        }
 
+        void DeletePress(InputAction.CallbackContext context)
+        {
+            foreach (var node in selectedNodes)
+            {
+                DeleteNode(node.GetNode());
+            }
+            OnDeleteSelectedNode();
+        }
+
+        void Deselect(InputAction.CallbackContext context)
+        {
+            SelectNode(null);
+        }
+
+        void SetMoveDirection(InputAction.CallbackContext context)
+        {
+            moveDirection = context.ReadValue<Vector2>();
+            moveTimer = 5000;
+        }
+
+        void ResetMoveDirection(InputAction.CallbackContext context)
+        {
+            moveDirection = Vector2.zero;
+        }
+
+        void Open(InputAction.CallbackContext context)
+        {
+            if (selectedNodes.Count != 1) return;
+            selectedNodes[0].OpenContent(NodeUIContentOpenMode.KeyPress);
+        }
+        
         public void SelectNodeValue(INode node)
         {
             if (node == null) return;
@@ -249,38 +294,20 @@ namespace UI.NodeNetwork {
             nodeUIDict[node].DisplayImage();
         }
 
-        public void MoveNode(TNode node, Direction direction)
+        public void MoveNode(TNode node)
         {
             INodeUI nodeUI = nodeUIDict[node];
             const int change = 64;
             Vector3 position = node.GetPosition();
-            Vector3 changeVector = change * GetDirectionVector(direction);
-            
+            Vector3 changeVector = change * moveDirection;
             node.SetPosition(position+changeVector);
             RectTransform rectTransform = (RectTransform)nodeUI.GetGameObject().transform;
             Vector3 nodeUIPosition = rectTransform.anchoredPosition;
             nodeUIPosition += changeVector;
             ((RectTransform)nodeUI.GetGameObject().transform).anchoredPosition = nodeUIPosition;
             DisplayLines();
-
         }
-
-        private Vector3 GetDirectionVector(Direction direction)
-        {
-            switch (direction)
-            {
-                case Direction.Left:
-                    return Vector3.left;
-                case Direction.Right:
-                    return Vector3.right;
-                case Direction.Down:
-                    return Vector3.down;
-                case Direction.Up:
-                    return Vector3.up;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-            }
-        }
+        
 
         public void DisplayLines()
         {
@@ -300,80 +327,34 @@ namespace UI.NodeNetwork {
 
         public abstract TNode LookUpNode(int id);
         
-        private bool IsPressed(KeyCode[] keyCodes, bool hold = true)
-        {
-            foreach (var keycode in keyCodes)
-            {
-                if (hold)
-                {
-                    if (Input.GetKey(keycode)) return true;
-                }
-                else
-                {
-                    if (Input.GetKeyDown(keycode)) return true;
-                }
-                
-            }
-
-            return false;
-        }
-
         public void Update() {
+            moveTimer += Time.deltaTime;
             HandleZoom();
             HandleRightClick();
             bool selectingNodes = selectedNodes.Count > 0;
-            if (CanvasController.Instance.IsActive) return;
-            if (!selectingNodes) KeyPressMoveUpdate();
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (moveDirection != Vector2.zero)
             {
-                SelectNode(null);
+                if (selectingNodes)
+                {
+                    if (moveTimer > 0.2f)
+                    {
+                        moveTimer = 0;
+                        foreach (INodeUI node in selectedNodes)
+                        {
+                            MoveNode((TNode)node.GetNode());
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    KeyPressMoveUpdate();
+                }
             }
             ClampPosition();
-            if (!selectingNodes) return;
-            
-            if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.E))
-            {
-                foreach (var node in selectedNodes)
-                {
-                    DeleteNode(node.GetNode());
-                }
-                OnDeleteSelectedNode();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                if (selectedNodes.Count == 1)
-                {
-                    selectedNodes[0].OpenContent(NodeUIContentOpenMode.KeyPress);
-                }
-            }
-            const float delay = 0.2f;
-            foreach (var (keycodes, direction) in moveDirections)
-            {
-                if (!IsPressed(keycodes,hold:false)) continue;
-          
-                moveCounter += delay;
-                break;
-            }
-            moveCounter += Time.deltaTime;
-            
-            if (moveCounter < delay) return;
-            
-            moveCounter = 0;
-            foreach (var (keycodes, direction) in moveDirections)
-            {
-                if (!IsPressed(keycodes)) continue;
-                foreach (var nodeUI in selectedNodes)
-                {
-                    MoveNode((TNode)nodeUI?.GetNode(),direction);
-                }
-                
-            }
-            ClampPosition();
-
-
         }
 
+        
         void ClampPosition()
         {
             if (!viewBounds.HasValue) return;
@@ -388,54 +369,46 @@ namespace UI.NodeNetwork {
 
         private void KeyPressMoveUpdate()
         {
-            const int DIRECTION_COUNT = 2;
-            int startIndex = lockHorizontalMovement ? DIRECTION_COUNT : 0;
-            int endIndex = lockVerticalMovement ? DIRECTION_COUNT : 2*DIRECTION_COUNT;
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                var (keycodes, direction) = moveDirections[i];
-                if (!IsPressed(keycodes)) continue;
-                Vector3 position = transform.position;
-                const float SPEED = 0.05f;
-                position -= SPEED*GetDirectionVector(direction);
-                transform.position = position;
-            }
+            Vector3 position = transform.position;
+            const float SPEED = 20f;
+            position = (Vector2)position - SPEED * Time.deltaTime * moveDirection;
+            transform.position = position;
         }
         
         
         private void HandleZoom()
         {
             if (lockZoom) return;
-            float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-            if (scrollInput != 0)
+            float y = Mouse.current.scroll.ReadValue().y;
+            if (y != 0)
             {
-                Vector3 mousePosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 mousePosition = canvasCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 Transform containerTransform = ContentContainer;
-                Vector3 newScale = containerTransform.localScale + Vector3.one * (scrollInput * NodeNetworkConfig.ZOOM_SPEED);
+                Vector3 newScale = containerTransform.localScale + Vector3.one * (y * NodeNetworkConfig.ZOOM_SPEED*.01f);
                 newScale = new Vector3(
                     Mathf.Clamp(newScale.x, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
                     Mathf.Clamp(newScale.y, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
                     Mathf.Clamp(newScale.z, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE)
                 );
                 Vector3 scaleChange = (newScale - containerTransform.localScale);
-                Vector3 newOffset = scaleChange.x/newScale.x *  (containerTransform.position - mousePosition);
+                Vector3 newOffset = scaleChange.x/newScale.x * (containerTransform.position - mousePosition);
                 containerTransform.localScale = newScale;
-                containerTransform.position = containerTransform.position + newOffset;
+                containerTransform.position += newOffset;
             }
         }
 
         private void HandleRightClick() {
             if (lockHorizontalMovement && lockVerticalMovement) return;
             
-            if (Input.GetMouseButtonDown(1))
+            if (Mouse.current.rightButton.wasPressedThisFrame)
             {
-                Vector2 mouseWorldPosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mouseWorldPosition = canvasCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 rightClickEvent = new RightClickEvent(mouseWorldPosition-(Vector2)ContentContainer.position);
             }
 
             if (rightClickEvent != null)
             {
-                Vector2 mousePosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mousePosition = canvasCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 Vector2 newPosition = rightClickEvent.GetNetworkPosition(mousePosition);
                 if (lockHorizontalMovement)
                 {
@@ -450,7 +423,7 @@ namespace UI.NodeNetwork {
                 transform.position = newPosition;
             }
 
-            if (Input.GetMouseButtonUp(1))
+            if (Mouse.current.rightButton.wasReleasedThisFrame)
             {
                 rightClickEvent = null;
             }

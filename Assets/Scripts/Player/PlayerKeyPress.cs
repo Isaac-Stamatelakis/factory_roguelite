@@ -55,8 +55,6 @@ namespace PlayerModule.KeyPress {
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
             
-           
-
             var toolBindings = playerScript.InputActions.ToolBindings;
             toolBindings.AutoSelect.performed += AutoSelect;
             toolBindings.SwitchMode.performed += SwitchToolMode;

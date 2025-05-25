@@ -975,6 +975,215 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""NodeNetworkUI"",
+            ""id"": ""c514f9d2-84d4-407b-a6bb-6e78605d2e31"",
+            ""actions"": [
+                {
+                    ""name"": ""Delete"",
+                    ""type"": ""Button"",
+                    ""id"": ""9ee7fe80-3518-4c02-b038-b4fbce495bfa"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Open"",
+                    ""type"": ""Button"",
+                    ""id"": ""3d569d44-e43c-4e36-9302-01246ea3d5a1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
+                    ""id"": ""b641f3e2-28b8-4d8e-9ce4-e6c79921f777"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Deselect"",
+                    ""type"": ""Button"",
+                    ""id"": ""e5c2880a-938f-4230-97db-b38b15ae5906"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""343e4962-e989-4932-a8cd-3d707c89ff5a"",
+                    ""path"": ""<Keyboard>/delete"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Delete"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""be921367-3166-45c7-b096-ef7c4267d24a"",
+                    ""path"": ""<Keyboard>/backspace"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Delete"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dd1fdb9a-00c7-42b6-96ab-0ff9f9d804e8"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Delete"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""45213a03-c21f-4e9d-a793-6b4459dd8f24"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Open"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""424fa93d-608f-4444-92aa-387da2572c53"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""4ba81266-7fc7-46e8-ab3c-2bc533c9d63a"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""3b3a1d02-92a6-4076-bacc-03fb8e17760f"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""2b307e4a-af7f-4cd1-8b24-0c53304e4c18"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""bed74223-f1ef-4bcb-9232-3278f15ff4bb"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""6f358977-fe8a-4d32-b320-83bb2cf4d8fa"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""c0c6f367-bbe2-4da8-837a-d96cc8966ed5"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""a2c045e1-6927-4bd1-9224-b67bd129f775"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""50c9cb91-06c2-4dd0-8308-e43040376c3c"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""78d9763b-f480-450c-915e-cea8287290d9"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2431ec73-4e6b-4ee5-8f61-7bd09639e9cf"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Deselect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1029,6 +1238,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_ToolBindings_AutoSelect = m_ToolBindings.FindAction("AutoSelect", throwIfNotFound: true);
         m_ToolBindings_OpenLoadout = m_ToolBindings.FindAction("OpenLoadout", throwIfNotFound: true);
         m_ToolBindings_SwitchLoadout = m_ToolBindings.FindAction("SwitchLoadout", throwIfNotFound: true);
+        // NodeNetworkUI
+        m_NodeNetworkUI = asset.FindActionMap("NodeNetworkUI", throwIfNotFound: true);
+        m_NodeNetworkUI_Delete = m_NodeNetworkUI.FindAction("Delete", throwIfNotFound: true);
+        m_NodeNetworkUI_Open = m_NodeNetworkUI.FindAction("Open", throwIfNotFound: true);
+        m_NodeNetworkUI_Move = m_NodeNetworkUI.FindAction("Move", throwIfNotFound: true);
+        m_NodeNetworkUI_Deselect = m_NodeNetworkUI.FindAction("Deselect", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1662,6 +1877,76 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public ToolBindingsActions @ToolBindings => new ToolBindingsActions(this);
+
+    // NodeNetworkUI
+    private readonly InputActionMap m_NodeNetworkUI;
+    private List<INodeNetworkUIActions> m_NodeNetworkUIActionsCallbackInterfaces = new List<INodeNetworkUIActions>();
+    private readonly InputAction m_NodeNetworkUI_Delete;
+    private readonly InputAction m_NodeNetworkUI_Open;
+    private readonly InputAction m_NodeNetworkUI_Move;
+    private readonly InputAction m_NodeNetworkUI_Deselect;
+    public struct NodeNetworkUIActions
+    {
+        private @InputActions m_Wrapper;
+        public NodeNetworkUIActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Delete => m_Wrapper.m_NodeNetworkUI_Delete;
+        public InputAction @Open => m_Wrapper.m_NodeNetworkUI_Open;
+        public InputAction @Move => m_Wrapper.m_NodeNetworkUI_Move;
+        public InputAction @Deselect => m_Wrapper.m_NodeNetworkUI_Deselect;
+        public InputActionMap Get() { return m_Wrapper.m_NodeNetworkUI; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(NodeNetworkUIActions set) { return set.Get(); }
+        public void AddCallbacks(INodeNetworkUIActions instance)
+        {
+            if (instance == null || m_Wrapper.m_NodeNetworkUIActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_NodeNetworkUIActionsCallbackInterfaces.Add(instance);
+            @Delete.started += instance.OnDelete;
+            @Delete.performed += instance.OnDelete;
+            @Delete.canceled += instance.OnDelete;
+            @Open.started += instance.OnOpen;
+            @Open.performed += instance.OnOpen;
+            @Open.canceled += instance.OnOpen;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
+            @Deselect.started += instance.OnDeselect;
+            @Deselect.performed += instance.OnDeselect;
+            @Deselect.canceled += instance.OnDeselect;
+        }
+
+        private void UnregisterCallbacks(INodeNetworkUIActions instance)
+        {
+            @Delete.started -= instance.OnDelete;
+            @Delete.performed -= instance.OnDelete;
+            @Delete.canceled -= instance.OnDelete;
+            @Open.started -= instance.OnOpen;
+            @Open.performed -= instance.OnOpen;
+            @Open.canceled -= instance.OnOpen;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
+            @Deselect.started -= instance.OnDeselect;
+            @Deselect.performed -= instance.OnDeselect;
+            @Deselect.canceled -= instance.OnDeselect;
+        }
+
+        public void RemoveCallbacks(INodeNetworkUIActions instance)
+        {
+            if (m_Wrapper.m_NodeNetworkUIActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(INodeNetworkUIActions instance)
+        {
+            foreach (var item in m_Wrapper.m_NodeNetworkUIActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_NodeNetworkUIActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public NodeNetworkUIActions @NodeNetworkUI => new NodeNetworkUIActions(this);
     public interface IStandardMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
@@ -1719,5 +2004,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnAutoSelect(InputAction.CallbackContext context);
         void OnOpenLoadout(InputAction.CallbackContext context);
         void OnSwitchLoadout(InputAction.CallbackContext context);
+    }
+    public interface INodeNetworkUIActions
+    {
+        void OnDelete(InputAction.CallbackContext context);
+        void OnOpen(InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
+        void OnDeselect(InputAction.CallbackContext context);
     }
 }

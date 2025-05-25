@@ -9,6 +9,7 @@ using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UI
 {
@@ -28,10 +29,15 @@ namespace UI
         private bool canTerminate;
         private AudioSource audioSource;
         private PlayerScript playerScript;
+        private InputActions inputActions;
+        public InputActions InputActions => inputActions;
+        
         public void Awake()
         {
             instance = this;
             audioSource = gameObject.AddComponent<AudioSource>();
+            inputActions = new InputActions();
+            GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerScript>()?.SetInputActions(inputActions);
         }
 
         public void PlayAudioClip(UIAudioClipType audioClipType)
@@ -50,11 +56,12 @@ namespace UI
         {
             tmpInputField.onSelect.AddListener((text) =>
             {
-                playerScript.SyncKeyPressListeners(IsActive,true, blockMovement);
+                playerScript?.SyncKeyPressListeners(IsActive,true, blockMovement);
             });
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
+                if (!playerScript) return; // Required lifetime check so the game doesn't crash when exiting whilst typing
                 playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
             });
         }
