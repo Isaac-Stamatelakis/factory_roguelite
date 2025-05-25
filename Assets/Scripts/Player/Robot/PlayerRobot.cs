@@ -168,6 +168,11 @@ namespace Player {
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
 
             standardPlayerMovement = new StandardPlayerMovement(this);
+            playerStatMovementDict[PlayerMovementState.Standard] = standardPlayerMovement;
+            
+            InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
+            miscMovementActions.Teleport.performed += Teleport;
+            miscMovementActions.Enable();
             
             StartCoroutine(LoadAsyncAssets());
         }
@@ -387,16 +392,15 @@ namespace Player {
         {
             if (!canvasController.BlockKeyInput)
             {
-                if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) > 0)
-                {
-                    TeleportUpdate();
-                }
-                
                 if (!recalling && ControlUtils.GetControlKeyDown(PlayerControl.Recall))
                 {
                     StartCoroutine(RecallCoroutine());
                 }
             }
+            
+            playerStatMovementDict[movementState].MovementUpdate();
+            
+            /*
             if (DevMode.Instance.flight)
             {
                 AnimationController.ToggleBool(PlayerAnimationState.Walk,false);
@@ -429,6 +433,7 @@ namespace Player {
                 return;
             }
             standardPlayerMovement.MovementUpdate();
+            */
         }
         
 
@@ -442,20 +447,17 @@ namespace Player {
             recalling = false;
         }
 
-        private void TeleportUpdate()
+        private void Teleport(InputAction.CallbackContext context)
         {
-            if (playerTeleportEvent != null)
-            {
-                playerTeleportEvent.IterateTime(Time.deltaTime);
-                if (playerTeleportEvent.Expired()) playerTeleportEvent = null;
-            }
-
-            if (!ControlUtils.GetControlKeyDown(PlayerControl.Teleport) || playerTeleportEvent != null) return;
+            if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) <= 0) return;
+            Debug.Log(playerTeleportEvent?.Expired() ?? false);
+            if (playerTeleportEvent != null && !playerTeleportEvent.Expired()) return;
+            
             if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
             Camera mainCamera = Camera.main;
             if (!mainCamera) return;
             Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
-            playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
+            playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds,Time.time);
             bool teleported = playerTeleportEvent.TryTeleport();
             if (!teleported) return;
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
@@ -1009,12 +1011,13 @@ namespace Player {
             rb.velocity = velocity;
         }
 
-        public void Initialize(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
+        public void InitializeRobot(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
         {
             SetRobot(itemSlot);
             RobotUpgradeLoadOut = RobotUpgradeUtils.VerifyIntegrityOfLoadOut(loadOutData,robotData);
             InitializeTools();
         }
+        
         
         public void SetRobot(ItemSlot newRobot)
         {

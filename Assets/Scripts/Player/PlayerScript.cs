@@ -78,6 +78,12 @@ namespace Player
         private ClosedChunkSystem currentSystem;
         public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
+
+        public void Awake()
+        {
+            inputActions = new InputActions();
+        }
+
         public void Start()
         {
             PlayerManager.Instance.RegisterPlayer(this);
@@ -85,7 +91,6 @@ namespace Player
             playerRobot = GetComponent<PlayerRobot>();
             playerIO = GetComponent<PlayerIO>();
             playerMouse = GetComponent<PlayerMouse>();
-            inputActions = new InputActions();
         }
         
         public PlayerData Initialize()
@@ -99,8 +104,8 @@ namespace Player
             
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
-            playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
-
+            playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
+            
             playerMouse.InitializeToolClickHandlers();
             
             playerInventory.InitializeToolDisplay();

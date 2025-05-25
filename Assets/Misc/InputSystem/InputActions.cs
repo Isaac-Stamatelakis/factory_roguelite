@@ -188,6 +188,34 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""MiscMovement"",
+            ""id"": ""0d16a910-b506-4524-b6f4-77e892d7a811"",
+            ""actions"": [
+                {
+                    ""name"": ""Teleport"",
+                    ""type"": ""Button"",
+                    ""id"": ""46cd9f62-b022-4590-8390-cc5f9388afb5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""2de5fa9a-380a-4526-b9fb-9ae79ed76f29"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Teleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -204,6 +232,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
         m_LadderMovement_Newaction = m_LadderMovement.FindAction("New action", throwIfNotFound: true);
+        // MiscMovement
+        m_MiscMovement = asset.FindActionMap("MiscMovement", throwIfNotFound: true);
+        m_MiscMovement_Teleport = m_MiscMovement.FindAction("Teleport", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -423,6 +454,52 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public LadderMovementActions @LadderMovement => new LadderMovementActions(this);
+
+    // MiscMovement
+    private readonly InputActionMap m_MiscMovement;
+    private List<IMiscMovementActions> m_MiscMovementActionsCallbackInterfaces = new List<IMiscMovementActions>();
+    private readonly InputAction m_MiscMovement_Teleport;
+    public struct MiscMovementActions
+    {
+        private @InputActions m_Wrapper;
+        public MiscMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Teleport => m_Wrapper.m_MiscMovement_Teleport;
+        public InputActionMap Get() { return m_Wrapper.m_MiscMovement; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(MiscMovementActions set) { return set.Get(); }
+        public void AddCallbacks(IMiscMovementActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Add(instance);
+            @Teleport.started += instance.OnTeleport;
+            @Teleport.performed += instance.OnTeleport;
+            @Teleport.canceled += instance.OnTeleport;
+        }
+
+        private void UnregisterCallbacks(IMiscMovementActions instance)
+        {
+            @Teleport.started -= instance.OnTeleport;
+            @Teleport.performed -= instance.OnTeleport;
+            @Teleport.canceled -= instance.OnTeleport;
+        }
+
+        public void RemoveCallbacks(IMiscMovementActions instance)
+        {
+            if (m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IMiscMovementActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MiscMovementActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public MiscMovementActions @MiscMovement => new MiscMovementActions(this);
     public interface IStandardMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
@@ -437,5 +514,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface ILadderMovementActions
     {
         void OnNewaction(InputAction.CallbackContext context);
+    }
+    public interface IMiscMovementActions
+    {
+        void OnTeleport(InputAction.CallbackContext context);
     }
 }

@@ -166,6 +166,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "MiscMovement",
+            "id": "0d16a910-b506-4524-b6f4-77e892d7a811",
+            "actions": [
+                {
+                    "name": "Teleport",
+                    "type": "Button",
+                    "id": "46cd9f62-b022-4590-8390-cc5f9388afb5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2de5fa9a-380a-4526-b9fb-9ae79ed76f29",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Teleport",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
