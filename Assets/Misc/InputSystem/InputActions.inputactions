@@ -1002,6 +1002,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Create",
+                    "type": "Button",
+                    "id": "56c85c50-7748-426f-85f9-ff9b7075861b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1178,6 +1187,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Recenter",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c19618e2-9bf9-4a38-bfc2-73b89b8fef15",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Create",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

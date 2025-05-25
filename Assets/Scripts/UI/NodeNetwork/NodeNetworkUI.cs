@@ -75,6 +75,7 @@ namespace UI.NodeNetwork {
             actions.Move.performed += SetMoveDirection;
             actions.Move.canceled += ResetMoveDirection;
             actions.Recenter.performed += Recenter;
+            actions.Create.performed += Create;
             actions.Enable();
         }
 
@@ -86,6 +87,7 @@ namespace UI.NodeNetwork {
             actions.Move.performed -= SetMoveDirection;
             actions.Move.canceled -= ResetMoveDirection;
             actions.Recenter.performed -= Recenter;
+            actions.Create.performed -= Create;
             actions.Disable();
         }
 
@@ -124,6 +126,11 @@ namespace UI.NodeNetwork {
         {
             ContentContainer.transform.position = Vector3.zero;
             ContentContainer.transform.localScale = Vector3.one;
+        }
+
+        public void Create(InputAction.CallbackContext context)
+        {
+            editController?.AddButtonClick();
         }
         
         public void SelectNodeValue(INode node)
@@ -257,6 +264,21 @@ namespace UI.NodeNetwork {
         {
             Vector2 firstWorld = first-(Vector2)canvasCamera.WorldToScreenPoint(ContentContainer.position);
             Vector2 secondWorld = second-(Vector2)canvasCamera.WorldToScreenPoint(ContentContainer.position);
+            
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                (RectTransform)ContentContainer.transform, 
+                first, 
+                canvasCamera, 
+                out Vector2 firstLocalPos);
+            
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                (RectTransform)ContentContainer, 
+                second, 
+                canvasCamera, 
+                out Vector2 secondLocalPos);
+
+            firstWorld = firstLocalPos;
+            secondWorld = secondLocalPos;
             Vector2 xBounds = firstWorld.x > secondWorld.x 
                 ? new Vector2(secondWorld.x, firstWorld.x) 
                 : new Vector2(firstWorld.x, secondWorld.x);
@@ -264,7 +286,7 @@ namespace UI.NodeNetwork {
             Vector2 yBounds = firstWorld.y > secondWorld.y 
                 ? new Vector2(secondWorld.y, firstWorld.y) 
                 : new Vector2(firstWorld.y, secondWorld.y);
-
+            
             foreach (var nodeUI in selectedNodes)
             {
                 if (!nodeUI.GetGameObject()) continue;

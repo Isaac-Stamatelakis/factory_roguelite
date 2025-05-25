@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace UI.NodeNetwork {
@@ -18,6 +19,7 @@ namespace UI.NodeNetwork {
         {
             canvasCamera = GetComponentInParent<Canvas>().worldCamera;
         }
+        
         public void Initialize(INodeNetworkUI nodeNetworkUI) {
             addNode.onClick.RemoveAllListeners();
             
@@ -32,7 +34,7 @@ namespace UI.NodeNetwork {
                                           "Click LShift to deselect nodes\n" +
                                           "Click <b>[Q]</b> to Create New Nodes\n"+
                                           "Click <b>[E]</b> to Delete Selected Node\n" +
-                                          "Click <b>[Z]</b> to Open Selected Node");
+                                          "Click <b>[R]</b> to Recenter");
             multiSelectIndicator.transform.SetParent(this.nodeNetworkUI.GetContentContainer());
         }
 
@@ -42,7 +44,7 @@ namespace UI.NodeNetwork {
             addNode.onClick.RemoveAllListeners();
         }
         
-        private void AddButtonClick() {
+        public void AddButtonClick() {
             spawnedNodeObject = nodeNetworkUI.GenerateNewNodeObject();
             if (!spawnedNodeObject) return;
             spawnedNodeObject.transform.SetParent(nodeNetworkUI.GetNodeContainer(),false);
@@ -55,24 +57,19 @@ namespace UI.NodeNetwork {
         }
 
         public void Update() {
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                AddButtonClick();
-            }
-            
             SpawnNodePlacement();
             MultiSelect();
         }
         
         public void MultiSelect()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                multiSelectAction = new MultiSelectAction(nodeNetworkUI,Input.mousePosition,multiSelectIndicator,canvasCamera);
+                multiSelectAction = new MultiSelectAction(nodeNetworkUI,Mouse.current.position.ReadValue(),multiSelectIndicator,canvasCamera);
             }
             
-            multiSelectAction?.SetCurrentPosition(Input.mousePosition);
-            if (Input.GetMouseButtonUp(0))
+            multiSelectAction?.SetCurrentPosition(Mouse.current.position.ReadValue());
+            if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 multiSelectAction?.Terminate();
                 multiSelectAction = null;
@@ -83,15 +80,15 @@ namespace UI.NodeNetwork {
             if (!spawnedNodeObject) {
                 return;
             }
-            
+           
             RectTransform parentRect = (RectTransform)transform.parent;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
             Vector2 offset = parentRect.anchoredPosition/contentContainer.localScale.x;
-            Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Input.mousePosition) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
+            Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Mouse.current.position.ReadValue()) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
             Vector2 gridPosition = SnapGrid(mousePosition,((RectTransform)contentContainer).anchoredPosition,contentContainer.localScale.x);
             RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = gridPosition;
-            if (Input.GetMouseButton(0)) {
+            if (Mouse.current.leftButton.wasPressedThisFrame) {
                 INode node = nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
                 nodeNetworkUI.Display();
                 nodeNetworkUI.SelectNodeValue(node);
