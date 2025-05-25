@@ -54,7 +54,6 @@ namespace UI.NodeNetwork {
         protected TNetwork nodeNetwork;
         protected List<INodeUI> selectedNodes = new();
         protected Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
-        private float moveCounter = 0;
         private RightClickEvent rightClickEvent;
         protected bool lockVerticalMovement = false;
         protected bool lockHorizontalMovement = false;
@@ -75,16 +74,18 @@ namespace UI.NodeNetwork {
             actions.Open.performed += Open;
             actions.Move.performed += SetMoveDirection;
             actions.Move.canceled += ResetMoveDirection;
+            actions.Recenter.performed += Recenter;
             actions.Enable();
         }
 
-        public void OnDestroy()
+        public virtual void OnDestroy()
         {
             actions.Delete.performed -= DeletePress;
             actions.Deselect.performed -= Deselect;
             actions.Open.performed -= Open;
             actions.Move.performed -= SetMoveDirection;
             actions.Move.canceled -= ResetMoveDirection;
+            actions.Recenter.performed -= Recenter;
             actions.Disable();
         }
 
@@ -117,6 +118,12 @@ namespace UI.NodeNetwork {
         {
             if (selectedNodes.Count != 1) return;
             selectedNodes[0].OpenContent(NodeUIContentOpenMode.KeyPress);
+        }
+
+        public void Recenter(InputAction.CallbackContext context)
+        {
+            ContentContainer.transform.position = Vector3.zero;
+            ContentContainer.transform.localScale = Vector3.one;
         }
         
         public void SelectNodeValue(INode node)
@@ -384,7 +391,7 @@ namespace UI.NodeNetwork {
             {
                 Vector3 mousePosition = canvasCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 Transform containerTransform = ContentContainer;
-                Vector3 newScale = containerTransform.localScale + Vector3.one * (y * NodeNetworkConfig.ZOOM_SPEED*.01f);
+                Vector3 newScale = containerTransform.localScale + Vector3.one * (y * NodeNetworkConfig.ZOOM_SPEED);
                 newScale = new Vector3(
                     Mathf.Clamp(newScale.x, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
                     Mathf.Clamp(newScale.y, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
@@ -394,6 +401,9 @@ namespace UI.NodeNetwork {
                 Vector3 newOffset = scaleChange.x/newScale.x * (containerTransform.position - mousePosition);
                 containerTransform.localScale = newScale;
                 containerTransform.position += newOffset;
+                var vector3 = containerTransform.position;
+                vector3.z = 0;
+                containerTransform.position = vector3;
             }
         }
 

@@ -1015,6 +1015,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Recenter"",
+                    ""type"": ""Button"",
+                    ""id"": ""34fcc616-9449-4ad6-a7a1-1d0f378bbf44"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1182,6 +1191,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Deselect"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ed8a007f-bc30-438e-a4fd-83ba03a4111a"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Recenter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1244,6 +1264,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_NodeNetworkUI_Open = m_NodeNetworkUI.FindAction("Open", throwIfNotFound: true);
         m_NodeNetworkUI_Move = m_NodeNetworkUI.FindAction("Move", throwIfNotFound: true);
         m_NodeNetworkUI_Deselect = m_NodeNetworkUI.FindAction("Deselect", throwIfNotFound: true);
+        m_NodeNetworkUI_Recenter = m_NodeNetworkUI.FindAction("Recenter", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1885,6 +1906,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_NodeNetworkUI_Open;
     private readonly InputAction m_NodeNetworkUI_Move;
     private readonly InputAction m_NodeNetworkUI_Deselect;
+    private readonly InputAction m_NodeNetworkUI_Recenter;
     public struct NodeNetworkUIActions
     {
         private @InputActions m_Wrapper;
@@ -1893,6 +1915,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Open => m_Wrapper.m_NodeNetworkUI_Open;
         public InputAction @Move => m_Wrapper.m_NodeNetworkUI_Move;
         public InputAction @Deselect => m_Wrapper.m_NodeNetworkUI_Deselect;
+        public InputAction @Recenter => m_Wrapper.m_NodeNetworkUI_Recenter;
         public InputActionMap Get() { return m_Wrapper.m_NodeNetworkUI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1914,6 +1937,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Deselect.started += instance.OnDeselect;
             @Deselect.performed += instance.OnDeselect;
             @Deselect.canceled += instance.OnDeselect;
+            @Recenter.started += instance.OnRecenter;
+            @Recenter.performed += instance.OnRecenter;
+            @Recenter.canceled += instance.OnRecenter;
         }
 
         private void UnregisterCallbacks(INodeNetworkUIActions instance)
@@ -1930,6 +1956,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Deselect.started -= instance.OnDeselect;
             @Deselect.performed -= instance.OnDeselect;
             @Deselect.canceled -= instance.OnDeselect;
+            @Recenter.started -= instance.OnRecenter;
+            @Recenter.performed -= instance.OnRecenter;
+            @Recenter.canceled -= instance.OnRecenter;
         }
 
         public void RemoveCallbacks(INodeNetworkUIActions instance)
@@ -2011,5 +2040,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnOpen(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
         void OnDeselect(InputAction.CallbackContext context);
+        void OnRecenter(InputAction.CallbackContext context);
     }
 }

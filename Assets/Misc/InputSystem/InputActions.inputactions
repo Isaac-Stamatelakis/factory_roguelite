@@ -993,6 +993,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Recenter",
+                    "type": "Button",
+                    "id": "34fcc616-9449-4ad6-a7a1-1d0f378bbf44",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1158,6 +1167,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Deselect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ed8a007f-bc30-438e-a4fd-83ba03a4111a",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Recenter",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
