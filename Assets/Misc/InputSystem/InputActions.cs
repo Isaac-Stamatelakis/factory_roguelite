@@ -138,26 +138,125 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ""id"": ""ce5c64b6-443c-4fd9-a5ab-ba6029866e86"",
             ""actions"": [
                 {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
                     ""id"": ""b23de7e5-01bc-43b8-9b04-eddfa69ffffd"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": """",
-                    ""id"": ""387b9774-6a15-47f5-86eb-8f196187b078"",
-                    ""path"": """",
+                    ""name"": ""2D Vector"",
+                    ""id"": ""1d6173f2-d03e-432b-a536-f81d03bc56c4"",
+                    ""path"": ""2DVector(mode=2)"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
-                    ""isComposite"": false,
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""50f2bc6e-7b73-419e-b6a4-84afa5457cbc"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""03f65556-1174-4546-8f9c-ac393296b17a"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""9354a629-d8f4-43a7-a17e-b21342b87294"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""f3d65a11-73c3-4b66-8e52-995d690258d5"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""36ded705-81e8-4a23-ba7c-1c5ad2f2ea20"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""6ede950f-8918-43f6-896f-edb8ab48335b"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""c31edede-de0f-40fe-a878-015c87030f3f"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""ca1ac9be-f669-4d21-923d-55320264fe6a"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""b1658142-cde9-460b-8f5d-52032d7796f5"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -228,7 +327,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_StandardMovement_Down = m_StandardMovement.FindAction("Down", throwIfNotFound: true);
         // CreativeMovement
         m_CreativeMovement = asset.FindActionMap("CreativeMovement", throwIfNotFound: true);
-        m_CreativeMovement_Newaction = m_CreativeMovement.FindAction("New action", throwIfNotFound: true);
+        m_CreativeMovement_Move = m_CreativeMovement.FindAction("Move", throwIfNotFound: true);
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
         m_LadderMovement_Newaction = m_LadderMovement.FindAction("New action", throwIfNotFound: true);
@@ -366,12 +465,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     // CreativeMovement
     private readonly InputActionMap m_CreativeMovement;
     private List<ICreativeMovementActions> m_CreativeMovementActionsCallbackInterfaces = new List<ICreativeMovementActions>();
-    private readonly InputAction m_CreativeMovement_Newaction;
+    private readonly InputAction m_CreativeMovement_Move;
     public struct CreativeMovementActions
     {
         private @InputActions m_Wrapper;
         public CreativeMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_CreativeMovement_Newaction;
+        public InputAction @Move => m_Wrapper.m_CreativeMovement_Move;
         public InputActionMap Get() { return m_Wrapper.m_CreativeMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -381,16 +480,16 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_CreativeMovementActionsCallbackInterfaces.Add(instance);
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
         }
 
         private void UnregisterCallbacks(ICreativeMovementActions instance)
         {
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
         }
 
         public void RemoveCallbacks(ICreativeMovementActions instance)
@@ -509,7 +608,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     }
     public interface ICreativeMovementActions
     {
-        void OnNewaction(InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
     }
     public interface ILadderMovementActions
     {

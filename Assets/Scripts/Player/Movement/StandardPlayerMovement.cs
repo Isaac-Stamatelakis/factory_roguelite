@@ -19,11 +19,15 @@ namespace Player.Movement.Standard
         }
 
         public abstract void MovementUpdate();
+        public abstract void Dispose();
     }
 
-    public class StandardPlayerMovement : BasePlayerMovement
+    public interface IMovementGroundedListener
     {
-        private readonly InputActions.StandardMovementActions playerMovementInput;
+        public void OnGrounded();
+    }
+    public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener
+    {
         private readonly DirectionalMovementStats movementStats;
         private readonly JumpMovementStats jumpStats;
         private readonly Rigidbody2D rb;
@@ -36,15 +40,18 @@ namespace Player.Movement.Standard
         private int bonusJumps;
         private RocketBoots rocketBoots;
         private SpriteRenderer spriteRenderer;
+        private InputActions.StandardMovementActions playerMovementInput;
 
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
             jumpStats = playerRobot.JumpStats;
 
-            InputActions.StandardMovementActions playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
+            playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
             
             playerMovementInput.Move.performed += OnMovePerformed;
             playerMovementInput.Move.canceled += OnMoveCancelled;
@@ -81,7 +88,6 @@ namespace Player.Movement.Standard
                 jumpEvent = null;
                 return;
             }
-            
             
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
@@ -148,6 +154,11 @@ namespace Player.Movement.Standard
                     playerRobot.ResetLiveYFrames();
                 }
             }
+        }
+
+        public override void Dispose()
+        {
+            playerMovementInput.Disable();
         }
 
         private void OnMovePerformed(InputAction.CallbackContext context)

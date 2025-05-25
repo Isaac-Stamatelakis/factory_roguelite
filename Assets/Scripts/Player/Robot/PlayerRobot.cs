@@ -58,8 +58,9 @@ namespace Player {
     public enum PlayerMovementState
     {
         Standard,
-        Climbing,
-        Flying
+        Climb,
+        Flight,
+        CreativeFlight
     }
     
     public class PlayerRobot : MonoBehaviour
@@ -140,12 +141,8 @@ namespace Player {
         
         private PlayerTeleportEvent playerTeleportEvent;
         
-        // Movement
-        private StandardPlayerMovement standardPlayerMovement;
-        
         public const float BASE_MOVE_SPEED = 5f;
-
-        private Dictionary<PlayerMovementState, BasePlayerMovement> playerStatMovementDict = new();
+        private BasePlayerMovement currentMovement;
         
         private void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -166,15 +163,14 @@ namespace Player {
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
-
-            standardPlayerMovement = new StandardPlayerMovement(this);
-            playerStatMovementDict[PlayerMovementState.Standard] = standardPlayerMovement;
+            
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
             miscMovementActions.Enable();
             
             StartCoroutine(LoadAsyncAssets());
+            SetMovementState( PlayerMovementState.Flight);
         }
 
         private IEnumerator LoadAsyncAssets()
@@ -214,7 +210,26 @@ namespace Player {
 
         public void SetMovementState(PlayerMovementState newMovementState)
         {
-            
+            if (movementState == newMovementState && currentMovement != null) return;
+            movementState = newMovementState;
+            currentMovement = GetMovementHandler(movementState);
+        }
+
+        private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
+        {
+            switch (state)
+            {
+                case PlayerMovementState.Standard:
+                    return new StandardPlayerMovement(this);
+                case PlayerMovementState.Climb:
+                    return new CreativeFlightMovement(this);
+                case PlayerMovementState.Flight:
+                    return new CreativeFlightMovement(this);
+                case PlayerMovementState.CreativeFlight:
+                    return new CreativeFlightMovement(this);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
         }
 
         public void Update()
@@ -265,7 +280,7 @@ namespace Player {
             if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform or CollisionState.OnLeftSlopePlatform or CollisionState.OnRightSlopePlatform)
             {
-                standardPlayerMovement.OnGrounded();
+                if (currentMovement is IMovementGroundedListener movementGroundedListener) movementGroundedListener.OnGrounded();
             }
 
             if (state is CollisionState.OnGround or CollisionState.OnSlope)
@@ -398,7 +413,7 @@ namespace Player {
                 }
             }
             
-            playerStatMovementDict[movementState].MovementUpdate();
+            currentMovement.MovementUpdate();
             
             /*
             if (DevMode.Instance.flight)
@@ -450,7 +465,6 @@ namespace Player {
         private void Teleport(InputAction.CallbackContext context)
         {
             if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) <= 0) return;
-            Debug.Log(playerTeleportEvent?.Expired() ?? false);
             if (playerTeleportEvent != null && !playerTeleportEvent.Expired()) return;
             
             if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
@@ -841,27 +855,7 @@ namespace Player {
         {
             rb.bodyType = DevMode.Instance.flight ? RigidbodyType2D.Static : RigidbodyType2D.Dynamic;
         }
-
-        private void CreativeFlightMovementUpdate(Transform playerTransform)
-        {
-            Vector3 position = playerTransform.position;
-            float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
-            if (ControlUtils.GetControlKey(PlayerControl.MoveLeft) || Input.GetKey(KeyCode.LeftArrow)) {
-                position.x -= movementSpeed;
-                spriteRenderer.flipX = true;
-            }
-            if (ControlUtils.GetControlKey(PlayerControl.MoveRight) || Input.GetKey(KeyCode.RightArrow)) {
-                position.x += movementSpeed;
-                spriteRenderer.flipX = false;
-            }
-            if (ControlUtils.GetControlKey(PlayerControl.MoveUp) || Input.GetKey(KeyCode.UpArrow)) {
-                position.y += movementSpeed;
-            }
-            if (ControlUtils.GetControlKey(PlayerControl.MoveDown) || Input.GetKey(KeyCode.DownArrow)) {
-                position.y -= movementSpeed;
-            }
-            playerTransform.position = position;
-        }
+        
 
         public void Heal(float amount)
         {
