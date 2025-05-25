@@ -31,6 +31,7 @@ using UI.QuestBook;
 using UI.RingSelector;
 using UI.Statistics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using World.Dimensions.Serialization;
 using WorldModule;
@@ -52,6 +53,8 @@ namespace Player
         [SerializeField] private TileViewerCollection tileViewers;
         [SerializeField] private ParticleSystem particles;
         [SerializeField] private PlayerToolSpawnedObjectCollection SpawnedObjectCollection;
+        private InputActions inputActions;
+        public InputActions InputActions => inputActions;
         public Transform PersistentObjectContainer => SpawnedObjectCollection.Persistent;
         public Transform TemporaryObjectContainer => SpawnedObjectCollection.Temporary;
         private PlayerGameStageCollection gameStageCollection;
@@ -82,6 +85,7 @@ namespace Player
             playerRobot = GetComponent<PlayerRobot>();
             playerIO = GetComponent<PlayerIO>();
             playerMouse = GetComponent<PlayerMouse>();
+            inputActions = new InputActions();
         }
         
         public PlayerData Initialize()

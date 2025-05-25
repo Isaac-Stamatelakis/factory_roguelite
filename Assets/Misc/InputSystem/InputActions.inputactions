@@ -1,8 +1,8 @@
 {
-    "name": "PlayerMovement",
+    "name": "InputActions",
     "maps": [
         {
-            "name": "PlayerMovement",
+            "name": "StandardMovement",
             "id": "7768c5e0-8ba9-46ff-8f47-7c607b13eee0",
             "actions": [
                 {
@@ -108,6 +108,62 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "CreativeMovement",
+            "id": "ce5c64b6-443c-4fd9-a5ab-ba6029866e86",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "b23de7e5-01bc-43b8-9b04-eddfa69ffffd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "387b9774-6a15-47f5-86eb-8f196187b078",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "LadderMovement",
+            "id": "ba725a58-afc4-4cf2-91ef-747f2c52a3e5",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "6d3fa3b2-3f18-4b95-b6e6-865c9a13e4c9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "45c7e3d6-1028-411b-b6ca-a02c1d73ef87",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

@@ -76,7 +76,6 @@ namespace Player {
         [SerializeField] internal JumpMovementStats JumpStats;
         [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
         
-        private PlayerMovementInput playerMovement;
         private PlayerMovementState movementState;
         private bool climbing;
         
@@ -145,13 +144,8 @@ namespace Player {
         private StandardPlayerMovement standardPlayerMovement;
         
         public const float BASE_MOVE_SPEED = 5f;
-        
-        private void Awake()
-        {
-            playerMovement = new PlayerMovementInput();
-            playerMovement.PlayerMovement.Enable();
-        }
 
+        private Dictionary<PlayerMovementState, BasePlayerMovement> playerStatMovementDict = new();
         
         private void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -174,7 +168,7 @@ namespace Player {
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
 
             standardPlayerMovement = new StandardPlayerMovement(this);
-
+            
             StartCoroutine(LoadAsyncAssets());
         }
 
@@ -211,6 +205,11 @@ namespace Player {
             yield return b;
             yield return c;
             PlayerParticles = new PlayerParticles(this,bonusJumpParticles,teleportParticles,nanoBotParticles);
+        }
+
+        public void SetMovementState(PlayerMovementState newMovementState)
+        {
+            
         }
 
         public void Update()

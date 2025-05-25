@@ -23,7 +23,7 @@ namespace Player.Movement.Standard
 
     public class StandardPlayerMovement : BasePlayerMovement
     {
-        private readonly PlayerMovementInput playerMovementInput;
+        private readonly InputActions.StandardMovementActions playerMovementInput;
         private readonly DirectionalMovementStats movementStats;
         private readonly JumpMovementStats jumpStats;
         private readonly Rigidbody2D rb;
@@ -43,17 +43,17 @@ namespace Player.Movement.Standard
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
             jumpStats = playerRobot.JumpStats;
+
+            InputActions.StandardMovementActions playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
             
-            playerMovementInput = new PlayerMovementInput();
+            playerMovementInput.Move.performed += OnMovePerformed;
+            playerMovementInput.Move.canceled += OnMoveCancelled;
             
-            playerMovementInput.PlayerMovement.Move.performed += OnMovePerformed;
-            playerMovementInput.PlayerMovement.Move.canceled += OnMoveCancelled;
+            playerMovementInput.Jump.performed += OnJumpPressed;
+            playerMovementInput.Jump.canceled += OnJumpReleased;
             
-            playerMovementInput.PlayerMovement.Jump.performed += OnJumpPressed;
-            playerMovementInput.PlayerMovement.Jump.canceled += OnJumpReleased;
-            
-            playerMovementInput.PlayerMovement.Down.performed += OnDownPressed;
-            playerMovementInput.PlayerMovement.Down.canceled += OnDownReleased;
+            playerMovementInput.Down.performed += OnDownPressed;
+            playerMovementInput.Down.canceled += OnDownReleased;
             
             playerMovementInput.Enable();
         }
