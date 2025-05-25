@@ -91,7 +91,6 @@ namespace Player.Movement.Standard
             {
                 rb.gravityScale = playerRobot.DefaultGravityScale;   
                 jumpEvent = null;
-                return;
             }
             
             UpdateHorizontalMovement(ref velocity);

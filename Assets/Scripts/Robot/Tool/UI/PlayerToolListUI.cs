@@ -22,6 +22,7 @@ namespace Robot.Tool.UI
     {
         [SerializeField] private PlayerToolUIIndicator primaryIndicator;
         [SerializeField] private PlayerToolUIIndicator secondaryIndicator;
+        [SerializeField] private Material mToolMaterial;
         private Image image;
         [SerializeField] private Color highlightColor;
         private Color defaultColor;
@@ -32,7 +33,7 @@ namespace Robot.Tool.UI
         public void UpdateIndicators()
         {
             IRobotToolInstance current = playerInventory.CurrentTool;
-            primaryIndicator.Display(current);   
+            primaryIndicator.Display(current,this,playerInventory.CurrentToolIndex);   
         }
         public void Start()
         {
@@ -48,32 +49,14 @@ namespace Robot.Tool.UI
             foreach (IRobotToolInstance robotToolInstance in tools)
             {
                 toolItemSlots.Add(new ItemSlot(robotToolInstance.GetToolObject().ToolIconItem,1,null));
-                Debug.Log(robotToolInstance.GetName());
-                var itemObject = robotToolInstance.GetToolObject().ToolIconItem;
-                if (!itemObject) continue;
-                Debug.Log(itemObject.name);
-                //Debug.Log(itemObject?.GetSprite()?.name);
             }
      
             mToolCollectionUI.DisplayInventory(toolItemSlots,clear:false);
             mToolCollectionUI.InventoryInteractMode = InventoryInteractMode.OverrideAction;
-
-            void SelectTool(PointerEventData.InputButton inputButton, int index)
+            
+            for (var index = 0; index < tools.Count; index++)
             {
-                switch (inputButton)
-                {
-                    case PointerEventData.InputButton.Left:
-                        playerInventory.ChangeSelectedTool(index);
-                        DisplayIndicators(index);
-                        break;
-                    case PointerEventData.InputButton.Right:
-                        OpenToolLoadOut(index);
-                        break;
-                    case PointerEventData.InputButton.Middle:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(inputButton), inputButton, null);
-                }
+                RefreshMaterialColor(index);
             }
 
             string ToolTipOverride(int index)
@@ -91,7 +74,7 @@ namespace Robot.Tool.UI
         
             void DisplayIndicators(int index)
             {
-                RefreshIndicator(tools[index]);
+                RefreshIndicator(tools[index],index);
                 int yPosition = 12 - index * 80;
                 RectTransform toolIndicatorContainer = (RectTransform)primaryIndicator.transform.parent;
                 Vector3 localPosition = toolIndicatorContainer.anchoredPosition;
@@ -126,13 +109,45 @@ namespace Robot.Tool.UI
             mToolCollectionUI.SetOnHighlight(DisplayIndicators);
         
             SelectTool(PointerEventData.InputButton.Left,0);
+            return;
+
+            void SelectTool(PointerEventData.InputButton inputButton, int index)
+            {
+                switch (inputButton)
+                {
+                    case PointerEventData.InputButton.Left:
+                        playerInventory.ChangeSelectedTool(index);
+                        DisplayIndicators(index);
+                        break;
+                    case PointerEventData.InputButton.Right:
+                        OpenToolLoadOut(index);
+                        break;
+                    case PointerEventData.InputButton.Middle:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(inputButton), inputButton, null);
+                }
+            }
+        }
+
+        public void RefreshMaterialColor(int index)
+        {
+            int toolColorProperty = Shader.PropertyToID("_ToolColor");
+            
+            var robotToolInstance = playerScript.PlayerRobot.RobotTools[index];
+            ItemSlotUI itemSlotUI = mToolCollectionUI.GetItemSlotUI(index);
+            itemSlotUI.ItemImage.material = new Material(mToolMaterial);
+            if (robotToolInstance is IColorableTool colorableTool)
+            {
+                itemSlotUI.ItemImage.material.SetColor(toolColorProperty,colorableTool.GetColor());
+            }
         }
     
-        public void RefreshIndicator(IRobotToolInstance current) 
+        public void RefreshIndicator(IRobotToolInstance current, int index) 
         {
-            primaryIndicator.Display(current);
+            primaryIndicator.Display(current,this,index);
             bool secondaryActive = current is ISubModeRobotToolInstance;
-            if (secondaryActive) secondaryIndicator.Display(current);
+            if (secondaryActive) secondaryIndicator.Display(current,this,index);
             secondaryIndicator.gameObject.SetActive(secondaryActive);
         }
     
