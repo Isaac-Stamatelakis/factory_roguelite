@@ -262,7 +262,7 @@ namespace Player.Movement.Standard
                 if (rocketBoots != null) return;
             }
       
-            rb.gravityScale *= fluidGravityModifer;
+            rb.gravityScale = playerRobot.DefaultGravityScale * fluidGravityModifer;
             const float BONUS_FALL_MODIFIER = 1.25f;
             if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
         }
