@@ -51,6 +51,8 @@ namespace Player.Movement
         
         public override void Dispose()
         {
+            flightMovement.Move.performed -= OnMovePress;
+            flightMovement.Move.canceled -= OnMoveRelease;
             flightMovement.Disable();
         }
     }

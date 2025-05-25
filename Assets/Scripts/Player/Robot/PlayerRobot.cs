@@ -109,6 +109,7 @@ namespace Player {
         public int HighDragFrames { get; private set; }
         public bool IsUsingTool { get; private set; }
         private bool freezeY;
+        private bool canStartClimbing;
         
         // Upgrades
         
@@ -163,7 +164,12 @@ namespace Player {
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
-            miscMovementActions.TryClimb.performed += TryClimbing;
+            miscMovementActions.TryClimb.performed += TryStartClimbing;
+                /*
+            {
+                canStartClimbing = true;
+            };
+            */
             miscMovementActions.Enable();
             
             StartCoroutine(LoadAsyncAssets());
@@ -218,12 +224,14 @@ namespace Player {
         public void SetMovementState(PlayerMovementState newMovementState)
         {
             if (movementState == newMovementState && currentMovement != null) return;
+            currentMovement?.Dispose();
             movementState = newMovementState;
             currentMovement = GetMovementHandler(movementState);
         }
 
         public void SetStandardMovementWithSpeed(float initial)
         {
+            Debug.Log(initial);
             SetMovementState(PlayerMovementState.Standard);
             ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
         }
@@ -810,7 +818,7 @@ namespace Player {
             
         }
 
-        public void TryClimbing(InputAction.CallbackContext context)
+        public void TryStartClimbing(InputAction.CallbackContext context)
         {
             // Can only start climbing when not climbing, or flying
             if (movementState != PlayerMovementState.Standard) return;
