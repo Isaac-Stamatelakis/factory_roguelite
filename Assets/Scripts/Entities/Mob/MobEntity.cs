@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using Entities;
 using Entities.Mob;
+using Item.Slot;
 using Items;
 using Robot.Tool.Instances.Gun;
 using World.Cave.Registry;
@@ -26,7 +27,8 @@ namespace Entities.Mobs {
 
     public enum SerializableMobComponentType
     {
-        CrystalCrawler = 0 
+        CrystalCrawler = 0,
+        AdditionalDrops = 1,
     }
 
     public interface ISerializableMobComponent
@@ -38,7 +40,7 @@ namespace Entities.Mobs {
 
     public interface ICaveInitiazableMobComponent : ISerializableMobComponent
     {
-        public string Initialize(CaveTileCollection caveTileCollection);
+        public void Initialize(Dictionary<SerializableMobComponentType,string> dataDict, CaveTileCollection caveTileCollection);
     }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
@@ -90,6 +92,13 @@ namespace Entities.Mobs {
                 if (transform.parent)
                 {
                     ItemEntityFactory.SpawnLootTable(GetLootSpawnPosition(),LootTable,transform.parent);
+                }
+
+                MobDynamicDropComponent additionalDrops = GetComponent<MobDynamicDropComponent>();
+                if (additionalDrops)
+                {
+                    List<ItemSlot> drops = additionalDrops.Drops;
+                    ItemEntityFactory.SpawnItemEntities(GetLootSpawnPosition(),drops,transform.parent);
                 }
 
                 if (DeathParticles != MobDeathParticles.None)

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Entities.Mobs;
+using Item.Slot;
 using Item.Transmutation.Items;
 using Items;
 using Items.Transmutable;
@@ -66,14 +68,20 @@ namespace Entities.Mob.CrystalCrawler
             );
         }
 
-        public string Initialize(CaveTileCollection caveTileCollection)
+        public void Initialize(Dictionary<SerializableMobComponentType,string> dataDict, CaveTileCollection caveTileCollection)
         {
             string id = caveTileCollection.GetRandomOreId();
             ITransmutableItem transmutableItem = ItemRegistry.GetInstance().GetTransmutableItemObject(id);
             TransmutableItemMaterial material = transmutableItem?.getMaterial();
             Color color = material ? material.color : GetRandomColor();
             colorBitMap =  ColorToInt(color);
-            return JsonConvert.SerializeObject(colorBitMap);
+            dataDict[SerializableMobComponentType.CrystalCrawler] = colorBitMap.ToString();
+            uint randomAmount = (uint)Random.Range(1, 4);
+            List<ItemSlot> bonusOreDrops = new List<ItemSlot>
+            {
+                new((ItemObject)transmutableItem, randomAmount, null)
+            };
+            dataDict[SerializableMobComponentType.AdditionalDrops] = ItemSlotFactory.serializeList(bonusOreDrops);
         }
     }
 }

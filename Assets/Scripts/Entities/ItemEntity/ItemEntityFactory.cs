@@ -16,6 +16,7 @@ namespace Entities {
         public static void SpawnItemEntities(Vector2 position, List<ItemSlot> itemSlots, Transform entityContainer,
             Vector2? initialVelocity = null)
         {
+            if (itemSlots == null) return;
             foreach (ItemSlot itemSlot in itemSlots)
             {
                 SpawnItemEntity(position, itemSlot, entityContainer, initialVelocity);

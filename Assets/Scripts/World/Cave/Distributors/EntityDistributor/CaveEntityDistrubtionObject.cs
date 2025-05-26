@@ -104,7 +104,7 @@ namespace WorldModule.Caves {
                 {
                     if (component is ICaveInitiazableMobComponent initializableSerializableMobComponent)
                     {
-                        componentDataDict[component.ComponentType] = initializableSerializableMobComponent.Initialize(caveTileCollection);
+                        initializableSerializableMobComponent.Initialize(componentDataDict, caveTileCollection); 
                     }
                 }
                 return componentDataDict;
