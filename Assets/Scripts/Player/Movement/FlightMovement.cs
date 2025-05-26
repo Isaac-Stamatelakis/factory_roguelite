@@ -64,7 +64,7 @@ namespace Player.Movement
             rb.velocity = velocity;
         }
 
-        public override void Dispose()
+        public override void Disable()
         {
             movementActions.Move.performed -= OnMovePress;
             movementActions.Move.canceled -= OnMoveRelease;

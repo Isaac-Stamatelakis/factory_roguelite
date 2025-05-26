@@ -63,10 +63,9 @@ namespace Player.Controls
                 }
                 bindingConflictDict[playerControlData.KeyData].Add(playerControl);
             }
-
+            
             foreach (var (_, bindingConflicts) in bindingConflictDict)
             {
-                if (bindingConflicts.Count <= 1) continue;
                 for (int i = 0; i < bindingConflicts.Count; i++)
                 {
                     var current = bindingConflicts[i];
@@ -86,6 +85,38 @@ namespace Player.Controls
                     requiredModifiers[current] = required;
                     blockedModifiers[current] = blocked;
                 }
+            }
+
+            PrintRequiredAndBlocked(true);
+        }
+
+        public static void PrintRequiredAndBlocked(bool ignoreEmpty)
+        {
+            var playerControls = System.Enum.GetValues(typeof(PlayerControl));
+            foreach (PlayerControl playerControl in playerControls)
+            {
+                ModifierKeyCode? required = requiredModifiers.GetValueOrDefault(playerControl);
+                List<ModifierKeyCode> blocked = blockedModifiers.GetValueOrDefault(playerControl);
+                if (ignoreEmpty && !required.HasValue && (blocked == null || blocked.Count == 0)) continue;
+                
+                string requiredText = required.HasValue ? required.Value.ToString() : "None";
+                string blockedText = string.Empty;
+                if (blocked == null || blocked.Count == 0)
+                {
+                    blockedText = "None";
+                }
+                else
+                {
+                    for (var index = 0; index < blocked.Count; index++)
+                    {
+                        var blockedModifier = blocked[index];
+                        blockedText += blockedModifier.ToString();
+                        if (index != blocked.Count - 1) blockedText += ", ";
+                    }
+                }
+                
+                Debug.Log($"{playerControl}: Required: {requiredText} & Blocked: {blockedText}");
+                
             }
         }
         
@@ -182,12 +213,14 @@ namespace Player.Controls
                 case PlayerControl.MoveUp:
                     return new InputActionBinding[]
                     {
-                        
                         new(inputActions.FlightMovement.Move, 2),
                         new(inputActions.LadderMovement.Move, 1),
                     };
                 case PlayerControl.Teleport:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscMovement.Teleport, 0),
+                    };
                 case PlayerControl.Recall:
                     break;
                 case PlayerControl.SwitchToolMode:
@@ -203,19 +236,34 @@ namespace Player.Controls
                 case PlayerControl.ChangeConduitViewMode:
                     break;
                 case PlayerControl.HideUI:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.CanvasController.Hide, 0),
+                    };
                 case PlayerControl.SwapToolLoadOut:
                     break;
                 case PlayerControl.SwapRobotLoadOut:
                     break;
                 case PlayerControl.OpenQuestBook:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.QuestBook, 0),
+                    };
                 case PlayerControl.OpenInventory:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.Inventory, 0),
+                    };
                 case PlayerControl.OpenSearch:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ItemSearch, 0),
+                    };
                 case PlayerControl.AutoSelect:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.AutoSelect, 0),
+                    };
                 case PlayerControl.OpenRobotLoadOut:
                     break;
                 case PlayerControl.OpenToolLoadOut:

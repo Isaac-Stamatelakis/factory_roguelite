@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Player.Controls.UI
 {
-    public class ControlUIElement : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class ControlUIElement : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
@@ -17,32 +17,25 @@ namespace Player.Controls.UI
         private InputActions inputActions;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         private InputActionBinding[] inputActionBindings;
-
-        private bool listening;
-        private bool focused;
-
-        public void Update()
-        {
-            if (focused)
-            {
-               
-            }
-            
-        }
-
+        
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
-                listening = true;
                 button.interactable = false;
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text  = "Press any key...";
                 rebindOperation?.Dispose();
 
                 inputActionBindings ??= ControlUtils.GetPlayerControlBinding(key, inputActions);
                 
-                if (inputActionBindings.Length == 0) return;
+                if (inputActionBindings == null || inputActionBindings.Length == 0) return;
                 var inputActionBinding = inputActionBindings[0];
+                inputActionBinding.InputAction.Disable();
+                if (rebindOperation != null)
+                {
+                    rebindOperation.Dispose();
+                    rebindOperation = null;
+                }
                 rebindOperation = inputActionBinding.InputAction.PerformInteractiveRebinding()
                     .WithTargetBinding(inputActionBinding.BindingIndex)
                     .WithControlsExcluding("<Mouse>/position")
@@ -59,17 +52,16 @@ namespace Player.Controls.UI
                         operation.Dispose();
                     })
                     .Start();
-                
             });
         }
 
         private void UpdateBindingDisplay(bool operationSuccess)
         {
             button.interactable = true;
-            listening = false;
             if (!operationSuccess)
             {
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                inputActionBindings[0].InputAction.Enable();
                 return;
             }
 
@@ -104,14 +96,13 @@ namespace Player.Controls.UI
                 
                 primaryPath = candiatePath;
             }
-
-            Debug.Log(primaryPath);
+            
             if (string.IsNullOrEmpty(primaryPath))
             {
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                inputActionBindings[0].InputAction.Enable();
                 return;
             }
-            Debug.Log("A");
             
             foreach (var binding in inputActionBindings)
             {
@@ -120,6 +111,8 @@ namespace Player.Controls.UI
 
             ControlUtils.SetKeyValue(key, primaryPath, modifier);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+            inputActionBindings[0].InputAction.Enable();
+            ControlUtils.LoadRequiredAndBlocked();
         }
 
         public void HighlightConflictState(bool conflict)
@@ -139,16 +132,7 @@ namespace Player.Controls.UI
             this.inputActions = inputActions;
             Display();
         }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            focused = true;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            focused = false;
-        }
+        
     }
 
     
