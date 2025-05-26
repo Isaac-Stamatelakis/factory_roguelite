@@ -13,12 +13,9 @@ namespace Player.Controls.UI
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
         private PlayerControl key;
-        private List<KeyCode> selectableKeys;
-        public int listenUpdates;
-        private List<KeyCode> cachedKeys;
-        private ControlSettingUI controlSettingUI;
-        private PlayerControlBinding playerControlBinding;
+        private InputActions inputActions;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
+        private InputActionBinding[] inputActionBindings;
         public void Start()
         {
             button.onClick.AddListener(() =>
@@ -27,9 +24,12 @@ namespace Player.Controls.UI
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text  = "Press any key...";
                 rebindOperation?.Dispose();
 
-                // Create new rebind operation
-                rebindOperation = playerControlBinding.InputAction.PerformInteractiveRebinding()
-                    .WithTargetBinding(playerControlBinding.BindingIndex)
+                inputActionBindings ??= ControlUtils.GetPlayerControlBinding(key, inputActions);
+                
+                if (inputActionBindings.Length == 0) return;
+                var inputActionBinding = inputActionBindings[0];
+                rebindOperation = inputActionBinding.InputAction.PerformInteractiveRebinding()
+                    .WithTargetBinding(inputActionBinding.BindingIndex)
                     .WithControlsExcluding("<Mouse>/position")
                     .WithControlsExcluding("<Mouse>/delta")
                     .WithCancelingThrough("<Keyboard>/escape")
@@ -56,7 +56,15 @@ namespace Player.Controls.UI
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
                 return;
             }
-            string path = playerControlBinding.InputAction.bindings[playerControlBinding.BindingIndex].effectivePath;
+            var inputActionBinding = inputActionBindings[0];
+            string path = inputActionBinding.InputAction.bindings[inputActionBinding.BindingIndex].effectivePath;
+
+            for (int i = 1; i < inputActionBindings.Length; i++)
+            {
+                var otherBinding = inputActionBindings[i];
+                otherBinding.InputAction.ApplyBindingOverride(otherBinding.BindingIndex,path);
+            }
+            
             ControlUtils.SetKeyValue(key, path);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
         }
@@ -72,21 +80,21 @@ namespace Player.Controls.UI
             string formatString = ControlUtils.FormatInputText(key);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI, PlayerControlBinding playerControlBinding)
+        public void Initalize(PlayerControl key, InputActions inputActions)
         {
-            this.controlSettingUI = controlSettingUI;
             this.key = key;
-            this.playerControlBinding = playerControlBinding;
+            this.inputActions = inputActions;
             Display();
         }
     }
 
-    public struct PlayerControlBinding
+    
+    public struct InputActionBinding
     {
         public InputAction InputAction;
         public int BindingIndex;
 
-        public PlayerControlBinding(InputAction inputAction, int bindingIndex)
+        public InputActionBinding(InputAction inputAction, int bindingIndex)
         {
             InputAction = inputAction;
             BindingIndex = bindingIndex;

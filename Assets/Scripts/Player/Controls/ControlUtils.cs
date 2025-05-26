@@ -76,15 +76,21 @@ namespace Player.Controls
         }
 
 
-        public static PlayerControlBinding GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
+        public static InputActionBinding[] GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
         {
             switch (playerControl)
             {
                 case PlayerControl.Jump:
-                    return new PlayerControlBinding(inputActions.StandardMovement.Jump, 0);
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.StandardMovement.Jump, 0)
+                    };
                 case PlayerControl.MoveLeft:
-                    return new PlayerControlBinding(inputActions.StandardMovement.Move, 0);
-                    return inputActions.StandardMovement.Move;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.StandardMovement.Move, 1),
+                        new(inputActions.FlightMovement.Move, 3),
+                    };
                 case PlayerControl.MoveRight:
                     break;
                 case PlayerControl.MoveDown:
