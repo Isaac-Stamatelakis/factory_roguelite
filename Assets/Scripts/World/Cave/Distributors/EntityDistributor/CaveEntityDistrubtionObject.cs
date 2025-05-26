@@ -78,7 +78,8 @@ namespace WorldModule.Caves {
                             componentDataDict = GetInitializeCaveData(components);
                         }
 
-                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData(entityDistribution.entityId, mobEntityPrefab.Health, componentDataDict);
+                        float randomSize = mobEntityPrefab.RandomizeSize ? MobEntity.GetRandomSize() : 1f;
+                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData(entityDistribution.entityId, mobEntityPrefab.Health, randomSize,componentDataDict);
                         string mobData = JsonConvert.SerializeObject(mobEntityData);
                         Vector2 spawnPosition = ((new Vector2(ranX,ranY+1))+bottomLeftCorner)/2f;
                         worldData.entityData.Add(

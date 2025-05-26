@@ -9,6 +9,7 @@ using Item.Slot;
 using Items;
 using Robot.Tool.Instances.Gun;
 using World.Cave.Registry;
+using Random = System.Random;
 
 namespace Entities.Mobs {
     public enum MobSpawnCondition
@@ -30,6 +31,7 @@ namespace Entities.Mobs {
         CrystalCrawler = 0,
         AdditionalDrops = 1,
     }
+    
 
     public interface ISerializableMobComponent
     {
@@ -44,6 +46,7 @@ namespace Entities.Mobs {
     }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
+
         public enum MobDeathParticles
         {
             Standard = 0,
@@ -54,6 +57,7 @@ namespace Entities.Mobs {
         public MobLootSpawnPlacement MobLootSpawnPlacement = MobLootSpawnPlacement.OnSelf;
         public bool TakesKnockback = true;
         public bool RayCastUnLoadable = true;
+        public bool RandomizeSize = false;
         public float Health = 10;
         public LootTable LootTable;
         public MobDeathParticles DeathParticles = MobDeathParticles.None;
@@ -65,6 +69,14 @@ namespace Entities.Mobs {
             {
                 this.Health = entityData.Health;
             }
+
+            if (RandomizeSize)
+            {
+                float size = entityData.Size;
+                if (size <= 0) size = 1;
+                transform.localScale = new Vector3(size,size,1f);
+            }
+            
             ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
             if (serializableMobComponents.Length == 0) return;
             Dictionary<SerializableMobComponentType, string> componentDataDict = entityData.ComponentDataDict;
@@ -144,7 +156,7 @@ namespace Entities.Mobs {
             SerializedMobEntityData serializedMobData;
             if (serializableMobComponents.Length == 0)
             {
-                serializedMobData = new SerializedMobEntityData(id, Health, null);
+                serializedMobData = new SerializedMobEntityData(id, Health, transform.localScale.x, null);
             }
             else
             {
@@ -154,7 +166,7 @@ namespace Entities.Mobs {
                     string componentData = serializableMobComponent.Serialize();
                     componentDataDictionary[serializableMobComponent.ComponentType] =  componentData;
                 }
-                serializedMobData = new SerializedMobEntityData(id, Health, componentDataDictionary);
+                serializedMobData = new SerializedMobEntityData(id, Health,transform.localScale.x, componentDataDictionary);
             }
             
             return new SeralizedEntityData(
@@ -186,6 +198,15 @@ namespace Entities.Mobs {
         public override void Initialize()
         {
             
+        }
+
+        public static float GetRandomSize()
+        {
+            const float RANGE = 0.2f;
+            const float MIN_SIZE = 0.9f;
+            float size = UnityEngine.Random.Range(1-RANGE, 1+RANGE);
+            if (size < MIN_SIZE) size = MIN_SIZE;
+            return size;
         }
     }
 
