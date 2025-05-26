@@ -227,44 +227,66 @@ namespace Player.Controls
                     return new InputActionBinding[]
                     {
                         new(inputActions.StandardMovement.Down, 0),
-                        new(inputActions.FlightMovement.Move, 1),
-                        new(inputActions.LadderMovement.Move, 2),
+                        new(inputActions.FlightMovement.Move, 2),
+                        new(inputActions.LadderMovement.Move, 1),
                     };
                 
                 case PlayerControl.MoveUp:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.FlightMovement.Move, 2),
-                        new(inputActions.LadderMovement.Move, 1),
+                        new(inputActions.FlightMovement.Move, 1),
+                        new(inputActions.LadderMovement.Move, 2),
                     };
                 case PlayerControl.Teleport:
                     return new InputActionBinding[]
                     {
                         new(inputActions.MiscMovement.Teleport, 0),
                     };
-                case PlayerControl.Recall:
-                    break;
                 case PlayerControl.SwitchToolMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchToolMode, 0),
+                    };
                 case PlayerControl.OpenConduitOptions:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitOptions, 0),
+                    };
                 case PlayerControl.SwitchPlacementMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.SwitchPlacementMode, 0),
+                    };
                 case PlayerControl.TerminateConduitGroup:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.TerminateConduitGroup, 0),
+                    };
                 case PlayerControl.SwitchConduitPortView:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitPortView, 0),
+                    };
                 case PlayerControl.ChangeConduitViewMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitView, 0),
+                    };
                 case PlayerControl.HideUI:
                     return new InputActionBinding[]
                     {
                         new(inputActions.CanvasController.Hide, 0),
                     };
                 case PlayerControl.SwapToolLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchToolMode, 0),
+                    };
                 case PlayerControl.SwapRobotLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchRobotLoadout, 0),
+                    };
                 case PlayerControl.OpenQuestBook:
                     return new InputActionBinding[]
                     {
@@ -286,17 +308,42 @@ namespace Player.Controls
                         new(inputActions.ToolBindings.AutoSelect, 0),
                     };
                 case PlayerControl.OpenRobotLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.OpenRobotLoadout, 0),
+                    };
                 case PlayerControl.OpenToolLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.OpenToolLoadout, 0),
+                    };
                 case PlayerControl.SwitchPlacementSubMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.SubPlacementMode, 0),
+                    };
                 case PlayerControl.PlacePreview:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(playerControl), playerControl, null);
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitOptions, 0),
+                    };
+                case PlayerControl.ShowItemRecipes:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.ShowRecipes, 0),
+                    };
+                case PlayerControl.ShowItemUses:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.ShowUses, 0),
+                    };
+                case PlayerControl.EditItemTag:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.EditTag, 0),
+                    };
             }
-
+            Debug.LogWarning($"{playerControl} is not synced to any bindings");
             return null;
         }
         

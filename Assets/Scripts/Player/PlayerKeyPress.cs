@@ -37,32 +37,37 @@ namespace PlayerModule.KeyPress {
         private PlayerInventory playerInventory;
 
         private PlayerScript playerScript;
-
-        private CanvasController canvasController;
-        // Start is called before the first frame update
+        
         void Start()
         {
             playerInventory = GetComponent<PlayerInventory>();
             playerScript = GetComponent<PlayerScript>();
-            canvasController = CanvasController.Instance;
-
+            
             var miscKeys = playerScript.InputActions.MiscKeys;
             ControlUtils.AssignAction(miscKeys.ItemSearch,PlayerControl.OpenSearch,OpenSearch);
             ControlUtils.AssignAction(miscKeys.Inventory,PlayerControl.OpenInventory, _ => playerInventory.ToggleInventoryMode());
-            ControlUtils.AssignAction(miscKeys.PlacementMode,PlayerControl.SwitchPlacementMode, SwitchPlacementMode);
-            ControlUtils.AssignAction(miscKeys.ConduitOptions,PlayerControl.OpenConduitOptions, _ => playerScript.TileViewers.ConduitViewController.DisplayRadialMenu());
+            ControlUtils.AssignAction(miscKeys.ConduitOptions,PlayerControl.OpenConduitOptions, _ => playerScript.TileViewers.ConduitViewController.DisplayView());
             ControlUtils.AssignAction(miscKeys.ConduitPortView,PlayerControl.SwitchConduitPortView, _ => ChangePortModePress());
+            ControlUtils.AssignAction(miscKeys.SwitchPlacementMode,PlayerControl.SwitchPlacementMode, SwitchPlacementMode);
+            ControlUtils.AssignAction(miscKeys.SubPlacementMode,PlayerControl.SwitchPlacementSubMode,SwitchSubPlacementMode);
+            ControlUtils.AssignAction(miscKeys.TerminateConduitGroup,PlayerControl.TerminateConduitGroup,TerminateConduitGroup);
+            ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
+            ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview,_ => playerScript.PlayerUIContainer.IndicatorManager.tilePreviewerIndicatorUI.Toggle());
             
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
             miscKeys.ShowChat.performed += _ => TextChatUI.Instance.ShowTextField();
+            miscKeys.Enable();
+
             
             var toolBindings = playerScript.InputActions.ToolBindings;
-            toolBindings.AutoSelect.performed += AutoSelect;
-            toolBindings.SwitchMode.performed += SwitchToolMode;
-            toolBindings.OpenLoadout.performed += OpenRobotLoadOut;
-            toolBindings.SwitchLoadout.performed += SwitchRobotLoadout;
-            
+            ControlUtils.AssignAction(toolBindings.AutoSelect,PlayerControl.AutoSelect, AutoSelect);
+            ControlUtils.AssignAction(toolBindings.SwitchToolMode,PlayerControl.SwitchToolMode, SwitchToolMode);
+            ControlUtils.AssignAction(toolBindings.OpenRobotLoadout,PlayerControl.OpenRobotLoadOut, OpenRobotLoadOut);
+            ControlUtils.AssignAction(toolBindings.OpenToolLoadout,PlayerControl.OpenToolLoadOut, OpenToolLoadOut);
+            ControlUtils.AssignAction(toolBindings.SwitchRobotLoadout,PlayerControl.SwapRobotLoadOut, SwitchRobotLoadout);
+            ControlUtils.AssignAction(toolBindings.SwitchToolLoadout,PlayerControl.SwapToolLoadOut, SwitchToolLoadOut);
+            toolBindings.Enable();
             
             var inventoryNavigation = playerScript.InputActions.InventoryNavigation;
             inventoryNavigation.Select1.performed += _ => playerInventory.ChangeSelectedSlot(0);
@@ -76,14 +81,12 @@ namespace PlayerModule.KeyPress {
             inventoryNavigation.Select9.performed += _ => playerInventory.ChangeSelectedSlot(8);
             inventoryNavigation.Select0.performed += _ => playerInventory.ChangeSelectedSlot(9);
             inventoryNavigation.Scroll.performed += ScrollInventory;
-            var inventoryUtils = playerScript.InputActions.InventoryUtils;
-            inventoryUtils.ShowRecipes.performed += ShowItemRecipes;
-            inventoryUtils.ShowUses.performed += ShowItemUses;
-            inventoryUtils.EditTag.performed += EditItemTags;
-            
-            toolBindings.Enable();
-            miscKeys.Enable();
             inventoryNavigation.Enable();
+            
+            var inventoryUtils = playerScript.InputActions.InventoryUtils;
+            ControlUtils.AssignAction(inventoryUtils.ShowRecipes,PlayerControl.ShowItemRecipes, ShowItemRecipes);
+            ControlUtils.AssignAction(inventoryUtils.ShowUses,PlayerControl.ShowItemUses, ShowItemUses);
+            ControlUtils.AssignAction(inventoryUtils.EditTag,PlayerControl.EditItemTag, EditItemTags);
             inventoryUtils.Enable();
         }
 
@@ -125,12 +128,22 @@ namespace PlayerModule.KeyPress {
 
         void SwitchPlacementMode(InputAction.CallbackContext context)
         {
-            Debug.Log("HI");
+            // TODO
             ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
             conduitPlacementOptions.ResetPlacementRecord();
             conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
             playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Display();
         }
+        
+        void SwitchSubPlacementMode(InputAction.CallbackContext context)
+        {
+            // TODO
+            ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
+            conduitPlacementOptions.ResetPlacementRecord();
+            conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
+            playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Display();
+        }
+
 
         void TerminateConduitGroup(InputAction.CallbackContext context)
         {

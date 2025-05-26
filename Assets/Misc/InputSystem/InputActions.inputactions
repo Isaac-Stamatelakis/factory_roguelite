@@ -276,7 +276,7 @@
                 {
                     "name": "negative",
                     "id": "cd4b802e-f061-480e-831d-b73ba1c58a09",
-                    "path": "<Keyboard>/s",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -287,7 +287,7 @@
                 {
                     "name": "positive",
                     "id": "831b8a46-fd83-46b8-8167-d7f674f3ff99",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -750,7 +750,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "PlacementMode",
+                    "name": "SwitchPlacementMode",
                     "type": "Button",
                     "id": "6457e67c-e59d-40bf-b93a-b9ab320374f8",
                     "expectedControlType": "Button",
@@ -804,9 +804,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SubPlacementModeTest",
+                    "name": "SubPlacementMode",
                     "type": "Button",
                     "id": "1bfad530-aee1-4d38-80ee-449038fe5db6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TerminateConduitGroup",
+                    "type": "Button",
+                    "id": "8edc73fc-24b9-432d-8b9a-357f8f478eb6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PlacePreview",
+                    "type": "Button",
+                    "id": "8f85a927-cf8b-4298-98d6-10816fa884b2",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -846,39 +864,6 @@
                     "action": "QuestBook",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "One Modifier",
-                    "id": "1149609c-acf6-4a22-8c6a-90ffbcb92b3f",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "PlacementMode",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "eb01c747-9d36-4870-b9f0-03cfcc33e62c",
-                    "path": "<Keyboard>/ctrl",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "PlacementMode",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "c054873b-63f4-4163-9b71-b2be8636fb31",
-                    "path": "<Keyboard>/h",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "PlacementMode",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
@@ -942,7 +927,40 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SubPlacementModeTest",
+                    "action": "SubPlacementMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2173186c-d1d0-4d0c-b8b2-279f2067bd3f",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TerminateConduitGroup",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d3b10171-b0f9-4a30-b3af-80b6d4856e40",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchPlacementMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9208e6e1-ed94-4e4f-b600-acd1854cabd6",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlacePreview",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -953,7 +971,7 @@
             "id": "6a787e22-73da-4278-8716-6f3afb48f675",
             "actions": [
                 {
-                    "name": "SwitchMode",
+                    "name": "SwitchToolMode",
                     "type": "Button",
                     "id": "95525401-e420-4d81-8733-7616e0d439cf",
                     "expectedControlType": "Button",
@@ -971,7 +989,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "OpenLoadout",
+                    "name": "OpenRobotLoadout",
                     "type": "Button",
                     "id": "ba31cfce-8a6a-4f28-958b-3ff54a432eb9",
                     "expectedControlType": "Button",
@@ -980,9 +998,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SwitchLoadout",
+                    "name": "SwitchRobotLoadout",
                     "type": "Button",
                     "id": "376900dc-1b1e-459c-9b4c-19b7987c91d1",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchToolLoadout",
+                    "type": "Button",
+                    "id": "ba75f499-072a-4130-b676-5a2af516dd49",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OpenToolLoadout",
+                    "type": "Button",
+                    "id": "da859852-2511-47cc-b392-e6c1aa50e01e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -997,7 +1033,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchMode",
+                    "action": "SwitchToolMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1019,7 +1055,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "OpenLoadout",
+                    "action": "OpenRobotLoadout",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1030,7 +1066,29 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchLoadout",
+                    "action": "SwitchRobotLoadout",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a45ac1de-5b07-42cb-af56-5f7528b925fa",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchToolLoadout",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4d3f4ec5-f8f2-4837-96dc-8ee685416196",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenToolLoadout",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
