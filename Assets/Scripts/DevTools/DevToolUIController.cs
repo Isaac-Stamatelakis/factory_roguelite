@@ -34,23 +34,6 @@ namespace DevTools {
         [SerializeField] private CraftingTreeSelectorUI craftingTreeSelectorUIPrefab;
         private static DevToolPage page = DevToolPage.Title;
         
-        public override void EmptyListen()
-        {
-            
-        }
-
-        public override void ListenKeyPresses()
-        {
-            if (CanEscapePop())
-            {
-                PopStack();
-                if (uiObjectStack.Count == 0)
-                {
-                    page = DevToolPage.Title;
-                    Display();
-                }
-            }
-        }
 
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private GameObject home;
@@ -166,6 +149,23 @@ namespace DevTools {
                     
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        protected override void OnInactiveEscapePress()
+        {
+            page = DevToolPage.Title;
+            Display();
+        }
+
+        protected override void OnEscapePress()
+        {
+            if (uiObjectStack.Count <= 1)
+            {
+                page = DevToolPage.Title;
+                Display();
+                return;
+            }
+            PopStack();
         }
     }
 }

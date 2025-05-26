@@ -60,16 +60,6 @@ namespace Player.Controls.UI
                 controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
             }
         }
-
-        public void Update()
-        {
-            if (ListeningToKey) return;
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                CanvasController.Instance.PopStack();
-            }
-        }
-
         public void OnDestroy()
         {
             PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();

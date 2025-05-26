@@ -26,7 +26,7 @@ namespace UI
         protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
         private bool blockMovement => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
-        private bool canTerminate;
+        
         private AudioSource audioSource;
         private PlayerScript playerScript;
         private InputActions inputActions;
@@ -38,6 +38,19 @@ namespace UI
             audioSource = gameObject.AddComponent<AudioSource>();
             inputActions = new InputActions();
             GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerScript>()?.SetInputActions(inputActions);
+            
+            var canvasKeyPresses = inputActions.CanvasController;
+            canvasKeyPresses.Exit.performed += OnEscapePress;
+            canvasKeyPresses.Hide.performed += HidePress;
+            canvasKeyPresses.Enable();
+        }
+        
+        public void OnDestroy()
+        {
+            var canvasKeyPresses = inputActions.CanvasController;
+            canvasKeyPresses.Exit.performed -= OnEscapePress;
+            canvasKeyPresses.Hide.performed -= HidePress;
+            inputActions.Dispose();
         }
 
         public void PlayAudioClip(UIAudioClipType audioClipType)
@@ -45,9 +58,6 @@ namespace UI
             AudioClip clip = uiAudioElements.GetClip(audioClipType);
             audioSource.PlayOneShot(clip);
         }
-        public abstract void EmptyListen();
-        public abstract void ListenKeyPresses();
-
         public void SetPlayerScript(PlayerScript playerScript)
         {
             this.playerScript = playerScript;
@@ -66,42 +76,23 @@ namespace UI
             });
         }
 
-        public void Update()
+        public void OnEscapePress(InputAction.CallbackContext context)
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(PlayerControl.HideUI)))
-            {
-                Canvas parentCanvas = GetComponentInParent<Canvas>();
-                parentCanvas.enabled = !parentCanvas.enabled;
-            }
-            if (!canTerminate) // Prevents instant terminating if key to activate ui element is the same that destroys it
-            {
-                canTerminate = true;
-                return;
-            }
-            
             if (uiObjectStack.Count == 0)
             {
-                EmptyListen();
+                OnInactiveEscapePress();
                 return;
             }
-            ListenKeyPresses();
-            if (uiObjectStack.Count == 0)
-            {
-                return;
-            }
-            
-            DisplayedUIInfo top = uiObjectStack.Peek();
-            List<KeyCode> additionalTerminators = top.additionalTerminators;
-            if (additionalTerminators == null) return;
-            
-            foreach (KeyCode key in additionalTerminators)
-            {
-                if (Input.GetKeyDown(key))
-                {
-                    StartCoroutine(DelayStartPopStack());
-                    return;
-                }
-            }
+            OnEscapePress();
+        }
+
+
+        protected abstract void OnInactiveEscapePress();
+        protected abstract void OnEscapePress();
+        public void HidePress(InputAction.CallbackContext context)
+        {
+            Canvas parentCanvas = GetComponentInParent<Canvas>();
+            parentCanvas.enabled = !parentCanvas.enabled;
         }
 
         public bool CanEscapePop()
@@ -201,7 +192,6 @@ namespace UI
             }
 
             mBlocker?.gameObject.SetActive(uiInfo.blocker);
-            canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
         }

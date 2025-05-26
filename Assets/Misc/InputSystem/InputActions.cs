@@ -1451,6 +1451,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Hide"",
+                    ""type"": ""Button"",
+                    ""id"": ""65c2014a-0414-460c-85d9-909a0fad2d8f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1462,6 +1471,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4d16a454-4a72-49ee-8271-16bad35f658e"",
+                    ""path"": ""<Keyboard>/f1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hide"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1540,6 +1560,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // CanvasController
         m_CanvasController = asset.FindActionMap("CanvasController", throwIfNotFound: true);
         m_CanvasController_Exit = m_CanvasController.FindAction("Exit", throwIfNotFound: true);
+        m_CanvasController_Hide = m_CanvasController.FindAction("Hide", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -2358,11 +2379,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_CanvasController;
     private List<ICanvasControllerActions> m_CanvasControllerActionsCallbackInterfaces = new List<ICanvasControllerActions>();
     private readonly InputAction m_CanvasController_Exit;
+    private readonly InputAction m_CanvasController_Hide;
     public struct CanvasControllerActions
     {
         private @InputActions m_Wrapper;
         public CanvasControllerActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Exit => m_Wrapper.m_CanvasController_Exit;
+        public InputAction @Hide => m_Wrapper.m_CanvasController_Hide;
         public InputActionMap Get() { return m_Wrapper.m_CanvasController; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -2375,6 +2398,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Exit.started += instance.OnExit;
             @Exit.performed += instance.OnExit;
             @Exit.canceled += instance.OnExit;
+            @Hide.started += instance.OnHide;
+            @Hide.performed += instance.OnHide;
+            @Hide.canceled += instance.OnHide;
         }
 
         private void UnregisterCallbacks(ICanvasControllerActions instance)
@@ -2382,6 +2408,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Exit.started -= instance.OnExit;
             @Exit.performed -= instance.OnExit;
             @Exit.canceled -= instance.OnExit;
+            @Hide.started -= instance.OnHide;
+            @Hide.performed -= instance.OnHide;
+            @Hide.canceled -= instance.OnHide;
         }
 
         public void RemoveCallbacks(ICanvasControllerActions instance)
@@ -2479,5 +2508,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface ICanvasControllerActions
     {
         void OnExit(InputAction.CallbackContext context);
+        void OnHide(InputAction.CallbackContext context);
     }
 }
