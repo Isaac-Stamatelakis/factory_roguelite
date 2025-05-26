@@ -58,7 +58,7 @@ public class CameraView : MonoBehaviour
             case CameraViewSize.Large:
                 return 1/2f;
             default:
-                throw new ArgumentOutOfRangeException(nameof(cameraViewSize), cameraViewSize, null);
+                return 1 / 2f;
         }
     }
     

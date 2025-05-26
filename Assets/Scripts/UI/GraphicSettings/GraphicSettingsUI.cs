@@ -17,6 +17,9 @@ namespace UI.GraphicSettings
         [SerializeField] private Button mFullScreenButton;
         [SerializeField] private TMP_Dropdown mResolutionDropdown;
         
+        private HashSet<GraphicSetting> settingsToApplyOnExit = new();
+        private bool quitting;
+        
         public void Start()
         {
             mBackButton.onClick.AddListener(CanvasController.Instance.PopStack);
@@ -35,16 +38,32 @@ namespace UI.GraphicSettings
             TextMeshProUGUI textIndicator = scrollbar.GetComponentInChildren<TextMeshProUGUI>();
             textIndicator.text = GetText(graphicSetting, initial);
             GraphicSettingManager manager = GraphicSettingFactory.GetManager(graphicSetting);
-            
-            scrollbar.value = (float)initial / (mViewRangeScrollbar.numberOfSteps - 1);
+            IScrollBarGraphicManager scrollBarGraphicManager = (IScrollBarGraphicManager)manager;
+            scrollbar.value = (float)initial / (scrollBarGraphicManager.GetSteps()-1f);
             scrollbar.onValueChanged.AddListener((value) =>
             {
-                IScrollBarGraphicManager scrollBarGraphicManager = (IScrollBarGraphicManager)manager;
-                int intVal = (int)(value * (scrollBarGraphicManager.GetSteps() - 1));
+                int intVal = (int)(value * (scrollBarGraphicManager.GetSteps() - .5f));
                 GraphicSettingsUtils.SetGraphicSettingsValue(graphicSetting, intVal);
-                manager?.ApplyGraphicSettings(intVal);
                 textIndicator.text = GetText(graphicSetting, intVal);
+                OnValueChange(manager, graphicSetting, intVal);
             });
+            
+        }
+
+        private void OnValueChange(GraphicSettingManager manager, GraphicSetting graphicSetting, int value)
+        {
+            if (manager is IDelayedExitGraphicManager)
+            {
+                settingsToApplyOnExit.Add(graphicSetting);
+                
+            } else if (manager is IDeselectDelayGraphicManager)
+            {
+                return;
+            }
+            else
+            {
+                manager?.ApplyGraphicSettings(value);
+            }
         }
         
         private void SetUpDropDown(TMP_Dropdown dropdown, GraphicSetting graphicSetting)
@@ -70,7 +89,7 @@ namespace UI.GraphicSettings
             dropdown.onValueChanged.AddListener((value) =>
             {
                 GraphicSettingsUtils.SetGraphicSettingsValue(graphicSetting, value);
-                manager.ApplyGraphicSettings(value);
+                OnValueChange(manager, graphicSetting, value);
             });
         }
 
@@ -86,8 +105,9 @@ namespace UI.GraphicSettings
                 value = value == 0 ? 1 : 0;
                 GraphicSettingsUtils.SetGraphicSettingsValue(graphicSetting,value);
                 GraphicSettingManager manager = GraphicSettingFactory.GetManager(graphicSetting);
-                manager?.ApplyGraphicSettings(value);
+                
                 textElement.text = GetText(graphicSetting,value);
+                OnValueChange(manager, graphicSetting, value);
             });
         }
 
@@ -96,6 +116,23 @@ namespace UI.GraphicSettings
             GraphicSettingManager manager = GraphicSettingFactory.GetManager(graphicSetting);
             string valueText = manager == null ? $"?{value}?" : manager.GetValueName(value);
             return $"{graphicSetting.ToString().Replace("_", " ")}:{valueText}";
+        }
+
+        public void OnApplicationQuit()
+        {
+            quitting = true;
+        }
+
+        public void OnDestroy()
+        {
+            if (quitting || !Application.isPlaying) return;
+            
+            foreach (GraphicSetting setting in settingsToApplyOnExit)
+            {
+                var manager = GraphicSettingFactory.GetManager(setting);
+                int value = GraphicSettingsUtils.GetGraphicSettingsValue(setting);
+                manager?.ApplyGraphicSettings(value);
+            }
         }
     }
 }
