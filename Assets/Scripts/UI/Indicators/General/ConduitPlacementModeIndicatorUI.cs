@@ -119,8 +119,7 @@ namespace UI.Indicators.General
         {
             toolTipUIDisplayer.SetAction(() =>
             {
-                List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(GetPlayerControl());
-                string controlMessage = ControlUtils.KeyCodeListAsString(keyCodes, "+");
+                string controlMessage = ControlUtils.FormatKeyText(GetPlayerControl());
                 return $"Press {controlMessage} to Toggle Conduit Placement Mode\nPress LCtrl+{controlMessage} to Terminate Placement Group\nLeft Click to Switch Conduit Mode\nRight Click to Modify Default Conduit Ports";
             });
         }

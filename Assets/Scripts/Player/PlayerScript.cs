@@ -114,12 +114,14 @@ namespace Player
             conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
-            ControlUtils.LoadBindings();
+            
+            
+            
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
             
-            
             CanvasController.Instance.SetPlayerScript(this);
+            ControlUtils.RebindKeys(inputActions);
             
             OnReachUpgradeChange();
             

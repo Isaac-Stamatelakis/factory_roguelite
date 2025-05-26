@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Player.Controls.Bindings;
+using Player.Controls;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Player.Controls
 {
@@ -18,69 +19,17 @@ namespace Player.Controls
     public static class ControlUtils
     {
         private static readonly string PREF_PREFIX = "CONTROL_";
-        private static Dictionary<PlayerControl, KeyCode[]> controlDict;
-        private static HashSet<KeyCode> singleKeyCodes;
-        private static int modifierCount = 0;
-
-        public static void UpdateModifierCount()
-        {
-            modifierCount = 0;
-            if (Input.GetKey(KeyCode.LeftShift)) modifierCount ++;
-            if (Input.GetKey(KeyCode.RightShift)) modifierCount ++;
-            if (Input.GetKey(KeyCode.LeftControl)) modifierCount ++;
-            if (Input.GetKey(KeyCode.RightControl)) modifierCount ++;
-            if (Input.GetKey(KeyCode.LeftAlt)) modifierCount ++;
-            if (Input.GetKey(KeyCode.RightAlt)) modifierCount ++;
-        }
-
+        
         private static readonly HashSet<KeyCode> unselectableKeys = new HashSet<KeyCode>
         {
             KeyCode.Escape
         };
-        public static Dictionary<string, ControlBindingCollection> GetKeyBindingSections()
-        {
-            Dictionary<string, ControlBindingCollection> sections = new Dictionary<string, ControlBindingCollection>
-            {
-                ["Movement"] = new MovementControlBindings(),
-                ["Tools"] = new EquipmentControlBindings(),
-                ["General"] = new UserInterfaceBindingCollection(),
-                ["Conduit"] = new ConduitControlBindings(),
-                ["Other"] = new MiscBindings()
-            };
-            foreach (var kvp in sections)
-            {
-                kvp.Value.SetDefault(false);
-            }
-            return sections;
-        }
-
-        public static void LoadBindings()
-        {
-            controlDict = new Dictionary<PlayerControl, KeyCode[]>();
-            singleKeyCodes = new HashSet<KeyCode>();
-            var keyCountDict = new Dictionary<KeyCode, int>();
-            var sections = GetKeyBindingSections();
-            foreach (var (name, bindings) in sections)
-            {
-                foreach (PlayerControl binding in bindings.GetBindingKeys())
-                {
-                    KeyCode[] keyCodes = GetKeyCodes(binding).ToArray();
-                    controlDict[binding] = keyCodes;
-                    if (keyCodes.Length == 0) continue;
-                    KeyCode primary = keyCodes.Last();
-                    keyCountDict.TryAdd(primary, 0);
-                    keyCountDict[primary]++;
-                }
-            }
-
-            foreach (var (keycode, count) in keyCountDict)
-            {
-                if (count == 1) singleKeyCodes.Add(keycode);
-            }
-        }
+       
+        
 
         public static HashSet<PlayerControl> GetConflictingBindings()
         {
+            /*
             var sections = GetKeyBindingSections();
             HashSet<PlayerControl> conflicts = new HashSet<PlayerControl>();
             Dictionary<int,PlayerControl> serializedKeyCodes = new Dictionary<int,PlayerControl>();
@@ -100,110 +49,108 @@ namespace Player.Controls
                 }
             }
             return conflicts;
+            */
+            return new HashSet<PlayerControl>();
         }
 
-        public static int SerializeKeyCodes(List<KeyCode> keyCodes)
+        public static void RebindKeys(InputActions inputActions)
         {
-            if (keyCodes.Count == 0) return -1;
-            var sortedBySize = keyCodes.OrderByDescending(key => (int)key).ToList();
-            int sum = 0;
-            int mult = 1;
-            for (int i = 0; i < sortedBySize.Count; i++)
-            {
-                sum +=  mult*(int)sortedBySize[i];
-                mult *= 512;
-            }
-            return sum;
-        }
-
-        public static string KeyCodeListAsString(List<KeyCode> keyCodes, string seperator)
-        {
-            string resultString = "";
-            for (int i = 0; i < keyCodes.Count; i++)
-            {
-                string keyCodeString =  keyCodes[i].ToString();
-                keyCodeString = keyCodeString.Replace("Left", "L").Replace("Right","R");
-                resultString += keyCodeString;
-                
-                if (i < keyCodes.Count - 1)
-                {
-                    resultString += seperator;
-                }
-            }
-
-            return resultString;
+            
         }
         
-        public static List<KeyCode> GetKeyCodes(PlayerControl playerControl)
-        {
-            string prefKey = GetPrefKey(playerControl);
-            
-            int value = PlayerPrefs.GetInt(prefKey);
-            List<KeyCode> keyCodes = new List<KeyCode>();
-            while (value > 0)
-            {
-                keyCodes.Add((KeyCode)(value%512));
-                value /= 512;
-            }
-            
-            return keyCodes;
-        }
-
         public static void SetKeyValue(PlayerControl playerControl, string data)
         {
             string prefKey = GetPrefKey(playerControl);
             PlayerPrefs.SetString(prefKey, data);
         }
-        public static List<KeyCode> GetAllSelectableKeys()
-        {
-            KeyCode[] keys = Enum.GetValues(typeof(KeyCode)) as KeyCode[];
-            List<KeyCode> result = new List<KeyCode>();
-            foreach (KeyCode key in keys)
-            {
-                if (unselectableKeys.Contains(key))
-                {
-                    continue;
-                }
-                result.Add(key);
-                
-            }
-
-            return result;
-        }
-
+        
         public static string GetPrefKey(PlayerControl playerControl)
         {
             return PREF_PREFIX + playerControl.ToString().ToLower();
         }
-
-        public static KeyCode GetPrefKeyCode(PlayerControl playerControl)
-        {
-            return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(playerControl));
-        }
-
+        
         public static string GetControlValue(PlayerControl playerControl)
         {
             return PlayerPrefs.GetString(GetPrefKey(playerControl));
         }
-        
-        
-       
+
+
+        public static InputAction GetInputAction(PlayerControl playerControl, InputActions inputActions)
+        {
+            switch (playerControl)
+            {
+                case PlayerControl.Jump:
+                    return inputActions.StandardMovement.Jump;
+                case PlayerControl.MoveLeft:
+                    return inputActions.StandardMovement.Move;
+                case PlayerControl.MoveRight:
+                    break;
+                case PlayerControl.MoveDown:
+                    break;
+                case PlayerControl.MoveUp:
+                    break;
+                case PlayerControl.Teleport:
+                    break;
+                case PlayerControl.Recall:
+                    break;
+                case PlayerControl.SwitchToolMode:
+                    break;
+                case PlayerControl.OpenConduitOptions:
+                    break;
+                case PlayerControl.SwitchPlacementMode:
+                    break;
+                case PlayerControl.TerminateConduitGroup:
+                    break;
+                case PlayerControl.SwitchConduitPortView:
+                    break;
+                case PlayerControl.ChangeConduitViewMode:
+                    break;
+                case PlayerControl.HideUI:
+                    break;
+                case PlayerControl.SwapToolLoadOut:
+                    break;
+                case PlayerControl.SwapRobotLoadOut:
+                    break;
+                case PlayerControl.OpenQuestBook:
+                    break;
+                case PlayerControl.OpenInventory:
+                    break;
+                case PlayerControl.OpenSearch:
+                    break;
+                case PlayerControl.AutoSelect:
+                    break;
+                case PlayerControl.OpenRobotLoadOut:
+                    break;
+                case PlayerControl.OpenToolLoadOut:
+                    break;
+                case PlayerControl.SwitchPlacementSubMode:
+                    break;
+                case PlayerControl.PlacePreview:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(playerControl), playerControl, null);
+            }
+
+            return null;
+        }
         
         public static string FormatKeyText(PlayerControl key)
         {
+            string keyJson = GetControlValue(key);
+            InputControlPath.ToHumanReadableString(keyJson, InputControlPath.HumanReadableStringOptions.OmitDevice);
             return GlobalHelper.AddSpaces(key.ToString());
         }
-
+        
         
         public static void SetDefault()
         {
+            /*
             Dictionary<string, ControlBindingCollection> sections = GetKeyBindingSections();
             foreach (var controlBinding in sections.Values)
             {
                 controlBinding.SetDefault(true);
             }
+            */
         }
-
-       
     }
 }

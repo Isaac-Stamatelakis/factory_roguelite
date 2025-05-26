@@ -22,7 +22,7 @@ namespace Player.Controls.UI
             backButton.onClick.AddListener(() =>
             {
                 CanvasController.Instance.PopStack();
-                ControlUtils.LoadBindings();
+                //ControlUtils.LoadBindings();
             });
             restoreButton.onClick.AddListener(() =>
             {
@@ -35,6 +35,7 @@ namespace Player.Controls.UI
         private void Display()
         {
             GlobalHelper.DeleteAllChildren(listTransform);
+            /*
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
             {
@@ -48,6 +49,7 @@ namespace Player.Controls.UI
                     elementUIDict[binding] = controlUIElement;
                 }
             }
+            */
             CheckConflicts();
         }
         

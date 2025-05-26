@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Player;
 using Player.Controls;
-using Player.Controls.Bindings;
 using PlayerModule.KeyPress;
 using TMPro;
 using UI.PauseScreen;

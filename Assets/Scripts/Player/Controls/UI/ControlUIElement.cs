@@ -23,48 +23,47 @@ namespace Player.Controls.UI
         {
             button.onClick.AddListener(() =>
             {
-                
+                button.interactable = false;
+                text.text = "Press any key...";
+                rebindOperation?.Dispose();
+
+                // Create new rebind operation
+                rebindOperation = inputAction.PerformInteractiveRebinding()
+                    .WithControlsExcluding("<Mouse>/position")
+                    .WithControlsExcluding("<Mouse>/delta")
+                    .WithCancelingThrough("<Keyboard>/escape")
+                    .OnMatchWaitForAnother(0.1f)
+                    .OnComplete(operation => {
+                        UpdateBindingDisplay(true);
+                        operation.Dispose();
+                    })
+                    .OnCancel(operation => {
+                        
+                        UpdateBindingDisplay(false);
+                        operation.Dispose();
+                    })
+                    .Start();
             });
         }
 
-        
+        private void UpdateBindingDisplay(bool operationSuccess)
+        {
+            button.interactable = true;
+            if (!operationSuccess) return;
+            string bindingsJson = inputAction.SaveBindingOverridesAsJson();
+            ControlUtils.SetKeyValue(key, bindingsJson);
+            text.text = ControlUtils.FormatKeyText(key);
+        }
 
         public void HighlightConflictState(bool conflict)
         {
             button.GetComponentInChildren<TextMeshProUGUI>().color = conflict ? Color.red : Color.white;
         }
 
-        public void Update()
-        {
-            if (selectableKeys == null)
-            {
-                return;
-            }
-
-            if (Input.GetKey(KeyCode.Escape))
-            {
-                ControlUtils.SetKeyValue(key,new List<KeyCode>());
-                controlSettingUI.CheckConflicts();
-                Display();
-                cachedKeys = null;
-                selectableKeys = null;
-                listenUpdates = 0;
-                return;
-            }
-            foreach (KeyCode keyCode in selectableKeys)
-            {
-                if (Input.GetKey(keyCode) && !cachedKeys.Contains(keyCode))
-                {
-                    cachedKeys.Add(keyCode);
-                }
-            }
-        }
-
         public void Display()
         {
             text.text = ControlUtils.FormatKeyText(key);
-            List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(key);
-            string formatString = ControlUtils.KeyCodeListAsString(keyCodes,"+");
+            string formatString = ControlUtils.FormatKeyText(key);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
         public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)

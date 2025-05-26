@@ -166,7 +166,7 @@ namespace UI.Indicators.General
                 IKeyCodeIndicator keyCodeIndicator = indicatorObject.GetComponent<IKeyCodeIndicator>();
                 PlayerControl? nullableControl = keyCodeIndicator?.GetPlayerControl();
                 string text = nullableControl.HasValue
-                    ? ControlUtils.KeyCodeListAsString(ControlUtils.GetKeyCodes(nullableControl.Value),"\n")
+                    ? ControlUtils.FormatKeyText(nullableControl.Value)
                     : string.Empty;
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)
