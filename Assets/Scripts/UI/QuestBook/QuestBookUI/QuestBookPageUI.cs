@@ -141,8 +141,9 @@ namespace UI.QuestBook {
             return GameObject.Instantiate(questBookNodeObjectPrefab).gameObject;
         }
 
-        public void OnDestroy()
+        public override void OnDestroy()
         {
+            base.OnDestroy();
             if (DevToolUtils.OnDevToolScene)
             {
                 SavePageData();

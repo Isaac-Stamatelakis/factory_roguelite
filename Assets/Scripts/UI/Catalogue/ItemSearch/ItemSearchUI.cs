@@ -12,6 +12,7 @@ using UI.JEI;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace UI.Catalogue.ItemSearch
@@ -178,7 +179,7 @@ namespace UI.Catalogue.ItemSearch
         }
         private void OnEditButtonClick()
         {
-            if (!Input.GetKey(KeyCode.LeftControl)) return;
+            if (!Keyboard.current.ctrlKey.isPressed) return;
             playerScript.ItemSearchCheat = !playerScript.ItemSearchCheat;
             mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
             SetEditButtonColor();

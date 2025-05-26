@@ -7,7 +7,7 @@ namespace UI.NodeNetwork {
     {
         public const float MIN_SCALE = 0.35f;
         public const float MAX_SCALE = 3f;
-        public const float ZOOM_SPEED = 0.3f;
+        public const float ZOOM_SPEED = 0.001f;
         public const float GRID_SIZE = 64f;
        
     }

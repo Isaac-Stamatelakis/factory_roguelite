@@ -108,14 +108,12 @@ namespace PlayerModule.Mouse {
         
         void Update()
         {
-            InventoryControlUpdate();
-            
             bool leftClick = UnityEngine.InputSystem.Mouse.current.leftButton.isPressed;
             bool rightClick = UnityEngine.InputSystem.Mouse.current.rightButton.isPressed;
             
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
             
-            if (canvasController.BlockKeyInput)
+            if (canvasController.IsActive)
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
                 return;
@@ -462,17 +460,6 @@ namespace PlayerModule.Mouse {
         }
         
         
-
-        private void InventoryControlUpdate()
-        {
-            if (canvasController.BlockKeyInput) return;
-            float y = UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y;
-            if (y < 0) {
-                playerInventory.IterateSelectedTile(1);
-            } else if (y > 0) {
-                playerInventory.IterateSelectedTile(-1);
-            }
-        }
 
         public void UpdateOnToolChange()
         {

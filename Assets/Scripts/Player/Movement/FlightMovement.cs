@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace Player.Movement
 {
-    
+
     public class FlightMovement : BasePlayerMovement
     {
         private Rigidbody2D rb;
@@ -15,19 +15,18 @@ namespace Player.Movement
         private InputActions.FlightMovementActions movementActions;
 
         private Vector2 movementVector;
+
         // Start is called before the first frame update
         public FlightMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
-            
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
-            
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
-            
             movementActions.Enable();
         }
 
@@ -43,30 +42,38 @@ namespace Player.Movement
 
         public override void MovementUpdate()
         {
-            rb.gravityScale = 0;
-            bool blockInput = playerRobot.BlockMovement;
-            if (blockInput)
+            if (movementVector == Vector2.zero)
             {
                 rb.velocity = Vector2.zero;
                 return;
             }
-            float speed = 5; 
-            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-            if (playerRobot.TryConsumeEnergy((ulong)(speedUpgrades * 16 * (SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND*Time.deltaTime)), 0.1f))
+
+            float speed = 5;
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts,
+                (int)RobotUpgrade.Speed);
+            if (playerRobot.TryConsumeEnergy(
+                    (ulong)(speedUpgrades * 16 *
+                            (SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND * Time.deltaTime)), 0.1f))
             {
                 speed += speedUpgrades;
             }
 
             Vector2 velocity = movementVector * speed;
-            spriteRenderer.flipX = velocity.x < 0;
+            if (movementVector.x != 0) spriteRenderer.flipX = velocity.x < 0;
+            
             rb.velocity = velocity;
         }
-        
+
         public override void Dispose()
         {
             movementActions.Move.performed -= OnMovePress;
             movementActions.Move.canceled -= OnMoveRelease;
             movementActions.Disable();
+        }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return movementActions;
         }
     }
 }

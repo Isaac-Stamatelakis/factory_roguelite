@@ -12,6 +12,7 @@ public class PresetItemObjectViewer : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
+        /*
         PresetItemObject itemObject = (PresetItemObject)target;
         if (itemObject.getDisplayType() == ItemDisplayType.Single) {
             if (itemObject.Sprites == null || itemObject.Sprites.Length < 1) {
@@ -47,7 +48,9 @@ public class PresetItemObjectViewer : Editor
                 }
                 itemObject.Sprites = sprites;
             }
+            
         } 
+        */
         
     }
 }

@@ -17,9 +17,13 @@ namespace Robot.Tool.UI
         }
 
         private IRobotToolInstance displayedToolInstance;
-        public void Display(IRobotToolInstance robotToolInstance)
+        private int index;
+        private PlayerToolListUI playerToolListUI;
+        public void Display(IRobotToolInstance robotToolInstance, PlayerToolListUI playerToolListUI, int index)
         {
             displayedToolInstance = robotToolInstance;
+            this.index = index;
+            this.playerToolListUI = playerToolListUI;
             Refresh();
         }
         
@@ -27,6 +31,7 @@ namespace Robot.Tool.UI
         public void Refresh()
         {
             image.sprite = GetIndicatorSprite();
+            playerToolListUI.RefreshToolSprite(index);
         }
 
         private Sprite GetIndicatorSprite()

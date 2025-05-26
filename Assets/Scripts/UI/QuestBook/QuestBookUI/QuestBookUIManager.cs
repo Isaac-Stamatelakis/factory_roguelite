@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Player;
 using Player.Controls;
 using PlayerModule.KeyPress;
 using UI.QuestBook.Data;
@@ -18,9 +19,11 @@ namespace UI.QuestBook
         {
             canvasController = CanvasController.Instance;
         }
-
-        public void Initialize(string questBookName)
+        
+        public void Initialize(string questBookName, PlayerScript playerScript)
         {
+            var miscKeys = playerScript.InputActions.MiscKeys;
+            miscKeys.QuestBook.performed += _ => DisplayQuestBook();
             GlobalHelper.DeleteAllChildren(transform);
             string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), questBookName);
             string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
@@ -35,21 +38,15 @@ namespace UI.QuestBook
             selectorUI.Initialize(questBookLibraryData,path);
             selectorUI.gameObject.SetActive(false);
         }
-
-       
-        void Update()
-        {
-            if (ControlUtils.GetControlKey(PlayerControl.OpenQuestBook) && !canvasController.BlockKeyInput && transform.childCount > 0)
-            {
-                DisplayQuestBook();
-            }
-        }
-
+        
         public void DisplayQuestBook()
         {
             Transform child = transform.GetChild(0);
             child.gameObject.SetActive(true);
-            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: new List<KeyCode> { KeyCode.L}, hideParent:false, originalParent:transform);
+            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: PlayerControl.OpenQuestBook,
+                hideParent:false, 
+                originalParent:transform
+            );
         }
         
     }

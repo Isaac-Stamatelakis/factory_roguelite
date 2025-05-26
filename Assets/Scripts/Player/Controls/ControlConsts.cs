@@ -27,6 +27,12 @@ namespace Player.Controls
         OpenToolLoadOut = 24,
         SwitchPlacementSubMode = 25,
         PlacePreview = 26,
-        
+    }
+
+    public enum ModifierKeyCode
+    {
+        Ctrl,
+        Shift,
+        Alt
     }
 }

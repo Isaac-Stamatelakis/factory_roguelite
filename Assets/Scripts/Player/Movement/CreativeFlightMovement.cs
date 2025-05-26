@@ -21,11 +21,11 @@ namespace Player.Movement
             
             playerTransform = playerRobot.transform;
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             
             flightMovement = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
             flightMovement.Move.performed += OnMovePress;
             flightMovement.Move.canceled += OnMoveRelease;
-            
             flightMovement.Enable();
         }
 
@@ -41,11 +41,12 @@ namespace Player.Movement
 
         public override void MovementUpdate()
         {
-            if (playerRobot.BlockMovement) return;
+            if (movementVector == Vector2.zero) return;
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             position += (Vector3)movementVector * movementSpeed;
             playerTransform.position = position;
+            if (movementVector.x == 0) return;
             spriteRenderer.flipX = movementVector.x < 0;
         }
         
@@ -54,6 +55,11 @@ namespace Player.Movement
             flightMovement.Move.performed -= OnMovePress;
             flightMovement.Move.canceled -= OnMoveRelease;
             flightMovement.Disable();
+        }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return flightMovement;
         }
     }
 }

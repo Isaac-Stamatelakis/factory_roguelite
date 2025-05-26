@@ -21,6 +21,7 @@ using Items.Transmutable;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.TreeEditor
@@ -49,29 +50,35 @@ namespace DevTools.CraftingTrees.TreeEditor
         private CraftingTreeNodeNetwork network;
         private CanvasController canvasController;
         private List<ITreeGenerationListener> craftingTreeGenerationStatusListeners;
-
+        private InputActions inputActions;
+        private System.Action<InputAction.CallbackContext> select1Handler;
+        private System.Action<InputAction.CallbackContext> select2Handler;
+        private System.Action<InputAction.CallbackContext> select3Handler;
         public void Start()
         {
             canvasController = CanvasController.Instance;
+            
+            inputActions = CanvasController.Instance.InputActions;
+            
+            select1Handler = ctx => SwitchCraftingType(mItemButton, CraftingTreeNodeType.Item);
+            select2Handler = ctx => SwitchCraftingType(mTransmutationButton, CraftingTreeNodeType.Transmutation);
+            select3Handler = ctx => SwitchCraftingType(mProcessorButton, CraftingTreeNodeType.Processor);
+
+            inputActions.InventoryNavigation.Select1.performed += select1Handler;
+            inputActions.InventoryNavigation.Select2.performed += select2Handler;
+            inputActions.InventoryNavigation.Select3.performed += select3Handler;
+            
+            inputActions.InventoryNavigation.Enable();
         }
 
-        public void Update()
+        public void OnDestroy()
         {
-            if (canvasController.IsTyping) return;
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                SwitchCraftingType(mItemButton, CraftingTreeNodeType.Item);
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                SwitchCraftingType(mTransmutationButton, CraftingTreeNodeType.Transmutation);
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                SwitchCraftingType(mProcessorButton, CraftingTreeNodeType.Processor);
-            }
+            inputActions.InventoryNavigation.Select1.performed -= select1Handler;
+            inputActions.InventoryNavigation.Select2.performed -= select2Handler;
+            inputActions.InventoryNavigation.Select3.performed -= select3Handler;
+            inputActions.Disable();
         }
-
+        
         private void SwitchCraftingType(Button button, CraftingTreeNodeType type)
         {
             if (generateNodeType == type) return;

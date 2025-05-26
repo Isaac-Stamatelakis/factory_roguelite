@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Items;
 using Player;
 using Player.Robot;
 using Player.Tool.Object;
@@ -54,7 +55,7 @@ namespace Robot.Tool.Instances
             pool.Push(obj);
         }
     }
-    public class LaserGun : RobotToolInstance<LaserGunData, RobotLaserGunObject>
+    public class LaserGun : RobotToolInstance<LaserGunData, RobotLaserGunObject>, IMultiSpriteTool
     {
         const float MAX_FIRE_RATE_UPGRADES = 10;
         const float BASE_FIRE_RATE = 0.417f;
@@ -76,6 +77,11 @@ namespace Robot.Tool.Instances
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
+            if (RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.AoE) == 0)
+            {
+                toolData.LaserGunMode = LaserGunMode.Light;
+                return;
+            }
             switch (toolData.LaserGunMode)
             {
                 case LaserGunMode.Light:
@@ -244,6 +250,20 @@ namespace Robot.Tool.Instances
             float fireRate = GetFireRate(upgrades,mode);
             const float ANIMATION_SPEED = BASE_FIRE_RATE;
             return ANIMATION_SPEED / fireRate;
+        }
+        
+
+        public ItemObject GetDisplayItem()
+        {
+            switch (toolData.LaserGunMode)
+            {
+                case LaserGunMode.Light:
+                    return robotObject.ToolIconItem;
+                case LaserGunMode.Blast:
+                    return robotObject.HeavyBlastIcon;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

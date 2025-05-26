@@ -170,8 +170,7 @@ namespace UI.Indicators.General
 
             toolTipUIDisplayer.SetAction(() =>
             {
-                List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(GetPlayerControl());
-                string controlMessage = ControlUtils.KeyCodeListAsString(keyCodes, "+");
+                string controlMessage = ControlUtils.FormatInputText(GetPlayerControl());
                 return
                     $"Press {controlMessage} to Switch Rotation\nPress LCtrl+{controlMessage} to Switch State\nLeft Click to Switch Rotation\nRight Click to Switch State\nHold LCtrl to Reverse";
             });

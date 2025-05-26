@@ -16,13 +16,13 @@ namespace Player.Controls.UI
         [SerializeField] private TextMeshProUGUI headerPrefab;
         [SerializeField] private ControlUIElement controlUIElementPrefab;
         private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
-        public bool ListeningToKey = false;
+        
         public void Start()
         {
             backButton.onClick.AddListener(() =>
             {
                 CanvasController.Instance.PopStack();
-                ControlUtils.LoadBindings();
+                //ControlUtils.LoadBindings();
             });
             restoreButton.onClick.AddListener(() =>
             {
@@ -34,7 +34,15 @@ namespace Player.Controls.UI
         
         private void Display()
         {
+            InputActions inputActions = CanvasController.Instance.InputActions;
             GlobalHelper.DeleteAllChildren(listTransform);
+            PlayerControl[] playerControls = Enum.GetValues(typeof(PlayerControl)) as PlayerControl[];
+            foreach (PlayerControl playerControl in playerControls)
+            {
+                ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
+                controlUIElement.Initalize(playerControl,inputActions);
+            }
+            /*
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
             {
@@ -43,11 +51,10 @@ namespace Player.Controls.UI
                 List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
                 foreach (PlayerControl binding in bindings)
                 {
-                    ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
-                    controlUIElement.Initalize(binding,this);
-                    elementUIDict[binding] = controlUIElement;
+                    
                 }
             }
+            */
             CheckConflicts();
         }
         
@@ -60,16 +67,6 @@ namespace Player.Controls.UI
                 controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
             }
         }
-
-        public void Update()
-        {
-            if (ListeningToKey) return;
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                CanvasController.Instance.PopStack();
-            }
-        }
-
         public void OnDestroy()
         {
             PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();

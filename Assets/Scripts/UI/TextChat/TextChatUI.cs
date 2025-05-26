@@ -9,6 +9,7 @@ using System.Linq;
 using Player;
 using Player.Controls;
 using PlayerModule.KeyPress;
+using UnityEngine.InputSystem;
 
 namespace UI.Chat {
     public class TextChatUI : MonoBehaviour
@@ -46,37 +47,95 @@ namespace UI.Chat {
         private Color textBoxBackgroundColor;
         private int previousMessageIndex;
         private float defaultTextListPosition;
+        private InputActions.TextChatKeysActions chatKeyActions;
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<RecordedMessage>();
             string title = "<color=purple>HAPPY Go Mine</color>";
             string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback. Thanks!";
             SendAndRecordMessage(message);
-            string questBookKey = ControlUtils.FormatKeyText(PlayerControl.OpenQuestBook);
+            string questBookKey = ControlUtils.FormatInputText(PlayerControl.OpenQuestBook);
             SendAndRecordMessage($"Press [<b>{questBookKey}</b>] to open your quest book!");
-            CanvasController.Instance.AddTypingListener(inputField);
+            
+            CanvasController canvasController = CanvasController.Instance;
+            canvasController.AddTypingListener(inputField);
             defaultTextListPosition = textList.transform.localPosition.y;
+
+            chatKeyActions = canvasController.InputActions.TextChatKeys;
+
+            chatKeyActions.Exit.performed += EscapePress;
+            chatKeyActions.Fill.performed += TabPress;
+            chatKeyActions.Navigate.performed += NavigatePress;
+            chatKeyActions.SendMessage.performed += SendMessagePress;
+            chatKeyActions.Scroll.performed += OnScroll;
         }
-        
+
+
+        private void EscapePress(InputAction.CallbackContext context)
+        {
+            typing = false;
+            HideTextField();
+        }
+
+        private void TabPress(InputAction.CallbackContext context)
+        {
+            CommandFillParameters();
+        }
+
+        private void SendMessagePress(InputAction.CallbackContext context)
+        {
+            SendAndRecordMessage(inputField.text,sentByPlayer:true);
+            HideTextField();
+            typing = false;
+        }
+
+        private void NavigatePress(InputAction.CallbackContext context)
+        {
+            float direction = context.ReadValue<float>();
+            if (direction > 0)
+            {
+                previousMessageIndex++;
+            } else if (direction < 0)
+            {
+                previousMessageIndex--;
+            }
+            SetInputToPreviousMessage();
+        }
+
+        private void OnScroll(InputAction.CallbackContext context)
+        {
+            const float scrollSpeed = 10000;
+            float height = ((RectTransform)textList.transform).sizeDelta.y;
+            float value = context.ReadValue<float>();
+            if (value > 0)
+            {
+                var vector3 = textList.transform.localPosition;
+                vector3.y -= scrollSpeed * Time.deltaTime;
+
+                if (vector3.y + height < defaultTextListPosition)
+                {
+                    if (height > 0)
+                    {
+                        vector3.y = defaultTextListPosition - height;
+                    }
+                    else
+                    {
+                        vector3.y = defaultTextListPosition;
+                    }
+                }
+                textList.transform.localPosition = vector3;
+            }
+            else
+            {
+                var vector3 = textList.transform.localPosition;
+                vector3.y += scrollSpeed * Time.deltaTime;
+                if (vector3.y > defaultTextListPosition) vector3.y = defaultTextListPosition;
+                textList.transform.localPosition = vector3;
+            }
+        }
         public void Update()
         {
-            if (CanvasController.Instance.IsActive) return;
-            if (Input.GetKeyDown(KeyCode.Return) ) {
-                typing = !typing;
-                if (typing) {
-                    showTextField();
-                } else
-                {
-                    SendAndRecordMessage(inputField.text,sentByPlayer:true);
-                    hideTextField();
-                }
-            }
-
-            if (typing)
-            {
-                WhenTypingUpdate();
-            }
-            
+            if (!typing) return;
             hintBlinkCounter -= Time.deltaTime;
             if (hintBlinkCounter < 0f) {
                 bool active = inputField.placeholder.gameObject.activeInHierarchy;
@@ -84,60 +143,7 @@ namespace UI.Chat {
                 hintBlinkCounter = hintBlinkTime;
             }
         }
-
-        private void WhenTypingUpdate()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                typing = false;
-                hideTextField();
-            }
-            if (Input.GetKeyDown(KeyCode.Tab)) {
-                commandFillParameters();
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow)) {
-                previousMessageIndex++;
-                SetInputToPreviousMessage();
-                
-            }
-            if (Input.GetKeyDown(KeyCode.UpArrow)) {
-                previousMessageIndex--;
-                SetInputToPreviousMessage();
-            }
-
-            const float scrollSpeed = 10000;
-            float height = ((RectTransform)textList.transform).sizeDelta.y;
-            
-            if (Input.mouseScrollDelta.y != 0)
-            {
-                if (Input.mouseScrollDelta.y > 0)
-                {
-                    var vector3 = textList.transform.localPosition;
-                    vector3.y -= scrollSpeed * Time.deltaTime;
-
-                    if (vector3.y + height < defaultTextListPosition)
-                    {
-                        if (height > 0)
-                        {
-                            vector3.y = defaultTextListPosition - height;
-                        }
-                        else
-                        {
-                            vector3.y = defaultTextListPosition;
-                        }
-                    }
-                    textList.transform.localPosition = vector3;
-                }
-                else
-                {
-                    var vector3 = textList.transform.localPosition;
-                    vector3.y += scrollSpeed * Time.deltaTime;
-                    if (vector3.y > defaultTextListPosition) vector3.y = defaultTextListPosition;
-                    textList.transform.localPosition = vector3;
-                }
-            }
-        }
-
-
+        
         private void SendAndRecordMessage(string message, bool sentByPlayer = false)
         {
             string parsedWhiteSpace = message.Replace(" ", "");
@@ -169,7 +175,7 @@ namespace UI.Chat {
             inputField.caretPosition = 0;
         }
 
-        private void commandFillParameters() {
+        private void CommandFillParameters() {
             if (!inputField.text.StartsWith("/")) {
                 return;
             }
@@ -181,7 +187,7 @@ namespace UI.Chat {
                 List<string> commands = ChatCommandFactory.getAllCommands();
                 string currentCommand = inputField.text.Replace("/","");
                 commands = commands.Where(s => s.StartsWith(currentCommand)).ToList();
-                fillSuggested(commands,"/");
+                FillSuggested(commands,"/");
                 return;
             }
             
@@ -200,7 +206,7 @@ namespace UI.Chat {
                 return;
             }
             suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
-            fillSuggested(suggested,"");
+            FillSuggested(suggested,"");
         }
 
         private string GetParamPrefix(int paramIndex, ChatCommandToken token)
@@ -208,7 +214,7 @@ namespace UI.Chat {
             return paramIndex >= token.Parameters.Length ? "" : token.Parameters[paramIndex];
         }
 
-        private void fillSuggested(List<string> suggested,string prefix) {
+        private void FillSuggested(List<string> suggested,string prefix) {
             if (suggested.Count == 1) {
                 string completed = inputField.text;
                 string[] split = inputField.text.Split(" ");
@@ -334,15 +340,20 @@ namespace UI.Chat {
                 newMessage.SetFade(false);
             }
         }
-        public void showTextField() {
+        
+        public void ShowTextField()
+        {
+            if (typing) return;
+            typing = true;
             inputField.gameObject.SetActive(true);
             inputField.ActivateInputField();
             inputField.Select();
             DisplayRecordedMessages();
             setFadeForAllMessages(false);
+            chatKeyActions.Enable();
             
         }
-        public void hideTextField()
+        public void HideTextField()
         {
             previousMessageIndex = recordedMessages.Count;
             EventSystem.current.SetSelectedGameObject(null);
@@ -360,6 +371,7 @@ namespace UI.Chat {
             inputField.DeactivateInputField();
             inputField.gameObject.SetActive(false);
             setFadeForAllMessages(true);
+            chatKeyActions.Disable();
         }
 
         public void setFadeForAllMessages(bool fade) {

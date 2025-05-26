@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Player;
 using Player.Controls;
-using Player.Controls.Bindings;
+using PlayerModule.KeyPress;
 using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UI
 {
@@ -22,13 +24,34 @@ namespace UI
         public static CanvasController Instance => instance;
         protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
-        private bool canTerminate;
+        private bool blockMovement => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
+        
         private AudioSource audioSource;
-        public bool IsTyping => isTyping;
+        private PlayerScript playerScript;
+        private InputActions inputActions;
+        public InputActions InputActions => inputActions;
+        public InputAction exitAction;
+        
         public void Awake()
         {
             instance = this;
             audioSource = gameObject.AddComponent<AudioSource>();
+            inputActions = new InputActions();
+            GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerScript>()?.SetInputActions(inputActions);
+            
+            var canvasKeyPresses = inputActions.CanvasController;
+            exitAction = canvasKeyPresses.Exit;
+            canvasKeyPresses.Exit.performed += OnEscapePress;
+            canvasKeyPresses.Hide.performed += HidePress;
+            canvasKeyPresses.Enable();
+        }
+        
+        public void OnDestroy()
+        {
+            var canvasKeyPresses = inputActions.CanvasController;
+            canvasKeyPresses.Exit.performed -= OnEscapePress;
+            canvasKeyPresses.Hide.performed -= HidePress;
+            inputActions.Dispose();
         }
 
         public void PlayAudioClip(UIAudioClipType audioClipType)
@@ -36,85 +59,54 @@ namespace UI
             AudioClip clip = uiAudioElements.GetClip(audioClipType);
             audioSource.PlayOneShot(clip);
         }
-        public abstract void EmptyListen();
-        public abstract void ListenKeyPresses();
-        
+        public void SetPlayerScript(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
+        }
         public void AddTypingListener(TMP_InputField tmpInputField)
         {
             tmpInputField.onSelect.AddListener((text) =>
             {
-                isTyping = true;
+                playerScript?.SyncKeyPressListeners(IsActive,true, blockMovement);
             });
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
-                isTyping = false;
+                if (!playerScript) return; // Required lifetime check so the game doesn't crash when exiting whilst typing
+                playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
             });
         }
-        private bool isTyping;
-        public bool BlockKeyInput => (uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement) || isTyping;
 
-        public void Update()
+        public void OnEscapePress(InputAction.CallbackContext context)
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(PlayerControl.HideUI)))
-            {
-                Canvas parentCanvas = GetComponentInParent<Canvas>();
-                parentCanvas.enabled = !parentCanvas.enabled;
-            }
-            if (!canTerminate) // Prevents instant terminating if key to activate ui element is the same that destroys it
-            {
-                canTerminate = true;
-                return;
-            }
-            
             if (uiObjectStack.Count == 0)
             {
-                EmptyListen();
+                OnInactiveEscapePress();
                 return;
             }
-            ListenKeyPresses();
-            if (uiObjectStack.Count == 0)
-            {
-                return;
-            }
-
-            if (isTyping) return;
-            DisplayedUIInfo top = uiObjectStack.Peek();
-            List<KeyCode> additionalTerminators = top.additionalTerminators;
-            if (additionalTerminators == null) return;
-            
-            foreach (KeyCode key in additionalTerminators)
-            {
-                if (Input.GetKeyDown(key))
-                {
-                    StartCoroutine(DelayStartPopStack());
-                    return;
-                }
-            }
+            OnEscapePress();
         }
 
-        public bool CanEscapePop()
+
+        protected abstract void OnInactiveEscapePress();
+        protected abstract void OnEscapePress();
+        public void HidePress(InputAction.CallbackContext context)
         {
-            return Input.GetKeyDown(KeyCode.Escape) && uiObjectStack.Count > 0 && uiObjectStack.Peek().termianteOnEscape;
+            Canvas parentCanvas = GetComponentInParent<Canvas>();
+            parentCanvas.enabled = !parentCanvas.enabled;
         }
-
-        private IEnumerator DelayStartPopStack()
-        {
-            yield return null;
-            PopStack();
-
-        }
-
+        
         public void ClearStack()
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
-            isTyping = false;
             while (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
+            playerScript?.SyncKeyPressListeners(false,false, blockMovement);
             mBlocker?.gameObject.SetActive(false);
+            UpdateExitAction();
             
         }
         public void PopStack()
@@ -123,7 +115,6 @@ namespace UI
             {
                 return;
             }
-            isTyping = false;
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             DisplayedUIInfo top = uiObjectStack.Pop();
             if (ReferenceEquals(top.originalParent, null))
@@ -144,8 +135,10 @@ namespace UI
             }
             else
             {
+                playerScript?.SyncKeyPressListeners(false,false, blockMovement);
                 mBlocker?.gameObject.SetActive(false);
             }
+            UpdateExitAction();
         }
 
         public bool TopHasComponent<T>() where T : Component
@@ -154,18 +147,19 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
+        public void DisplayObject(GameObject uiObject, PlayerControl? keyCodes = null, ContextPathWrapper terminatorContextPath = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
         {
             DisplayObject(new DisplayedUIInfo
             {
                 gameObject = uiObject,
-                additionalTerminators = keyCodes,
+                additionalTerminator = keyCodes,
                 originalParent = originalParent,
                 hideOnStack = hideOnStack,
                 hideParent = hideParent,
                 termianteOnEscape = terminateOnEscape,
                 blockMovement = blockMovement,
-                blocker = blocker
+                blocker = blocker,
+                TerminateContextPathBinding = terminatorContextPath,
             });
         }
 
@@ -189,9 +183,56 @@ namespace UI
             }
 
             mBlocker?.gameObject.SetActive(uiInfo.blocker);
-            canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
+            
+            playerScript?.SyncKeyPressListeners(true,false, blockMovement);
+            UpdateExitAction();
+        }
+
+        public void UpdateExitAction()
+        {
+            if (uiObjectStack.Count == 0)
+            {
+                ResetExitAction();
+                return;
+            }
+            DisplayedUIInfo uiInfo = uiObjectStack.Peek();
+            if (!uiInfo.termianteOnEscape && !uiInfo.additionalTerminator.HasValue && uiInfo.TerminateContextPathBinding == null)
+            {
+                Debug.LogWarning($"Tried to override exit action for '{uiInfo.gameObject.name}' with no terminator");
+                ResetExitAction();
+                return;
+            }
+            exitAction.RemoveAllBindingOverrides();
+            if (uiInfo.termianteOnEscape)
+            {
+                exitAction.ApplyBindingOverride(0,"/Keyboard/Escape");
+            }
+
+            if (uiInfo.additionalTerminator.HasValue)
+            {
+                PlayerControlData playerControlData = ControlUtils.GetControlValue(uiInfo.additionalTerminator.Value);
+                if (playerControlData != null)
+                {
+                    exitAction.ApplyBindingOverride(1,playerControlData.KeyData);
+                }
+                
+            }
+            
+            var contextWrapper = uiInfo.TerminateContextPathBinding;
+            if (contextWrapper == null) return;
+            var controlPath = contextWrapper.GetBinding();
+            if (!string.IsNullOrEmpty(controlPath))
+            {
+                exitAction.ApplyBindingOverride(2,controlPath);
+            }
+        }
+
+        public void ResetExitAction()
+        {
+            exitAction.RemoveAllBindingOverrides();
+            //exitAction.ApplyBindingOverride("<Keyboard>/Escape");
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)
@@ -218,16 +259,31 @@ namespace UI
         }
     }
 
-    public class DisplayedUIInfo
+    public struct DisplayedUIInfo
     {
         public GameObject gameObject;
-        public List<KeyCode> additionalTerminators;
+        public PlayerControl? additionalTerminator;
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
         public bool termianteOnEscape;
         public bool blockMovement;
         public bool blocker;
+        public ContextPathWrapper TerminateContextPathBinding;
+    }
+
+    public class ContextPathWrapper
+    {
+        private readonly string path;
+        public string GetBinding()
+        {
+            return path;
+        }
+
+        public ContextPathWrapper(ref InputAction.CallbackContext context)
+        {
+            this.path = context.control.path;
+        }
     }
     
 }

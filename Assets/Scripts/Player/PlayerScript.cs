@@ -18,6 +18,7 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using Robot.Upgrades;
 using Robot.Upgrades.LoadOut;
@@ -26,6 +27,7 @@ using TileMaps.Previewer;
 using Tiles;
 using Tiles.Highlight;
 using Tiles.Indicators;
+using UI;
 using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UI.RingSelector;
@@ -79,9 +81,9 @@ namespace Player
         public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
 
-        public void Awake()
+        public void SetInputActions(InputActions inputActions)
         {
-            inputActions = new InputActions();
+            this.inputActions = inputActions;
         }
 
         public void Start()
@@ -112,14 +114,24 @@ namespace Player
             conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
-            ControlUtils.LoadBindings();
+            
+            
+            
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
             
+            ControlUtils.LoadRequiredAndBlocked();
+            CanvasController.Instance.SetPlayerScript(this);
+            
             OnReachUpgradeChange();
-
             
             return playerData;
+        }
+
+        public void SyncKeyPressListeners(bool uiActive, bool typing, bool blockMovement)
+        {
+            GetComponent<PlayerKeyPress>().SyncEventsWithUIMode(uiActive || typing);
+            playerRobot.SetMovementEventListenerState(!typing && !blockMovement);  
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem, DimensionManager dimensionManager, Dimension dimension)

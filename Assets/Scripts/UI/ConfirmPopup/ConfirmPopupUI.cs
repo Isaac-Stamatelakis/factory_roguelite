@@ -14,7 +14,7 @@ namespace UI.ConfirmPopup
 
         public void Display(Action confirmAction, string text)
         {
-            CanvasController.Instance.DisplayObject(gameObject, new List<KeyCode> { KeyCode.Escape }, hideParent:false);
+            CanvasController.Instance.DisplayObject(gameObject, hideParent:false);
             textField.text = text;
             void ConfirmPress()
             {

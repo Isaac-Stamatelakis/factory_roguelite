@@ -109,16 +109,13 @@ namespace Player {
         public int HighDragFrames { get; private set; }
         public bool IsUsingTool { get; private set; }
         private bool freezeY;
-        private bool canStartClimbing;
-        
+        public int BlockClimbingFrames { get; set; }
         // Upgrades
         
         // References
         private PlayerScript playerScript;
         public FluidCollisionInformation fluidCollisionInformation {get; private set;}
         public RobotArmController gunController;
-        private CanvasController canvasController;
-        public bool BlockMovement => canvasController.BlockKeyInput;
         public DevMode DevMode { get; private set; }
         public PlayerAnimationController AnimationController { get; private set; }
         public PlayerParticles PlayerParticles { get; private set; }
@@ -154,8 +151,7 @@ namespace Player {
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
             defaultBoxColliderWidth = boxCollider.size.x;
             defaultBoxColliderEdge = boxCollider.edgeRadius;
-            canvasController = CanvasController.Instance;
-
+            
             PlayerDamage = new PlayerDamage(this);
             DevMode = GetComponent<DevMode>();
             fluidCollisionInformation = new();
@@ -164,11 +160,11 @@ namespace Player {
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
             miscMovementActions.Teleport.performed += Teleport;
-            
             miscMovementActions.Enable();
             
+            InitializeMovementState();
+            
             StartCoroutine(LoadAsyncAssets());
-            SetMovementState( PlayerMovementState.Flight);
         }
 
         private IEnumerator LoadAsyncAssets()
@@ -215,6 +211,11 @@ namespace Player {
                 initialState = PlayerMovementState.Flight;
             }
             SetMovementState(initialState);
+        }
+
+        public void SetMovementEventListenerState(bool allowMovement)
+        {
+            currentMovement?.SetMovementStatus(allowMovement);
         }
         public void SetMovementState(PlayerMovementState newMovementState)
         {
@@ -524,6 +525,8 @@ namespace Player {
             IgnoreSlopePlatformFrames--;
             InvincibilityFrames--;
             HighDragFrames--;
+            BlockClimbingFrames--;
+            
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
             if (PlayerDamage.TimeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
@@ -531,53 +534,63 @@ namespace Player {
                 NanoBotHeal();
             }
             
-            if (movementState == PlayerMovementState.Standard && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+            if (movementState == PlayerMovementState.Standard)
             {
-                TryStartClimbing(new InputAction.CallbackContext()); // Or your own method
-            }
-
-            if (HighDragFrames == 0)
+                FixedUpdateStandardPlayerMovement();
+            } else if (movementState is PlayerMovementState.Flight or PlayerMovementState.CreativeFlight)
             {
-                rb.drag = DefaultLinearDrag;
-            }
-
-            platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            bool ignoreSlopedPlatforms = ControlUtils.GetControlKey(PlayerControl.MoveDown) && collisionStates.Contains(CollisionState.OnPlatform);
-            leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
-            rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
-            bool grounded = IsGrounded();
-            AnimationController.ToggleBool(PlayerAnimationState.Air,CoyoteFrames < 0 && !grounded);
-            if (grounded)
-            {
-                CoyoteFrames = JumpStats.coyoteFrames;
-            }
-            else
-            {
-                if (CoyoteFrames < 0)
+                var statistics = playerScript.PlayerStatisticCollection;
+                if (statistics != null)
                 {
-                    AnimationController.PlayAnimation(PlayerAnimation.Air, IsUsingTool);
+                    statistics.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime; 
+                }
+                AnimationController.PlayAnimation(PlayerAnimation.Air);
+            } else if (movementState == PlayerMovementState.Climb)
+            {
+                AnimationController.PlayAnimation(PlayerAnimation.Air);
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+            }
+
+            return;
+            void FixedUpdateStandardPlayerMovement()
+            {
+                StandardPlayerMovement standardPlayerMovement = (StandardPlayerMovement)currentMovement;
+
+                if (BlockClimbingFrames < 0 && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+                {
+                    if (TryStartClimbing()) return;
+                }
+                if (HighDragFrames == 0)  rb.drag = DefaultLinearDrag;
+                
+                platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
+                bool ignoreSlopedPlatforms = standardPlayerMovement.HoldingDown && collisionStates.Contains(CollisionState.OnPlatform);
+                leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
+                rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
+                bool grounded = IsGrounded();
+                AnimationController.ToggleBool(PlayerAnimationState.Air,CoyoteFrames < 0 && !grounded);
+                if (grounded)
+                {
+                    CoyoteFrames = JumpStats.coyoteFrames;
+                }
+                else
+                {
+                    if (CoyoteFrames < 0)
+                    {
+                        AnimationController.PlayAnimation(PlayerAnimation.Air);
+                    }
+                }
+
+                if (!InFluid() && IsOnGround())
+                {
+                    CurrentTileMovementType = GetTileMovementModifier();
+                    SlipperyFrames = CurrentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
                 }
                 
-                if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
-                {
-                    playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
-                }
-            }
-
-            if (!InFluid() && IsOnGround())
-            {
-                CurrentTileMovementType = GetTileMovementModifier();
-                SlipperyFrames = CurrentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
-            }
-            
-            if (!DevMode.Instance.flight)
-            {
                 CalculateFallTime();
                 ClampFallSpeed();
                 LiveYUpdates--;
-                
-
                 rb.constraints = GetFreezeConstraints();
+                
             }
         }
 
@@ -595,7 +608,7 @@ namespace Player {
             
             if (CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform())
             {
-                bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
+                bool moving = rb.velocity.x != 0;
                 bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);
                 return moving && !touchingWall ? FREEZE_Z : FREEZE_Y;
             }
@@ -810,12 +823,12 @@ namespace Player {
             
         }
 
-        public void TryStartClimbing(InputAction.CallbackContext context)
+        public bool TryStartClimbing()
         {
             // Can only start climbing when not climbing, or flying
-            if (movementState != PlayerMovementState.Standard) return;
+            if (movementState != PlayerMovementState.Standard) return false;
             
-            if (GetClimbable(transform.position) == null) return;
+            if (GetClimbable(transform.position) == null) return false;
             
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
@@ -825,6 +838,7 @@ namespace Player {
             position.x = x;
             transform.position = position;
             SetMovementState(PlayerMovementState.Climb);
+            return true;
         }
         
         private TileMovementType GetTileMovementModifier()

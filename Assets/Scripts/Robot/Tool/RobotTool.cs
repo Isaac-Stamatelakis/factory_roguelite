@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Items;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
@@ -44,6 +45,11 @@ namespace Robot.Tool
     public interface IColorableTool
     {
         public Color GetColor(); 
+    }
+
+    public interface IMultiSpriteTool
+    {
+        public ItemObject GetDisplayItem();
     }
     
     public interface IRobotToolInstance : IPlayerClickHandler

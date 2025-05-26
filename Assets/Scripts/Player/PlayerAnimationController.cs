@@ -31,9 +31,9 @@ namespace Player
         private static readonly int Action = Animator.StringToHash("Action");
         private static readonly int AnimationDirection = Animator.StringToHash("Direction");
 
-        public void PlayAnimation(PlayerAnimation playerAnimation, bool usingTool)
+        public void PlayAnimation(PlayerAnimation playerAnimation)
         {
-            string animationName = GetAnimationName(playerAnimation, usingTool);
+            string animationName = GetAnimationName(playerAnimation, playerRobot.IsUsingTool);
             animator.Play(animationName);
         }
 

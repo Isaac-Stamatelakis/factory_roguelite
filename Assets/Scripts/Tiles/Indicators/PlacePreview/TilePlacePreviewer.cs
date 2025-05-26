@@ -22,6 +22,7 @@ using Tiles.TileMap;
 using Tiles.TileMap.Platform;
 using UI;
 using UnityEditor;
+using UnityEngine.InputSystem;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -76,14 +77,14 @@ namespace TileMaps.Previewer {
         // Update is called once per frame
         void Update()
         {
-            if (CanvasController.Instance.BlockKeyInput || Input.GetMouseButton(0))
+            if (CanvasController.Instance.IsActive || Mouse.current.leftButton.isPressed)
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();
                 placementRecord = null;
                 return;
             }
-            Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             PreviewTile(playerScript?.PlayerInventory.GetSelectedId(), mousePosition);
             
         }   

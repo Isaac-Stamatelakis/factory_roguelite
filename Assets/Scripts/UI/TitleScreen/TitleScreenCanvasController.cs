@@ -12,14 +12,14 @@ namespace UI.TitleScreen
             DisplayObject(titleScreenUI.gameObject);
         }
 
-        public override void EmptyListen()
+        protected override void OnInactiveEscapePress()
         {
-            
+            // Do nothing :)
         }
 
-        public override void ListenKeyPresses()
+        protected override void OnEscapePress()
         {
-            
+            PopStack();
         }
     }
 }

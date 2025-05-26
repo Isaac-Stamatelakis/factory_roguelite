@@ -29,26 +29,7 @@ namespace UI
         [SerializeField] private Canvas canvas;
         [SerializeField] private ItemCatalogueController mItemCatalogueController;
         public QuestBookUIManager QuestBookUIManager;
-        public override void EmptyListen()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject));
-            }
-        }
-
-        public override void ListenKeyPresses()
-        {
-            if (CanEscapePop())
-            {
-                PopStack();
-            }
-        }
-
-        public Canvas GetCanvas()
-        {
-            return canvas;
-        }
+        
         public T DisplayUIElement<T>(MainSceneUIElement mainSceneUIElement)
         {
             GameObject clone = GetMainSceneUIElement(mainSceneUIElement);
@@ -94,6 +75,16 @@ namespace UI
                 MainSceneUIElement.CatalogueInfo => Instantiate(catalogueInfoViewerPrefab).gameObject,
                 _ => throw new ArgumentOutOfRangeException(nameof(mainSceneUIElement), mainSceneUIElement, null)
             };
+        }
+
+        protected override void OnInactiveEscapePress()
+        {
+            DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject));
+        }
+
+        protected override void OnEscapePress()
+        {
+            PopStack();
         }
     }
 }

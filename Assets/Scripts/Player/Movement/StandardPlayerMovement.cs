@@ -20,6 +20,20 @@ namespace Player.Movement.Standard
 
         public abstract void MovementUpdate();
         public abstract void Dispose();
+        protected abstract InputActionMap GetInputActionMap();
+
+        public void SetMovementStatus(bool active)
+        {
+            var inputMap = GetInputActionMap();
+            if (active)
+            {
+                inputMap.Enable();
+            }
+            else
+            {
+                inputMap.Disable();
+            }
+        }
     }
 
     public interface IMovementGroundedListener
@@ -36,6 +50,7 @@ namespace Player.Movement.Standard
         private float moveDirTime;
         private JumpEvent jumpEvent;
         private bool holdingJump;
+        public bool HoldingDown =>  holdingDown;
         private bool holdingDown;
         private int bonusJumps;
         private RocketBoots rocketBoots;
@@ -72,12 +87,11 @@ namespace Player.Movement.Standard
 
         public override void MovementUpdate()
         {
-            bool blockInput = playerRobot.BlockMovement;
             Vector2 velocity = rb.velocity;
 
-            bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) && !blockInput &&
+            bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
                              inputDir < 0;
-            bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) && !blockInput &&
+            bool movedRight = !playerRobot.CollisionStateActive(CollisionState.OnWallRight) &&
                               inputDir > 0;
             bool moveUpdate = movedLeft != movedRight; // xor
             
@@ -86,14 +100,6 @@ namespace Player.Movement.Standard
             if (movedRight) ApplyMovement(Direction.Right);
             
             UpdateMovementAnimations();
-            
-            if (blockInput)
-            {
-                rb.gravityScale = playerRobot.DefaultGravityScale;   
-                jumpEvent = null;
-                return;
-            }
-            
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
@@ -106,7 +112,7 @@ namespace Player.Movement.Standard
                 if (!moveUpdate)
                 {
                     animationController.SetAnimationSpeed(1);
-                    animationController.PlayAnimation(PlayerAnimation.Idle,playerRobot.IsUsingTool);
+                    animationController.PlayAnimation(PlayerAnimation.Idle);
                     return;
                 }
 
@@ -174,6 +180,11 @@ namespace Player.Movement.Standard
             playerMovementInput.Disable();
         }
 
+        protected override InputActionMap GetInputActionMap()
+        {
+            return playerMovementInput;
+        }
+
         private void OnMovePerformed(InputAction.CallbackContext context)
         {
             inputDir = context.ReadValue<float>();
@@ -201,7 +212,7 @@ namespace Player.Movement.Standard
             }
             else
             {
-                animationController.PlayAnimation(PlayerAnimation.Walk, playerRobot.IsUsingTool);
+                animationController.PlayAnimation(PlayerAnimation.Walk);
             }
 
             bool walkingBackwards = playerRobot.IsUsingTool && (
@@ -341,7 +352,6 @@ namespace Player.Movement.Standard
         void OnJumpPressed(InputAction.CallbackContext context)
         {
             holdingJump = true;
-            if (playerRobot.BlockMovement) return;
             if (holdingDown)
             {
                 bool onPlatform = playerRobot.CollisionStateActive(CollisionState.OnPlatform);

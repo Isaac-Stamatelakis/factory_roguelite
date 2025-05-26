@@ -19,6 +19,7 @@ using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Robot.Tool.Instances
 {
@@ -62,15 +63,15 @@ namespace Robot.Tool.Instances
         {
             laserManager.UpdateLineRenderer(mousePosition,GetColor(toolData.Type));
             if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
-            bool disconnect = Input.GetKey(KeyCode.LeftControl);
+            bool disconnect = Keyboard.current.ctrlKey.isPressed;
             if (disconnect)
             {
-                BreakConduit(mousePosition);
+                if (!Mouse.current.leftButton.wasPressedThisFrame) return;
+                DisconnectConduits(mousePosition);
             }
             else
             {
-                if (!Input.GetMouseButtonDown(0)) return;
-                DisconnectConduits(mousePosition);
+                BreakConduit(mousePosition);
             }
         }
 
@@ -144,7 +145,7 @@ namespace Robot.Tool.Instances
             if (index >= orderedModes.Count) index = 0;
             toolData.Type = orderedModes[index];
             SetTargets();
-            laserManager.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
+            laserManager?.SetMaterial(toolData.Type == ConduitCutterMode.All ? robotObject.RainbowShader : null);
         }
 
         private void SetTargets()

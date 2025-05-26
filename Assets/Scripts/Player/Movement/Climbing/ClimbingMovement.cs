@@ -22,12 +22,15 @@ namespace Player.Movement
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX |  RigidbodyConstraints2D.FreezeRotation;
             playerRobot.FallTime = 0;
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
             movementActions.Escape.performed += OnEscapePress;
+            
             movementActions.Enable();
         }
 
@@ -44,6 +47,11 @@ namespace Player.Movement
         private void OnEscapePress(InputAction.CallbackContext context)
         {
             playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
+            playerRobot.BlockClimbingFrames = 5;
+            if (movementDirection != 0)
+            {
+                playerRobot.ResetIgnorePlatformFrames();
+            }
         }
 
         public override void MovementUpdate()
@@ -74,6 +82,11 @@ namespace Player.Movement
             movementActions.Move.canceled -= OnMoveRelease;
             movementActions.Escape.performed -= OnEscapePress;
             movementActions.Disable();
+        }
+
+        protected override InputActionMap GetInputActionMap()
+        {
+            return movementActions;
         }
     }
 }

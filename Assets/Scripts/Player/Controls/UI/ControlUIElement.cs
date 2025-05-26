@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -12,89 +13,101 @@ namespace Player.Controls.UI
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
         private PlayerControl key;
-        private List<KeyCode> selectableKeys;
-        public int listenUpdates;
-        private List<KeyCode> cachedKeys;
-        private ControlSettingUI controlSettingUI;
+        private InputActions inputActions;
+        private InputActionRebindingExtensions.RebindingOperation rebindOperation;
+        private InputActionBinding[] inputActionBindings;
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
-                if (cachedKeys != null)
-                {
-                    return;
-                }
+                button.interactable = false;
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text  = "Press any key...";
+                rebindOperation?.Dispose();
 
-                controlSettingUI.ListeningToKey = true;
-                listenUpdates = 5;
-                cachedKeys = new List<KeyCode>();
-                selectableKeys = ControlUtils.GetAllSelectableKeys();
+                inputActionBindings ??= ControlUtils.GetPlayerControlBinding(key, inputActions);
+                
+                if (inputActionBindings.Length == 0) return;
+                var inputActionBinding = inputActionBindings[0];
+                rebindOperation = inputActionBinding.InputAction.PerformInteractiveRebinding()
+                    .WithTargetBinding(inputActionBinding.BindingIndex)
+                    .WithControlsExcluding("<Mouse>/position")
+                    .WithControlsExcluding("<Mouse>/delta")
+                    .WithCancelingThrough("<Keyboard>/escape")
+                    .OnMatchWaitForAnother(0.1f)
+                    .OnComplete(operation => {
+                        UpdateBindingDisplay(true);
+                        operation.Dispose();
+                    })
+                    .OnCancel(operation => {
+                        
+                        UpdateBindingDisplay(false);
+                        operation.Dispose();
+                    })
+                    .Start();
             });
         }
 
-        public void FixedUpdate()
+        private void UpdateBindingDisplay(bool operationSuccess)
         {
-            if (cachedKeys == null || cachedKeys.Count == 0)
+            button.interactable = true;
+
+            if (!operationSuccess)
             {
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
                 return;
             }
-            listenUpdates--;
-            if (listenUpdates < 0)
+
+            ModifierKeyCode? modifier = null;
+            var modifierKeyCodes = System.Enum.GetValues(typeof(ModifierKeyCode));
+            foreach (ModifierKeyCode modifierKeyCode in modifierKeyCodes)
             {
-                controlSettingUI.ListeningToKey = false;
-                selectableKeys = null;
-                ControlUtils.SetKeyValue(key,cachedKeys);
-                controlSettingUI.CheckConflicts();
-                cachedKeys = null;
-                Display();
+                if (!ControlUtils.ModifierActive(modifierKeyCode)) continue;
+                modifier = modifierKeyCode;
+                break;
             }
+            Debug.Log(modifier);
+            var inputActionBinding = inputActionBindings[0];
+            string path = inputActionBinding.InputAction.bindings[inputActionBinding.BindingIndex].effectivePath;
+
+            for (int i = 1; i < inputActionBindings.Length; i++)
+            {
+                var otherBinding = inputActionBindings[i];
+                otherBinding.InputAction.ApplyBindingOverride(otherBinding.BindingIndex,path);
+            }
+            
+            ControlUtils.SetKeyValue(key, path,modifier);
+            button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
         }
-        
 
         public void HighlightConflictState(bool conflict)
         {
             button.GetComponentInChildren<TextMeshProUGUI>().color = conflict ? Color.red : Color.white;
         }
 
-        public void Update()
-        {
-            if (selectableKeys == null)
-            {
-                return;
-            }
-
-            if (Input.GetKey(KeyCode.Escape))
-            {
-                controlSettingUI.ListeningToKey = false;
-                ControlUtils.SetKeyValue(key,new List<KeyCode>());
-                controlSettingUI.CheckConflicts();
-                Display();
-                cachedKeys = null;
-                selectableKeys = null;
-                listenUpdates = 0;
-                return;
-            }
-            foreach (KeyCode keyCode in selectableKeys)
-            {
-                if (Input.GetKey(keyCode) && !cachedKeys.Contains(keyCode))
-                {
-                    cachedKeys.Add(keyCode);
-                }
-            }
-        }
-
         public void Display()
         {
-            text.text = ControlUtils.FormatKeyText(key);
-            List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(key);
-            string formatString = ControlUtils.KeyCodeListAsString(keyCodes,"+");
+            text.text = ControlUtils.FormatControlText(key);
+            string formatString = ControlUtils.FormatInputText(key);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)
+        public void Initalize(PlayerControl key, InputActions inputActions)
         {
-            this.controlSettingUI = controlSettingUI;
             this.key = key;
+            this.inputActions = inputActions;
             Display();
+        }
+    }
+
+    
+    public struct InputActionBinding
+    {
+        public InputAction InputAction;
+        public int BindingIndex;
+
+        public InputActionBinding(InputAction inputAction, int bindingIndex)
+        {
+            InputAction = inputAction;
+            BindingIndex = bindingIndex;
         }
     }
 }

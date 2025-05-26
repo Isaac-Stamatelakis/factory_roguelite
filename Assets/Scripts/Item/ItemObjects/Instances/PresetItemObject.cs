@@ -7,7 +7,7 @@ using Items.Tags;
 namespace Items {
     public abstract class PresetItemObject : ItemObject
     {
-        [SerializeField] [HideInInspector] protected Sprite[] sprites;
+        [SerializeField]  protected Sprite[] sprites;
         public GameStageObject GameStageObject;
         public Sprite[] Sprites {get => sprites; set => sprites = value;}
         [Header("Changing this modifies the format of sprite you can input")]

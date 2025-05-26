@@ -13,7 +13,7 @@ namespace UI.Chat {
             new()
             {
             { "help", (parameters, ui) => new HelpCommand(parameters, ui) },
-            { "setdim", (parameters, ui) => new SetDimCommand(parameters, ui) },
+            { "recall", (parameters, ui) => new RecallCommand(parameters, ui) },
             { "light", (parameters, ui) => new SetLightCommand(parameters, ui) },
             { "outline", (parameters, ui) => new ModifyOutlineCommand(parameters, ui) },
             { "give", (parameters, ui) => new GiveCommand(parameters, ui) },
