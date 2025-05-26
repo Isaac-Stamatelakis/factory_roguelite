@@ -50,7 +50,7 @@ namespace UI.PauseScreen
             });
             controlButton.onClick.AddListener(() =>
             {
-                Display("CONTROLS",false);
+                Display("CONTROLS",true);
             });
             statisticsButton.onClick.AddListener(() =>
             {

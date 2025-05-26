@@ -16,7 +16,7 @@ namespace Player.Controls.UI
         [SerializeField] private TextMeshProUGUI headerPrefab;
         [SerializeField] private ControlUIElement controlUIElementPrefab;
         private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
-        public bool ListeningToKey = false;
+        
         public void Start()
         {
             backButton.onClick.AddListener(() =>

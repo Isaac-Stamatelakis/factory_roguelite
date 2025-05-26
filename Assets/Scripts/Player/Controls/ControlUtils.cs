@@ -149,11 +149,10 @@ namespace Player.Controls
             return keyCodes;
         }
 
-        public static void SetKeyValue(PlayerControl playerControl, List<KeyCode> keyCodes)
+        public static void SetKeyValue(PlayerControl playerControl, string data)
         {
             string prefKey = GetPrefKey(playerControl);
-            int sum = SerializeKeyCodes(keyCodes);
-            PlayerPrefs.SetInt(prefKey, sum);
+            PlayerPrefs.SetString(prefKey, data);
         }
         public static List<KeyCode> GetAllSelectableKeys()
         {
@@ -182,40 +181,13 @@ namespace Player.Controls
             return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(playerControl));
         }
 
-        public static bool GetControlKey(PlayerControl playerControl)
+        public static string GetControlValue(PlayerControl playerControl)
         {
-            if (controlDict == null) return false;
-            controlDict.TryGetValue(playerControl, out KeyCode[] keycodes);
-            if (keycodes == null || keycodes.Length == 0) return false;
-            if (keycodes.Length == 1)
-            {
-                KeyCode keyCode = keycodes[0];
-                if (!singleKeyCodes.Contains(keyCode) && modifierCount > 0) return false;
-                return Input.GetKey(keycodes.Last());
-            }
-            for (int i = 0; i < keycodes.Length-1; i++)
-            {
-                if (!Input.GetKey(keycodes[i])) return false;
-            }
-            return Input.GetKey(keycodes.Last());
+            return PlayerPrefs.GetString(GetPrefKey(playerControl));
         }
         
-        public static bool GetControlKeyDown(PlayerControl playerControl)
-        {
-            if (controlDict == null) return false;
-            controlDict.TryGetValue(playerControl, out KeyCode[] keycodes);
-            if (keycodes == null || keycodes.Length == 0) return false;
-            if (keycodes.Length == 1)
-            {
-                KeyCode keyCode = keycodes[0];
-                return !(!singleKeyCodes.Contains(keyCode) && modifierCount > 0) && Input.GetKeyDown(keycodes.Last());
-            }
-            for (int i = 0; i < keycodes.Length-1; i++)
-            {
-                if (!Input.GetKey(keycodes[i])) return false;
-            }
-            return Input.GetKeyDown(keycodes.Last());
-        }
+        
+       
         
         public static string FormatKeyText(PlayerControl key)
         {

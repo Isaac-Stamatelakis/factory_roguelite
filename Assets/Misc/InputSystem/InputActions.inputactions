@@ -1454,6 +1454,28 @@
                 },
                 {
                     "name": "",
+                    "id": "81164ac2-d415-4a4c-b57a-ec13c1bb8f25",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Exit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "964d321c-ad6c-4477-aa4a-cff04bc893e0",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Exit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4d16a454-4a72-49ee-8271-16bad35f658e",
                     "path": "<Keyboard>/f1",
                     "interactions": "",

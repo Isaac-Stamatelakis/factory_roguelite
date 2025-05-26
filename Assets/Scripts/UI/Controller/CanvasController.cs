@@ -31,6 +31,7 @@ namespace UI
         private PlayerScript playerScript;
         private InputActions inputActions;
         public InputActions InputActions => inputActions;
+        public InputAction exitAction;
         
         public void Awake()
         {
@@ -40,6 +41,7 @@ namespace UI
             GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerScript>()?.SetInputActions(inputActions);
             
             var canvasKeyPresses = inputActions.CanvasController;
+            exitAction = canvasKeyPresses.Exit;
             canvasKeyPresses.Exit.performed += OnEscapePress;
             canvasKeyPresses.Hide.performed += HidePress;
             canvasKeyPresses.Enable();
@@ -94,19 +96,7 @@ namespace UI
             Canvas parentCanvas = GetComponentInParent<Canvas>();
             parentCanvas.enabled = !parentCanvas.enabled;
         }
-
-        public bool CanEscapePop()
-        {
-            return Input.GetKeyDown(KeyCode.Escape) && uiObjectStack.Count > 0 && uiObjectStack.Peek().termianteOnEscape;
-        }
-
-        private IEnumerator DelayStartPopStack()
-        {
-            yield return null;
-            PopStack();
-
-        }
-
+        
         public void ClearStack()
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
@@ -117,6 +107,7 @@ namespace UI
             }
             playerScript?.SyncKeyPressListeners(false,false, blockMovement);
             mBlocker?.gameObject.SetActive(false);
+            UpdateExitAction();
             
         }
         public void PopStack()
@@ -148,6 +139,7 @@ namespace UI
                 playerScript?.SyncKeyPressListeners(false,false, blockMovement);
                 mBlocker?.gameObject.SetActive(false);
             }
+            UpdateExitAction();
         }
 
         public bool TopHasComponent<T>() where T : Component
@@ -156,18 +148,19 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
+        public void DisplayObject(GameObject uiObject, PlayerControl? keyCodes = null, ContextPathWrapper terminatorContextPath = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
         {
             DisplayObject(new DisplayedUIInfo
             {
                 gameObject = uiObject,
-                additionalTerminators = keyCodes,
+                additionalTerminator = keyCodes,
                 originalParent = originalParent,
                 hideOnStack = hideOnStack,
                 hideParent = hideParent,
                 termianteOnEscape = terminateOnEscape,
                 blockMovement = blockMovement,
-                blocker = blocker
+                blocker = blocker,
+                TerminateContextPathBinding = terminatorContextPath,
             });
         }
 
@@ -194,6 +187,47 @@ namespace UI
             mBlocker?.gameObject.SetActive(uiInfo.blocker);
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
+            UpdateExitAction();
+        }
+
+        public void UpdateExitAction()
+        {
+            if (uiObjectStack.Count == 0)
+            {
+                ResetExitAction();
+                return;
+            }
+            DisplayedUIInfo uiInfo = uiObjectStack.Peek();
+            if (!uiInfo.termianteOnEscape && !uiInfo.additionalTerminator.HasValue && uiInfo.TerminateContextPathBinding == null)
+            {
+                Debug.LogWarning($"Tried to override exit action for '{uiInfo.gameObject.name}' with no terminator");
+                ResetExitAction();
+                return;
+            }
+            exitAction.RemoveAllBindingOverrides();
+            if (uiInfo.termianteOnEscape)
+            {
+                exitAction.ApplyBindingOverride(0,"/Keyboard/Escape");
+            }
+
+            if (uiInfo.additionalTerminator.HasValue)
+            {
+                exitAction.ApplyBindingOverride(1,ControlUtils.GetControlValue(uiInfo.additionalTerminator.Value));
+            }
+            
+            var contextWrapper = uiInfo.TerminateContextPathBinding;
+            if (contextWrapper == null) return;
+            var controlPath = contextWrapper.GetBinding();
+            if (!string.IsNullOrEmpty(controlPath))
+            {
+                exitAction.ApplyBindingOverride(2,controlPath);
+            }
+        }
+
+        public void ResetExitAction()
+        {
+            exitAction.RemoveAllBindingOverrides();
+            //exitAction.ApplyBindingOverride("<Keyboard>/Escape");
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)
@@ -220,16 +254,31 @@ namespace UI
         }
     }
 
-    public class DisplayedUIInfo
+    public struct DisplayedUIInfo
     {
         public GameObject gameObject;
-        public List<KeyCode> additionalTerminators;
+        public PlayerControl? additionalTerminator;
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
         public bool termianteOnEscape;
         public bool blockMovement;
         public bool blocker;
+        public ContextPathWrapper TerminateContextPathBinding;
+    }
+
+    public class ContextPathWrapper
+    {
+        private readonly string path;
+        public string GetBinding()
+        {
+            return path;
+        }
+
+        public ContextPathWrapper(ref InputAction.CallbackContext context)
+        {
+            this.path = context.control.path;
+        }
     }
     
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -16,39 +17,16 @@ namespace Player.Controls.UI
         public int listenUpdates;
         private List<KeyCode> cachedKeys;
         private ControlSettingUI controlSettingUI;
+        private InputAction inputAction;
+        private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
-                if (cachedKeys != null)
-                {
-                    return;
-                }
-
-                controlSettingUI.ListeningToKey = true;
-                listenUpdates = 5;
-                cachedKeys = new List<KeyCode>();
-                selectableKeys = ControlUtils.GetAllSelectableKeys();
+                
             });
         }
 
-        public void FixedUpdate()
-        {
-            if (cachedKeys == null || cachedKeys.Count == 0)
-            {
-                return;
-            }
-            listenUpdates--;
-            if (listenUpdates < 0)
-            {
-                controlSettingUI.ListeningToKey = false;
-                selectableKeys = null;
-                ControlUtils.SetKeyValue(key,cachedKeys);
-                controlSettingUI.CheckConflicts();
-                cachedKeys = null;
-                Display();
-            }
-        }
         
 
         public void HighlightConflictState(bool conflict)
@@ -65,7 +43,6 @@ namespace Player.Controls.UI
 
             if (Input.GetKey(KeyCode.Escape))
             {
-                controlSettingUI.ListeningToKey = false;
                 ControlUtils.SetKeyValue(key,new List<KeyCode>());
                 controlSettingUI.CheckConflicts();
                 Display();

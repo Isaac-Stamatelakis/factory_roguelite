@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Player;
 using Player.Controls;
 using TMPro;
@@ -58,7 +59,10 @@ namespace UI.Indicators.General
                 PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
                 ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
                 itemSearchUI.Initialize(playerScript);
-                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject,keyCodes:ControlUtils.GetKeyCodes(PlayerControl.OpenSearch),blocker:false,blockMovement:false);
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject,keyCodes:PlayerControl.OpenSearch,
+                    blocker:false,
+                    blockMovement:false
+                );
             }
             searchIndicator.Initialize(PlayerControl.OpenSearch, ()=> "Search Items", OnSearchClick);
             

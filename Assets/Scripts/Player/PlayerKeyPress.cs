@@ -119,7 +119,7 @@ namespace PlayerModule.KeyPress {
         {
             ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
             itemSearchUI.Initialize(playerScript);
-            CanvasController.Instance.DisplayObject(itemSearchUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenSearch),blocker:false,blockMovement:false);
+            CanvasController.Instance.DisplayObject(itemSearchUI.gameObject,terminatorContextPath:new ContextPathWrapper(ref context),blocker:false,blockMovement:false);
         }
 
         void SwitchPlacementMode(InputAction.CallbackContext context)
