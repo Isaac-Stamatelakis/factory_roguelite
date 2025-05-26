@@ -47,8 +47,10 @@ namespace Player.Controls.UI
                 sortedGroups[group].Add(playerControl);
             }
 
-            foreach (var (group, groupControls) in sortedGroups)
+            var groups = Enum.GetValues(typeof(PlayerControlGroup));
+            foreach (PlayerControlGroup group in groups)
             {
+                if (!sortedGroups.TryGetValue(group, out var groupControls)) continue;
                 TextMeshProUGUI header = GameObject.Instantiate(headerPrefab, listTransform);
                 header.text = group.ToString();
                 foreach (PlayerControl playerControl in groupControls)
@@ -58,7 +60,6 @@ namespace Player.Controls.UI
                     elementUIDict[playerControl] = controlUIElement;
                 }
             }
-            
             CheckConflicts();
         }
         

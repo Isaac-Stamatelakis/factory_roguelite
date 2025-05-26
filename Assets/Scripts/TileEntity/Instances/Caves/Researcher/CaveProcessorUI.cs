@@ -14,6 +14,7 @@ using UI.PlayerInvUI;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using WorldModule.Caves;
@@ -264,24 +265,24 @@ namespace TileEntity.Instances.Caves.Researcher
                     researchDriveProcessor.CompletionActionTriggered = true;
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Return) ) {
+            if (Keyboard.current.enterKey.wasPressedThisFrame) {
                 
                 EnterCommand(mTextInput.text);
                 mTextInput.text = string.Empty;
                 mTextInput.ActivateInputField();
                 mTextInput.Select();
             }
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Keyboard.current.tabKey.wasPressedThisFrame)
             {
                 FillParameters(mTextInput.text);
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow)) {
+            if (Keyboard.current.downArrowKey.wasPressedThisFrame) {
                 if (previousMessageIndex >= 0) previousMessageIndex--;
                 
                 SetInputToPreviousMessage();
                 
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow)) {
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame) {
                 if (previousMessageIndex < recordedMessages.Count) previousMessageIndex++;
                 
                 SetInputToPreviousMessage();
