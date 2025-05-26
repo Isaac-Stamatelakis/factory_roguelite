@@ -17,7 +17,7 @@ namespace Player.Controls.UI
         private InputActions inputActions;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         private InputActionBinding[] inputActionBindings;
-        
+        private ControlSettingUI controlSettingUI;
         public void Start()
         {
             button.onClick.AddListener(() =>
@@ -60,8 +60,7 @@ namespace Player.Controls.UI
             button.interactable = true;
             if (!operationSuccess)
             {
-                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
-                inputActionBindings[0].InputAction.Enable();
+                TerminateRebind();
                 return;
             }
 
@@ -99,9 +98,14 @@ namespace Player.Controls.UI
             
             if (string.IsNullOrEmpty(primaryPath))
             {
-                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
-                inputActionBindings[0].InputAction.Enable();
+                TerminateRebind();
                 return;
+            }
+            
+            bool allowModifiers = ControlUtils.AllowModificationKeyCodes(key);
+            if (!allowModifiers && modifier.HasValue)
+            {
+                modifier = null;
             }
             
             foreach (var binding in inputActionBindings)
@@ -113,6 +117,15 @@ namespace Player.Controls.UI
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
             inputActionBindings[0].InputAction.Enable();
             ControlUtils.LoadRequiredAndBlocked();
+            controlSettingUI.CheckConflicts();
+
+            return;
+
+            void TerminateRebind()
+            {
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                inputActionBindings[0].InputAction.Enable();
+            }
         }
 
         public void HighlightConflictState(bool conflict)
@@ -126,10 +139,11 @@ namespace Player.Controls.UI
             string formatString = ControlUtils.FormatInputText(key);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(PlayerControl key, InputActions inputActions)
+        public void Initalize(PlayerControl key, InputActions inputActions, ControlSettingUI controlSettingUI)
         {
             this.key = key;
             this.inputActions = inputActions;
+            this.controlSettingUI = controlSettingUI;
             Display();
         }
         

@@ -20,35 +20,47 @@ namespace Player.Controls
 
         public static HashSet<PlayerControl> GetConflictingBindings()
         {
-            /*
-            var sections = GetKeyBindingSections();
             HashSet<PlayerControl> conflicts = new HashSet<PlayerControl>();
-            Dictionary<int,PlayerControl> serializedKeyCodes = new Dictionary<int,PlayerControl>();
-            foreach (var kvp in sections)
+            var (controlDataDict, bindingConflictDict) = GetDataAndBindingConflicts();
+
+            foreach (var (_, bindingConflicts) in bindingConflictDict)
             {
-                List<PlayerControl> sectionKeys = kvp.Value.GetBindingKeys();
-                foreach (var key in sectionKeys)
+                for (int i = 0; i < bindingConflicts.Count; i++)
                 {
-                    int value = PlayerPrefs.GetInt(GetPrefKey(key));
-                    if (serializedKeyCodes.TryGetValue(value, out var code))
+                    var current = bindingConflicts[i];
+                    var currentData =  controlDataDict[current];
+                    for (int j = 0; j < bindingConflicts.Count; j++)
                     {
-                        conflicts.Add(key);
-                        conflicts.Add(code);
-                        continue;
+                        if (i == j) continue;
+                        var other =  bindingConflicts[j];
+                        var otherData = controlDataDict[other];
+                        if (currentData.Modifier != otherData.Modifier) continue;
+                        conflicts.Add(current);
+                        conflicts.Add(other);
                     }
-                    serializedKeyCodes.Add(value, key);
                 }
             }
             return conflicts;
-            */
-            return new HashSet<PlayerControl>();
         }
 
-        public static void LoadRequiredAndBlocked()
+        public static bool AllowModificationKeyCodes(PlayerControl playerControl)
         {
-            requiredModifiers.Clear();
-            blockedModifiers.Clear();
-            
+            switch (playerControl)
+            {
+                case PlayerControl.Jump:
+                case PlayerControl.MoveLeft:
+                case PlayerControl.MoveRight:
+                case PlayerControl.MoveDown:
+                case PlayerControl.MoveUp:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        private static (Dictionary<PlayerControl, PlayerControlData>, Dictionary<string,  List<PlayerControl>>)
+            GetDataAndBindingConflicts()
+        {
             var playerControls = System.Enum.GetValues(typeof(PlayerControl));
             Dictionary<PlayerControl, PlayerControlData> controlDataDict = new();
             Dictionary<string, List<PlayerControl>> bindingConflictDict = new();
@@ -63,6 +75,15 @@ namespace Player.Controls
                 }
                 bindingConflictDict[playerControlData.KeyData].Add(playerControl);
             }
+            return (controlDataDict, bindingConflictDict);
+        }
+
+        public static void LoadRequiredAndBlocked()
+        {
+            requiredModifiers.Clear();
+            blockedModifiers.Clear();
+            
+            var (controlDataDict, bindingConflictDict) = GetDataAndBindingConflicts();
             
             foreach (var (_, bindingConflicts) in bindingConflictDict)
             {
@@ -87,7 +108,7 @@ namespace Player.Controls
                 }
             }
 
-            PrintRequiredAndBlocked(true);
+            //PrintRequiredAndBlocked(true);
         }
 
         public static void PrintRequiredAndBlocked(bool ignoreEmpty)

@@ -40,31 +40,18 @@ namespace Player.Controls.UI
             foreach (PlayerControl playerControl in playerControls)
             {
                 ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
-                controlUIElement.Initalize(playerControl,inputActions);
+                controlUIElement.Initalize(playerControl,inputActions,this);
+                elementUIDict[playerControl] = controlUIElement;
             }
-            /*
-            Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
-            foreach (var kvp in sections)
-            {
-                TextMeshProUGUI header = Instantiate(headerPrefab, listTransform);
-                header.text = kvp.Key;
-                List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
-                foreach (PlayerControl binding in bindings)
-                {
-                    
-                }
-            }
-            */
             CheckConflicts();
         }
         
         public void CheckConflicts()
         {
             HashSet<PlayerControl> conflicts = ControlUtils.GetConflictingBindings();
-            foreach (var kvp in elementUIDict)
+            foreach (var (control, controlUIElement) in elementUIDict)
             {
-                ControlUIElement controlUIElement = kvp.Value;
-                controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
+                controlUIElement.HighlightConflictState(conflicts.Contains(control));
             }
         }
         public void OnDestroy()
