@@ -56,6 +56,16 @@ namespace Player.Controls.UI
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
                 return;
             }
+
+            ModifierKeyCode? modifier = null;
+            var modifierKeyCodes = System.Enum.GetValues(typeof(ModifierKeyCode));
+            foreach (ModifierKeyCode modifierKeyCode in modifierKeyCodes)
+            {
+                if (!ControlUtils.ModifierActive(modifierKeyCode)) continue;
+                modifier = modifierKeyCode;
+                break;
+            }
+            Debug.Log(modifier);
             var inputActionBinding = inputActionBindings[0];
             string path = inputActionBinding.InputAction.bindings[inputActionBinding.BindingIndex].effectivePath;
 
@@ -65,7 +75,7 @@ namespace Player.Controls.UI
                 otherBinding.InputAction.ApplyBindingOverride(otherBinding.BindingIndex,path);
             }
             
-            ControlUtils.SetKeyValue(key, path);
+            ControlUtils.SetKeyValue(key, path,modifier);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
         }
 

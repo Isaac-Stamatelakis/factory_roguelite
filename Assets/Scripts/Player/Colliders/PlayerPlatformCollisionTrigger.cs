@@ -12,9 +12,11 @@ namespace Player.Movement
     public class PlayerPlatformCollisionTrigger : MonoBehaviour
     {
         private PlayerRobot playerRobot;
+        private SpriteRenderer spriteRenderer;
         public void Start()
         {
             playerRobot = transform.parent.GetComponentInParent<PlayerRobot>();
+            spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
         }
 
         public void OnTriggerEnter2D(Collider2D other)

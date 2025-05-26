@@ -23,6 +23,7 @@ using TileMaps.Type;
 using Tiles;
 using Tiles.Indicators;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 
@@ -72,8 +73,6 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition)
         {
-            if (!Input.GetMouseButton(0)) return;
-            
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
             int layers = TileMapLayer.Base.ToRaycastLayers();
             
@@ -81,7 +80,7 @@ namespace Robot.Tool.Instances
             
             Vector2Int vector2Int = Global.GetCellPositionFromWorld(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
-            int direction = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
+            int direction = Keyboard.current.ctrlKey.isPressed ? -1 : 1;
             switch (toolData.Mode)
             {
                 case BuildinatorMode.Chisel:

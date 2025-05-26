@@ -120,8 +120,8 @@ namespace Player
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
             
+            ControlUtils.LoadRequiredAndBlocked();
             CanvasController.Instance.SetPlayerScript(this);
-            ControlUtils.RebindKeys(inputActions);
             
             OnReachUpgradeChange();
             

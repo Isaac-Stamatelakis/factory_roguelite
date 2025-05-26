@@ -165,7 +165,6 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
-            playerScript?.SyncKeyPressListeners(true,false, blockMovement);
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             
             if (uiObjectStack.Count > 0)
@@ -186,6 +185,8 @@ namespace UI
             mBlocker?.gameObject.SetActive(uiInfo.blocker);
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
+            
+            playerScript?.SyncKeyPressListeners(true,false, blockMovement);
             UpdateExitAction();
         }
 
@@ -211,7 +212,12 @@ namespace UI
 
             if (uiInfo.additionalTerminator.HasValue)
             {
-                exitAction.ApplyBindingOverride(1,ControlUtils.GetControlValue(uiInfo.additionalTerminator.Value));
+                PlayerControlData playerControlData = ControlUtils.GetControlValue(uiInfo.additionalTerminator.Value);
+                if (playerControlData != null)
+                {
+                    exitAction.ApplyBindingOverride(1,playerControlData.KeyData);
+                }
+                
             }
             
             var contextWrapper = uiInfo.TerminateContextPathBinding;
