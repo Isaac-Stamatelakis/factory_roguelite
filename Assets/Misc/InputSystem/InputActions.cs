@@ -298,7 +298,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""negative"",
                     ""id"": ""cd4b802e-f061-480e-831d-b73ba1c58a09"",
-                    ""path"": ""<Keyboard>/s"",
+                    ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -309,7 +309,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""positive"",
                     ""id"": ""831b8a46-fd83-46b8-8167-d7f674f3ff99"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -772,7 +772,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""PlacementMode"",
+                    ""name"": ""SwitchPlacementMode"",
                     ""type"": ""Button"",
                     ""id"": ""6457e67c-e59d-40bf-b93a-b9ab320374f8"",
                     ""expectedControlType"": ""Button"",
@@ -826,9 +826,27 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SubPlacementModeTest"",
+                    ""name"": ""SubPlacementMode"",
                     ""type"": ""Button"",
                     ""id"": ""1bfad530-aee1-4d38-80ee-449038fe5db6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TerminateConduitGroup"",
+                    ""type"": ""Button"",
+                    ""id"": ""8edc73fc-24b9-432d-8b9a-357f8f478eb6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PlacePreview"",
+                    ""type"": ""Button"",
+                    ""id"": ""8f85a927-cf8b-4298-98d6-10816fa884b2"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -868,39 +886,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""QuestBook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""One Modifier"",
-                    ""id"": ""1149609c-acf6-4a22-8c6a-90ffbcb92b3f"",
-                    ""path"": ""OneModifier"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PlacementMode"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""modifier"",
-                    ""id"": ""eb01c747-9d36-4870-b9f0-03cfcc33e62c"",
-                    ""path"": ""<Keyboard>/ctrl"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PlacementMode"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""binding"",
-                    ""id"": ""c054873b-63f4-4163-9b71-b2be8636fb31"",
-                    ""path"": ""<Keyboard>/h"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PlacementMode"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -964,7 +949,40 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SubPlacementModeTest"",
+                    ""action"": ""SubPlacementMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2173186c-d1d0-4d0c-b8b2-279f2067bd3f"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TerminateConduitGroup"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3b10171-b0f9-4a30-b3af-80b6d4856e40"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchPlacementMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9208e6e1-ed94-4e4f-b600-acd1854cabd6"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlacePreview"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -975,7 +993,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ""id"": ""6a787e22-73da-4278-8716-6f3afb48f675"",
             ""actions"": [
                 {
-                    ""name"": ""SwitchMode"",
+                    ""name"": ""SwitchToolMode"",
                     ""type"": ""Button"",
                     ""id"": ""95525401-e420-4d81-8733-7616e0d439cf"",
                     ""expectedControlType"": ""Button"",
@@ -993,7 +1011,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""OpenLoadout"",
+                    ""name"": ""OpenRobotLoadout"",
                     ""type"": ""Button"",
                     ""id"": ""ba31cfce-8a6a-4f28-958b-3ff54a432eb9"",
                     ""expectedControlType"": ""Button"",
@@ -1002,9 +1020,27 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SwitchLoadout"",
+                    ""name"": ""SwitchRobotLoadout"",
                     ""type"": ""Button"",
                     ""id"": ""376900dc-1b1e-459c-9b4c-19b7987c91d1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchToolLoadout"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba75f499-072a-4130-b676-5a2af516dd49"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenToolLoadout"",
+                    ""type"": ""Button"",
+                    ""id"": ""da859852-2511-47cc-b392-e6c1aa50e01e"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -1019,7 +1055,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SwitchMode"",
+                    ""action"": ""SwitchToolMode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1041,7 +1077,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""OpenLoadout"",
+                    ""action"": ""OpenRobotLoadout"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1052,7 +1088,29 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SwitchLoadout"",
+                    ""action"": ""SwitchRobotLoadout"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a45ac1de-5b07-42cb-af56-5f7528b925fa"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchToolLoadout"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4d3f4ec5-f8f2-4837-96dc-8ee685416196"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OpenToolLoadout"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1572,19 +1630,23 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MiscKeys_ItemSearch = m_MiscKeys.FindAction("ItemSearch", throwIfNotFound: true);
         m_MiscKeys_Inventory = m_MiscKeys.FindAction("Inventory", throwIfNotFound: true);
         m_MiscKeys_QuestBook = m_MiscKeys.FindAction("QuestBook", throwIfNotFound: true);
-        m_MiscKeys_PlacementMode = m_MiscKeys.FindAction("PlacementMode", throwIfNotFound: true);
+        m_MiscKeys_SwitchPlacementMode = m_MiscKeys.FindAction("SwitchPlacementMode", throwIfNotFound: true);
         m_MiscKeys_ConduitOptions = m_MiscKeys.FindAction("ConduitOptions", throwIfNotFound: true);
         m_MiscKeys_ConduitPortView = m_MiscKeys.FindAction("ConduitPortView", throwIfNotFound: true);
         m_MiscKeys_ConduitView = m_MiscKeys.FindAction("ConduitView", throwIfNotFound: true);
         m_MiscKeys_InteractTools = m_MiscKeys.FindAction("InteractTools", throwIfNotFound: true);
         m_MiscKeys_ShowChat = m_MiscKeys.FindAction("ShowChat", throwIfNotFound: true);
-        m_MiscKeys_SubPlacementModeTest = m_MiscKeys.FindAction("SubPlacementModeTest", throwIfNotFound: true);
+        m_MiscKeys_SubPlacementMode = m_MiscKeys.FindAction("SubPlacementMode", throwIfNotFound: true);
+        m_MiscKeys_TerminateConduitGroup = m_MiscKeys.FindAction("TerminateConduitGroup", throwIfNotFound: true);
+        m_MiscKeys_PlacePreview = m_MiscKeys.FindAction("PlacePreview", throwIfNotFound: true);
         // ToolBindings
         m_ToolBindings = asset.FindActionMap("ToolBindings", throwIfNotFound: true);
-        m_ToolBindings_SwitchMode = m_ToolBindings.FindAction("SwitchMode", throwIfNotFound: true);
+        m_ToolBindings_SwitchToolMode = m_ToolBindings.FindAction("SwitchToolMode", throwIfNotFound: true);
         m_ToolBindings_AutoSelect = m_ToolBindings.FindAction("AutoSelect", throwIfNotFound: true);
-        m_ToolBindings_OpenLoadout = m_ToolBindings.FindAction("OpenLoadout", throwIfNotFound: true);
-        m_ToolBindings_SwitchLoadout = m_ToolBindings.FindAction("SwitchLoadout", throwIfNotFound: true);
+        m_ToolBindings_OpenRobotLoadout = m_ToolBindings.FindAction("OpenRobotLoadout", throwIfNotFound: true);
+        m_ToolBindings_SwitchRobotLoadout = m_ToolBindings.FindAction("SwitchRobotLoadout", throwIfNotFound: true);
+        m_ToolBindings_SwitchToolLoadout = m_ToolBindings.FindAction("SwitchToolLoadout", throwIfNotFound: true);
+        m_ToolBindings_OpenToolLoadout = m_ToolBindings.FindAction("OpenToolLoadout", throwIfNotFound: true);
         // NodeNetworkUI
         m_NodeNetworkUI = asset.FindActionMap("NodeNetworkUI", throwIfNotFound: true);
         m_NodeNetworkUI_Delete = m_NodeNetworkUI.FindAction("Delete", throwIfNotFound: true);
@@ -2080,13 +2142,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_MiscKeys_ItemSearch;
     private readonly InputAction m_MiscKeys_Inventory;
     private readonly InputAction m_MiscKeys_QuestBook;
-    private readonly InputAction m_MiscKeys_PlacementMode;
+    private readonly InputAction m_MiscKeys_SwitchPlacementMode;
     private readonly InputAction m_MiscKeys_ConduitOptions;
     private readonly InputAction m_MiscKeys_ConduitPortView;
     private readonly InputAction m_MiscKeys_ConduitView;
     private readonly InputAction m_MiscKeys_InteractTools;
     private readonly InputAction m_MiscKeys_ShowChat;
-    private readonly InputAction m_MiscKeys_SubPlacementModeTest;
+    private readonly InputAction m_MiscKeys_SubPlacementMode;
+    private readonly InputAction m_MiscKeys_TerminateConduitGroup;
+    private readonly InputAction m_MiscKeys_PlacePreview;
     public struct MiscKeysActions
     {
         private @InputActions m_Wrapper;
@@ -2094,13 +2158,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @ItemSearch => m_Wrapper.m_MiscKeys_ItemSearch;
         public InputAction @Inventory => m_Wrapper.m_MiscKeys_Inventory;
         public InputAction @QuestBook => m_Wrapper.m_MiscKeys_QuestBook;
-        public InputAction @PlacementMode => m_Wrapper.m_MiscKeys_PlacementMode;
+        public InputAction @SwitchPlacementMode => m_Wrapper.m_MiscKeys_SwitchPlacementMode;
         public InputAction @ConduitOptions => m_Wrapper.m_MiscKeys_ConduitOptions;
         public InputAction @ConduitPortView => m_Wrapper.m_MiscKeys_ConduitPortView;
         public InputAction @ConduitView => m_Wrapper.m_MiscKeys_ConduitView;
         public InputAction @InteractTools => m_Wrapper.m_MiscKeys_InteractTools;
         public InputAction @ShowChat => m_Wrapper.m_MiscKeys_ShowChat;
-        public InputAction @SubPlacementModeTest => m_Wrapper.m_MiscKeys_SubPlacementModeTest;
+        public InputAction @SubPlacementMode => m_Wrapper.m_MiscKeys_SubPlacementMode;
+        public InputAction @TerminateConduitGroup => m_Wrapper.m_MiscKeys_TerminateConduitGroup;
+        public InputAction @PlacePreview => m_Wrapper.m_MiscKeys_PlacePreview;
         public InputActionMap Get() { return m_Wrapper.m_MiscKeys; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -2119,9 +2185,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @QuestBook.started += instance.OnQuestBook;
             @QuestBook.performed += instance.OnQuestBook;
             @QuestBook.canceled += instance.OnQuestBook;
-            @PlacementMode.started += instance.OnPlacementMode;
-            @PlacementMode.performed += instance.OnPlacementMode;
-            @PlacementMode.canceled += instance.OnPlacementMode;
+            @SwitchPlacementMode.started += instance.OnSwitchPlacementMode;
+            @SwitchPlacementMode.performed += instance.OnSwitchPlacementMode;
+            @SwitchPlacementMode.canceled += instance.OnSwitchPlacementMode;
             @ConduitOptions.started += instance.OnConduitOptions;
             @ConduitOptions.performed += instance.OnConduitOptions;
             @ConduitOptions.canceled += instance.OnConduitOptions;
@@ -2137,9 +2203,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ShowChat.started += instance.OnShowChat;
             @ShowChat.performed += instance.OnShowChat;
             @ShowChat.canceled += instance.OnShowChat;
-            @SubPlacementModeTest.started += instance.OnSubPlacementModeTest;
-            @SubPlacementModeTest.performed += instance.OnSubPlacementModeTest;
-            @SubPlacementModeTest.canceled += instance.OnSubPlacementModeTest;
+            @SubPlacementMode.started += instance.OnSubPlacementMode;
+            @SubPlacementMode.performed += instance.OnSubPlacementMode;
+            @SubPlacementMode.canceled += instance.OnSubPlacementMode;
+            @TerminateConduitGroup.started += instance.OnTerminateConduitGroup;
+            @TerminateConduitGroup.performed += instance.OnTerminateConduitGroup;
+            @TerminateConduitGroup.canceled += instance.OnTerminateConduitGroup;
+            @PlacePreview.started += instance.OnPlacePreview;
+            @PlacePreview.performed += instance.OnPlacePreview;
+            @PlacePreview.canceled += instance.OnPlacePreview;
         }
 
         private void UnregisterCallbacks(IMiscKeysActions instance)
@@ -2153,9 +2225,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @QuestBook.started -= instance.OnQuestBook;
             @QuestBook.performed -= instance.OnQuestBook;
             @QuestBook.canceled -= instance.OnQuestBook;
-            @PlacementMode.started -= instance.OnPlacementMode;
-            @PlacementMode.performed -= instance.OnPlacementMode;
-            @PlacementMode.canceled -= instance.OnPlacementMode;
+            @SwitchPlacementMode.started -= instance.OnSwitchPlacementMode;
+            @SwitchPlacementMode.performed -= instance.OnSwitchPlacementMode;
+            @SwitchPlacementMode.canceled -= instance.OnSwitchPlacementMode;
             @ConduitOptions.started -= instance.OnConduitOptions;
             @ConduitOptions.performed -= instance.OnConduitOptions;
             @ConduitOptions.canceled -= instance.OnConduitOptions;
@@ -2171,9 +2243,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ShowChat.started -= instance.OnShowChat;
             @ShowChat.performed -= instance.OnShowChat;
             @ShowChat.canceled -= instance.OnShowChat;
-            @SubPlacementModeTest.started -= instance.OnSubPlacementModeTest;
-            @SubPlacementModeTest.performed -= instance.OnSubPlacementModeTest;
-            @SubPlacementModeTest.canceled -= instance.OnSubPlacementModeTest;
+            @SubPlacementMode.started -= instance.OnSubPlacementMode;
+            @SubPlacementMode.performed -= instance.OnSubPlacementMode;
+            @SubPlacementMode.canceled -= instance.OnSubPlacementMode;
+            @TerminateConduitGroup.started -= instance.OnTerminateConduitGroup;
+            @TerminateConduitGroup.performed -= instance.OnTerminateConduitGroup;
+            @TerminateConduitGroup.canceled -= instance.OnTerminateConduitGroup;
+            @PlacePreview.started -= instance.OnPlacePreview;
+            @PlacePreview.performed -= instance.OnPlacePreview;
+            @PlacePreview.canceled -= instance.OnPlacePreview;
         }
 
         public void RemoveCallbacks(IMiscKeysActions instance)
@@ -2195,18 +2273,22 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     // ToolBindings
     private readonly InputActionMap m_ToolBindings;
     private List<IToolBindingsActions> m_ToolBindingsActionsCallbackInterfaces = new List<IToolBindingsActions>();
-    private readonly InputAction m_ToolBindings_SwitchMode;
+    private readonly InputAction m_ToolBindings_SwitchToolMode;
     private readonly InputAction m_ToolBindings_AutoSelect;
-    private readonly InputAction m_ToolBindings_OpenLoadout;
-    private readonly InputAction m_ToolBindings_SwitchLoadout;
+    private readonly InputAction m_ToolBindings_OpenRobotLoadout;
+    private readonly InputAction m_ToolBindings_SwitchRobotLoadout;
+    private readonly InputAction m_ToolBindings_SwitchToolLoadout;
+    private readonly InputAction m_ToolBindings_OpenToolLoadout;
     public struct ToolBindingsActions
     {
         private @InputActions m_Wrapper;
         public ToolBindingsActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @SwitchMode => m_Wrapper.m_ToolBindings_SwitchMode;
+        public InputAction @SwitchToolMode => m_Wrapper.m_ToolBindings_SwitchToolMode;
         public InputAction @AutoSelect => m_Wrapper.m_ToolBindings_AutoSelect;
-        public InputAction @OpenLoadout => m_Wrapper.m_ToolBindings_OpenLoadout;
-        public InputAction @SwitchLoadout => m_Wrapper.m_ToolBindings_SwitchLoadout;
+        public InputAction @OpenRobotLoadout => m_Wrapper.m_ToolBindings_OpenRobotLoadout;
+        public InputAction @SwitchRobotLoadout => m_Wrapper.m_ToolBindings_SwitchRobotLoadout;
+        public InputAction @SwitchToolLoadout => m_Wrapper.m_ToolBindings_SwitchToolLoadout;
+        public InputAction @OpenToolLoadout => m_Wrapper.m_ToolBindings_OpenToolLoadout;
         public InputActionMap Get() { return m_Wrapper.m_ToolBindings; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -2216,34 +2298,46 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_ToolBindingsActionsCallbackInterfaces.Add(instance);
-            @SwitchMode.started += instance.OnSwitchMode;
-            @SwitchMode.performed += instance.OnSwitchMode;
-            @SwitchMode.canceled += instance.OnSwitchMode;
+            @SwitchToolMode.started += instance.OnSwitchToolMode;
+            @SwitchToolMode.performed += instance.OnSwitchToolMode;
+            @SwitchToolMode.canceled += instance.OnSwitchToolMode;
             @AutoSelect.started += instance.OnAutoSelect;
             @AutoSelect.performed += instance.OnAutoSelect;
             @AutoSelect.canceled += instance.OnAutoSelect;
-            @OpenLoadout.started += instance.OnOpenLoadout;
-            @OpenLoadout.performed += instance.OnOpenLoadout;
-            @OpenLoadout.canceled += instance.OnOpenLoadout;
-            @SwitchLoadout.started += instance.OnSwitchLoadout;
-            @SwitchLoadout.performed += instance.OnSwitchLoadout;
-            @SwitchLoadout.canceled += instance.OnSwitchLoadout;
+            @OpenRobotLoadout.started += instance.OnOpenRobotLoadout;
+            @OpenRobotLoadout.performed += instance.OnOpenRobotLoadout;
+            @OpenRobotLoadout.canceled += instance.OnOpenRobotLoadout;
+            @SwitchRobotLoadout.started += instance.OnSwitchRobotLoadout;
+            @SwitchRobotLoadout.performed += instance.OnSwitchRobotLoadout;
+            @SwitchRobotLoadout.canceled += instance.OnSwitchRobotLoadout;
+            @SwitchToolLoadout.started += instance.OnSwitchToolLoadout;
+            @SwitchToolLoadout.performed += instance.OnSwitchToolLoadout;
+            @SwitchToolLoadout.canceled += instance.OnSwitchToolLoadout;
+            @OpenToolLoadout.started += instance.OnOpenToolLoadout;
+            @OpenToolLoadout.performed += instance.OnOpenToolLoadout;
+            @OpenToolLoadout.canceled += instance.OnOpenToolLoadout;
         }
 
         private void UnregisterCallbacks(IToolBindingsActions instance)
         {
-            @SwitchMode.started -= instance.OnSwitchMode;
-            @SwitchMode.performed -= instance.OnSwitchMode;
-            @SwitchMode.canceled -= instance.OnSwitchMode;
+            @SwitchToolMode.started -= instance.OnSwitchToolMode;
+            @SwitchToolMode.performed -= instance.OnSwitchToolMode;
+            @SwitchToolMode.canceled -= instance.OnSwitchToolMode;
             @AutoSelect.started -= instance.OnAutoSelect;
             @AutoSelect.performed -= instance.OnAutoSelect;
             @AutoSelect.canceled -= instance.OnAutoSelect;
-            @OpenLoadout.started -= instance.OnOpenLoadout;
-            @OpenLoadout.performed -= instance.OnOpenLoadout;
-            @OpenLoadout.canceled -= instance.OnOpenLoadout;
-            @SwitchLoadout.started -= instance.OnSwitchLoadout;
-            @SwitchLoadout.performed -= instance.OnSwitchLoadout;
-            @SwitchLoadout.canceled -= instance.OnSwitchLoadout;
+            @OpenRobotLoadout.started -= instance.OnOpenRobotLoadout;
+            @OpenRobotLoadout.performed -= instance.OnOpenRobotLoadout;
+            @OpenRobotLoadout.canceled -= instance.OnOpenRobotLoadout;
+            @SwitchRobotLoadout.started -= instance.OnSwitchRobotLoadout;
+            @SwitchRobotLoadout.performed -= instance.OnSwitchRobotLoadout;
+            @SwitchRobotLoadout.canceled -= instance.OnSwitchRobotLoadout;
+            @SwitchToolLoadout.started -= instance.OnSwitchToolLoadout;
+            @SwitchToolLoadout.performed -= instance.OnSwitchToolLoadout;
+            @SwitchToolLoadout.canceled -= instance.OnSwitchToolLoadout;
+            @OpenToolLoadout.started -= instance.OnOpenToolLoadout;
+            @OpenToolLoadout.performed -= instance.OnOpenToolLoadout;
+            @OpenToolLoadout.canceled -= instance.OnOpenToolLoadout;
         }
 
         public void RemoveCallbacks(IToolBindingsActions instance)
@@ -2525,20 +2619,24 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnItemSearch(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
         void OnQuestBook(InputAction.CallbackContext context);
-        void OnPlacementMode(InputAction.CallbackContext context);
+        void OnSwitchPlacementMode(InputAction.CallbackContext context);
         void OnConduitOptions(InputAction.CallbackContext context);
         void OnConduitPortView(InputAction.CallbackContext context);
         void OnConduitView(InputAction.CallbackContext context);
         void OnInteractTools(InputAction.CallbackContext context);
         void OnShowChat(InputAction.CallbackContext context);
-        void OnSubPlacementModeTest(InputAction.CallbackContext context);
+        void OnSubPlacementMode(InputAction.CallbackContext context);
+        void OnTerminateConduitGroup(InputAction.CallbackContext context);
+        void OnPlacePreview(InputAction.CallbackContext context);
     }
     public interface IToolBindingsActions
     {
-        void OnSwitchMode(InputAction.CallbackContext context);
+        void OnSwitchToolMode(InputAction.CallbackContext context);
         void OnAutoSelect(InputAction.CallbackContext context);
-        void OnOpenLoadout(InputAction.CallbackContext context);
-        void OnSwitchLoadout(InputAction.CallbackContext context);
+        void OnOpenRobotLoadout(InputAction.CallbackContext context);
+        void OnSwitchRobotLoadout(InputAction.CallbackContext context);
+        void OnSwitchToolLoadout(InputAction.CallbackContext context);
+        void OnOpenToolLoadout(InputAction.CallbackContext context);
     }
     public interface INodeNetworkUIActions
     {

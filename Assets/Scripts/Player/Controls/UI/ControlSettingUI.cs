@@ -22,11 +22,10 @@ namespace Player.Controls.UI
             backButton.onClick.AddListener(() =>
             {
                 CanvasController.Instance.PopStack();
-                //ControlUtils.LoadBindings();
             });
             restoreButton.onClick.AddListener(() =>
             {
-                ControlUtils.SetDefault();
+                ControlUtils.SetDefault(CanvasController.Instance.InputActions);
                 Display();
             });
             Display();
@@ -36,35 +35,40 @@ namespace Player.Controls.UI
         {
             InputActions inputActions = CanvasController.Instance.InputActions;
             GlobalHelper.DeleteAllChildren(listTransform);
-            PlayerControl[] playerControls = Enum.GetValues(typeof(PlayerControl)) as PlayerControl[];
+            Dictionary<PlayerControlGroup, List<PlayerControl>> sortedGroups = new Dictionary<PlayerControlGroup, List<PlayerControl>>();
+            var playerControls = Enum.GetValues(typeof(PlayerControl));
             foreach (PlayerControl playerControl in playerControls)
             {
-                ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
-                controlUIElement.Initalize(playerControl,inputActions);
-            }
-            /*
-            Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
-            foreach (var kvp in sections)
-            {
-                TextMeshProUGUI header = Instantiate(headerPrefab, listTransform);
-                header.text = kvp.Key;
-                List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
-                foreach (PlayerControl binding in bindings)
+                PlayerControlGroup group = ControlUtils.GetGroup(playerControl);
+                if (!sortedGroups.ContainsKey(group))
                 {
-                    
+                    sortedGroups.Add(group, new List<PlayerControl>());
+                }
+                sortedGroups[group].Add(playerControl);
+            }
+
+            var groups = Enum.GetValues(typeof(PlayerControlGroup));
+            foreach (PlayerControlGroup group in groups)
+            {
+                if (!sortedGroups.TryGetValue(group, out var groupControls)) continue;
+                TextMeshProUGUI header = GameObject.Instantiate(headerPrefab, listTransform);
+                header.text = group.ToString();
+                foreach (PlayerControl playerControl in groupControls)
+                {
+                    ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
+                    controlUIElement.Initalize(playerControl,inputActions,this);
+                    elementUIDict[playerControl] = controlUIElement;
                 }
             }
-            */
             CheckConflicts();
         }
         
         public void CheckConflicts()
         {
             HashSet<PlayerControl> conflicts = ControlUtils.GetConflictingBindings();
-            foreach (var kvp in elementUIDict)
+            foreach (var (control, controlUIElement) in elementUIDict)
             {
-                ControlUIElement controlUIElement = kvp.Value;
-                controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
+                controlUIElement.HighlightConflictState(conflicts.Contains(control));
             }
         }
         public void OnDestroy()

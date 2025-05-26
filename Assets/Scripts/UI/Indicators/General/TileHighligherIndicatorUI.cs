@@ -34,8 +34,13 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
+            Toggle();
             OnPointerEnter(eventData);
+        }
+        
+        public void Toggle()
+        {
+            playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
             playerScript.TileViewers.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
             Refresh();
         }

@@ -73,12 +73,7 @@ namespace UI.Indicators.General
                     options.PlacementMode = GlobalHelper.ShiftEnum(1, options.PlacementMode);
                     break;
                 case PointerEventData.InputButton.Right:
-                    LoadOutConduitType? loadOutConduitType = GetLoadOutType(current.GetConduitType());
-                    if (!loadOutConduitType.HasValue) return;
-                    
-                    ConduitLoadOutEditorUI loadOutEditorUI = Instantiate(conduitLoadOutEditorUIPrefab);
-                    loadOutEditorUI.Display(playerScript.ConduitPlacementOptions.ConduitPlacementLoadOuts,loadOutConduitType.Value);
-                    CanvasController.Instance.DisplayObject(loadOutEditorUI.gameObject);
+                    DisplayLoadOutEditor();
                     break;
                 case PointerEventData.InputButton.Middle:
                     break;
@@ -89,6 +84,16 @@ namespace UI.Indicators.General
             Display();
             OnPointerEnter(eventData);
            
+        }
+
+        public void DisplayLoadOutEditor()
+        {
+            LoadOutConduitType? loadOutConduitType = GetLoadOutType(current.GetConduitType());
+            if (!loadOutConduitType.HasValue) return;
+                    
+            ConduitLoadOutEditorUI loadOutEditorUI = Instantiate(conduitLoadOutEditorUIPrefab);
+            loadOutEditorUI.Display(playerScript.ConduitPlacementOptions.ConduitPlacementLoadOuts,loadOutConduitType.Value);
+            CanvasController.Instance.DisplayObject(loadOutEditorUI.gameObject);
         }
 
         private LoadOutConduitType? GetLoadOutType(ConduitType conduitType)

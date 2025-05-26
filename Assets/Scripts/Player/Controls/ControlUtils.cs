@@ -20,35 +20,47 @@ namespace Player.Controls
 
         public static HashSet<PlayerControl> GetConflictingBindings()
         {
-            /*
-            var sections = GetKeyBindingSections();
             HashSet<PlayerControl> conflicts = new HashSet<PlayerControl>();
-            Dictionary<int,PlayerControl> serializedKeyCodes = new Dictionary<int,PlayerControl>();
-            foreach (var kvp in sections)
+            var (controlDataDict, bindingConflictDict) = GetDataAndBindingConflicts();
+
+            foreach (var (_, bindingConflicts) in bindingConflictDict)
             {
-                List<PlayerControl> sectionKeys = kvp.Value.GetBindingKeys();
-                foreach (var key in sectionKeys)
+                for (int i = 0; i < bindingConflicts.Count; i++)
                 {
-                    int value = PlayerPrefs.GetInt(GetPrefKey(key));
-                    if (serializedKeyCodes.TryGetValue(value, out var code))
+                    var current = bindingConflicts[i];
+                    var currentData =  controlDataDict[current];
+                    for (int j = 0; j < bindingConflicts.Count; j++)
                     {
-                        conflicts.Add(key);
-                        conflicts.Add(code);
-                        continue;
+                        if (i == j) continue;
+                        var other =  bindingConflicts[j];
+                        var otherData = controlDataDict[other];
+                        if (currentData.Modifier != otherData.Modifier) continue;
+                        conflicts.Add(current);
+                        conflicts.Add(other);
                     }
-                    serializedKeyCodes.Add(value, key);
                 }
             }
             return conflicts;
-            */
-            return new HashSet<PlayerControl>();
         }
 
-        public static void LoadRequiredAndBlocked()
+        public static bool AllowModificationKeyCodes(PlayerControl playerControl)
         {
-            requiredModifiers.Clear();
-            blockedModifiers.Clear();
-            
+            switch (playerControl)
+            {
+                case PlayerControl.Jump:
+                case PlayerControl.MoveLeft:
+                case PlayerControl.MoveRight:
+                case PlayerControl.MoveDown:
+                case PlayerControl.MoveUp:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        private static (Dictionary<PlayerControl, PlayerControlData>, Dictionary<string,  List<PlayerControl>>)
+            GetDataAndBindingConflicts()
+        {
             var playerControls = System.Enum.GetValues(typeof(PlayerControl));
             Dictionary<PlayerControl, PlayerControlData> controlDataDict = new();
             Dictionary<string, List<PlayerControl>> bindingConflictDict = new();
@@ -63,6 +75,15 @@ namespace Player.Controls
                 }
                 bindingConflictDict[playerControlData.KeyData].Add(playerControl);
             }
+            return (controlDataDict, bindingConflictDict);
+        }
+
+        public static void LoadRequiredAndBlocked()
+        {
+            requiredModifiers.Clear();
+            blockedModifiers.Clear();
+            
+            var (controlDataDict, bindingConflictDict) = GetDataAndBindingConflicts();
             
             foreach (var (_, bindingConflicts) in bindingConflictDict)
             {
@@ -87,7 +108,7 @@ namespace Player.Controls
                 }
             }
 
-            PrintRequiredAndBlocked(true);
+            //PrintRequiredAndBlocked(true);
         }
 
         public static void PrintRequiredAndBlocked(bool ignoreEmpty)
@@ -180,6 +201,63 @@ namespace Player.Controls
             }
         }
 
+        public static PlayerControlGroup GetGroup(PlayerControl playerControl)
+        {
+            switch (playerControl)
+            {
+                case PlayerControl.Jump:
+                case PlayerControl.MoveLeft:
+                case PlayerControl.MoveRight:
+                case PlayerControl.MoveDown:
+                case PlayerControl.MoveUp:
+                case PlayerControl.Teleport:
+                    return PlayerControlGroup.Movement;
+                case PlayerControl.SwitchToolMode:
+                case PlayerControl.OpenRobotLoadOut:
+                case PlayerControl.OpenToolLoadOut:
+                case PlayerControl.PlacePreview:
+                case PlayerControl.AutoSelect:
+                    return PlayerControlGroup.Tools;
+                case PlayerControl.SwitchConduitPortView:
+                case PlayerControl.ChangeConduitViewMode:
+                case PlayerControl.OpenConduitOptions:
+                case PlayerControl.SwitchPlacementMode:
+                case PlayerControl.SwitchPlacementSubMode:
+                case PlayerControl.TerminateConduitGroup:
+                case PlayerControl.SwapToolLoadOut:
+                case PlayerControl.SwapRobotLoadOut:
+                case PlayerControl.ShowItemRecipes:
+                case PlayerControl.ShowItemUses:
+                case PlayerControl.EditItemTag:
+                    return PlayerControlGroup.Utils;
+                case PlayerControl.OpenQuestBook:
+                case PlayerControl.OpenInventory:
+                case PlayerControl.OpenSearch:
+                    return PlayerControlGroup.Gameplay;
+                case PlayerControl.HideUI:
+                    return PlayerControlGroup.Misc;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(playerControl), playerControl, null);
+            }
+        }
+
+        public static ModifierKeyCode? GetDefaultModifierKey(PlayerControl playerControl)
+        {
+            switch (playerControl)
+            {
+                case PlayerControl.TerminateConduitGroup:
+                    return ModifierKeyCode.Ctrl;
+                case PlayerControl.SwapToolLoadOut:
+                    return ModifierKeyCode.Shift;
+                case PlayerControl.OpenToolLoadOut:
+                    return ModifierKeyCode.Shift;
+                case PlayerControl.SwitchPlacementSubMode:
+                    return ModifierKeyCode.Ctrl;
+                default:
+                    return null;
+            }
+        }
+        
 
         public static InputActionBinding[] GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
         {
@@ -206,44 +284,66 @@ namespace Player.Controls
                     return new InputActionBinding[]
                     {
                         new(inputActions.StandardMovement.Down, 0),
-                        new(inputActions.FlightMovement.Move, 1),
-                        new(inputActions.LadderMovement.Move, 2),
+                        new(inputActions.FlightMovement.Move, 2),
+                        new(inputActions.LadderMovement.Move, 1),
                     };
                 
                 case PlayerControl.MoveUp:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.FlightMovement.Move, 2),
-                        new(inputActions.LadderMovement.Move, 1),
+                        new(inputActions.FlightMovement.Move, 1),
+                        new(inputActions.LadderMovement.Move, 2),
                     };
                 case PlayerControl.Teleport:
                     return new InputActionBinding[]
                     {
                         new(inputActions.MiscMovement.Teleport, 0),
                     };
-                case PlayerControl.Recall:
-                    break;
                 case PlayerControl.SwitchToolMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchToolMode, 0),
+                    };
                 case PlayerControl.OpenConduitOptions:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitOptions, 0),
+                    };
                 case PlayerControl.SwitchPlacementMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.SwitchPlacementMode, 0),
+                    };
                 case PlayerControl.TerminateConduitGroup:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.TerminateConduitGroup, 0),
+                    };
                 case PlayerControl.SwitchConduitPortView:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitPortView, 0),
+                    };
                 case PlayerControl.ChangeConduitViewMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitView, 0),
+                    };
                 case PlayerControl.HideUI:
                     return new InputActionBinding[]
                     {
                         new(inputActions.CanvasController.Hide, 0),
                     };
                 case PlayerControl.SwapToolLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchToolMode, 0),
+                    };
                 case PlayerControl.SwapRobotLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.SwitchRobotLoadout, 0),
+                    };
                 case PlayerControl.OpenQuestBook:
                     return new InputActionBinding[]
                     {
@@ -265,17 +365,42 @@ namespace Player.Controls
                         new(inputActions.ToolBindings.AutoSelect, 0),
                     };
                 case PlayerControl.OpenRobotLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.OpenRobotLoadout, 0),
+                    };
                 case PlayerControl.OpenToolLoadOut:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.ToolBindings.OpenToolLoadout, 0),
+                    };
                 case PlayerControl.SwitchPlacementSubMode:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.SubPlacementMode, 0),
+                    };
                 case PlayerControl.PlacePreview:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(playerControl), playerControl, null);
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.ConduitOptions, 0),
+                    };
+                case PlayerControl.ShowItemRecipes:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.ShowRecipes, 0),
+                    };
+                case PlayerControl.ShowItemUses:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.ShowUses, 0),
+                    };
+                case PlayerControl.EditItemTag:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.InventoryUtils.EditTag, 0),
+                    };
             }
-
+            Debug.LogWarning($"{playerControl} is not synced to any bindings");
             return null;
         }
         
@@ -301,15 +426,19 @@ namespace Player.Controls
         }
         
         
-        public static void SetDefault()
+        public static void SetDefault(InputActions inputActions)
         {
-            /*
-            Dictionary<string, ControlBindingCollection> sections = GetKeyBindingSections();
-            foreach (var controlBinding in sections.Values)
+            var playerControls = Enum.GetValues(typeof(PlayerControl));
+            foreach (PlayerControl playerControl in playerControls)
             {
-                controlBinding.SetDefault(true);
+                InputActionBinding[] inputActionBindings = GetPlayerControlBinding(playerControl,inputActions);
+                if (inputActionBindings == null || inputActionBindings.Length == 0) continue;
+                ModifierKeyCode? modifierKeyCode = GetDefaultModifierKey(playerControl);
+                InputActionBinding first =  inputActionBindings[0];
+                first.InputAction.RemoveAllBindingOverrides();
+                string path = first.InputAction.bindings[first.BindingIndex].effectivePath;
+                SetKeyValue(playerControl, path,modifierKeyCode);
             }
-            */
         }
 
         public static void InitializeKeyBindings(InputActions inputActions)

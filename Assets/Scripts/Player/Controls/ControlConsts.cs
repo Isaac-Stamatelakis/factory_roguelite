@@ -8,7 +8,6 @@ namespace Player.Controls
         MoveDown  = 3,
         MoveUp = 4,
         Teleport = 5,
-        Recall = 6,
         SwitchToolMode = 7,
         OpenConduitOptions = 10,
         SwitchPlacementMode = 11,
@@ -16,7 +15,6 @@ namespace Player.Controls
         SwitchConduitPortView = 13,
         ChangeConduitViewMode = 14,
         HideUI = 15,
-        // ReSharper disable once InconsistentNaming
         SwapToolLoadOut = 17,
         SwapRobotLoadOut = 18,
         OpenQuestBook = 19,
@@ -27,6 +25,9 @@ namespace Player.Controls
         OpenToolLoadOut = 24,
         SwitchPlacementSubMode = 25,
         PlacePreview = 26,
+        ShowItemRecipes = 27,
+        ShowItemUses = 28,
+        EditItemTag = 29,
     }
 
     public enum ModifierKeyCode
@@ -34,5 +35,14 @@ namespace Player.Controls
         Ctrl,
         Shift,
         Alt
+    }
+
+    public enum PlayerControlGroup
+    {
+        Movement = 0,
+        Gameplay = 1,
+        Tools = 2,
+        Utils = 3,
+        Misc = 4,
     }
 }

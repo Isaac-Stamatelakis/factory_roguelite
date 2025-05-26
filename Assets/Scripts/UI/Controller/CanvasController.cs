@@ -25,7 +25,7 @@ namespace UI
         protected Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
         private bool blockMovement => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
-        
+        private bool typing;
         private AudioSource audioSource;
         private PlayerScript playerScript;
         private InputActions inputActions;
@@ -68,17 +68,20 @@ namespace UI
             tmpInputField.onSelect.AddListener((text) =>
             {
                 playerScript?.SyncKeyPressListeners(IsActive,true, blockMovement);
+                typing = true;
             });
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
                 if (!playerScript) return; // Required lifetime check so the game doesn't crash when exiting whilst typing
                 playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
+                typing = false;
             });
         }
 
         public void OnEscapePress(InputAction.CallbackContext context)
         {
+            if (typing) return;
             if (uiObjectStack.Count == 0)
             {
                 OnInactiveEscapePress();
