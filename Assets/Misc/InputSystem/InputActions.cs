@@ -274,13 +274,22 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Escape"",
+                    ""name"": ""HorizontalEscape"",
                     ""type"": ""Value"",
                     ""id"": ""4fffb34d-c1b7-494c-9c69-e6a415db2f5e"",
                     ""expectedControlType"": ""Analog"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""JumpEscape"",
+                    ""type"": ""Button"",
+                    ""id"": ""16b1f10f-8e48-4069-99b7-6aa1fbb69253"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -318,24 +327,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": """",
-                    ""id"": ""2298fbe1-feef-4af6-88b2-5694b568db59"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": ""Clamp"",
-                    ""groups"": """",
-                    ""action"": ""Escape"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
                     ""name"": ""1D Axis"",
                     ""id"": ""ae15968e-7944-451a-9654-b1e57c3ea97f"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Escape"",
+                    ""action"": ""HorizontalEscape"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -346,7 +344,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Escape"",
+                    ""action"": ""HorizontalEscape"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -357,9 +355,20 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Escape"",
+                    ""action"": ""HorizontalEscape"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2298fbe1-feef-4af6-88b2-5694b568db59"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""JumpEscape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -1602,7 +1611,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
         m_LadderMovement_Move = m_LadderMovement.FindAction("Move", throwIfNotFound: true);
-        m_LadderMovement_Escape = m_LadderMovement.FindAction("Escape", throwIfNotFound: true);
+        m_LadderMovement_HorizontalEscape = m_LadderMovement.FindAction("HorizontalEscape", throwIfNotFound: true);
+        m_LadderMovement_JumpEscape = m_LadderMovement.FindAction("JumpEscape", throwIfNotFound: true);
         // MiscMovement
         m_MiscMovement = asset.FindActionMap("MiscMovement", throwIfNotFound: true);
         m_MiscMovement_Teleport = m_MiscMovement.FindAction("Teleport", throwIfNotFound: true);
@@ -1844,13 +1854,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_LadderMovement;
     private List<ILadderMovementActions> m_LadderMovementActionsCallbackInterfaces = new List<ILadderMovementActions>();
     private readonly InputAction m_LadderMovement_Move;
-    private readonly InputAction m_LadderMovement_Escape;
+    private readonly InputAction m_LadderMovement_HorizontalEscape;
+    private readonly InputAction m_LadderMovement_JumpEscape;
     public struct LadderMovementActions
     {
         private @InputActions m_Wrapper;
         public LadderMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_LadderMovement_Move;
-        public InputAction @Escape => m_Wrapper.m_LadderMovement_Escape;
+        public InputAction @HorizontalEscape => m_Wrapper.m_LadderMovement_HorizontalEscape;
+        public InputAction @JumpEscape => m_Wrapper.m_LadderMovement_JumpEscape;
         public InputActionMap Get() { return m_Wrapper.m_LadderMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1863,9 +1875,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Escape.started += instance.OnEscape;
-            @Escape.performed += instance.OnEscape;
-            @Escape.canceled += instance.OnEscape;
+            @HorizontalEscape.started += instance.OnHorizontalEscape;
+            @HorizontalEscape.performed += instance.OnHorizontalEscape;
+            @HorizontalEscape.canceled += instance.OnHorizontalEscape;
+            @JumpEscape.started += instance.OnJumpEscape;
+            @JumpEscape.performed += instance.OnJumpEscape;
+            @JumpEscape.canceled += instance.OnJumpEscape;
         }
 
         private void UnregisterCallbacks(ILadderMovementActions instance)
@@ -1873,9 +1888,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Escape.started -= instance.OnEscape;
-            @Escape.performed -= instance.OnEscape;
-            @Escape.canceled -= instance.OnEscape;
+            @HorizontalEscape.started -= instance.OnHorizontalEscape;
+            @HorizontalEscape.performed -= instance.OnHorizontalEscape;
+            @HorizontalEscape.canceled -= instance.OnHorizontalEscape;
+            @JumpEscape.started -= instance.OnJumpEscape;
+            @JumpEscape.performed -= instance.OnJumpEscape;
+            @JumpEscape.canceled -= instance.OnJumpEscape;
         }
 
         public void RemoveCallbacks(ILadderMovementActions instance)
@@ -2587,7 +2605,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface ILadderMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
-        void OnEscape(InputAction.CallbackContext context);
+        void OnHorizontalEscape(InputAction.CallbackContext context);
+        void OnJumpEscape(InputAction.CallbackContext context);
     }
     public interface IMiscMovementActions
     {

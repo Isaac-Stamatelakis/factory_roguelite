@@ -252,13 +252,22 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Escape",
+                    "name": "HorizontalEscape",
                     "type": "Value",
                     "id": "4fffb34d-c1b7-494c-9c69-e6a415db2f5e",
                     "expectedControlType": "Analog",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "JumpEscape",
+                    "type": "Button",
+                    "id": "16b1f10f-8e48-4069-99b7-6aa1fbb69253",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -296,24 +305,13 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "2298fbe1-feef-4af6-88b2-5694b568db59",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "Clamp",
-                    "groups": "",
-                    "action": "Escape",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "1D Axis",
                     "id": "ae15968e-7944-451a-9654-b1e57c3ea97f",
                     "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Escape",
+                    "action": "HorizontalEscape",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -324,7 +322,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Escape",
+                    "action": "HorizontalEscape",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -335,9 +333,20 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Escape",
+                    "action": "HorizontalEscape",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "2298fbe1-feef-4af6-88b2-5694b568db59",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "JumpEscape",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

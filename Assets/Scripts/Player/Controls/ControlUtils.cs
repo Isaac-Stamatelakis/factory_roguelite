@@ -266,19 +266,22 @@ namespace Player.Controls
                 case PlayerControl.Jump:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.StandardMovement.Jump, 0)
+                        new(inputActions.StandardMovement.Jump, 0),
+                        new(inputActions.LadderMovement.JumpEscape, 0)
                     };
                 case PlayerControl.MoveLeft:
                     return new InputActionBinding[]
                     {
                         new(inputActions.StandardMovement.Move, 1),
                         new(inputActions.FlightMovement.Move, 3),
+                        new(inputActions.LadderMovement.HorizontalEscape, 1),
                     };
                 case PlayerControl.MoveRight:
                     return new InputActionBinding[]
                     {
                         new(inputActions.StandardMovement.Move, 2),
                         new(inputActions.FlightMovement.Move, 4),
+                        new(inputActions.LadderMovement.HorizontalEscape, 2),
                     };
                 case PlayerControl.MoveDown:
                     return new InputActionBinding[]
