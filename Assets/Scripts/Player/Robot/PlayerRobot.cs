@@ -109,8 +109,7 @@ namespace Player {
         public int HighDragFrames { get; private set; }
         public bool IsUsingTool { get; private set; }
         private bool freezeY;
-        private bool canStartClimbing;
-        
+        public int BlockClimbingFrames { get; set; }
         // Upgrades
         
         // References
@@ -526,6 +525,8 @@ namespace Player {
             IgnoreSlopePlatformFrames--;
             InvincibilityFrames--;
             HighDragFrames--;
+            BlockClimbingFrames--;
+            
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
             if (PlayerDamage.TimeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
@@ -554,8 +555,11 @@ namespace Player {
             void FixedUpdateStandardPlayerMovement()
             {
                 StandardPlayerMovement standardPlayerMovement = (StandardPlayerMovement)currentMovement;
-                
-                if (playerScript.InputActions.MiscMovement.TryClimb.IsPressed()) TryStartClimbing();
+
+                if (BlockClimbingFrames < 0 && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+                {
+                    if (TryStartClimbing()) return;
+                }
                 if (HighDragFrames == 0)  rb.drag = DefaultLinearDrag;
                 
                 platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
@@ -819,12 +823,12 @@ namespace Player {
             
         }
 
-        public void TryStartClimbing()
+        public bool TryStartClimbing()
         {
             // Can only start climbing when not climbing, or flying
-            if (movementState != PlayerMovementState.Standard) return;
+            if (movementState != PlayerMovementState.Standard) return false;
             
-            if (GetClimbable(transform.position) == null) return;
+            if (GetClimbable(transform.position) == null) return false;
             
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
@@ -834,6 +838,7 @@ namespace Player {
             position.x = x;
             transform.position = position;
             SetMovementState(PlayerMovementState.Climb);
+            return true;
         }
         
         private TileMovementType GetTileMovementModifier()

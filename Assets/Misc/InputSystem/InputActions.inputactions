@@ -802,6 +802,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SubPlacementModeTest",
+                    "type": "Button",
+                    "id": "1bfad530-aee1-4d38-80ee-449038fe5db6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -923,6 +932,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ShowChat",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08cbe1dd-c367-45da-afe6-4aa49d0de679",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SubPlacementModeTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

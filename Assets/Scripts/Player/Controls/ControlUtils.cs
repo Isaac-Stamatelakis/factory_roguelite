@@ -92,11 +92,26 @@ namespace Player.Controls
                         new(inputActions.FlightMovement.Move, 3),
                     };
                 case PlayerControl.MoveRight:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.StandardMovement.Move, 2),
+                        new(inputActions.FlightMovement.Move, 4),
+                    };
                 case PlayerControl.MoveDown:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.StandardMovement.Down, 0),
+                        new(inputActions.FlightMovement.Move, 1),
+                        new(inputActions.LadderMovement.Move, 2),
+                    };
+                
                 case PlayerControl.MoveUp:
-                    break;
+                    return new InputActionBinding[]
+                    {
+                        
+                        new(inputActions.FlightMovement.Move, 2),
+                        new(inputActions.LadderMovement.Move, 1),
+                    };
                 case PlayerControl.Teleport:
                     break;
                 case PlayerControl.Recall:

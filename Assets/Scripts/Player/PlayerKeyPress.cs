@@ -124,6 +124,7 @@ namespace PlayerModule.KeyPress {
 
         void SwitchPlacementMode(InputAction.CallbackContext context)
         {
+            Debug.Log("HI");
             ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
             conduitPlacementOptions.ResetPlacementRecord();
             conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);

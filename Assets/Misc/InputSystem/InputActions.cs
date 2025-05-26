@@ -824,6 +824,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SubPlacementModeTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""1bfad530-aee1-4d38-80ee-449038fe5db6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -945,6 +954,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ShowChat"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""08cbe1dd-c367-45da-afe6-4aa49d0de679"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SubPlacementModeTest"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1558,6 +1578,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MiscKeys_ConduitView = m_MiscKeys.FindAction("ConduitView", throwIfNotFound: true);
         m_MiscKeys_InteractTools = m_MiscKeys.FindAction("InteractTools", throwIfNotFound: true);
         m_MiscKeys_ShowChat = m_MiscKeys.FindAction("ShowChat", throwIfNotFound: true);
+        m_MiscKeys_SubPlacementModeTest = m_MiscKeys.FindAction("SubPlacementModeTest", throwIfNotFound: true);
         // ToolBindings
         m_ToolBindings = asset.FindActionMap("ToolBindings", throwIfNotFound: true);
         m_ToolBindings_SwitchMode = m_ToolBindings.FindAction("SwitchMode", throwIfNotFound: true);
@@ -2065,6 +2086,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_MiscKeys_ConduitView;
     private readonly InputAction m_MiscKeys_InteractTools;
     private readonly InputAction m_MiscKeys_ShowChat;
+    private readonly InputAction m_MiscKeys_SubPlacementModeTest;
     public struct MiscKeysActions
     {
         private @InputActions m_Wrapper;
@@ -2078,6 +2100,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @ConduitView => m_Wrapper.m_MiscKeys_ConduitView;
         public InputAction @InteractTools => m_Wrapper.m_MiscKeys_InteractTools;
         public InputAction @ShowChat => m_Wrapper.m_MiscKeys_ShowChat;
+        public InputAction @SubPlacementModeTest => m_Wrapper.m_MiscKeys_SubPlacementModeTest;
         public InputActionMap Get() { return m_Wrapper.m_MiscKeys; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -2114,6 +2137,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ShowChat.started += instance.OnShowChat;
             @ShowChat.performed += instance.OnShowChat;
             @ShowChat.canceled += instance.OnShowChat;
+            @SubPlacementModeTest.started += instance.OnSubPlacementModeTest;
+            @SubPlacementModeTest.performed += instance.OnSubPlacementModeTest;
+            @SubPlacementModeTest.canceled += instance.OnSubPlacementModeTest;
         }
 
         private void UnregisterCallbacks(IMiscKeysActions instance)
@@ -2145,6 +2171,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ShowChat.started -= instance.OnShowChat;
             @ShowChat.performed -= instance.OnShowChat;
             @ShowChat.canceled -= instance.OnShowChat;
+            @SubPlacementModeTest.started -= instance.OnSubPlacementModeTest;
+            @SubPlacementModeTest.performed -= instance.OnSubPlacementModeTest;
+            @SubPlacementModeTest.canceled -= instance.OnSubPlacementModeTest;
         }
 
         public void RemoveCallbacks(IMiscKeysActions instance)
@@ -2502,6 +2531,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnConduitView(InputAction.CallbackContext context);
         void OnInteractTools(InputAction.CallbackContext context);
         void OnShowChat(InputAction.CallbackContext context);
+        void OnSubPlacementModeTest(InputAction.CallbackContext context);
     }
     public interface IToolBindingsActions
     {

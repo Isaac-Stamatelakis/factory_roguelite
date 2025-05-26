@@ -47,6 +47,11 @@ namespace Player.Movement
         private void OnEscapePress(InputAction.CallbackContext context)
         {
             playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
+            playerRobot.BlockClimbingFrames = 5;
+            if (movementDirection != 0)
+            {
+                playerRobot.ResetIgnorePlatformFrames();
+            }
         }
 
         public override void MovementUpdate()
