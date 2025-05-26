@@ -60,11 +60,26 @@ namespace WorldModule.Caves {
                             continue;
                         }
 
-                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData
+                        Dictionary<SerializableMobComponentType, string> componentDataDict;
+                        ISerializableMobComponent[] components = mobEntityPrefab.GetComponents<ISerializableMobComponent>();
+                        
+                        if (components.Length == 0)
                         {
-                            Id = entityDistribution.entityId,
-                            Health = mobEntityPrefab.Health
-                        };
+                            componentDataDict = null;
+                        }
+                        else
+                        {
+                            componentDataDict = new Dictionary<SerializableMobComponentType, string>();
+                            foreach (ISerializableMobComponent component in components)
+                            {
+                                if (component is ICaveInitiazableMobComponent initializableSerializableMobComponent)
+                                {
+                                    componentDataDict[component.ComponentType] = initializableSerializableMobComponent.Initialize();
+                                }
+                            }
+                        }
+
+                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData(entityDistribution.entityId, mobEntityPrefab.Health, componentDataDict);
                         string mobData = JsonConvert.SerializeObject(mobEntityData);
                         Vector2 spawnPosition = ((new Vector2(ranX,ranY+1))+bottomLeftCorner)/2f;
                         worldData.entityData.Add(

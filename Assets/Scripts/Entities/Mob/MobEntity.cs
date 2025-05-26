@@ -22,6 +22,23 @@ namespace Entities.Mobs {
         OnSelf,
         OnFirstChild
     }
+
+    public enum SerializableMobComponentType
+    {
+        CrystalCrawler = 0 
+    }
+
+    public interface ISerializableMobComponent
+    {
+        public SerializableMobComponentType ComponentType { get; }
+        public string Serialize();
+        public void Deserialize(string data);
+    }
+
+    public interface ICaveInitiazableMobComponent : ISerializableMobComponent
+    {
+        public string Initialize();
+    }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
         public enum MobDeathParticles
@@ -97,11 +114,25 @@ namespace Entities.Mobs {
         }
         
 
-        public SeralizedEntityData serialize() {
-            SerializedMobEntityData serializedMobData = new SerializedMobEntityData{
-                Id = id,
-                Health = Health
-            };
+        public SeralizedEntityData serialize()
+        {
+            ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
+            SerializedMobEntityData serializedMobData;
+            if (serializableMobComponents.Length == 0)
+            {
+                serializedMobData = new SerializedMobEntityData(id, Health, null);
+            }
+            else
+            {
+                Dictionary<SerializableMobComponentType, string> componentDataDictionary = new();
+                foreach (ISerializableMobComponent serializableMobComponent in serializableMobComponents)
+                {
+                    string componentData = serializableMobComponent.Serialize();
+                    componentDataDictionary[serializableMobComponent.ComponentType] =  componentData;
+                }
+                serializedMobData = new SerializedMobEntityData(id, Health, componentDataDictionary);
+            }
+            
             return new SeralizedEntityData(
                 type: EntityType.Mob,
                 position: transform.position,
