@@ -25,7 +25,7 @@ namespace Player.Controls.UI
             });
             restoreButton.onClick.AddListener(() =>
             {
-                ControlUtils.SetDefault();
+                ControlUtils.SetDefault(CanvasController.Instance.InputActions);
                 Display();
             });
             Display();

@@ -241,6 +241,24 @@ namespace Player.Controls
             }
         }
 
+        public static ModifierKeyCode? GetDefaultModifierKey(PlayerControl playerControl)
+        {
+            switch (playerControl)
+            {
+                case PlayerControl.TerminateConduitGroup:
+                    return ModifierKeyCode.Ctrl;
+                case PlayerControl.SwapToolLoadOut:
+                    return ModifierKeyCode.Shift;
+                case PlayerControl.OpenToolLoadOut:
+                    return ModifierKeyCode.Shift;
+                case PlayerControl.SwitchPlacementSubMode:
+                    return ModifierKeyCode.Ctrl;
+                default:
+                    return null;
+            }
+        }
+        
+
         public static InputActionBinding[] GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
         {
             switch (playerControl)
@@ -408,15 +426,19 @@ namespace Player.Controls
         }
         
         
-        public static void SetDefault()
+        public static void SetDefault(InputActions inputActions)
         {
-            /*
-            Dictionary<string, ControlBindingCollection> sections = GetKeyBindingSections();
-            foreach (var controlBinding in sections.Values)
+            var playerControls = Enum.GetValues(typeof(PlayerControl));
+            foreach (PlayerControl playerControl in playerControls)
             {
-                controlBinding.SetDefault(true);
+                InputActionBinding[] inputActionBindings = GetPlayerControlBinding(playerControl,inputActions);
+                if (inputActionBindings == null || inputActionBindings.Length == 0) continue;
+                ModifierKeyCode? modifierKeyCode = GetDefaultModifierKey(playerControl);
+                InputActionBinding first =  inputActionBindings[0];
+                first.InputAction.RemoveAllBindingOverrides();
+                string path = first.InputAction.bindings[first.BindingIndex].effectivePath;
+                SetKeyValue(playerControl, path,modifierKeyCode);
             }
-            */
         }
 
         public static void InitializeKeyBindings(InputActions inputActions)
