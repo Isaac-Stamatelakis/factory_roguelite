@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Player.Controls.UI
 {
-    public class ControlUIElement : MonoBehaviour
+    public class ControlUIElement : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
@@ -16,10 +17,24 @@ namespace Player.Controls.UI
         private InputActions inputActions;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         private InputActionBinding[] inputActionBindings;
+
+        private bool listening;
+        private bool focused;
+
+        public void Update()
+        {
+            if (focused)
+            {
+               
+            }
+            
+        }
+
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
+                listening = true;
                 button.interactable = false;
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text  = "Press any key...";
                 rebindOperation?.Dispose();
@@ -33,24 +48,25 @@ namespace Player.Controls.UI
                     .WithControlsExcluding("<Mouse>/position")
                     .WithControlsExcluding("<Mouse>/delta")
                     .WithCancelingThrough("<Keyboard>/escape")
-                    .OnMatchWaitForAnother(0.1f)
+                    .OnMatchWaitForAnother(.15f)
                     .OnComplete(operation => {
                         UpdateBindingDisplay(true);
                         operation.Dispose();
                     })
                     .OnCancel(operation => {
-                        
+
                         UpdateBindingDisplay(false);
                         operation.Dispose();
                     })
                     .Start();
+                
             });
         }
 
         private void UpdateBindingDisplay(bool operationSuccess)
         {
             button.interactable = true;
-
+            listening = false;
             if (!operationSuccess)
             {
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
@@ -58,24 +74,51 @@ namespace Player.Controls.UI
             }
 
             ModifierKeyCode? modifier = null;
-            var modifierKeyCodes = System.Enum.GetValues(typeof(ModifierKeyCode));
-            foreach (ModifierKeyCode modifierKeyCode in modifierKeyCodes)
+            string primaryPath = null;
+            Dictionary<string, ModifierKeyCode> keyPathModifierDict = new Dictionary<string, ModifierKeyCode>
             {
-                if (!ControlUtils.ModifierActive(modifierKeyCode)) continue;
-                modifier = modifierKeyCode;
-                break;
-            }
-            Debug.Log(modifier);
-            var inputActionBinding = inputActionBindings[0];
-            string path = inputActionBinding.InputAction.bindings[inputActionBinding.BindingIndex].effectivePath;
+                { "/Keyboard/shift", ModifierKeyCode.Shift },
+                { "/Keyboard/alt", ModifierKeyCode.Alt },
+                { "/Keyboard/ctrl", ModifierKeyCode.Ctrl },
+            };
 
-            for (int i = 1; i < inputActionBindings.Length; i++)
+            List<string> ignorePaths = new List<string>
             {
-                var otherBinding = inputActionBindings[i];
-                otherBinding.InputAction.ApplyBindingOverride(otherBinding.BindingIndex,path);
+                "/Keyboard/anyKey",
+                "/Keyboard/leftShift",
+                "/Keyboard/rightShift",
+                "/Keyboard/leftCtrl",
+                "/Keyboard/rightCtrl",
+                "/Keyboard/leftAlt",
+                "/Keyboard/rightAlt",
+            };
+            foreach (var candiate in rebindOperation.candidates)
+            {
+                string candiatePath = candiate.path;
+                if (ignorePaths.Contains(candiatePath)) continue;
+                if (keyPathModifierDict.TryGetValue(candiatePath, out var value))
+                {
+                    modifier = value;
+                    continue;
+                }
+                
+                primaryPath = candiatePath;
             }
+
+            Debug.Log(primaryPath);
+            if (string.IsNullOrEmpty(primaryPath))
+            {
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                return;
+            }
+            Debug.Log("A");
             
-            ControlUtils.SetKeyValue(key, path,modifier);
+            foreach (var binding in inputActionBindings)
+            {
+                binding.InputAction.ApplyBindingOverride(binding.BindingIndex,primaryPath);
+            }
+
+            ControlUtils.SetKeyValue(key, primaryPath, modifier);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
         }
 
@@ -95,6 +138,16 @@ namespace Player.Controls.UI
             this.key = key;
             this.inputActions = inputActions;
             Display();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            focused = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            focused = false;
         }
     }
 

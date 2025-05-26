@@ -48,7 +48,7 @@ namespace Player.Movement
         {
             playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
             playerRobot.BlockClimbingFrames = 5;
-            if (movementDirection != 0)
+            if (movementDirection < 0)
             {
                 playerRobot.ResetIgnorePlatformFrames();
             }
