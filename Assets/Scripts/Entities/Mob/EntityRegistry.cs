@@ -18,6 +18,14 @@ namespace Entities.Mobs {
     {
         public string Id;
         public float Health;
+        public string ComponentData;
+
+        public SerializedMobEntityData(string id, float health, string componentData)
+        {
+            Id = id;
+            Health = health;
+            ComponentData = componentData;
+        }
     }
     public class EntityRegistry : MonoBehaviour
     {
