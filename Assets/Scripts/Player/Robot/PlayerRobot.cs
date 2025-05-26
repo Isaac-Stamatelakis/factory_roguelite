@@ -159,7 +159,7 @@ namespace Player {
             
             
             InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
-            miscMovementActions.Teleport.performed += Teleport;
+            ControlUtils.AssignAction(miscMovementActions.Teleport,PlayerControl.Teleport,Teleport);
             miscMovementActions.Enable();
             
             InitializeMovementState();
@@ -216,11 +216,19 @@ namespace Player {
         public void SetMovementEventListenerState(bool allowMovement)
         {
             currentMovement?.SetMovementStatus(allowMovement);
+            if (allowMovement)
+            {
+                playerScript.InputActions.MiscMovement.Enable();
+            }
+            else
+            {
+                playerScript.InputActions.MiscMovement.Disable();
+            }
         }
         public void SetMovementState(PlayerMovementState newMovementState)
         {
             if (movementState == newMovementState && currentMovement != null) return;
-            currentMovement?.Dispose();
+            currentMovement?.Disable();
             movementState = newMovementState;
             currentMovement = GetMovementHandler(movementState);
         }

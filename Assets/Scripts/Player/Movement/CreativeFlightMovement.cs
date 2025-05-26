@@ -50,7 +50,7 @@ namespace Player.Movement
             spriteRenderer.flipX = movementVector.x < 0;
         }
         
-        public override void Dispose()
+        public override void Disable()
         {
             flightMovement.Move.performed -= OnMovePress;
             flightMovement.Move.canceled -= OnMoveRelease;

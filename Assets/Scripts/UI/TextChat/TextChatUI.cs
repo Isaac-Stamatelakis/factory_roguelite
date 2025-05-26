@@ -208,6 +208,7 @@ namespace UI.Chat {
             suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
             FillSuggested(suggested,"");
         }
+        
 
         private string GetParamPrefix(int paramIndex, ChatCommandToken token)
         {
@@ -216,12 +217,15 @@ namespace UI.Chat {
 
         private void FillSuggested(List<string> suggested,string prefix) {
             if (suggested.Count == 1) {
-                string completed = inputField.text;
                 string[] split = inputField.text.Split(" ");
-                split[split.Length-1] = suggested[0];
+                split[^1] = suggested[0];
                 string reconstructed = FromArray(split, " ");
-                inputField.text = $"{prefix}{reconstructed}";
-                inputField.caretPosition=inputField.text.Length;
+                string newText = $"{prefix}{reconstructed}";
+                inputField.text = newText;
+                inputField.Select();
+                inputField.ActivateInputField();
+                inputField.MoveTextEnd(false);
+                inputField.caretPosition = newText.Length;
             } else {
                 SendChatMessage(FromArray(suggested.ToArray(), ", "));
             }

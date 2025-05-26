@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ namespace Player.Controls.UI
         private InputActions inputActions;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         private InputActionBinding[] inputActionBindings;
+        
         public void Start()
         {
             button.onClick.AddListener(() =>
@@ -26,20 +28,26 @@ namespace Player.Controls.UI
 
                 inputActionBindings ??= ControlUtils.GetPlayerControlBinding(key, inputActions);
                 
-                if (inputActionBindings.Length == 0) return;
+                if (inputActionBindings == null || inputActionBindings.Length == 0) return;
                 var inputActionBinding = inputActionBindings[0];
+                inputActionBinding.InputAction.Disable();
+                if (rebindOperation != null)
+                {
+                    rebindOperation.Dispose();
+                    rebindOperation = null;
+                }
                 rebindOperation = inputActionBinding.InputAction.PerformInteractiveRebinding()
                     .WithTargetBinding(inputActionBinding.BindingIndex)
                     .WithControlsExcluding("<Mouse>/position")
                     .WithControlsExcluding("<Mouse>/delta")
                     .WithCancelingThrough("<Keyboard>/escape")
-                    .OnMatchWaitForAnother(0.1f)
+                    .OnMatchWaitForAnother(.15f)
                     .OnComplete(operation => {
                         UpdateBindingDisplay(true);
                         operation.Dispose();
                     })
                     .OnCancel(operation => {
-                        
+
                         UpdateBindingDisplay(false);
                         operation.Dispose();
                     })
@@ -50,33 +58,61 @@ namespace Player.Controls.UI
         private void UpdateBindingDisplay(bool operationSuccess)
         {
             button.interactable = true;
-
             if (!operationSuccess)
             {
                 button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                inputActionBindings[0].InputAction.Enable();
                 return;
             }
 
             ModifierKeyCode? modifier = null;
-            var modifierKeyCodes = System.Enum.GetValues(typeof(ModifierKeyCode));
-            foreach (ModifierKeyCode modifierKeyCode in modifierKeyCodes)
+            string primaryPath = null;
+            Dictionary<string, ModifierKeyCode> keyPathModifierDict = new Dictionary<string, ModifierKeyCode>
             {
-                if (!ControlUtils.ModifierActive(modifierKeyCode)) continue;
-                modifier = modifierKeyCode;
-                break;
-            }
-            Debug.Log(modifier);
-            var inputActionBinding = inputActionBindings[0];
-            string path = inputActionBinding.InputAction.bindings[inputActionBinding.BindingIndex].effectivePath;
+                { "/Keyboard/shift", ModifierKeyCode.Shift },
+                { "/Keyboard/alt", ModifierKeyCode.Alt },
+                { "/Keyboard/ctrl", ModifierKeyCode.Ctrl },
+            };
 
-            for (int i = 1; i < inputActionBindings.Length; i++)
+            List<string> ignorePaths = new List<string>
             {
-                var otherBinding = inputActionBindings[i];
-                otherBinding.InputAction.ApplyBindingOverride(otherBinding.BindingIndex,path);
+                "/Keyboard/anyKey",
+                "/Keyboard/leftShift",
+                "/Keyboard/rightShift",
+                "/Keyboard/leftCtrl",
+                "/Keyboard/rightCtrl",
+                "/Keyboard/leftAlt",
+                "/Keyboard/rightAlt",
+            };
+            foreach (var candiate in rebindOperation.candidates)
+            {
+                string candiatePath = candiate.path;
+                if (ignorePaths.Contains(candiatePath)) continue;
+                if (keyPathModifierDict.TryGetValue(candiatePath, out var value))
+                {
+                    modifier = value;
+                    continue;
+                }
+                
+                primaryPath = candiatePath;
             }
             
-            ControlUtils.SetKeyValue(key, path,modifier);
+            if (string.IsNullOrEmpty(primaryPath))
+            {
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                inputActionBindings[0].InputAction.Enable();
+                return;
+            }
+            
+            foreach (var binding in inputActionBindings)
+            {
+                binding.InputAction.ApplyBindingOverride(binding.BindingIndex,primaryPath);
+            }
+
+            ControlUtils.SetKeyValue(key, primaryPath, modifier);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+            inputActionBindings[0].InputAction.Enable();
+            ControlUtils.LoadRequiredAndBlocked();
         }
 
         public void HighlightConflictState(bool conflict)
@@ -96,6 +132,7 @@ namespace Player.Controls.UI
             this.inputActions = inputActions;
             Display();
         }
+        
     }
 
     

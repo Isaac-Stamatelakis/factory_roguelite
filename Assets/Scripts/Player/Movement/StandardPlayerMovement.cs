@@ -19,7 +19,7 @@ namespace Player.Movement.Standard
         }
 
         public abstract void MovementUpdate();
-        public abstract void Dispose();
+        public abstract void Disable();
         protected abstract InputActionMap GetInputActionMap();
 
         public void SetMovementStatus(bool active)
@@ -167,7 +167,7 @@ namespace Player.Movement.Standard
             }
         }
 
-        public override void Dispose()
+        public override void Disable()
         {
             playerMovementInput.Move.performed -= OnMovePerformed;
             playerMovementInput.Move.canceled -= OnMoveCancelled;

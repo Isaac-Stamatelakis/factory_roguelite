@@ -47,11 +47,12 @@ namespace PlayerModule.KeyPress {
             canvasController = CanvasController.Instance;
 
             var miscKeys = playerScript.InputActions.MiscKeys;
-            miscKeys.ItemSearch.performed += OpenSearch;
-            miscKeys.Inventory.performed += _ => playerInventory.ToggleInventoryMode();
-            miscKeys.PlacementMode.performed += SwitchPlacementMode;
-            miscKeys.ConduitOptions.performed += _ => playerScript.TileViewers.ConduitViewController.DisplayRadialMenu();
-            miscKeys.ConduitPortView.performed += _ => ChangePortModePress();
+            ControlUtils.AssignAction(miscKeys.ItemSearch,PlayerControl.OpenSearch,OpenSearch);
+            ControlUtils.AssignAction(miscKeys.Inventory,PlayerControl.OpenInventory, _ => playerInventory.ToggleInventoryMode());
+            ControlUtils.AssignAction(miscKeys.PlacementMode,PlayerControl.SwitchPlacementMode, SwitchPlacementMode);
+            ControlUtils.AssignAction(miscKeys.ConduitOptions,PlayerControl.OpenConduitOptions, _ => playerScript.TileViewers.ConduitViewController.DisplayRadialMenu());
+            ControlUtils.AssignAction(miscKeys.ConduitPortView,PlayerControl.SwitchConduitPortView, _ => ChangePortModePress());
+            
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
             miscKeys.ShowChat.performed += _ => TextChatUI.Instance.ShowTextField();
