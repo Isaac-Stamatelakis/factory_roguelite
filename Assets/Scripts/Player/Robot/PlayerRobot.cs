@@ -547,6 +547,7 @@ namespace Player {
             } else if (movementState == PlayerMovementState.Climb)
             {
                 AnimationController.PlayAnimation(PlayerAnimation.Air);
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             }
 
             return;
@@ -603,7 +604,7 @@ namespace Player {
             
             if (CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform())
             {
-                bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
+                bool moving = rb.velocity.x != 0;
                 bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);
                 return moving && !touchingWall ? FREEZE_Z : FREEZE_Y;
             }

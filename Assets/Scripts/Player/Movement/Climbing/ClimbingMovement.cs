@@ -22,6 +22,7 @@ namespace Player.Movement
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX |  RigidbodyConstraints2D.FreezeRotation;
             playerRobot.FallTime = 0;
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             
