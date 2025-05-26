@@ -515,6 +515,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Scroll"",
+                    ""type"": ""Value"",
+                    ""id"": ""b7bc4d17-5b29-48e4-9ac2-cdbb4e0bbbf7"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -627,6 +636,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Select9"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""ccb29960-9bbb-4d29-8a8d-a77534987d25"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""aa1593d8-218e-4122-89ad-a8d7eb8553e5"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""7e43e4aa-ccf7-48d9-b050-fe3c07636f61"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -1396,6 +1438,34 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""CanvasController"",
+            ""id"": ""79a7fffd-a088-4393-836a-7e48ee406503"",
+            ""actions"": [
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""4fd7fec2-4b5d-459e-9c2b-3139dcd888f5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""8929a8c6-5206-4c98-b236-eb0b662b6feb"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1429,6 +1499,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_InventoryNavigation_Select7 = m_InventoryNavigation.FindAction("Select7", throwIfNotFound: true);
         m_InventoryNavigation_Select8 = m_InventoryNavigation.FindAction("Select8", throwIfNotFound: true);
         m_InventoryNavigation_Select9 = m_InventoryNavigation.FindAction("Select9", throwIfNotFound: true);
+        m_InventoryNavigation_Scroll = m_InventoryNavigation.FindAction("Scroll", throwIfNotFound: true);
         // InventoryUtils
         m_InventoryUtils = asset.FindActionMap("InventoryUtils", throwIfNotFound: true);
         m_InventoryUtils_ShowRecipes = m_InventoryUtils.FindAction("ShowRecipes", throwIfNotFound: true);
@@ -1466,6 +1537,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_TextChatKeys_Navigate = m_TextChatKeys.FindAction("Navigate", throwIfNotFound: true);
         m_TextChatKeys_Scroll = m_TextChatKeys.FindAction("Scroll", throwIfNotFound: true);
         m_TextChatKeys_SendMessage = m_TextChatKeys.FindAction("SendMessage", throwIfNotFound: true);
+        // CanvasController
+        m_CanvasController = asset.FindActionMap("CanvasController", throwIfNotFound: true);
+        m_CanvasController_Exit = m_CanvasController.FindAction("Exit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1761,6 +1835,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_InventoryNavigation_Select7;
     private readonly InputAction m_InventoryNavigation_Select8;
     private readonly InputAction m_InventoryNavigation_Select9;
+    private readonly InputAction m_InventoryNavigation_Scroll;
     public struct InventoryNavigationActions
     {
         private @InputActions m_Wrapper;
@@ -1775,6 +1850,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Select7 => m_Wrapper.m_InventoryNavigation_Select7;
         public InputAction @Select8 => m_Wrapper.m_InventoryNavigation_Select8;
         public InputAction @Select9 => m_Wrapper.m_InventoryNavigation_Select9;
+        public InputAction @Scroll => m_Wrapper.m_InventoryNavigation_Scroll;
         public InputActionMap Get() { return m_Wrapper.m_InventoryNavigation; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1814,6 +1890,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Select9.started += instance.OnSelect9;
             @Select9.performed += instance.OnSelect9;
             @Select9.canceled += instance.OnSelect9;
+            @Scroll.started += instance.OnScroll;
+            @Scroll.performed += instance.OnScroll;
+            @Scroll.canceled += instance.OnScroll;
         }
 
         private void UnregisterCallbacks(IInventoryNavigationActions instance)
@@ -1848,6 +1927,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Select9.started -= instance.OnSelect9;
             @Select9.performed -= instance.OnSelect9;
             @Select9.canceled -= instance.OnSelect9;
+            @Scroll.started -= instance.OnScroll;
+            @Scroll.performed -= instance.OnScroll;
+            @Scroll.canceled -= instance.OnScroll;
         }
 
         public void RemoveCallbacks(IInventoryNavigationActions instance)
@@ -2271,6 +2353,52 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public TextChatKeysActions @TextChatKeys => new TextChatKeysActions(this);
+
+    // CanvasController
+    private readonly InputActionMap m_CanvasController;
+    private List<ICanvasControllerActions> m_CanvasControllerActionsCallbackInterfaces = new List<ICanvasControllerActions>();
+    private readonly InputAction m_CanvasController_Exit;
+    public struct CanvasControllerActions
+    {
+        private @InputActions m_Wrapper;
+        public CanvasControllerActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Exit => m_Wrapper.m_CanvasController_Exit;
+        public InputActionMap Get() { return m_Wrapper.m_CanvasController; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(CanvasControllerActions set) { return set.Get(); }
+        public void AddCallbacks(ICanvasControllerActions instance)
+        {
+            if (instance == null || m_Wrapper.m_CanvasControllerActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CanvasControllerActionsCallbackInterfaces.Add(instance);
+            @Exit.started += instance.OnExit;
+            @Exit.performed += instance.OnExit;
+            @Exit.canceled += instance.OnExit;
+        }
+
+        private void UnregisterCallbacks(ICanvasControllerActions instance)
+        {
+            @Exit.started -= instance.OnExit;
+            @Exit.performed -= instance.OnExit;
+            @Exit.canceled -= instance.OnExit;
+        }
+
+        public void RemoveCallbacks(ICanvasControllerActions instance)
+        {
+            if (m_Wrapper.m_CanvasControllerActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(ICanvasControllerActions instance)
+        {
+            foreach (var item in m_Wrapper.m_CanvasControllerActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_CanvasControllerActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public CanvasControllerActions @CanvasController => new CanvasControllerActions(this);
     public interface IStandardMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
@@ -2304,6 +2432,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnSelect7(InputAction.CallbackContext context);
         void OnSelect8(InputAction.CallbackContext context);
         void OnSelect9(InputAction.CallbackContext context);
+        void OnScroll(InputAction.CallbackContext context);
     }
     public interface IInventoryUtilsActions
     {
@@ -2346,5 +2475,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnNavigate(InputAction.CallbackContext context);
         void OnScroll(InputAction.CallbackContext context);
         void OnSendMessage(InputAction.CallbackContext context);
+    }
+    public interface ICanvasControllerActions
+    {
+        void OnExit(InputAction.CallbackContext context);
     }
 }

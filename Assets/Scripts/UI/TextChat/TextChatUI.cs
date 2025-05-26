@@ -107,7 +107,6 @@ namespace UI.Chat {
             const float scrollSpeed = 10000;
             float height = ((RectTransform)textList.transform).sizeDelta.y;
             float value = context.ReadValue<float>();
-            Debug.Log(value);
             if (value > 0)
             {
                 var vector3 = textList.transform.localPosition;

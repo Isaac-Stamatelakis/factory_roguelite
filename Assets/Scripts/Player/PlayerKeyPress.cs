@@ -74,7 +74,7 @@ namespace PlayerModule.KeyPress {
             inventoryNavigation.Select8.performed += _ => playerInventory.ChangeSelectedSlot(7);
             inventoryNavigation.Select9.performed += _ => playerInventory.ChangeSelectedSlot(8);
             inventoryNavigation.Select0.performed += _ => playerInventory.ChangeSelectedSlot(9);
-
+            inventoryNavigation.Scroll.performed += ScrollInventory;
             var inventoryUtils = playerScript.InputActions.InventoryUtils;
             inventoryUtils.ShowRecipes.performed += ShowItemRecipes;
             inventoryUtils.ShowUses.performed += ShowItemUses;
@@ -104,8 +104,17 @@ namespace PlayerModule.KeyPress {
                 }
             }
         }
-        
 
+
+        void ScrollInventory(InputAction.CallbackContext context)
+        {
+            float y = UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y;
+            if (y < 0) {
+                playerInventory.IterateSelectedTile(1);
+            } else if (y > 0) {
+                playerInventory.IterateSelectedTile(-1);
+            }
+        }
         void OpenSearch(InputAction.CallbackContext context)
         {
             ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
