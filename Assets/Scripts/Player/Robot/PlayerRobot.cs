@@ -555,7 +555,7 @@ namespace Player {
                 AnimationController.PlayAnimation(PlayerAnimation.Air);
             } else if (movementState == PlayerMovementState.Climb)
             {
-                AnimationController.PlayAnimation(PlayerAnimation.Air);
+                AnimationController.PlayAnimation(IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
                 rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             }
 

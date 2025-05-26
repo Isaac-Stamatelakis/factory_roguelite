@@ -7,6 +7,7 @@ using Entities.Mobs;
 using Entities;
 using UnityEngine.AddressableAssets;
 using Newtonsoft.Json;
+using World.Cave.Registry;
 using Random = UnityEngine.Random;
 
 namespace WorldModule.Caves {
@@ -19,15 +20,20 @@ namespace WorldModule.Caves {
     public class CaveEntityDistributor : ICaveDistributor
     {
         private List<EntityDistribution> entities;
+        private CaveElements caveElements;
+        private CaveObject caveObject;
 
-        public CaveEntityDistributor(List<EntityDistribution> distributions)
+        public CaveEntityDistributor(List<EntityDistribution> distributions, CaveObject caveObject, CaveElements caveElements)
         {
             this.entities = distributions;
+            this.caveElements = caveElements;
+            this.caveObject = caveObject;
         }
 
         public void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner)
         {
             EntityRegistry entityRegistry = EntityRegistry.Instance;
+            CaveTileCollection caveTileCollection = CaveRegistry.Instance.GetCaveTileCollection(caveObject.GetId());
             foreach (EntityDistribution entityDistribution in entities)
             {
                 MobEntity mobEntityPrefab = entityRegistry.GetEntityPrefab(entityDistribution.entityId);
@@ -37,12 +43,12 @@ namespace WorldModule.Caves {
                     Debug.LogWarning("Entity " + entityDistribution.entityId + " is null");
                     error = true;
                 }
-                SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
+                
                 if (error)
                 {
                     continue;
                 }
-                
+                SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
                 Vector2Int spriteSize = spriteRenderer
                     ? Global.GetSpriteSize(spriteRenderer.sprite)
                     : Vector2Int.one;
@@ -60,11 +66,20 @@ namespace WorldModule.Caves {
                             continue;
                         }
 
-                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData
+                        Dictionary<SerializableMobComponentType, string> componentDataDict;
+                        ISerializableMobComponent[] components = mobEntityPrefab.GetComponents<ISerializableMobComponent>();
+                        
+                        if (components.Length == 0)
                         {
-                            Id = entityDistribution.entityId,
-                            Health = mobEntityPrefab.Health
-                        };
+                            componentDataDict = null;
+                        }
+                        else
+                        {
+                            componentDataDict = GetInitializeCaveData(components);
+                        }
+
+                        float randomSize = mobEntityPrefab.RandomizeSize ? MobEntity.GetRandomSize() : 1f;
+                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData(entityDistribution.entityId, mobEntityPrefab.Health, randomSize,componentDataDict);
                         string mobData = JsonConvert.SerializeObject(mobEntityData);
                         Vector2 spawnPosition = ((new Vector2(ranX,ranY+1))+bottomLeftCorner)/2f;
                         worldData.entityData.Add(
@@ -81,6 +96,20 @@ namespace WorldModule.Caves {
                 
             }
             Debug.Log($"Spawned {worldData.entityData.Count} Entities inside Cave");
+
+            return;
+            Dictionary<SerializableMobComponentType, string> GetInitializeCaveData(ISerializableMobComponent[] components)
+            {
+                var componentDataDict = new Dictionary<SerializableMobComponentType, string>();
+                foreach (ISerializableMobComponent component in components)
+                {
+                    if (component is ICaveInitiazableMobComponent initializableSerializableMobComponent)
+                    {
+                        initializableSerializableMobComponent.Initialize(componentDataDict, caveTileCollection); 
+                    }
+                }
+                return componentDataDict;
+            }
         }
         
 

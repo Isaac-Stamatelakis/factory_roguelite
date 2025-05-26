@@ -29,7 +29,8 @@ namespace Player.Movement
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
-            movementActions.Escape.performed += OnEscapePress;
+            movementActions.HorizontalEscape.performed += OnEscapeHorizontalPress;
+            movementActions.JumpEscape.performed += OnEscapeVerticalPress;
             
             movementActions.Enable();
         }
@@ -44,14 +45,17 @@ namespace Player.Movement
             movementDirection = 0;
         }
 
-        private void OnEscapePress(InputAction.CallbackContext context)
+        private void OnEscapeHorizontalPress(InputAction.CallbackContext context)
         {
             playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
             playerRobot.BlockClimbingFrames = 5;
-            if (movementDirection < 0)
-            {
-                playerRobot.ResetIgnorePlatformFrames();
-            }
+        }
+
+        private void OnEscapeVerticalPress(InputAction.CallbackContext context)
+        {
+            playerRobot.SetMovementState(PlayerMovementState.Standard);
+            playerRobot.BlockClimbingFrames = 5;
+            playerRobot.ResetIgnorePlatformFrames();
         }
 
         public override void MovementUpdate()
@@ -88,7 +92,8 @@ namespace Player.Movement
         {
             movementActions.Move.performed -= OnMovePress;
             movementActions.Move.canceled -= OnMoveRelease;
-            movementActions.Escape.performed -= OnEscapePress;
+            movementActions.HorizontalEscape.performed -= OnEscapeHorizontalPress;
+            movementActions.JumpEscape.performed -= OnEscapeVerticalPress;
             movementActions.Disable();
         }
 

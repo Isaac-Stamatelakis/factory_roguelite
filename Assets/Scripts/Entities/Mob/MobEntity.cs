@@ -5,8 +5,11 @@ using Newtonsoft.Json;
 using System;
 using Entities;
 using Entities.Mob;
+using Item.Slot;
 using Items;
 using Robot.Tool.Instances.Gun;
+using World.Cave.Registry;
+using Random = System.Random;
 
 namespace Entities.Mobs {
     public enum MobSpawnCondition
@@ -22,8 +25,28 @@ namespace Entities.Mobs {
         OnSelf,
         OnFirstChild
     }
+
+    public enum SerializableMobComponentType
+    {
+        CrystalCrawler = 0,
+        AdditionalDrops = 1,
+    }
+    
+
+    public interface ISerializableMobComponent
+    {
+        public SerializableMobComponentType ComponentType { get; }
+        public string Serialize();
+        public void Deserialize(string data);
+    }
+
+    public interface ICaveInitiazableMobComponent : ISerializableMobComponent
+    {
+        public void Initialize(Dictionary<SerializableMobComponentType,string> dataDict, CaveTileCollection caveTileCollection);
+    }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
+
         public enum MobDeathParticles
         {
             Standard = 0,
@@ -34,6 +57,7 @@ namespace Entities.Mobs {
         public MobLootSpawnPlacement MobLootSpawnPlacement = MobLootSpawnPlacement.OnSelf;
         public bool TakesKnockback = true;
         public bool RayCastUnLoadable = true;
+        public bool RandomizeSize = false;
         public float Health = 10;
         public LootTable LootTable;
         public MobDeathParticles DeathParticles = MobDeathParticles.None;
@@ -45,7 +69,29 @@ namespace Entities.Mobs {
             {
                 this.Health = entityData.Health;
             }
+
+            if (RandomizeSize)
+            {
+                float size = entityData.Size;
+                if (size <= 0) size = 1;
+                transform.localScale = new Vector3(size,size,1f);
+            }
             
+            ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
+            if (serializableMobComponents.Length == 0) return;
+            Dictionary<SerializableMobComponentType, string> componentDataDict = entityData.ComponentDataDict;
+            foreach (ISerializableMobComponent serializableMobComponent in serializableMobComponents)
+            {
+                if (componentDataDict == null ||
+                    !componentDataDict.TryGetValue(serializableMobComponent.ComponentType, out var componentData))
+                {
+                    serializableMobComponent.Deserialize(null);
+                }
+                else
+                {
+                    serializableMobComponent.Deserialize(componentData);
+                }
+            }
         }
 
         public void Damage(float amount, Vector2 damageDirection)
@@ -58,6 +104,13 @@ namespace Entities.Mobs {
                 if (transform.parent)
                 {
                     ItemEntityFactory.SpawnLootTable(GetLootSpawnPosition(),LootTable,transform.parent);
+                }
+
+                MobDynamicDropComponent additionalDrops = GetComponent<MobDynamicDropComponent>();
+                if (additionalDrops)
+                {
+                    List<ItemSlot> drops = additionalDrops.Drops;
+                    ItemEntityFactory.SpawnItemEntities(GetLootSpawnPosition(),drops,transform.parent);
                 }
 
                 if (DeathParticles != MobDeathParticles.None)
@@ -97,11 +150,25 @@ namespace Entities.Mobs {
         }
         
 
-        public SeralizedEntityData serialize() {
-            SerializedMobEntityData serializedMobData = new SerializedMobEntityData{
-                Id = id,
-                Health = Health
-            };
+        public SeralizedEntityData serialize()
+        {
+            ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
+            SerializedMobEntityData serializedMobData;
+            if (serializableMobComponents.Length == 0)
+            {
+                serializedMobData = new SerializedMobEntityData(id, Health, transform.localScale.x, null);
+            }
+            else
+            {
+                Dictionary<SerializableMobComponentType, string> componentDataDictionary = new();
+                foreach (ISerializableMobComponent serializableMobComponent in serializableMobComponents)
+                {
+                    string componentData = serializableMobComponent.Serialize();
+                    componentDataDictionary[serializableMobComponent.ComponentType] =  componentData;
+                }
+                serializedMobData = new SerializedMobEntityData(id, Health,transform.localScale.x, componentDataDictionary);
+            }
+            
             return new SeralizedEntityData(
                 type: EntityType.Mob,
                 position: transform.position,
@@ -131,6 +198,15 @@ namespace Entities.Mobs {
         public override void Initialize()
         {
             
+        }
+
+        public static float GetRandomSize()
+        {
+            const float RANGE = 0.2f;
+            const float MIN_SIZE = 0.9f;
+            float size = UnityEngine.Random.Range(1-RANGE, 1+RANGE);
+            if (size < MIN_SIZE) size = MIN_SIZE;
+            return size;
         }
     }
 

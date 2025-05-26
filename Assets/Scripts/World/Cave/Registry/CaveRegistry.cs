@@ -58,7 +58,7 @@ namespace World.Cave.Registry
                 Addressables.Release(genModelHandle);
                 
                 CaveObject caveObject = caves[index];
-                string id = caveObject.name.ToLower().Replace(" ", "_");
+                string id = caveObject.GetId();
                 CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,genModel.GetBaseId());
                 if (caveTileCollection == null) continue;
                 caveDataDict[id] = caveTileCollection;
@@ -294,6 +294,35 @@ namespace World.Cave.Registry
         {
             int index = BinarySearch(cumulativeOdds, value);
             return index < 0 || index >= cumulativeOdds.Length ? baseId : ids[index];
+        }
+
+        public string GetRandomOreId()
+        {
+            // Finds odds 
+            const int UN_ASSIGNED = -1;
+            int initialIndex = UN_ASSIGNED;
+            int endIndex = ids.Length-1;
+            for (int i = 0; i < ids.Length; i++)
+            {
+                string id = ids[i];
+                if (!id.EndsWith("ore"))
+                {
+                    if (initialIndex == UN_ASSIGNED) continue;
+                    endIndex = i-1;
+                    break;
+                }
+                if (initialIndex == UN_ASSIGNED)
+                {
+                    initialIndex = i;
+                }
+            }
+
+            if (initialIndex == UN_ASSIGNED) return null;
+            initialIndex--;
+            if (initialIndex < 0) initialIndex = 0;
+           
+            float ran = Random.Range(cumulativeOdds[initialIndex], cumulativeOdds[endIndex]);
+            return GetId(ran);
         }
         
         private static int BinarySearch(float[] cumulativeProbabilities, float value)
