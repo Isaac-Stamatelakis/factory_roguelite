@@ -4,9 +4,8 @@ using Object = UnityEngine.Object;
 
 namespace UI.GraphicSettings.Managers
 {
-    internal class UIScaleGraphicSettingManager : GraphicSettingManager, IScrollBarGraphicManager
+    internal class UIScaleGraphicSettingManager : GraphicSettingManager, IScrollBarGraphicManager, IDelayedExitGraphicManager
     {
-        
         public override void ApplyGraphicSettings(int value)
         {
             UIScale uiScale = (UIScale)value;
@@ -34,10 +33,11 @@ namespace UI.GraphicSettings.Managers
         {
             return scale switch
             {
-                UIScale.Large => 1f,
-                UIScale.Normal => 0.9f,
-                UIScale.Small => 0.8f,
-                UIScale.Tiny => 0.7f,
+                UIScale.Huge => 1f,
+                UIScale.Large => .9f,
+                UIScale.Normal => 0.8f,
+                UIScale.Small => 0.7f,
+                UIScale.Tiny => 0.6f,
                 _ => 1f
             };
         }
@@ -55,10 +55,11 @@ namespace UI.GraphicSettings.Managers
 
         private enum UIScale
         {
-            Large = 0,
-            Normal = 1,
-            Small = 2,
-            Tiny = 3
+            Tiny = 0,
+            Small = 1,
+            Normal = 2,
+            Large = 3,
+            Huge = 4
         }
     }
 }

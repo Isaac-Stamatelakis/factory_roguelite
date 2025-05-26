@@ -190,7 +190,7 @@ namespace Tiles.TileMap
                 Vector2Int positionInPartition = GetTilePositionInPartition(adjacentPosition);
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
-                if (!tileItem) return;
+                if (!tileItem || tileItem.tileType != TileType.Platform) return;
                 
                 TilePlacementData tilePlacementData = new TilePlacementData((PlayerTileRotation)baseTileData.rotation, baseTileData.state);
                 Vector3Int vector3Int = new Vector3Int(adjacentPosition.x,adjacentPosition.y,0);

@@ -44,8 +44,9 @@ namespace Player.Movement
         
         private bool OnPlatform(Collider2D other)
         {
+            
             Vector3 collisionPoint = other.ClosestPoint(transform.position);
-            return collisionPoint.y < transform.position.y;
+            return collisionPoint.y < transform.position.y && Mathf.Abs(playerRobot.transform.position.x - collisionPoint.x) < 0.08f;
         }
         
 

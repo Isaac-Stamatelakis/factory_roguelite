@@ -65,12 +65,20 @@ namespace Player.Movement
             IClimableTileEntity climableTileEntity = playerRobot.GetClimbable(position);
             if (climableTileEntity == null)
             {
-                //rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 playerRobot.SetMovementState(PlayerMovementState.Standard);
                 return;
             }
-            IClimableTileEntity below = playerRobot.GetClimbable(position + Vector2.down);
-            playerRobot.PlatformCollider.enabled = below == null;
+
+            if (movementDirection > 0)
+            {
+                playerRobot.PlatformCollider.enabled = false;
+            }
+            else
+            {
+                IClimableTileEntity below = playerRobot.GetClimbable(position + Vector2.down);
+                playerRobot.PlatformCollider.enabled = below == null;
+            }
+            
             Vector2 velocity = rb.velocity;
             velocity.y = climableTileEntity.GetSpeed() * movementDirection;
             rb.velocity = velocity;
