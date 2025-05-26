@@ -320,8 +320,7 @@ namespace World.Cave.Registry
             if (initialIndex == UN_ASSIGNED) return null;
             initialIndex--;
             if (initialIndex < 0) initialIndex = 0;
-            Debug.Log(cumulativeOdds.Length);
-            Debug.Log(initialIndex + "," + endIndex);
+           
             float ran = Random.Range(cumulativeOdds[initialIndex], cumulativeOdds[endIndex]);
             return GetId(ran);
         }
