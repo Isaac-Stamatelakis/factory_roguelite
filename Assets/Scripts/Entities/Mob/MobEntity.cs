@@ -62,7 +62,21 @@ namespace Entities.Mobs {
             {
                 this.Health = entityData.Health;
             }
-            
+            ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
+            if (serializableMobComponents.Length == 0) return;
+            Dictionary<SerializableMobComponentType, string> componentDataDict = entityData.ComponentDataDict;
+            foreach (ISerializableMobComponent serializableMobComponent in serializableMobComponents)
+            {
+                if (componentDataDict == null ||
+                    !componentDataDict.TryGetValue(serializableMobComponent.ComponentType, out var componentData))
+                {
+                    serializableMobComponent.Deserialize(null);
+                }
+                else
+                {
+                    serializableMobComponent.Deserialize(componentData);
+                }
+            }
         }
 
         public void Damage(float amount, Vector2 damageDirection)
