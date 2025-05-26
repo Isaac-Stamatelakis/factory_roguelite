@@ -22,7 +22,6 @@ namespace Player.Controls.UI
             backButton.onClick.AddListener(() =>
             {
                 CanvasController.Instance.PopStack();
-                //ControlUtils.LoadBindings();
             });
             restoreButton.onClick.AddListener(() =>
             {
@@ -36,13 +35,30 @@ namespace Player.Controls.UI
         {
             InputActions inputActions = CanvasController.Instance.InputActions;
             GlobalHelper.DeleteAllChildren(listTransform);
-            PlayerControl[] playerControls = Enum.GetValues(typeof(PlayerControl)) as PlayerControl[];
+            Dictionary<PlayerControlGroup, List<PlayerControl>> sortedGroups = new Dictionary<PlayerControlGroup, List<PlayerControl>>();
+            var playerControls = Enum.GetValues(typeof(PlayerControl));
             foreach (PlayerControl playerControl in playerControls)
             {
-                ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
-                controlUIElement.Initalize(playerControl,inputActions,this);
-                elementUIDict[playerControl] = controlUIElement;
+                PlayerControlGroup group = ControlUtils.GetGroup(playerControl);
+                if (!sortedGroups.ContainsKey(group))
+                {
+                    sortedGroups.Add(group, new List<PlayerControl>());
+                }
+                sortedGroups[group].Add(playerControl);
             }
+
+            foreach (var (group, groupControls) in sortedGroups)
+            {
+                TextMeshProUGUI header = GameObject.Instantiate(headerPrefab, listTransform);
+                header.text = group.ToString();
+                foreach (PlayerControl playerControl in groupControls)
+                {
+                    ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
+                    controlUIElement.Initalize(playerControl,inputActions,this);
+                    elementUIDict[playerControl] = controlUIElement;
+                }
+            }
+            
             CheckConflicts();
         }
         

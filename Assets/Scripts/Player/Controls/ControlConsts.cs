@@ -36,4 +36,13 @@ namespace Player.Controls
         Shift,
         Alt
     }
+
+    public enum PlayerControlGroup
+    {
+        Movement = 0,
+        Gameplay = 1,
+        Tools = 2,
+        Utils = 3,
+        Misc = 4,
+    }
 }

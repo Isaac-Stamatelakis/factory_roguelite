@@ -201,6 +201,45 @@ namespace Player.Controls
             }
         }
 
+        public static PlayerControlGroup GetGroup(PlayerControl playerControl)
+        {
+            switch (playerControl)
+            {
+                case PlayerControl.Jump:
+                case PlayerControl.MoveLeft:
+                case PlayerControl.MoveRight:
+                case PlayerControl.MoveDown:
+                case PlayerControl.MoveUp:
+                case PlayerControl.Teleport:
+                    return PlayerControlGroup.Movement;
+                case PlayerControl.SwitchToolMode:
+                case PlayerControl.OpenRobotLoadOut:
+                case PlayerControl.OpenToolLoadOut:
+                case PlayerControl.PlacePreview:
+                case PlayerControl.AutoSelect:
+                    return PlayerControlGroup.Tools;
+                case PlayerControl.SwitchConduitPortView:
+                case PlayerControl.ChangeConduitViewMode:
+                case PlayerControl.OpenConduitOptions:
+                case PlayerControl.SwitchPlacementMode:
+                case PlayerControl.SwitchPlacementSubMode:
+                case PlayerControl.TerminateConduitGroup:
+                case PlayerControl.SwapToolLoadOut:
+                case PlayerControl.SwapRobotLoadOut:
+                case PlayerControl.ShowItemRecipes:
+                case PlayerControl.ShowItemUses:
+                case PlayerControl.EditItemTag:
+                    return PlayerControlGroup.Utils;
+                case PlayerControl.OpenQuestBook:
+                case PlayerControl.OpenInventory:
+                case PlayerControl.OpenSearch:
+                    return PlayerControlGroup.Gameplay;
+                case PlayerControl.HideUI:
+                    return PlayerControlGroup.Misc;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(playerControl), playerControl, null);
+            }
+        }
 
         public static InputActionBinding[] GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
         {
