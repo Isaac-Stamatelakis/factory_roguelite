@@ -311,6 +311,21 @@ namespace Player.Controls
             }
             */
         }
+
+        public static void InitializeKeyBindings(InputActions inputActions)
+        {
+            var playerControls = System.Enum.GetValues(typeof(PlayerControl));
+            foreach (PlayerControl playerControl in playerControls)
+            {
+                PlayerControlData playerControlData = GetControlValue(playerControl);
+                if (playerControlData == null) continue;
+                InputActionBinding[] bindings = GetPlayerControlBinding(playerControl,inputActions);
+                foreach (InputActionBinding inputActionBinding in bindings)
+                {
+                    inputActionBinding.InputAction.ApplyBindingOverride(inputActionBinding.BindingIndex,playerControlData.KeyData);
+                }
+            }
+        }
         
     }
     public class PlayerControlData

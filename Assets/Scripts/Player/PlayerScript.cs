@@ -121,6 +121,8 @@ namespace Player
             tileViewers.Initialize(this);
             
             ControlUtils.LoadRequiredAndBlocked();
+            ControlUtils.InitializeKeyBindings(inputActions);
+            
             CanvasController.Instance.SetPlayerScript(this);
             
             OnReachUpgradeChange();
