@@ -7,6 +7,7 @@ using Entities.Mobs;
 using Entities;
 using UnityEngine.AddressableAssets;
 using Newtonsoft.Json;
+using World.Cave.Registry;
 using Random = UnityEngine.Random;
 
 namespace WorldModule.Caves {
@@ -19,15 +20,20 @@ namespace WorldModule.Caves {
     public class CaveEntityDistributor : ICaveDistributor
     {
         private List<EntityDistribution> entities;
+        private CaveElements caveElements;
+        private CaveObject caveObject;
 
-        public CaveEntityDistributor(List<EntityDistribution> distributions)
+        public CaveEntityDistributor(List<EntityDistribution> distributions, CaveObject caveObject, CaveElements caveElements)
         {
             this.entities = distributions;
+            this.caveElements = caveElements;
+            this.caveObject = caveObject;
         }
 
         public void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner)
         {
             EntityRegistry entityRegistry = EntityRegistry.Instance;
+            CaveTileCollection caveTileCollection = CaveRegistry.Instance.GetCaveTileCollection(caveObject.GetId());
             foreach (EntityDistribution entityDistribution in entities)
             {
                 MobEntity mobEntityPrefab = entityRegistry.GetEntityPrefab(entityDistribution.entityId);
@@ -37,12 +43,12 @@ namespace WorldModule.Caves {
                     Debug.LogWarning("Entity " + entityDistribution.entityId + " is null");
                     error = true;
                 }
-                SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
+                
                 if (error)
                 {
                     continue;
                 }
-                
+                SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
                 Vector2Int spriteSize = spriteRenderer
                     ? Global.GetSpriteSize(spriteRenderer.sprite)
                     : Vector2Int.one;
@@ -69,14 +75,7 @@ namespace WorldModule.Caves {
                         }
                         else
                         {
-                            componentDataDict = new Dictionary<SerializableMobComponentType, string>();
-                            foreach (ISerializableMobComponent component in components)
-                            {
-                                if (component is ICaveInitiazableMobComponent initializableSerializableMobComponent)
-                                {
-                                    componentDataDict[component.ComponentType] = initializableSerializableMobComponent.Initialize();
-                                }
-                            }
+                            componentDataDict = GetInitializeCaveData(components);
                         }
 
                         SerializedMobEntityData mobEntityData = new SerializedMobEntityData(entityDistribution.entityId, mobEntityPrefab.Health, componentDataDict);
@@ -96,6 +95,20 @@ namespace WorldModule.Caves {
                 
             }
             Debug.Log($"Spawned {worldData.entityData.Count} Entities inside Cave");
+
+            return;
+            Dictionary<SerializableMobComponentType, string> GetInitializeCaveData(ISerializableMobComponent[] components)
+            {
+                var componentDataDict = new Dictionary<SerializableMobComponentType, string>();
+                foreach (ISerializableMobComponent component in components)
+                {
+                    if (component is ICaveInitiazableMobComponent initializableSerializableMobComponent)
+                    {
+                        componentDataDict[component.ComponentType] = initializableSerializableMobComponent.Initialize(caveTileCollection);
+                    }
+                }
+                return componentDataDict;
+            }
         }
         
 

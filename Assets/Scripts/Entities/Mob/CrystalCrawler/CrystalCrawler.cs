@@ -3,6 +3,7 @@ using Item.Transmutation.Items;
 using Items;
 using Items.Transmutable;
 using UnityEngine;
+using World.Cave.Registry;
 
 namespace Entities.Mob.CrystalCrawler
 {
@@ -32,9 +33,11 @@ namespace Entities.Mob.CrystalCrawler
             mEyeRenderer.color = invertedColor;
         }
 
-        public string Initialize()
+        public string Initialize(CaveTileCollection caveTileCollection)
         {
-            return "iron_ore";
+            string randomOre = caveTileCollection.GetRandomOreId();
+            Debug.Log(randomOre);
+            return randomOre;
         }
     }
 }

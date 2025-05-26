@@ -127,7 +127,7 @@ namespace WorldModule.Caves {
         
     }
     
-    public struct CaveElements {
+    public class CaveElements {
         public GenerationModel GenerationModel;
         public AreaTileDistributor TileDistributor;
         public List<AudioClip> Songs;

@@ -86,7 +86,7 @@ namespace WorldModule.Caves {
                 }
                 entityRegistry.ClearCache(ids);
                 yield return entityRegistry.LoadEntitiesIntoMemory(ids);
-                caveElements.CaveEntityDistributor = new CaveEntityDistributor(entityDistributions);;
+                caveElements.CaveEntityDistributor = new CaveEntityDistributor(entityDistributions,caveObject,caveElements);
             } else
             {
                 entityRegistry.ClearCache();

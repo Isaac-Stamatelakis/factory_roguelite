@@ -7,6 +7,7 @@ using Entities;
 using Entities.Mob;
 using Items;
 using Robot.Tool.Instances.Gun;
+using World.Cave.Registry;
 
 namespace Entities.Mobs {
     public enum MobSpawnCondition
@@ -37,7 +38,7 @@ namespace Entities.Mobs {
 
     public interface ICaveInitiazableMobComponent : ISerializableMobComponent
     {
-        public string Initialize();
+        public string Initialize(CaveTileCollection caveTileCollection);
     }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
