@@ -54,6 +54,7 @@ namespace PlayerModule.KeyPress {
             miscKeys.ConduitPortView.performed += _ => ChangePortModePress();
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
+            miscKeys.ShowChat.performed += _ => TextChatUI.Instance.ShowTextField();
             
             var toolBindings = playerScript.InputActions.ToolBindings;
             toolBindings.AutoSelect.performed += AutoSelect;

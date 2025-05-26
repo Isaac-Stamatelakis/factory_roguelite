@@ -773,6 +773,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShowChat"",
+                    ""type"": ""Button"",
+                    ""id"": ""9a8b7d6d-0de4-4199-b40b-5a81be5e20c3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -883,6 +892,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""InteractTools"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fdf62ed0-7622-4930-9b72-6187d66288f4"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShowChat"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1224,6 +1244,158 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""TextChatKeys"",
+            ""id"": ""81cdbe75-84a4-4fb2-96f8-eb3ff77a1ecb"",
+            ""actions"": [
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""43843b7c-4316-4678-af8a-1c28cbe48546"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Fill"",
+                    ""type"": ""Button"",
+                    ""id"": ""e928feb6-7c93-4d3d-85b9-978279721b49"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Navigate"",
+                    ""type"": ""Value"",
+                    ""id"": ""d0387e8b-9a8e-463c-8b4f-67a70150669d"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Scroll"",
+                    ""type"": ""Value"",
+                    ""id"": ""d1dfb356-d423-4595-a56a-27f067722747"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""SendMessage"",
+                    ""type"": ""Button"",
+                    ""id"": ""f1e966dc-5d0d-4ed3-abe6-1a138ecb7050"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""7251c460-ed25-461a-8b43-58ac8b803183"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ea2fd025-3bc2-4e4e-8ebf-74f8e5b00e9f"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""7075d6ce-0457-4319-bcf5-7f29b392f844"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""5f0e072e-e833-4b4d-8ca8-209f6fd1ea3a"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""cac6eb02-0b29-4183-b2a8-c3d0b95d66ba"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""37f44bb5-fabb-450b-965c-ed0fa9bd748a"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""fe3e230d-e4bb-4f6e-bee6-353f0e78620d"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""d284b58b-c75a-4cd7-8b8d-20d38594e42d"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cdc055aa-6941-442a-91ed-f78554eadd20"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SendMessage"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1272,6 +1444,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MiscKeys_ConduitPortView = m_MiscKeys.FindAction("ConduitPortView", throwIfNotFound: true);
         m_MiscKeys_ConduitView = m_MiscKeys.FindAction("ConduitView", throwIfNotFound: true);
         m_MiscKeys_InteractTools = m_MiscKeys.FindAction("InteractTools", throwIfNotFound: true);
+        m_MiscKeys_ShowChat = m_MiscKeys.FindAction("ShowChat", throwIfNotFound: true);
         // ToolBindings
         m_ToolBindings = asset.FindActionMap("ToolBindings", throwIfNotFound: true);
         m_ToolBindings_SwitchMode = m_ToolBindings.FindAction("SwitchMode", throwIfNotFound: true);
@@ -1286,6 +1459,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_NodeNetworkUI_Deselect = m_NodeNetworkUI.FindAction("Deselect", throwIfNotFound: true);
         m_NodeNetworkUI_Recenter = m_NodeNetworkUI.FindAction("Recenter", throwIfNotFound: true);
         m_NodeNetworkUI_Create = m_NodeNetworkUI.FindAction("Create", throwIfNotFound: true);
+        // TextChatKeys
+        m_TextChatKeys = asset.FindActionMap("TextChatKeys", throwIfNotFound: true);
+        m_TextChatKeys_Exit = m_TextChatKeys.FindAction("Exit", throwIfNotFound: true);
+        m_TextChatKeys_Fill = m_TextChatKeys.FindAction("Fill", throwIfNotFound: true);
+        m_TextChatKeys_Navigate = m_TextChatKeys.FindAction("Navigate", throwIfNotFound: true);
+        m_TextChatKeys_Scroll = m_TextChatKeys.FindAction("Scroll", throwIfNotFound: true);
+        m_TextChatKeys_SendMessage = m_TextChatKeys.FindAction("SendMessage", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1759,6 +1939,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_MiscKeys_ConduitPortView;
     private readonly InputAction m_MiscKeys_ConduitView;
     private readonly InputAction m_MiscKeys_InteractTools;
+    private readonly InputAction m_MiscKeys_ShowChat;
     public struct MiscKeysActions
     {
         private @InputActions m_Wrapper;
@@ -1771,6 +1952,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @ConduitPortView => m_Wrapper.m_MiscKeys_ConduitPortView;
         public InputAction @ConduitView => m_Wrapper.m_MiscKeys_ConduitView;
         public InputAction @InteractTools => m_Wrapper.m_MiscKeys_InteractTools;
+        public InputAction @ShowChat => m_Wrapper.m_MiscKeys_ShowChat;
         public InputActionMap Get() { return m_Wrapper.m_MiscKeys; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1804,6 +1986,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @InteractTools.started += instance.OnInteractTools;
             @InteractTools.performed += instance.OnInteractTools;
             @InteractTools.canceled += instance.OnInteractTools;
+            @ShowChat.started += instance.OnShowChat;
+            @ShowChat.performed += instance.OnShowChat;
+            @ShowChat.canceled += instance.OnShowChat;
         }
 
         private void UnregisterCallbacks(IMiscKeysActions instance)
@@ -1832,6 +2017,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @InteractTools.started -= instance.OnInteractTools;
             @InteractTools.performed -= instance.OnInteractTools;
             @InteractTools.canceled -= instance.OnInteractTools;
+            @ShowChat.started -= instance.OnShowChat;
+            @ShowChat.performed -= instance.OnShowChat;
+            @ShowChat.canceled -= instance.OnShowChat;
         }
 
         public void RemoveCallbacks(IMiscKeysActions instance)
@@ -2005,6 +2193,84 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public NodeNetworkUIActions @NodeNetworkUI => new NodeNetworkUIActions(this);
+
+    // TextChatKeys
+    private readonly InputActionMap m_TextChatKeys;
+    private List<ITextChatKeysActions> m_TextChatKeysActionsCallbackInterfaces = new List<ITextChatKeysActions>();
+    private readonly InputAction m_TextChatKeys_Exit;
+    private readonly InputAction m_TextChatKeys_Fill;
+    private readonly InputAction m_TextChatKeys_Navigate;
+    private readonly InputAction m_TextChatKeys_Scroll;
+    private readonly InputAction m_TextChatKeys_SendMessage;
+    public struct TextChatKeysActions
+    {
+        private @InputActions m_Wrapper;
+        public TextChatKeysActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Exit => m_Wrapper.m_TextChatKeys_Exit;
+        public InputAction @Fill => m_Wrapper.m_TextChatKeys_Fill;
+        public InputAction @Navigate => m_Wrapper.m_TextChatKeys_Navigate;
+        public InputAction @Scroll => m_Wrapper.m_TextChatKeys_Scroll;
+        public InputAction @SendMessage => m_Wrapper.m_TextChatKeys_SendMessage;
+        public InputActionMap Get() { return m_Wrapper.m_TextChatKeys; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(TextChatKeysActions set) { return set.Get(); }
+        public void AddCallbacks(ITextChatKeysActions instance)
+        {
+            if (instance == null || m_Wrapper.m_TextChatKeysActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_TextChatKeysActionsCallbackInterfaces.Add(instance);
+            @Exit.started += instance.OnExit;
+            @Exit.performed += instance.OnExit;
+            @Exit.canceled += instance.OnExit;
+            @Fill.started += instance.OnFill;
+            @Fill.performed += instance.OnFill;
+            @Fill.canceled += instance.OnFill;
+            @Navigate.started += instance.OnNavigate;
+            @Navigate.performed += instance.OnNavigate;
+            @Navigate.canceled += instance.OnNavigate;
+            @Scroll.started += instance.OnScroll;
+            @Scroll.performed += instance.OnScroll;
+            @Scroll.canceled += instance.OnScroll;
+            @SendMessage.started += instance.OnSendMessage;
+            @SendMessage.performed += instance.OnSendMessage;
+            @SendMessage.canceled += instance.OnSendMessage;
+        }
+
+        private void UnregisterCallbacks(ITextChatKeysActions instance)
+        {
+            @Exit.started -= instance.OnExit;
+            @Exit.performed -= instance.OnExit;
+            @Exit.canceled -= instance.OnExit;
+            @Fill.started -= instance.OnFill;
+            @Fill.performed -= instance.OnFill;
+            @Fill.canceled -= instance.OnFill;
+            @Navigate.started -= instance.OnNavigate;
+            @Navigate.performed -= instance.OnNavigate;
+            @Navigate.canceled -= instance.OnNavigate;
+            @Scroll.started -= instance.OnScroll;
+            @Scroll.performed -= instance.OnScroll;
+            @Scroll.canceled -= instance.OnScroll;
+            @SendMessage.started -= instance.OnSendMessage;
+            @SendMessage.performed -= instance.OnSendMessage;
+            @SendMessage.canceled -= instance.OnSendMessage;
+        }
+
+        public void RemoveCallbacks(ITextChatKeysActions instance)
+        {
+            if (m_Wrapper.m_TextChatKeysActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(ITextChatKeysActions instance)
+        {
+            foreach (var item in m_Wrapper.m_TextChatKeysActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_TextChatKeysActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public TextChatKeysActions @TextChatKeys => new TextChatKeysActions(this);
     public interface IStandardMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
@@ -2055,6 +2321,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnConduitPortView(InputAction.CallbackContext context);
         void OnConduitView(InputAction.CallbackContext context);
         void OnInteractTools(InputAction.CallbackContext context);
+        void OnShowChat(InputAction.CallbackContext context);
     }
     public interface IToolBindingsActions
     {
@@ -2071,5 +2338,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnDeselect(InputAction.CallbackContext context);
         void OnRecenter(InputAction.CallbackContext context);
         void OnCreate(InputAction.CallbackContext context);
+    }
+    public interface ITextChatKeysActions
+    {
+        void OnExit(InputAction.CallbackContext context);
+        void OnFill(InputAction.CallbackContext context);
+        void OnNavigate(InputAction.CallbackContext context);
+        void OnScroll(InputAction.CallbackContext context);
+        void OnSendMessage(InputAction.CallbackContext context);
     }
 }
