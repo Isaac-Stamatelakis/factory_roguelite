@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Player.Controls;
+using Player.Controls.UI;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -75,13 +76,14 @@ namespace Player.Controls
         }
 
 
-        public static InputAction GetInputAction(PlayerControl playerControl, InputActions inputActions)
+        public static PlayerControlBinding GetPlayerControlBinding(PlayerControl playerControl, InputActions inputActions)
         {
             switch (playerControl)
             {
                 case PlayerControl.Jump:
-                    return inputActions.StandardMovement.Jump;
+                    return new PlayerControlBinding(inputActions.StandardMovement.Jump, 0);
                 case PlayerControl.MoveLeft:
+                    return new PlayerControlBinding(inputActions.StandardMovement.Move, 0);
                     return inputActions.StandardMovement.Move;
                 case PlayerControl.MoveRight:
                     break;
@@ -134,10 +136,22 @@ namespace Player.Controls
             return null;
         }
         
-        public static string FormatKeyText(PlayerControl key)
+        /// <summary>
+        /// Returns a human readable formatted string of a given player control
+        /// </summary>
+        /// <example>PlayerControl.AutoSelect => "Auto Select"</example>
+        public static string FormatInputText(PlayerControl key)
         {
             string keyJson = GetControlValue(key);
-            InputControlPath.ToHumanReadableString(keyJson, InputControlPath.HumanReadableStringOptions.OmitDevice);
+            return InputControlPath.ToHumanReadableString(keyJson, InputControlPath.HumanReadableStringOptions.OmitDevice);
+        }
+
+        /// <summary>
+        /// Returns a human readable formatted string of the input of a player control
+        /// </summary>
+        /// <example>PlayerControl.AutoSelect => "<Keyboard>\w" => "W"</example>
+        public static string FormatControlText(PlayerControl key)
+        {
             return GlobalHelper.AddSpaces(key.ToString());
         }
         

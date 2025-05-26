@@ -17,18 +17,19 @@ namespace Player.Controls.UI
         public int listenUpdates;
         private List<KeyCode> cachedKeys;
         private ControlSettingUI controlSettingUI;
-        private InputAction inputAction;
+        private PlayerControlBinding playerControlBinding;
         private InputActionRebindingExtensions.RebindingOperation rebindOperation;
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
                 button.interactable = false;
-                text.text = "Press any key...";
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text  = "Press any key...";
                 rebindOperation?.Dispose();
 
                 // Create new rebind operation
-                rebindOperation = inputAction.PerformInteractiveRebinding()
+                rebindOperation = playerControlBinding.InputAction.PerformInteractiveRebinding()
+                    .WithTargetBinding(playerControlBinding.BindingIndex)
                     .WithControlsExcluding("<Mouse>/position")
                     .WithControlsExcluding("<Mouse>/delta")
                     .WithCancelingThrough("<Keyboard>/escape")
@@ -49,10 +50,15 @@ namespace Player.Controls.UI
         private void UpdateBindingDisplay(bool operationSuccess)
         {
             button.interactable = true;
-            if (!operationSuccess) return;
-            string bindingsJson = inputAction.SaveBindingOverridesAsJson();
-            ControlUtils.SetKeyValue(key, bindingsJson);
-            text.text = ControlUtils.FormatKeyText(key);
+
+            if (!operationSuccess)
+            {
+                button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
+                return;
+            }
+            string path = playerControlBinding.InputAction.bindings[playerControlBinding.BindingIndex].effectivePath;
+            ControlUtils.SetKeyValue(key, path);
+            button.transform.GetComponentInChildren<TextMeshProUGUI>().text = ControlUtils.FormatInputText(key);
         }
 
         public void HighlightConflictState(bool conflict)
@@ -62,15 +68,28 @@ namespace Player.Controls.UI
 
         public void Display()
         {
-            text.text = ControlUtils.FormatKeyText(key);
-            string formatString = ControlUtils.FormatKeyText(key);
+            text.text = ControlUtils.FormatControlText(key);
+            string formatString = ControlUtils.FormatInputText(key);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)
+        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI, PlayerControlBinding playerControlBinding)
         {
             this.controlSettingUI = controlSettingUI;
             this.key = key;
+            this.playerControlBinding = playerControlBinding;
             Display();
+        }
+    }
+
+    public struct PlayerControlBinding
+    {
+        public InputAction InputAction;
+        public int BindingIndex;
+
+        public PlayerControlBinding(InputAction inputAction, int bindingIndex)
+        {
+            InputAction = inputAction;
+            BindingIndex = bindingIndex;
         }
     }
 }

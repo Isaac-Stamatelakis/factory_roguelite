@@ -54,7 +54,7 @@ namespace UI.Chat {
             string title = "<color=purple>HAPPY Go Mine</color>";
             string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback. Thanks!";
             SendAndRecordMessage(message);
-            string questBookKey = ControlUtils.FormatKeyText(PlayerControl.OpenQuestBook);
+            string questBookKey = ControlUtils.FormatInputText(PlayerControl.OpenQuestBook);
             SendAndRecordMessage($"Press [<b>{questBookKey}</b>] to open your quest book!");
             
             CanvasController canvasController = CanvasController.Instance;

@@ -34,7 +34,15 @@ namespace Player.Controls.UI
         
         private void Display()
         {
+            PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();
+            InputActions inputActions = playerScript.InputActions;
             GlobalHelper.DeleteAllChildren(listTransform);
+            PlayerControl[] playerControls = Enum.GetValues(typeof(PlayerControl)) as PlayerControl[];
+            foreach (PlayerControl playerControl in playerControls)
+            {
+                ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
+                controlUIElement.Initalize(playerControl,this,ControlUtils.GetPlayerControlBinding(playerControl));
+            }
             /*
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
@@ -44,9 +52,7 @@ namespace Player.Controls.UI
                 List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
                 foreach (PlayerControl binding in bindings)
                 {
-                    ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
-                    controlUIElement.Initalize(binding,this);
-                    elementUIDict[binding] = controlUIElement;
+                    
                 }
             }
             */
