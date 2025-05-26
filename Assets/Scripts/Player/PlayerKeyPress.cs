@@ -179,7 +179,6 @@ namespace PlayerModule.KeyPress {
 
         void AutoSelect(InputAction.CallbackContext context)
         {
-            Debug.Log("A");
             bool autoSelect = playerScript.PlayerMouse.ToggleAutoSelect();
             playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Display(autoSelect);
         }

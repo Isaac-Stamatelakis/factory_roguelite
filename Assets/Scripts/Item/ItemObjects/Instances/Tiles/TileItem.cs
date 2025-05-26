@@ -87,8 +87,8 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem
             Tile tile => tile.sprite,
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
             RuleTile ruleTile => ruleTile.m_DefaultSprite,
-            IStateTileSingle stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
-            _ => null
+            IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
+            _ => throw new ArgumentOutOfRangeException(nameof(tileBase), tileBase, null)
         };
     }
 

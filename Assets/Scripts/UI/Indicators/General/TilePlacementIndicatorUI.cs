@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Tiles;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 namespace UI.Indicators.General
@@ -107,7 +108,7 @@ namespace UI.Indicators.General
         public void OnPointerClick(PointerEventData eventData)
         {
             PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
-            int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
+            int dir = Keyboard.current.ctrlKey.isPressed ? -1 : 1;
             
             switch (eventData.button)
             {
