@@ -37,11 +37,17 @@ public class TransmutableItemGenerator : EditorWindow
     private const string MISC_PATH = "Misc";
     
     Tile blockOutline;
+    private TransmutableItemState resetState = TransmutableItemState.Block;
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
         TransmutableItemGenerator window = (TransmutableItemGenerator)EditorWindow.GetWindow(typeof(TransmutableItemGenerator));
         window.titleContent = new GUIContent("Material Item Generator");
+    }
+
+    private void OnEnable()
+    {
+        blockOutline = AssetDatabase.LoadAssetAtPath<Tile>("Assets/Objects/Tiles/PackedTiles/Outline/Square_Outline/Square_Outline.asset");
     }
 
     void OnGUI()
@@ -70,9 +76,15 @@ public class TransmutableItemGenerator : EditorWindow
         {
             UpdateOres(true);
         }
-
-        blockOutline = AssetDatabase.LoadAssetAtPath<Tile>("Assets/Objects/Tiles/PackedTiles/Outline/Square_Outline/Square_Outline.asset");
-
+        
+        GUI.enabled = false;
+        GUILayout.TextArea("For all existing materials, deletes and re-generates items of ResetState.");
+        GUI.enabled = true;
+        resetState = (TransmutableItemState)EditorGUILayout.EnumPopup("State to Rebuild", resetState);
+        if (GUILayout.Button("Re-Build State"))
+        {
+            ResetState(resetState);
+        }
     }
     
     protected void UpdateExisting()
@@ -91,7 +103,54 @@ public class TransmutableItemGenerator : EditorWindow
         AssetDatabase.Refresh();
         Debug.Log($"Updated Materials in {stopwatch.Elapsed.TotalSeconds:F2}s");
     }
-    
+
+    protected void ResetState(TransmutableItemState state)
+    {
+        string[] guids = AssetDatabase.FindAssets("", new[] { MATERIAL_PATH });
+        Debug.Log("Updating Transmutable Materials");
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            Object asset = AssetDatabase.LoadAssetAtPath<Object>(path);
+            if (asset is not TransmutableItemMaterial transmutableItemMaterial) continue;
+            ResetMaterial(transmutableItemMaterial);
+
+        }
+        AssetDatabase.Refresh();
+        Debug.Log($"Re-built '{state}' in {stopwatch.Elapsed.TotalSeconds:F2}s");
+
+        return;
+
+        void ResetMaterial(TransmutableItemMaterial material)
+        {
+            string materialItemsPath = TryCreateMaterialFolder(material);
+            var transmutableItemDict = new Dictionary<TransmutableItemState, ITransmutableItem>();
+            var transmutableItemStates = Enum.GetValues(typeof(TransmutableItemState));
+            
+            string itemName = TransmutableItemUtils.GetStateName(material,state);
+            string savePath = GetStateAssetPath(materialItemsPath, itemName);
+            
+            foreach (TransmutableItemState transmutableItemState in transmutableItemStates)
+            {
+                transmutableItemDict[transmutableItemState] = null;
+            }
+            
+            ItemObject itemObject = AssetDatabase.LoadAssetAtPath<ItemObject>(savePath);
+            if (itemObject is ITransmutableItem transmutableItem)
+            {
+                transmutableItemDict[state] = transmutableItem;
+                HashSet<TransmutableItemState> statesToRemove = new HashSet<TransmutableItemState>
+                {
+                    state
+                };
+                RemoveStates(transmutableItemDict,statesToRemove);
+            }
+            transmutableItemDict.Remove(state);
+            CreateNew(material, materialItemsPath, transmutableItemDict, out _);
+        }
+    }
     private static string GetMaterialItemPath(TransmutableItemMaterial material)
     {
         string assetPath = AssetDatabase.GetAssetPath(material);
@@ -104,24 +163,13 @@ public class TransmutableItemGenerator : EditorWindow
     }
     private void GenerateMaterialItems(TransmutableItemMaterial material)
     {
-        string transmutableItemFolder = GetMaterialItemPath(material);
         TransmutableMaterialOptions options = material.MaterialOptions;
         if (!options)
         {
             Debug.LogWarning($"Material '{material}' options not set.");
             return;
         }
-        string instancePath = Path.Combine(transmutableItemFolder, GEN_FOLDER);
-        if (!Directory.Exists(instancePath))
-        {
-            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_FOLDER);
-        }
-        string materialItemsPath = Path.Combine(instancePath, material.name);
-        if (!Directory.Exists(materialItemsPath))
-        {
-            Debug.Log($"Created folder for {material.name}");
-            AssetDatabase.CreateFolder(instancePath, material.name);
-        }
+        string materialItemsPath = TryCreateMaterialFolder(material);
         
         string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
         
@@ -140,8 +188,25 @@ public class TransmutableItemGenerator : EditorWindow
         }
         
         CreateNew(material, materialItemsPath, stateItemDict, out var materialStates);
-        RemovedUnusedStates(stateItemDict, materialStates);
+        RemoveStates(stateItemDict, materialStates);
 
+    }
+
+    string TryCreateMaterialFolder(TransmutableItemMaterial material)
+    {
+        string transmutableItemFolder = GetMaterialItemPath(material);
+        string instancePath = Path.Combine(transmutableItemFolder, GEN_FOLDER);
+        if (!Directory.Exists(instancePath))
+        {
+            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_FOLDER);
+        }
+        string materialItemsPath = Path.Combine(instancePath, material.name);
+        if (!Directory.Exists(materialItemsPath))
+        {
+            Debug.Log($"Created folder for {material.name}");
+            AssetDatabase.CreateFolder(instancePath, material.name);
+        }
+        return materialItemsPath;
     }
 
     private void CreateNew(TransmutableItemMaterial material, string materialItemsPath, Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, out HashSet<TransmutableItemState> materialStates)
@@ -240,6 +305,7 @@ public class TransmutableItemGenerator : EditorWindow
             fluidTileItem.fluidTile = fluidStateOptions.tile;
             fluidTileItem.setMaterial(material);
             fluidTileItem.setState(state);
+            fluidTileItem.GameStageObject = material.gameStageObject;
             AssetDatabase.CreateAsset(fluidTileItem,  savePath);
             FluidOptions fluidOptions = new FluidOptions();
             fluidOptions.MaterialColorOverride = material;
@@ -268,11 +334,11 @@ public class TransmutableItemGenerator : EditorWindow
             AssetDatabase.CreateFolder(materialInstancePath, MISC_PATH);
         }
     }
-    private void RemovedUnusedStates(Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, HashSet<TransmutableItemState> materialStates)
+    private void RemoveStates(Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, HashSet<TransmutableItemState> materialStates)
     {
         foreach (var (state, transmutableItemObject) in stateItemDict)
         {
-            if (materialStates.Contains(state)) continue;
+            if (materialStates.Contains(state) || transmutableItemObject == null) continue;
             ItemObject itemObject = (ItemObject)transmutableItemObject;
             Debug.Log($"Removed '{itemObject.name}'");
             AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(itemObject));
