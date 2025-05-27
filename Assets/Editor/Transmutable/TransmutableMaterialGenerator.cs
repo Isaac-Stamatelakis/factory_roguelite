@@ -114,7 +114,7 @@ public class TransmutableItemGenerator : EditorWindow
         string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
         
        
-        var stateItemDict = new Dictionary<TransmutableItemState, TransmutableItemObject>();
+        var stateItemDict = new Dictionary<TransmutableItemState, ITransmutableItem>();
         
         foreach (string guid in guids)
         {
@@ -133,10 +133,11 @@ public class TransmutableItemGenerator : EditorWindow
 
     }
 
-    private void CreateNew(TransmutableItemMaterial material, string materialItemsPath, Dictionary<TransmutableItemState, TransmutableItemObject> stateItemDict, out HashSet<TransmutableItemState> materialStates)
+    private void CreateNew(TransmutableItemMaterial material, string materialItemsPath, Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, out HashSet<TransmutableItemState> materialStates)
     {
         materialStates = new HashSet<TransmutableItemState>();
         List<AssetLabel> labels = new List<AssetLabel> { AssetLabel.Item };
+        
         foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
         {
             TransmutableItemState state = (TransmutableItemState)stateOptions.state;
@@ -159,15 +160,47 @@ public class TransmutableItemGenerator : EditorWindow
             EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[state] = transmutableItemObject;
         }
+        
+        foreach (TransmutableTileStateOptions tileStateOptions in material.MaterialOptions.TileStates)
+        {
+            TransmutableItemState state = (TransmutableItemState)tileStateOptions.state;
+            materialStates.Add(state);
+            if (stateItemDict.ContainsKey(state)) continue;
+            
+            string id = TransmutableItemUtils.GetStateId(material, state);
+            string itemName = TransmutableItemUtils.GetStateName(material,state);
+            string savePath = GetStateAssetPath(materialItemsPath, itemName);
+            
+            TransmutableTileItem transmutableTileItem = CreateInstance<TransmutableTileItem>();
+            transmutableTileItem.name = itemName;
+            transmutableTileItem.id = id;
+            transmutableTileItem.setMaterial(material);
+            transmutableTileItem.setState(state);
+            transmutableTileItem.tile = tileStateOptions.tile;
+            TileOptions tileOptions = new TileOptions();
+            tileOptions.TransmutableColorOverride = material;
+            int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
+            tileOptions.hardness = 8 * (tierInt + 1);
+            transmutableTileItem.tileOptions = tileOptions;
+            AssetDatabase.CreateAsset(transmutableTileItem,  savePath);
+            
+            Debug.Log($"Created '{itemName}'");
+            string guid = AssetDatabase.AssetPathToGUID(savePath);
+            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            stateItemDict[state] = transmutableTileItem;
+        }
+        return;
+
     }
 
-    private void RemovedUnusedStates(Dictionary<TransmutableItemState, TransmutableItemObject> stateItemDict, HashSet<TransmutableItemState> materialStates)
+    private void RemovedUnusedStates(Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, HashSet<TransmutableItemState> materialStates)
     {
         foreach (var (state, transmutableItemObject) in stateItemDict)
         {
             if (materialStates.Contains(state)) continue;
-            Debug.Log($"Removed '{transmutableItemObject.name}'");
-            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(transmutableItemObject));
+            ItemObject itemObject = (ItemObject)transmutableItemObject;
+            Debug.Log($"Removed '{itemObject.name}'");
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(itemObject));
         }
     }
     
