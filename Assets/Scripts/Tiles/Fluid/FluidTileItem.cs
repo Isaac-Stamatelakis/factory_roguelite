@@ -53,8 +53,8 @@ namespace Items {
     }
     [System.Serializable]
     public class FluidOptions {
-        [SerializeField] private int viscosity;
-        [SerializeField] private bool invertedGravity;
+        [SerializeField] public int viscosity;
+        [SerializeField] public bool invertedGravity;
         public bool Lit = false;
         [FormerlySerializedAs("SpeedSlowFactory")] [Range(0,1)] public float SpeedSlowFactor = 0.5f;
         [Range(0,10)] public float DamagePerSecond = 0f;
@@ -64,10 +64,6 @@ namespace Items {
         public TileColorOptionObject Color;
         public TransmutableItemMaterial MaterialColorOverride;
         public float Opacity = 1f;
-        public FluidOptions(int viscosity, bool invertedGravity) {
-            this.viscosity = viscosity;
-            this.invertedGravity = invertedGravity;
-        }
 
         public Color GetFluidColor()
         {

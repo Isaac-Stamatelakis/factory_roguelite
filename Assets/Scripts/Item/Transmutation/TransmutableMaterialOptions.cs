@@ -14,7 +14,7 @@ namespace Items.Transmutable
         public TransmutableItemState BaseState = TransmutableItemState.Ingot;
         public List<TransmutableStateOptions> States;
         public List<TransmutableTileStateOptions> TileStates;
-        public List<TransmutableFluidItemState> FluidStates;
+        public List<TransmutableFluidTileOptions> FluidStates;
     }
     
     [System.Serializable]
@@ -33,9 +33,12 @@ namespace Items.Transmutable
     [System.Serializable]
     public class TransmutableFluidTileOptions
     {
-        public TransmutableTileItemState state;
+        public TransmutableFluidItemState state;
         public FluidTile tile;
-        public float opacity;
+        public float opacity = 1;
+        public float damage;
+        public int viscosity = 5;
+        public bool lit;
     }
 }
 

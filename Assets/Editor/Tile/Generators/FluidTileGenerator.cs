@@ -61,10 +61,9 @@ public class FluidTileGeneratorWindow : EditorWindow {
     {
         ItemEditorFactory.CreateDirectory(tileName);
         FluidTileItem fluidTileItem = ScriptableObject.CreateInstance<FluidTileItem>();
-        FluidOptions fluidOptions = new FluidOptions(
-            viscosity: viscosity,
-            invertedGravity: invertedGravity
-        );
+        FluidOptions fluidOptions = new FluidOptions();
+        fluidOptions.viscosity = viscosity;
+        fluidOptions.invertedGravity = invertedGravity;
         
         FluidTile fluidTile = ScriptableObject.CreateInstance<FluidTile>();
         fluidTile.name = "T~" + tileName;

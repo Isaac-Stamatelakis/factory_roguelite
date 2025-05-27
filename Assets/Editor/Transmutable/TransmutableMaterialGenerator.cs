@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Item.GameStage;
 using Item.Slot;
 using Item.Transmutation;
+using Item.Transmutation.Items;
 using NUnit.Framework;
 using Tiles;
 using Tiles.Options.Overlay;
@@ -197,18 +198,20 @@ public class TransmutableItemGenerator : EditorWindow
             {
                 TryCreateMiscFolder(materialItemsPath, material);
                 string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
+                
+                TileWrapperObject tileWrapperObject = ScriptableObject.CreateInstance<TileWrapperObject>();
+                tileWrapperObject.TileBase = tileStateOptions.tile;
+                tileWrapperObject.name = itemName +"_Overlay_Tile_Wrapper";
+                string wrapperPath = Path.Combine(miscPath, tileWrapperObject.name + ".asset");
+                AssetDatabase.CreateAsset(tileWrapperObject, wrapperPath);
+                
                 TransmutableTileOverlay transmutableTileOverlay = ScriptableObject.CreateInstance<TransmutableTileOverlay>();
                 transmutableTileOverlay.ItemMaterial = material;
                 transmutableTileOverlay.name = itemName + "_Overlay";
-                
-                TileWrapperObject tileWrapperObject = ScriptableObject.CreateInstance<TileWrapperObject>();
-                transmutableTileOverlay.OverlayWrapper = tileWrapperObject;
-                tileWrapperObject.TileBase = tileStateOptions.tile;
-                tileWrapperObject.name = itemName +"_Overlay_Tile_Wrapper";
                 tileOptions.Overlay = transmutableTileOverlay;
-                
+                transmutableTileOverlay.OverlayWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(wrapperPath);
                 AssetDatabase.CreateAsset(transmutableTileOverlay,  Path.Combine(miscPath,transmutableTileOverlay.name + ".asset"));
-                AssetDatabase.CreateAsset(tileWrapperObject,   Path.Combine(miscPath,tileWrapperObject.name + ".asset"));
+                
             }
             int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
             tileOptions.hardness = 8 * (tierInt + 1);
@@ -219,6 +222,38 @@ public class TransmutableItemGenerator : EditorWindow
             string guid = AssetDatabase.AssetPathToGUID(savePath);
             EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[state] = transmutableTileItem;
+        }
+        
+        foreach (TransmutableFluidTileOptions fluidStateOptions in material.MaterialOptions.FluidStates)
+        {
+            TransmutableItemState state = (TransmutableItemState)fluidStateOptions.state;
+            materialStates.Add(state);
+            if (stateItemDict.ContainsKey(state)) continue;
+            
+            string id = TransmutableItemUtils.GetStateId(material, state);
+            string itemName = TransmutableItemUtils.GetStateName(material,state);
+            string savePath = GetStateAssetPath(materialItemsPath, itemName);
+            
+            TransmutableFluidTileItemObject fluidTileItem = CreateInstance<TransmutableFluidTileItemObject>();
+            fluidTileItem.name = itemName;
+            fluidTileItem.id = id;
+            fluidTileItem.fluidTile = fluidStateOptions.tile;
+            fluidTileItem.setMaterial(material);
+            fluidTileItem.setState(state);
+            AssetDatabase.CreateAsset(fluidTileItem,  savePath);
+            FluidOptions fluidOptions = new FluidOptions();
+            fluidOptions.MaterialColorOverride = material;
+            fluidOptions.viscosity = fluidStateOptions.viscosity;
+            fluidOptions.Opacity = fluidStateOptions.opacity;
+            fluidOptions.DamagePerSecond = fluidStateOptions.damage;
+            fluidOptions.Lit =  fluidStateOptions.lit;
+            fluidOptions.invertedGravity = fluidStateOptions.state == TransmutableFluidItemState.Gas;
+            fluidTileItem.fluidOptions = fluidOptions;
+            
+            Debug.Log($"Created '{itemName}'");
+            string guid = AssetDatabase.AssetPathToGUID(savePath);
+            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            stateItemDict[state] = fluidTileItem;
         }
         return;
 
