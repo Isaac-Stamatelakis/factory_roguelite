@@ -45,9 +45,9 @@ namespace UI.ToolTip {
         {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             string text = itemSlot.itemObject.name;
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            if (itemSlot.itemObject is ITransmutableItem transmutableItem)
             {
-                TransmutableItemMaterial material = transmutableItemObject.getMaterial();
+                TransmutableItemMaterial material = transmutableItem.getMaterial();
                 text += $"\n[<b>{TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula)}</b>]";
             }
 

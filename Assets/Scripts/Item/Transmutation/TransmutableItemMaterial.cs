@@ -23,6 +23,5 @@ namespace Items.Transmutable {
         public Material WorldShaderMaterial;
         
         public TransmutableMaterialOptions MaterialOptions;
-        
     }
 }

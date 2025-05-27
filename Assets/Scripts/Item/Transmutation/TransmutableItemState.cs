@@ -23,7 +23,8 @@ namespace Item.Transmutation
         Gem = 17,
         Mediocre_Gem = 18,
         Poor_Gem = 19,
-        Ore = 20
+        Ore = 20,
+        Brick = 21,
     }
 
     public enum TransmutableItemObjectState

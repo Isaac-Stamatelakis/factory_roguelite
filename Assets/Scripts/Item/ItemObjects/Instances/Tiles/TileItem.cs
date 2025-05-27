@@ -82,14 +82,22 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem, IColorableItem
 
     public static Sprite GetDefaultSprite(TileBase tileBase)
     {
-        return tileBase switch
+        switch (tileBase)
         {
-            Tile tile => tile.sprite,
-            AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
-            RuleTile ruleTile => ruleTile.m_DefaultSprite,
-            IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
-            _ => throw new ArgumentOutOfRangeException(nameof(tileBase), tileBase, null)
-        };
+            case Tile tile:
+                return tile.sprite;
+            case AnimatedTile animatedTile:
+                return animatedTile.m_AnimatedSprites[0];
+            case RuleTile ruleTile:
+                return ruleTile.m_DefaultSprite;
+            case IStateTile stateTile:
+                return GetDefaultSprite(stateTile.GetDefaultTile());
+            case null:
+                return null;
+            default:
+                Debug.LogWarning($"Did not cover case for tilebase {tileBase.name} of type {nameof(tileBase)}");
+                return null;
+        }
     }
 
     public static Sprite[] GetDefaultSprites(TileBase tileBase)

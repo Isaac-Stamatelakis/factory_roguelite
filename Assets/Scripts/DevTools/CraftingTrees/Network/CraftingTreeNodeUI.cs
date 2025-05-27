@@ -10,6 +10,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace DevTools.CraftingTrees.Network
@@ -40,7 +41,7 @@ namespace DevTools.CraftingTrees.Network
         {
             if (!nodeNetwork) return;
             bool generated = nodeNetwork.NodeNetwork.HasGeneratedRecipes();
-            if (contentOpenMode == NodeUIContentOpenMode.Click && Input.GetKey(KeyCode.LeftShift) && !generated)
+            if (contentOpenMode == NodeUIContentOpenMode.Click && Keyboard.current.shiftKey.isPressed && !generated)
             {
                 nodeNetwork.SelectNode(this);
                 return;
