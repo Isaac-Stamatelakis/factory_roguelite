@@ -44,6 +44,7 @@ namespace Item.Transmutation
         Gem = TransmutableItemState.Gem,
         Mediocre_Gem = TransmutableItemState.Mediocre_Gem,
         Poor_Gem = TransmutableItemState.Poor_Gem,
+        Ore = TransmutableItemState.Ore,
     }
 
     public static class TransmutableItemStateExtension {

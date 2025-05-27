@@ -23,18 +23,6 @@ namespace Items.Transmutable {
         public Material WorldShaderMaterial;
         
         public TransmutableMaterialOptions MaterialOptions;
-        private Dictionary<TransmutableItemState, TransmutableStateOptions> stateOptionDict;
-
-        public Dictionary<TransmutableItemState, TransmutableStateOptions> GetOptionStateDict()
-        {
-            if (stateOptionDict != null) return stateOptionDict;
-            stateOptionDict = new Dictionary<TransmutableItemState, TransmutableStateOptions>();
-            foreach (TransmutableStateOptions stateOptions in MaterialOptions.States)
-            {
-                stateOptionDict[stateOptions.state] = stateOptions;
-            }
-            
-            return stateOptionDict;
-        }
+        
     }
 }

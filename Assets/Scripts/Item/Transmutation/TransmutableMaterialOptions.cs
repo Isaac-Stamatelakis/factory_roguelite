@@ -19,7 +19,7 @@ namespace Items.Transmutable
     
     [System.Serializable]
     public class TransmutableStateOptions {
-        public TransmutableItemState state;
+        public TransmutableItemObjectState state;
         public Sprite[] sprites;
     }
 

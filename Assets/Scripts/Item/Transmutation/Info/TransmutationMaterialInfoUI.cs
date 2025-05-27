@@ -71,7 +71,7 @@ namespace Item.Transmutation.Info
         public ItemObject GetDisplayItem()
         {
             var baseState = Material.MaterialOptions.BaseState;
-            return TransmutableItemUtils.GetMaterialItem(Material, baseState);
+            return (ItemObject)TransmutableItemUtils.GetMaterialItem(Material, baseState);
         }
 
         public string GetPageIndicatorString(int pageIndex)

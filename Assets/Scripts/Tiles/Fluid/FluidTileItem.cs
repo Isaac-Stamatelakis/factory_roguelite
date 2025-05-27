@@ -39,7 +39,7 @@ namespace Items {
 
         public override Sprite GetSprite()
         {
-            TileBase defaultTile = fluidTile.GetDefaultTile();
+            TileBase defaultTile = fluidTile?.GetDefaultTile();
             if (defaultTile is not Tile tile) return null;
             return tile.sprite;
         }

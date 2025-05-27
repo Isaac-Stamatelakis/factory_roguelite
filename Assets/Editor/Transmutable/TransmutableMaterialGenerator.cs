@@ -139,24 +139,25 @@ public class TransmutableItemGenerator : EditorWindow
         List<AssetLabel> labels = new List<AssetLabel> { AssetLabel.Item };
         foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
         {
-            materialStates.Add(stateOptions.state);
-            if (stateItemDict.ContainsKey(stateOptions.state)) continue;
+            TransmutableItemState state = (TransmutableItemState)stateOptions.state;
+            materialStates.Add(state);
+            if (stateItemDict.ContainsKey(state)) continue;
             
-            string id = TransmutableItemUtils.GetStateId(material, stateOptions.state);
-            string itemName = TransmutableItemUtils.GetStateName(material,stateOptions.state);
+            string id = TransmutableItemUtils.GetStateId(material, state);
+            string itemName = TransmutableItemUtils.GetStateName(material,state);
             string savePath = GetStateAssetPath(materialItemsPath, itemName);
             
             TransmutableItemObject transmutableItemObject = CreateInstance<TransmutableItemObject>();
             transmutableItemObject.name = itemName;
             transmutableItemObject.id = id;
             transmutableItemObject.setMaterial(material);
-            transmutableItemObject.setState(stateOptions.state);
+            transmutableItemObject.setState(state);
             AssetDatabase.CreateAsset(transmutableItemObject,  savePath);
             
             Debug.Log($"Created '{itemName}'");
             string guid = AssetDatabase.AssetPathToGUID(savePath);
             EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
-            stateItemDict[stateOptions.state] = transmutableItemObject;
+            stateItemDict[state] = transmutableItemObject;
         }
     }
 
