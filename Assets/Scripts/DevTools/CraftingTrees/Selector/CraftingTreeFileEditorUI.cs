@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using DevTools.CraftingTrees.Network;
+using Newtonsoft.Json;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -20,7 +21,8 @@ namespace DevTools.CraftingTrees.Selector
         private Action onChange;
         public void Display(string filePath, Action onChangeCallback)
         {
-            SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = GlobalHelper.DeserializeCompressedJson<SerializedCraftingTreeNodeNetwork>(filePath);
+            string json = File.ReadAllText(filePath);
+            SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = JsonConvert.DeserializeObject<SerializedCraftingTreeNodeNetwork>(json);
             CraftingTreeNodeNetwork craftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.DeserializeNodeNetwork(serializedCraftingTreeNodeNetwork);
             string initialFileName = Path.GetFileNameWithoutExtension(filePath);
             this.initialFilePath = filePath;

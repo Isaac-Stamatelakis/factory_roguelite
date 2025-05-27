@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DevTools.CraftingTrees.TreeEditor;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -37,7 +39,8 @@ namespace DevTools.CraftingTrees.Network
         private void Save()
         {
             SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.SerializeNodeNetwork(nodeNetwork);
-            GlobalHelper.SerializeCompressedJson(serializedCraftingTreeNodeNetwork,filePath);
+            string json = JsonConvert.SerializeObject(serializedCraftingTreeNodeNetwork);
+            File.WriteAllText(filePath, json);
         }
 
         public void Rebuild()

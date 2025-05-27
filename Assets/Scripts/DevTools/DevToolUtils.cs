@@ -18,8 +18,11 @@ namespace DevTools {
     {
         public const string SCENE_NAME = "DevTools";
         public static bool OnDevToolScene => SceneManager.GetSceneByName(SCENE_NAME).isLoaded;
-        public static string GetDevToolPath(DevTool devTool) {
-            string devPath = Path.Combine(Application.streamingAssetsPath,devTool.ToString());
+        public static string GetDevToolPath(DevTool devTool)
+        {
+            string parentFolder = devTool == DevTool.CraftingTree ? Application.dataPath : Application.streamingAssetsPath;
+            string devPath = Path.Combine(parentFolder,devTool.ToString());
+            Debug.Log(devPath);
             if (!Directory.Exists(devPath)) {
                 Directory.CreateDirectory(devPath);
             }
