@@ -22,7 +22,6 @@ namespace DevTools {
         {
             string parentFolder = devTool == DevTool.CraftingTree ? Application.dataPath : Application.streamingAssetsPath;
             string devPath = Path.Combine(parentFolder,devTool.ToString());
-            Debug.Log(devPath);
             if (!Directory.Exists(devPath)) {
                 Directory.CreateDirectory(devPath);
             }
