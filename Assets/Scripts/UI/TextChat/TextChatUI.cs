@@ -53,9 +53,9 @@ namespace UI.Chat {
             recordedMessages = new List<RecordedMessage>();
             string title = "<color=purple>HAPPY Go Mine</color>";
             string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback. Thanks!";
-            SendAndRecordMessage(message);
+            SendChatMessage(message);
             string questBookKey = ControlUtils.FormatInputText(PlayerControl.OpenQuestBook);
-            SendAndRecordMessage($"Press [<b>{questBookKey}</b>] to open your quest book!");
+            SendChatMessage($"Press [<b>{questBookKey}</b>] to open your quest book!");
             
             CanvasController canvasController = CanvasController.Instance;
             canvasController.AddTypingListener(inputField);
@@ -94,10 +94,10 @@ namespace UI.Chat {
             float direction = context.ReadValue<float>();
             if (direction > 0)
             {
-                previousMessageIndex++;
+                previousMessageIndex--;
             } else if (direction < 0)
             {
-                previousMessageIndex--;
+                previousMessageIndex++;
             }
             SetInputToPreviousMessage();
         }
@@ -168,10 +168,12 @@ namespace UI.Chat {
             this.recordedMessages.Add(new RecordedMessage(message,Time.time));
         }
 
-        private void SetInputToPreviousMessage() {
-            previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,recordedMessages.Count-1);
-           
-            inputField.text = previousMessageIndex == -1 ? "" : recordedMessages[previousMessageIndex].Content;
+        private void SetInputToPreviousMessage()
+        {
+            if (previousMessageIndex < 0) previousMessageIndex = 0;
+            string inputText = previousMessageIndex >= recordedMessages.Count ? string.Empty : recordedMessages[previousMessageIndex].Content;
+
+            inputField.text = inputText;
             inputField.caretPosition = 0;
         }
 
