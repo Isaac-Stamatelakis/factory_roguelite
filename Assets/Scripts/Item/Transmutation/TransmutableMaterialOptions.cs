@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.Transmutation;
+using Item.Transmutation.Items;
+using Tiles.Fluid;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -11,6 +13,8 @@ namespace Items.Transmutable
     {
         public TransmutableItemState BaseState = TransmutableItemState.Ingot;
         public List<TransmutableStateOptions> States;
+        public List<TransmutableTileStateOptions> TileStates;
+        public List<TransmutableFluidItemState> FluidStates;
     }
     
     [System.Serializable]
@@ -30,7 +34,8 @@ namespace Items.Transmutable
     public class TransmutableFluidTileOptions
     {
         public TransmutableTileItemState state;
-        public FluidTileItem tile;
+        public FluidTile tile;
+        public float opacity;
     }
 }
 

@@ -26,6 +26,26 @@ namespace Item.Transmutation
         Ore = 20
     }
 
+    public enum TransmutableItemObjectState
+    {
+        Ingot = TransmutableItemState.Ingot,
+        Dust = TransmutableItemState.Dust,
+        Plate = TransmutableItemState.Plate,
+        Wire = TransmutableItemState.Wire,
+        Fine_Wire = TransmutableItemState.Fine_Wire,
+        Double_Plate = TransmutableItemState.Double_Plate,
+        Small_Dust = TransmutableItemState.Small_Dust,
+        Tiny_Dust = TransmutableItemState.Tiny_Dust,
+        Rod = TransmutableItemState.Rod,
+        Bolt = TransmutableItemState.Bolt,
+        Screw = TransmutableItemState.Screw,
+        Magnificent_Gem = TransmutableItemState.Magnificent_Gem,
+        Exceptional_Gem = TransmutableItemState.Exceptional_Gem,
+        Gem = TransmutableItemState.Gem,
+        Mediocre_Gem = TransmutableItemState.Mediocre_Gem,
+        Poor_Gem = TransmutableItemState.Poor_Gem,
+    }
+
     public static class TransmutableItemStateExtension {
         public static string GetPrefix(this TransmutableItemState state)
         {
