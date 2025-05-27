@@ -6,6 +6,7 @@ namespace Item.Transmutation
     public enum TransmutableTileItemState
     {
         Block = TransmutableItemState.Block,
+        Brick = TransmutableItemState.Brick,
     }
     public class TransmutableTileItem : TileItem, ITransmutableItem
     {
