@@ -158,6 +158,7 @@ namespace UI.Indicators.General
             }
 
             float baseTextSize = keyCodePrefab.GetComponentInChildren<TextMeshProUGUI>().fontSize;
+            int idx = 0;
             for (int i = 0; i < indicatorTransform.childCount; i++)
             {
                 GameObject indicatorObject = indicatorTransform.GetChild(i).gameObject;
@@ -172,7 +173,7 @@ namespace UI.Indicators.General
                 
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)
-                    : keyCodeContainer.GetChild(i).gameObject;
+                    : keyCodeContainer.GetChild(idx).gameObject;
                 
                 if (string.IsNullOrEmpty(text))
                 {
@@ -188,6 +189,7 @@ namespace UI.Indicators.General
                 textElement.text = text;
                 int longestWord = LongestWord(text);
                 textElement.fontSize = baseTextSize - 1.05f*(longestWord -1);
+                idx++;
             }
 
             return;
