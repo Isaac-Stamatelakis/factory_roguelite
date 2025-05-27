@@ -6,6 +6,7 @@ using System.IO;
 using Items.Transmutable;
 using Items;
 using System;
+using System.Diagnostics;
 using Item.GameStage;
 using Item.Slot;
 using Item.Transmutation;
@@ -17,7 +18,9 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.VersionControl;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Tilemaps;
 using World.Cave.Collections;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 public class TransmutableItemGenerator : EditorWindow
@@ -31,6 +34,8 @@ public class TransmutableItemGenerator : EditorWindow
     private const string ORE_PATH = "Ores";
     private const string ORE_OVERLAY_NAME = "_Overlay";
     private const string MISC_PATH = "Misc";
+    
+    Tile blockOutline;
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
@@ -64,13 +69,17 @@ public class TransmutableItemGenerator : EditorWindow
         {
             UpdateOres(true);
         }
-        
+
+        blockOutline = AssetDatabase.LoadAssetAtPath<Tile>("Assets/Objects/Tiles/PackedTiles/Outline/Square_Outline/Square_Outline.asset");
+
     }
     
     protected void UpdateExisting()
     {
         string[] guids = AssetDatabase.FindAssets("", new[] { MATERIAL_PATH });
         Debug.Log("Updating Transmutable Materials");
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -79,7 +88,7 @@ public class TransmutableItemGenerator : EditorWindow
             GenerateMaterialItems(transmutableItemMaterial);
         }
         AssetDatabase.Refresh();
-        Debug.Log("Complete");
+        Debug.Log($"Updated Materials in {stopwatch.Elapsed.TotalSeconds:F2}s");
     }
     
     private static string GetMaterialItemPath(TransmutableItemMaterial material)
@@ -113,12 +122,6 @@ public class TransmutableItemGenerator : EditorWindow
             AssetDatabase.CreateFolder(instancePath, material.name);
         }
         
-        string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
-        if (!Directory.Exists(miscPath))
-        {
-            Debug.Log($"Created misc folder for {material.name}");
-            AssetDatabase.CreateFolder(materialItemsPath, MISC_PATH);
-        }
         string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
         
         var stateItemDict = new Dictionary<TransmutableItemState, ITransmutableItem>();
@@ -184,12 +187,15 @@ public class TransmutableItemGenerator : EditorWindow
             transmutableTileItem.tileType = TileType.Block;
             transmutableTileItem.setMaterial(material);
             transmutableTileItem.setState(state);
+            transmutableTileItem.gameStage = material.gameStageObject;
+            transmutableTileItem.outline = blockOutline;
             transmutableTileItem.tile = tileStateOptions.tile;
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
 
             if (material.WorldShaderMaterial)
             {
+                TryCreateMiscFolder(materialItemsPath, material);
                 string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
                 TransmutableTileOverlay transmutableTileOverlay = ScriptableObject.CreateInstance<TransmutableTileOverlay>();
                 transmutableTileOverlay.ItemMaterial = material;
@@ -218,6 +224,15 @@ public class TransmutableItemGenerator : EditorWindow
 
     }
 
+    private void TryCreateMiscFolder(string materialInstancePath, TransmutableItemMaterial material)
+    {
+        string miscPath = Path.Combine(materialInstancePath, MISC_PATH);
+        if (!Directory.Exists(miscPath))
+        {
+            Debug.Log($"Created misc folder for {material.name}");
+            AssetDatabase.CreateFolder(materialInstancePath, MISC_PATH);
+        }
+    }
     private void RemovedUnusedStates(Dictionary<TransmutableItemState, ITransmutableItem> stateItemDict, HashSet<TransmutableItemState> materialStates)
     {
         foreach (var (state, transmutableItemObject) in stateItemDict)
@@ -238,6 +253,8 @@ public class TransmutableItemGenerator : EditorWindow
 
     private void UpdateOres(bool reset)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         string[] guids = AssetDatabase.FindAssets("", new[] { MATERIAL_PATH });
         TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
         TileWrapperObject shaderOutlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(SHADER_OUTLINE_WRAPPER_PATH);
@@ -253,7 +270,7 @@ public class TransmutableItemGenerator : EditorWindow
             GenerateOreItems(transmutableItemMaterial, outlineWrapper, shaderOutlineWrapper,stoneTileCollection, oreGameStage,reset);
         }
         AssetDatabase.Refresh();
-        Debug.Log("Complete");
+        Debug.Log($"Update Ores in {stopwatch.Elapsed.TotalSeconds:F2}s");
     }
 
     private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
