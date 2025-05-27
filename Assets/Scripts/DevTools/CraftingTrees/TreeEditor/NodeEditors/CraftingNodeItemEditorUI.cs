@@ -112,7 +112,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                 SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
                 {
                     OnValueChange = OnItemChange,
-                    DisplayAmount = true
+                    RemoveOnSelect = true
                 };
                 ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(node,nodeNetwork);
                 SerializedItemSlot serializedItemSlot = new SerializedItemSlot(itemSlot?.itemObject?.id, itemSlot?.amount ?? 0, null);

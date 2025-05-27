@@ -106,7 +106,7 @@ namespace UI.NodeNetwork {
 
         private class MultiSelectAction
         {
-            private const float MIN_DISTANCE = 1f;
+            private const float MIN_DISTANCE = 50f;
             private Vector2 InitialPosition;
             private Vector2 TerminalPosition;
             private INodeNetworkUI networkUI;

@@ -93,6 +93,7 @@ namespace UI.NodeNetwork {
 
         void DeletePress(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             foreach (var node in selectedNodes)
             {
                 DeleteNode(node.GetNode());
@@ -102,34 +103,40 @@ namespace UI.NodeNetwork {
 
         void Deselect(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             SelectNode(null);
         }
 
         void SetMoveDirection(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             moveDirection = context.ReadValue<Vector2>();
             moveTimer = 5000;
         }
 
         void ResetMoveDirection(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             moveDirection = Vector2.zero;
         }
 
         void Open(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             if (selectedNodes.Count != 1) return;
             selectedNodes[0].OpenContent(NodeUIContentOpenMode.KeyPress);
         }
 
         public void Recenter(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             ContentContainer.transform.position = Vector3.zero;
             ContentContainer.transform.localScale = Vector3.one;
         }
 
         public void Create(InputAction.CallbackContext context)
         {
+            if (CanvasController.Instance.IsTyping) return;
             editController?.AddButtonClick();
         }
         
