@@ -238,10 +238,6 @@ namespace Fluids {
             Tile tile = fluidTileItem.fluidTile?.GetTile(tileIndex);
             map.SetTile(vector3Int,tile);
             Color fluidColor = fluidTileItem.fluidOptions.GetFluidColor();
-            if (lit)
-            {
-                fluidColor *= 0.9f; // Dampening for lit maps so flashes appear
-            }
             map.SetTileFlags(vector3Int,TileFlags.None);
             map.SetColor(vector3Int,fluidColor*0.9f);
         }
@@ -330,7 +326,7 @@ namespace Fluids {
             flashCounter++;
             if (flashCounter < ticksToTryFlash) return;
             flashCounter = 0;
-            Bounds bounds = unlitCollider2D.bounds;
+            Bounds bounds = unlitCollider2D.composite.bounds;
             
             // Large pool of lava in large camera view has ~1000 tiles
             const float CHANCE = 1024;
@@ -339,7 +335,6 @@ namespace Fluids {
             Vector3Int cellPosition = randomPosition.Value.CellPosition;
             // || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f Might want to readd a check like this
             if (!unlitTileMap.HasTile(cellPosition)) return;
-           
             int flashSize = UnityEngine.Random.Range(6, 10);
             StartCoroutine(FlashUnlitMap(cellPosition,flashSize));
         }
@@ -367,7 +362,7 @@ namespace Fluids {
 
         private void DisplayRandomParticles(Tilemap map, Collider2D mapCollider)
         {
-            Bounds bounds = mapCollider.bounds;
+            Bounds bounds = mapCollider.composite.bounds;
             
             TileMapPositionInfo? nullableRandomPosition = GetRandomCellPosition(ref bounds,256);
             if (!nullableRandomPosition.HasValue) return;
@@ -390,7 +385,11 @@ namespace Fluids {
             {
                 unlitTileMap.SetTileFlags(vector3Int,TileFlags.None);
                 Color current = unlitTileMap.GetColor(vector3Int);
-                unlitTileMap.SetColor(vector3Int,Color.Lerp(Color.white,current,0.5f));
+                Color.RGBToHSV(current, out float h, out float s, out float v);
+                h = (h + 0.005f) % 1.0f; // Slight hue shift
+                Color hueShifted = Color.HSVToRGB(h, s, v);
+                unlitTileMap.SetColor(vector3Int, hueShifted);
+                //unlitTileMap.SetColor(vector3Int,Color.Lerp(Color.white,current,0.5f));
             }
             
 
