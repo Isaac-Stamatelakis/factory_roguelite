@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Items {
-    public class FluidTileItem : ItemObject, IPlacableItem
+    public class FluidTileItem : ItemObject, IPlacableItem, IColorableItem
     {
         public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
@@ -48,6 +48,8 @@ namespace Items {
         {
             return fluidTile?.GetDefaultTile();
         }
+
+        public Color Color => fluidOptions.GetFluidColor();
     }
     [System.Serializable]
     public class FluidOptions {

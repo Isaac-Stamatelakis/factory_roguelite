@@ -46,7 +46,7 @@ public static class TileTypeExtension {
 }
 
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
-public class TileItem : ItemObject, IPlacableItem, ISolidItem
+public class TileItem : ItemObject, IPlacableItem, ISolidItem, IColorableItem
 {
     public GameStageObject gameStage;
     public TileType tileType;
@@ -113,6 +113,19 @@ public class TileItem : ItemObject, IPlacableItem, ISolidItem
     public TileBase GetTile()
     {
         return tile;
+    }
+
+    public Color Color
+    {
+        get
+        {
+            if (tileOptions?.TransmutableColorOverride)
+            {
+                return tileOptions.TransmutableColorOverride.color;
+            }
+
+            return tileOptions?.TileColor ? tileOptions.TileColor.GetColor() : UnityEngine.Color.white;
+        }
     }
 }
 

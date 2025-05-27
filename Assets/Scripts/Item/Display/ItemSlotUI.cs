@@ -161,14 +161,13 @@ namespace Items {
                 ItemImage.sprite = null;
             }
             
-            Color color = Color.white;
+            ItemImage.color = itemSlot.itemObject is IColorableItem colorableItem ? colorableItem.Color : Color.white;
             ItemImage.material = null;
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
                 var transmutableMaterial = transmutableItemObject.getMaterial();
                 if (transmutableMaterial)
                 {
-                    color = transmutableMaterial.color;
                     if (transmutableMaterial.OverlaySprite)
                     {
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
@@ -188,20 +187,8 @@ namespace Items {
                     Material material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.UI) : null;
                     AddOverlay(tileSprite, tileOverlay.GetColor(),$"TileOverlay",material);
                 }
-
-                if (tileItem.tileOptions?.TransmutableColorOverride)
-                {
-                    color = tileItem.tileOptions.TransmutableColorOverride.color;
-                } else if (tileItem.tileOptions?.TileColor)
-                {
-                    color = tileItem.tileOptions.TileColor.GetColor();
-                }
-            } else if (itemSlot.itemObject is IColorableItem colorableItem)
-            {
-                color = colorableItem.Color;
             }
-
-            ItemImage.color = color;
+            
             
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {

@@ -6,7 +6,7 @@ using Item.Transmutation;
 using UnityEngine;
 
 namespace Items.Transmutable {
-    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem
+    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem, IColorableItem
     {
         [SerializeField] private TransmutableItemState state;
         [SerializeField] private TransmutableItemMaterial material;
@@ -59,6 +59,8 @@ namespace Items.Transmutable {
         {
             // Cannot set :)
         }
+
+        public Color Color => material?.color ?? Color.white;
     }
 }
 

@@ -519,9 +519,10 @@ namespace TileMaps.Place {
             return !conduitTileMap.HasTile(tileMapPosition);
         }
 
-        private static bool FluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+        public static bool FluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+            Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPosition);
+            if (RaycastTileInBox(centeredWorld, 1 << LayerMask.NameToLayer("Block"), true)) return false;
             Vector2Int tileMapPosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
-            if (RaycastTileInBox(worldPosition, TileMapLayer.Base.ToRaycastLayers(), true)) return false;
             return !iWorldTileMap.HasTile(tileMapPosition);
         }
 

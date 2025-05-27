@@ -41,9 +41,8 @@ namespace TileMaps.Previewer {
         private TilemapRenderer overlayRenderer;
         private Material mainMaterial;
         private int lastMousePlacement;
-
         public const int MULTI_TILE_PLACE_OFFSET = 7;
-        // Start is called before the first frame update
+        
         void Start()
         {
             mainCamera = Camera.main;
@@ -74,7 +73,7 @@ namespace TileMaps.Previewer {
             this.playerScript = playerScript;
         }
 
-        // Update is called once per frame
+        
         void Update()
         {
             if (CanvasController.Instance.IsActive || Mouse.current.leftButton.isPressed)
@@ -129,17 +128,10 @@ namespace TileMaps.Previewer {
             }
             
             tilemap.color = GetPlaceColor(position, itemObject);
-            if (itemObject is TileItem tileItem1)
+            if (itemObject is IColorableItem colorableItem)
             {
-                if (tileItem1.tileOptions.TransmutableColorOverride)
-                {
-                    tilemap.color *= tileItem1.tileOptions.TransmutableColorOverride.color;
-                } else if (tileItem1.tileOptions.TileColor)
-                {
-                    tilemap.color *= tileItem1.tileOptions.TileColor.GetColor();
-                }
+                tilemap.color *= colorableItem.Color;
             }
-            
         }
 
         private Color GetPlaceColor(Vector2 position, ItemObject itemObject)
@@ -155,6 +147,8 @@ namespace TileMaps.Previewer {
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
                     if (conduitMap is not ConduitTileMap conduitTileMap) return nonPlacableColor;
                     return TilePlaceUtils.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
+                case FluidTileItem fluidTileItem:
+                    return TilePlaceUtils.FluidPlacable(fluidTileItem,position, closedChunkSystem.GetFluidTileMap()) ? placableColor : nonPlacableColor;
                 default:
                     return Color.white;
             }
