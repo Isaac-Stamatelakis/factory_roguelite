@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Item.GameStage;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using Recipe;

@@ -235,7 +235,7 @@ namespace Fluids {
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
-            Tile tile = fluidTileItem.getTile(tileIndex);
+            Tile tile = fluidTileItem.fluidTile?.GetTile(tileIndex);
             map.SetTile(vector3Int,tile);
             if (!lit) return;
             if (map.GetTileFlags(vector3Int) == TileFlags.None) return;

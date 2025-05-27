@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.GameStage;
 using Item.ItemObjects.Interfaces;
 using TileEntity;
+using Tiles.Fluid;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
@@ -12,31 +13,13 @@ namespace Items {
     {
         public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
+        
+        [SerializeField] public FluidTile fluidTile;
+        [SerializeField] public FluidOptions fluidOptions;
         public override Sprite[] GetSprites()
         {
             return new Sprite[]{GetSprite()};
         }
-        public Tile getTile(int fill) {
-            if (fill == 0) {
-                return null;
-            }
-            fill--;
-            return fill switch
-            {
-                0 => tiles[1],
-                < 0 => null,
-                _ => fill >= tiles.Length ? tiles[^1] : tiles[fill]
-            };
-        }
-
-        public Tile GetTile(float fill)
-        {
-            int tileIndex = Mathf.FloorToInt(tiles.Length * fill);
-            if (tileIndex == 0) return null;
-            tileIndex--;
-            return tiles[tileIndex];
-        }
-
         public override ItemDisplayType? getDisplayType()
         {
             return ItemDisplayType.Single;
@@ -54,14 +37,14 @@ namespace Items {
 
         public override Sprite GetSprite()
         {
-            return tiles[^1].sprite;
+            TileBase defaultTile = fluidTile.GetDefaultTile();
+            if (defaultTile is not Tile tile) return null;
+            return tile.sprite;
         }
 
-        [SerializeField] public Tile[] tiles;
-        [SerializeField] public FluidOptions fluidOptions;
         public TileBase GetTile()
         {
-            return tiles[^1];
+            return fluidTile?.GetDefaultTile();
         }
     }
     [System.Serializable]

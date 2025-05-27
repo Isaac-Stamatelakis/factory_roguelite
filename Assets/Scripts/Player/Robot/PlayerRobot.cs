@@ -737,7 +737,7 @@ namespace Player {
 
         private void CalculateFallTime()
         {
-            if (!IsOnGround() && !InFluid())
+            if (!IsOnGround() && !IsOnSlopedPlatform() && !InFluid())
             {
                 if (rb.velocity.y < 0) FallTime += Time.fixedDeltaTime;
                 return;

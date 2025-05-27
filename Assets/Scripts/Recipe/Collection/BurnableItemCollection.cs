@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Item.Burnables;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using UnityEngine;

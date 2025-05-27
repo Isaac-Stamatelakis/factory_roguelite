@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Item.GameStage;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using Recipe.Objects;

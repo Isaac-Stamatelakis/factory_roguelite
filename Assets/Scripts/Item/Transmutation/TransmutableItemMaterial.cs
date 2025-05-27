@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.Transmutation;
 using UnityEngine;
 using TileEntity;
 using UI.Chat;
@@ -22,11 +23,6 @@ namespace Items.Transmutable {
         public Material WorldShaderMaterial;
         
         public TransmutableMaterialOptions MaterialOptions;
-        public virtual List<TransmutableStateOptions> GetStates()
-        {
-            return MaterialOptions.States;
-        }
-        
         private Dictionary<TransmutableItemState, TransmutableStateOptions> stateOptionDict;
 
         public Dictionary<TransmutableItemState, TransmutableStateOptions> GetOptionStateDict()

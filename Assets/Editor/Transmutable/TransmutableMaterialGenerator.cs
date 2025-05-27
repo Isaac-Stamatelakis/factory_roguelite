@@ -8,6 +8,7 @@ using Items;
 using System;
 using Item.GameStage;
 using Item.Slot;
+using Item.Transmutation;
 using NUnit.Framework;
 using Tiles;
 using Tiles.Options.Overlay;

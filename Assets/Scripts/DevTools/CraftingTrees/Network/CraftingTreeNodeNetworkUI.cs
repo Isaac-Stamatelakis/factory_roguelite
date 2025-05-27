@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DevTools.CraftingTrees.TreeEditor;
 using Item.Slot;
+using Item.Transmutation;
 using Item.Transmutation.Info;
 using Items;
 using Items.Transmutable;

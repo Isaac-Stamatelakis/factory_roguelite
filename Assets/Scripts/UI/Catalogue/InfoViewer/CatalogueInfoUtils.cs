@@ -3,6 +3,7 @@ using Item.Burnables;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Slot;
+using Item.Transmutation;
 using Item.Transmutation.Info;
 using Items.Transmutable;
 using Player;
