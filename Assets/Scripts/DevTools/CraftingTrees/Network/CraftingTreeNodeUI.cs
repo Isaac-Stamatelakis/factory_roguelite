@@ -61,7 +61,7 @@ namespace DevTools.CraftingTrees.Network
                 nodeNetwork.SelectNode(this);
                 return;
             }
-
+            
             OpenSideView(contentOpenMode == NodeUIContentOpenMode.KeyPress && !generated);
 
         }

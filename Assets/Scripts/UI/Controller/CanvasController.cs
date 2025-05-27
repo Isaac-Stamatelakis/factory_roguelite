@@ -8,6 +8,7 @@ using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace UI
@@ -83,10 +84,14 @@ namespace UI
             });
         }
 
+        public GameObject PeekTopGameObject()
+        {
+            return uiObjectStack.Count == 0 ? null : uiObjectStack.Peek().gameObject;
+        }
         public void OnEscapePress(InputAction.CallbackContext context)
         {
             if (typing) return;
-           
+            
             if (uiObjectStack.Count == 0)
             {
                 OnInactiveEscapePress();

@@ -15,9 +15,12 @@ namespace UI.NodeNetwork {
         protected INodeNetworkUI nodeNetworkUI;
         private Camera canvasCamera;
         private MultiSelectAction multiSelectAction;
+        private CanvasScaler canvasScaler;
         public void Start()
         {
             canvasCamera = GetComponentInParent<Canvas>().worldCamera;
+            canvasScaler = GetComponentInParent<CanvasScaler>();
+            
         }
         
         public void Initialize(INodeNetworkUI nodeNetworkUI) {
@@ -63,12 +66,14 @@ namespace UI.NodeNetwork {
         
         public void MultiSelect()
         {
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                multiSelectAction = new MultiSelectAction(nodeNetworkUI,Mouse.current.position.ReadValue(),multiSelectIndicator,canvasCamera);
+                multiSelectAction = new MultiSelectAction(nodeNetworkUI,mousePosition,multiSelectIndicator,canvasCamera,canvasScaler);
             }
             
-            multiSelectAction?.SetCurrentPosition(Mouse.current.position.ReadValue());
+            multiSelectAction?.SetCurrentPosition(mousePosition);
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 multiSelectAction?.Terminate();
@@ -111,23 +116,23 @@ namespace UI.NodeNetwork {
             private Vector2 TerminalPosition;
             private INodeNetworkUI networkUI;
             private RectTransform indicator;
-            private Camera uiCamera;
+            private CanvasScaler scaler;
 
-            public MultiSelectAction(INodeNetworkUI nodeNetworkUI, Vector2 initialPosition, RectTransform indicator, Camera uiCamera)
+            public MultiSelectAction(INodeNetworkUI nodeNetworkUI, Vector2 initialPosition, RectTransform indicator, Camera uiCamera, CanvasScaler scaler)
             {
                 networkUI = nodeNetworkUI;
                 InitialPosition = initialPosition;
                 this.indicator = indicator;
-                this.uiCamera = uiCamera;
                 Vector2 worldPosition = uiCamera.ScreenToWorldPoint(initialPosition);
                 indicator.transform.position = worldPosition;
-
+                this.scaler = scaler;
             }
 
             public void SetCurrentPosition(Vector2 newScreenPosition)
             {
                 TerminalPosition = newScreenPosition;
                 Vector2 dif = TerminalPosition-InitialPosition;
+                
                 float magnitude = dif.magnitude;
                 indicator.gameObject.SetActive(magnitude > MIN_DISTANCE);
                 int rotation = 0;
@@ -159,6 +164,7 @@ namespace UI.NodeNetwork {
                 indicator.localRotation = Quaternion.Euler(0, 0, rotation);
                 Vector2 parentScale = indicator.transform.parent.localScale;
                 indicator.transform.localScale = new Vector3(1/parentScale.x, 1/parentScale.y, 1); // Don't want to scale select zone
+                size *= scaler.referenceResolution.x / Screen.width;
                 indicator.sizeDelta = size;
             }
 

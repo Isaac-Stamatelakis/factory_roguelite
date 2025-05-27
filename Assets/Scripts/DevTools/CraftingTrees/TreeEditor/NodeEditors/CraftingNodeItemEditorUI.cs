@@ -92,6 +92,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
         [SerializeField] private SerializedItemSlotEditorUI mItemSlotEditorUI;
         private List<ItemObject> displaySlots;
         private CraftingTreeNodeNetwork nodeNetwork;
+        
         public void Display(CraftingTreeGeneratorNode node, CraftingTreeGeneratorUI generatorUI, CraftingTreeNodeNetworkUI network, bool openSearchInstantly)
         {
             this.nodeNetwork = network.NodeNetwork;
@@ -108,6 +109,10 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
 
             void ClickOverride(PointerEventData.InputButton inputButton, int index)
             {
+                // Prevents spamming editors
+                GameObject currentTop = CanvasController.Instance.PeekTopGameObject();
+                if (currentTop && currentTop.GetComponent<SerializedItemSlotEditorUI>()) return;
+                
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(mItemSlotEditorUI);
                 SerializedItemSlotEditorParameters parameters = new SerializedItemSlotEditorParameters
                 {
