@@ -306,7 +306,6 @@ public class TransmutableItemGenerator : EditorWindow
             fluidTileItem.setMaterial(material);
             fluidTileItem.setState(state);
             fluidTileItem.GameStageObject = material.gameStageObject;
-            AssetDatabase.CreateAsset(fluidTileItem,  savePath);
             FluidOptions fluidOptions = new FluidOptions();
             fluidOptions.MaterialColorOverride = material;
             fluidOptions.viscosity = fluidStateOptions.viscosity;
@@ -315,6 +314,8 @@ public class TransmutableItemGenerator : EditorWindow
             fluidOptions.Lit =  fluidStateOptions.lit;
             fluidOptions.invertedGravity = fluidStateOptions.state == TransmutableFluidItemState.Gas;
             fluidTileItem.fluidOptions = fluidOptions;
+            
+            AssetDatabase.CreateAsset(fluidTileItem,  savePath);
             
             Debug.Log($"Created '{itemName}'");
             string guid = AssetDatabase.AssetPathToGUID(savePath);
