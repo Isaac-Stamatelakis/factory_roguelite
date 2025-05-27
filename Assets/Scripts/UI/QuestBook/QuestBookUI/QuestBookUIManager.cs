@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Newtonsoft.Json;
 using Player;
 using Player.Controls;
 using PlayerModule.KeyPress;
@@ -13,13 +14,6 @@ namespace UI.QuestBook
     public class QuestBookUIManager : MonoBehaviour
     {
         [SerializeField] private QuestBookSelectorUI selectorPrefab;
-        private CanvasController canvasController;
-
-        public void Start()
-        {
-            canvasController = CanvasController.Instance;
-        }
-        
         public void Initialize(string questBookName, PlayerScript playerScript)
         {
             var miscKeys = playerScript.InputActions.MiscKeys;
@@ -27,7 +21,8 @@ namespace UI.QuestBook
             GlobalHelper.DeleteAllChildren(transform);
             string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), questBookName);
             string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
-            QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);
+            string json =  File.ReadAllText(libPath);
+            QuestBookLibraryData questBookLibraryData = JsonConvert.DeserializeObject<QuestBookLibraryData>(json);
             if (questBookLibraryData == null)
             {
                 Debug.LogError($"Invalid lib data at path '{libPath}'");

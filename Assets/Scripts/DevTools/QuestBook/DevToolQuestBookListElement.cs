@@ -20,7 +20,7 @@ namespace DevTools.Upgrades
         private string path;
         internal void Display(string path, Action<string> onClick)
         {
-            mPathText.text = Path.GetFileName(path).Replace(".bin","");
+            mPathText.text = Path.GetFileName(path).Replace(".json","");
             this.onClick = onClick;
             this.path = path;
         }

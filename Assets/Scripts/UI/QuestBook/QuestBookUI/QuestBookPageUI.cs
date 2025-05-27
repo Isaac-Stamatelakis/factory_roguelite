@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using DevTools;
+using Newtonsoft.Json;
 using UnityEngine;
 using UI.NodeNetwork;
 using UI.QuestBook.Data;
@@ -169,7 +171,8 @@ namespace UI.QuestBook {
             {
                 questBookNodeDataList.Add(node.TaskData);
             }
-            GlobalHelper.SerializeCompressedJson(questBookNodeDataList,playerDataPath);
+            string json = JsonConvert.SerializeObject(questBookNodeDataList);
+            File.WriteAllText(playerDataPath, json);
         }
     }
 }

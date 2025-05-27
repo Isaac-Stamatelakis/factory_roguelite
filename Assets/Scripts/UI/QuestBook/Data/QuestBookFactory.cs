@@ -27,7 +27,7 @@ namespace UI.QuestBook.Data {
         
         public static List<QuestBookNodeData> GetQuestBookPageNodeData(string questBookDirectory, string questBookPageID)
         {
-            string pagePath = Path.Combine(questBookDirectory, questBookPageID) + ".bin";
+            string pagePath = Path.Combine(questBookDirectory, questBookPageID) + ".json";
             if (!File.Exists(pagePath))
             {
                 throw new InvalidQuestBookException($"Could not find quest book page node ata at {pagePath}");
@@ -35,8 +35,7 @@ namespace UI.QuestBook.Data {
 
             try
             {
-                byte[] bytes = File.ReadAllBytes(pagePath);
-                string json = WorldLoadUtils.DecompressString(bytes);
+                string json = File.ReadAllText(pagePath);
                 List<SerializedQuestBookNode> serializedQuestBookNodes = JsonConvert.DeserializeObject<List<SerializedQuestBookNode>>(json);
                 List<QuestBookNodeData> questBookNodeDataList = new List<QuestBookNodeData>();
                 foreach (var serializedQuestBookNode in serializedQuestBookNodes)
@@ -88,10 +87,9 @@ namespace UI.QuestBook.Data {
                 serializedQuestBookNodes.Add(serializedQuestBookNode);
             }
             string json = JsonConvert.SerializeObject(serializedQuestBookNodes);
-            byte[] bytes = WorldLoadUtils.CompressString(json);
             string savePath = Path.Combine(questBookDirectory, questBookPageID);
-            savePath += ".bin";
-            File.WriteAllBytes(savePath, bytes);
+            savePath += ".json";
+            File.WriteAllText(savePath, json);
         }
         
 

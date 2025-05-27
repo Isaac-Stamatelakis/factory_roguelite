@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Items;
+using Newtonsoft.Json;
 using UI.QuestBook.Data;
 using UnityEngine.SceneManagement;
 
@@ -69,8 +70,8 @@ namespace UI.QuestBook {
             Directory.CreateDirectory(questBookPath);
             QuestBookData questBookData = QuestBookFactory.GetDefaultQuestBookData();
             string dataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
-            GlobalHelper.SerializeCompressedJson(questBookData,dataPath);
-
+            string json = JsonConvert.SerializeObject(questBookData);
+            File.WriteAllText(dataPath, json);
             library.QuestBookDataList.Add(selectorData);
             Display();
         }
@@ -138,11 +139,10 @@ namespace UI.QuestBook {
 
         public void OnDestroy()
         {
-            if (SceneManager.GetActiveScene().name == DevToolUtils.SCENE_NAME)
-            {
-                string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
-                GlobalHelper.SerializeCompressedJson(library, libPath);
-            }
+            if (!DevToolUtils.OnDevToolScene) return;
+            string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
+            string json = JsonConvert.SerializeObject(library);
+            File.WriteAllText(libPath, json);
         }
     }
     [System.Serializable]
