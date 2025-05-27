@@ -30,6 +30,7 @@ public class TransmutableItemGenerator : EditorWindow
     public const string GEN_FOLDER = "Items";
     private const string ORE_PATH = "Ores";
     private const string ORE_OVERLAY_NAME = "_Overlay";
+    private const string MISC_PATH = "Misc";
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
@@ -111,21 +112,27 @@ public class TransmutableItemGenerator : EditorWindow
             Debug.Log($"Created folder for {material.name}");
             AssetDatabase.CreateFolder(instancePath, material.name);
         }
+        
+        string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
+        if (!Directory.Exists(miscPath))
+        {
+            Debug.Log($"Created misc folder for {material.name}");
+            AssetDatabase.CreateFolder(materialItemsPath, MISC_PATH);
+        }
         string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
         
-       
         var stateItemDict = new Dictionary<TransmutableItemState, ITransmutableItem>();
         
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            TransmutableItemObject transmutableItemObject = AssetDatabase.LoadAssetAtPath<TransmutableItemObject>(path);
-            if (ReferenceEquals(transmutableItemObject, null)) continue;
-            if (stateItemDict.ContainsKey(transmutableItemObject.getState()))
+            ItemObject transmutableItemObject = AssetDatabase.LoadAssetAtPath<ItemObject>(path);
+            if (transmutableItemObject is not ITransmutableItem transmutableItem) continue;
+            if (stateItemDict.ContainsKey(transmutableItem.getState()))
             {
-                Debug.LogWarning($"Material {material.name} has duplicate items for state {transmutableItemObject.getItemState()}");
+                Debug.LogWarning($"Material {material.name} has duplicate items for state {transmutableItem.getState()}");
             }
-            stateItemDict[transmutableItemObject.getState()] = transmutableItemObject;
+            stateItemDict[transmutableItem.getState()] = transmutableItem;
         }
         
         CreateNew(material, materialItemsPath, stateItemDict, out var materialStates);
@@ -174,11 +181,29 @@ public class TransmutableItemGenerator : EditorWindow
             TransmutableTileItem transmutableTileItem = CreateInstance<TransmutableTileItem>();
             transmutableTileItem.name = itemName;
             transmutableTileItem.id = id;
+            transmutableTileItem.tileType = TileType.Block;
             transmutableTileItem.setMaterial(material);
             transmutableTileItem.setState(state);
             transmutableTileItem.tile = tileStateOptions.tile;
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
+
+            if (material.WorldShaderMaterial)
+            {
+                string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
+                TransmutableTileOverlay transmutableTileOverlay = ScriptableObject.CreateInstance<TransmutableTileOverlay>();
+                transmutableTileOverlay.ItemMaterial = material;
+                transmutableTileOverlay.name = itemName + "_Overlay";
+                
+                TileWrapperObject tileWrapperObject = ScriptableObject.CreateInstance<TileWrapperObject>();
+                transmutableTileOverlay.OverlayWrapper = tileWrapperObject;
+                tileWrapperObject.TileBase = tileStateOptions.tile;
+                tileWrapperObject.name = itemName +"_Overlay_Tile_Wrapper";
+                tileOptions.Overlay = transmutableTileOverlay;
+                
+                AssetDatabase.CreateAsset(transmutableTileOverlay,  Path.Combine(miscPath,transmutableTileOverlay.name + ".asset"));
+                AssetDatabase.CreateAsset(tileWrapperObject,   Path.Combine(miscPath,tileWrapperObject.name + ".asset"));
+            }
             int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
             tileOptions.hardness = 8 * (tierInt + 1);
             transmutableTileItem.tileOptions = tileOptions;
