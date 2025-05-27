@@ -416,7 +416,8 @@ namespace Player.Controls
             PlayerControlData playerControlData = GetControlValue(key);
             if (playerControlData == null) return string.Empty;
             string modifierString = playerControlData.Modifier.HasValue ? playerControlData.Modifier.Value.ToString() + " " : string.Empty;
-            return modifierString + InputControlPath.ToHumanReadableString(playerControlData?.KeyData, InputControlPath.HumanReadableStringOptions.OmitDevice);
+            string keyString = InputControlPath.ToHumanReadableString(playerControlData?.KeyData, InputControlPath.HumanReadableStringOptions.OmitDevice).FirstCharacterToUpper();
+            return modifierString + keyString;
         }
 
         /// <summary>
