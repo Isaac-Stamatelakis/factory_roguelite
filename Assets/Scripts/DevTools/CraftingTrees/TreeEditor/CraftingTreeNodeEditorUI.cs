@@ -58,13 +58,23 @@ namespace DevTools.CraftingTrees.TreeEditor
                 switch (node.NodeType)
                 {
                     case CraftingTreeNodeType.Item:
+                        ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
+                        FormattedInputFieldUI amountInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
+                        amountInput.DisplayUInt("Amount",itemNodeData.SerializedItemSlot?.amount ?? 1, (value) =>
+                        {
+                            if (itemNodeData.SerializedItemSlot == null) return;
+                            itemNodeData.SerializedItemSlot.amount = value;
+                            nodeNetworkUI.RefreshNode(node);
+                        },min:1,max:uint.MaxValue);
+                        CanvasController.Instance.AddTypingListener(amountInput.InputField);
+                        
                         if (node.NetworkData.InputIds.Count > 0)
                         {
-                            ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
                             FormattedInputFieldUI chanceInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
                             chanceInput.DisplayFloat("Chance",itemNodeData.Odds, (value) =>
                             {
                                 itemNodeData.Odds = value;
+                                nodeNetworkUI.RefreshNode(node);
                             },min:0,max:1);
                             CanvasController.Instance.AddTypingListener(chanceInput.InputField);
                         }

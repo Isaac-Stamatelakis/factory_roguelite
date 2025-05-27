@@ -27,6 +27,11 @@ namespace DevTools.CraftingTrees.Network
             Image image = GetComponent<Image>();
             ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(node,nodeNetwork.NodeNetwork);
             mItemSlotUI.Display(itemSlot);
+            if (node.NodeType == CraftingTreeNodeType.Item)
+            {
+                DisplayItemOutputChance();
+            }
+            
             image.sprite = node.NodeType switch
             {
                 CraftingTreeNodeType.Item => nodeSprites.ItemBackground,
@@ -34,6 +39,16 @@ namespace DevTools.CraftingTrees.Network
                 CraftingTreeNodeType.Processor => nodeSprites.ProcessorBackground,
                 _ => throw new ArgumentOutOfRangeException(nameof(node.NodeType), $"Unknown node type: {node.NodeType}")
             };
+        }
+
+        private void DisplayItemOutputChance()
+        {
+            
+            ItemNodeData itemNodeData = (ItemNodeData)node.NodeData;
+            bool output = node.NetworkData.InputIds.Count > 0;
+            if (!output) return;
+            float chance = itemNodeData.Odds;
+            mItemSlotUI.SetTopText(Mathf.Approximately(chance, 1) ? string.Empty : $"{chance:P0}".Replace(" ",string.Empty));
         }
         
 

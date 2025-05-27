@@ -233,6 +233,7 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             void DisplayInventory()
             {
                 ItemSlot itemSlot = CraftingTreeNodeUtils.GetDisplaySlot(node,nodeNetwork);
+                if (!ItemSlotUtils.IsItemSlotNull(itemSlot)) itemSlot.amount = 1;
                 mTitleText.text = ItemSlotUtils.IsItemSlotNull(itemSlot) ? "Null" : itemSlot.itemObject.name;
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
             }
