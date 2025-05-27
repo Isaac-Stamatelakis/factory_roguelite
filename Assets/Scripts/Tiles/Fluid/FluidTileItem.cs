@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
 using Item.ItemObjects.Interfaces;
+using Items.Transmutable;
 using TileEntity;
 using Tiles.Fluid;
+using Tiles.Options.Colors;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
@@ -56,11 +58,30 @@ namespace Items {
         [Range(0,10)] public float DamagePerSecond = 0f;
         public int CollisionDominance = 0;
         public TileItem OnCollisionTile;
-        public Color ParticleColor;
         public bool DestroysItems;
+        public TileColorOptionObject Color;
+        public TransmutableItemMaterial MaterialColorOverride;
+        public float Opacity = 1f;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;
+        }
+
+        public Color GetFluidColor()
+        {
+            Color color = GetDefaultFluidColor();
+            color.a = Opacity;
+            return color;
+        }
+
+        private Color GetDefaultFluidColor()
+        {
+            if (MaterialColorOverride)
+            {
+                return MaterialColorOverride.color;
+            }
+
+            return Color ? Color.GetColor() : UnityEngine.Color.white;
         }
 
         public int Viscosity { get => viscosity;}

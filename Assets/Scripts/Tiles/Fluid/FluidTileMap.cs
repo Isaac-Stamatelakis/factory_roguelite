@@ -172,7 +172,7 @@ namespace Fluids {
         {
             particles.transform.position = position;
             var mainModule = particles.main;
-            mainModule.startColor = fluidTileItem.fluidOptions.ParticleColor;
+            mainModule.startColor = fluidTileItem.fluidOptions.GetFluidColor();
             particles.Play();
         }
 
@@ -237,10 +237,13 @@ namespace Fluids {
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.fluidTile?.GetTile(tileIndex);
             map.SetTile(vector3Int,tile);
-            if (!lit) return;
-            if (map.GetTileFlags(vector3Int) == TileFlags.None) return;
+            Color fluidColor = fluidTileItem.fluidOptions.GetFluidColor();
+            if (lit)
+            {
+                fluidColor *= 0.9f; // Dampening for lit maps so flashes appear
+            }
             map.SetTileFlags(vector3Int,TileFlags.None);
-            map.SetColor(vector3Int,Color.white*0.9f);
+            map.SetColor(vector3Int,fluidColor*0.9f);
         }
         
         
@@ -334,7 +337,8 @@ namespace Fluids {
             TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds,CHANCE);
             if (!randomPosition.HasValue) return;
             Vector3Int cellPosition = randomPosition.Value.CellPosition;
-            if (!unlitTileMap.HasTile(cellPosition) || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f) return;
+            // || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f Might want to readd a check like this
+            if (!unlitTileMap.HasTile(cellPosition)) return;
            
             int flashSize = UnityEngine.Random.Range(6, 10);
             StartCoroutine(FlashUnlitMap(cellPosition,flashSize));
