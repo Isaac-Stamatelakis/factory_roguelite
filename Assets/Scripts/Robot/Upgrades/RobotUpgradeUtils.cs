@@ -26,9 +26,9 @@ namespace Robot.Upgrades
         }
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
         {
-            if (!upgradePath.EndsWith(".bin"))
+            if (!upgradePath.EndsWith(".json"))
             {
-                upgradePath += ".bin";
+                upgradePath += ".json";
             }
             string filePath = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.Upgrade), upgradePath);
             if (!File.Exists(filePath))
@@ -37,13 +37,8 @@ namespace Robot.Upgrades
                 return null;
             }
 
-            byte[] bytes = File.ReadAllBytes(filePath);
-            return DeserializeRobotNodeNetwork(bytes);
-        }
-        public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
-        {
-            string json = WorldLoadUtils.DecompressString(bytes);
-            if (json == null) return null;
+            string json = File.ReadAllText(filePath);
+            
             try
             {
                 SerializedRobotUpgradeNodeNetwork network = JsonConvert.DeserializeObject<SerializedRobotUpgradeNodeNetwork>(json);

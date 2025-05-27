@@ -8,6 +8,7 @@ using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace UI
@@ -31,6 +32,7 @@ namespace UI
         private InputActions inputActions;
         public InputActions InputActions => inputActions;
         public InputAction exitAction;
+        public bool IsTyping => typing;
         
         public void Awake()
         {
@@ -73,15 +75,23 @@ namespace UI
             
             tmpInputField.onDeselect.AddListener((text) =>
             {
-                if (!playerScript) return; // Required lifetime check so the game doesn't crash when exiting whilst typing
-                playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
+                if (playerScript)
+                {
+                    // Required lifetime check so the game doesn't crash when exiting whilst typing
+                    playerScript.SyncKeyPressListeners(IsActive,false, blockMovement);
+                } 
                 typing = false;
             });
         }
 
+        public GameObject PeekTopGameObject()
+        {
+            return uiObjectStack.Count == 0 ? null : uiObjectStack.Peek().gameObject;
+        }
         public void OnEscapePress(InputAction.CallbackContext context)
         {
             if (typing) return;
+            
             if (uiObjectStack.Count == 0)
             {
                 OnInactiveEscapePress();

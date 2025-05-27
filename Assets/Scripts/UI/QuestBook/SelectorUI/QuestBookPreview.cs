@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -51,7 +52,8 @@ namespace UI.QuestBook {
             questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
             string questBookPath = Path.Combine(libraryPath, questBookSelectorData.Id);
             string questBookDataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
-            QuestBookData questBookData = GlobalHelper.DeserializeCompressedJson<QuestBookData>(questBookDataPath);
+            string json = File.ReadAllText(questBookDataPath);
+            QuestBookData questBookData = JsonConvert.DeserializeObject<QuestBookData>(json);
             questBookUI.Initialize(questBookData,libraryPath,questBookSelectorData.Id);
         }
     }

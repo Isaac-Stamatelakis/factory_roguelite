@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DevTools;
+using Newtonsoft.Json;
 using UI.QuestBook.Data;
 using UI.QuestBook.Data.Node;
 using UnityEngine;
@@ -12,8 +13,8 @@ namespace UI.QuestBook {
     {
         public const string WORLD_QUEST_FOLDER_PATH = "QuestBook";
         public const string MAIN_QUEST_BOOK_NAME = "_main";
-        public const string LIBRARY_DATA_PATH = "library_data.bin";
-        public const string QUESTBOOK_DATA_PATH = "questbook_data.bin";
+        public const string LIBRARY_DATA_PATH = "library_data.json";
+        public const string QUESTBOOK_DATA_PATH = "questbook_data.json";
         public static bool EditMode { get => editMode; set => editMode = value; }
         private static bool editMode = false;
         public const bool SHOW_ALL_COMPLETED = false;
@@ -36,7 +37,8 @@ namespace UI.QuestBook {
         }
         public static void VerifyIntegrityOfQuestBookData(string questBookLibraryPath, string playerQuestBookDataPathRoot)
         {
-            QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(Path.Combine(questBookLibraryPath,LIBRARY_DATA_PATH));
+            string questBookLibraryJson = File.ReadAllText(Path.Combine(questBookLibraryPath,LIBRARY_DATA_PATH));
+            QuestBookLibraryData questBookLibraryData = JsonConvert.DeserializeObject<QuestBookLibraryData>(questBookLibraryJson);
             Dictionary<string, QuestBookSelectorData> idSelectorDataDict = new Dictionary<string, QuestBookSelectorData>();
             foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
             {
@@ -70,7 +72,9 @@ namespace UI.QuestBook {
                     Directory.CreateDirectory(playerQuestBookDataPath);
                     questBookVerifyInfo.QuestFoldersAdded++;
                 }
-                QuestBookData questBookData = GlobalHelper.DeserializeCompressedJson<QuestBookData>(Path.Combine(questBookFolderPath,QUESTBOOK_DATA_PATH));
+
+                string questBookJson = File.ReadAllText(Path.Combine(questBookFolderPath, QUESTBOOK_DATA_PATH));
+                QuestBookData questBookData = JsonConvert.DeserializeObject<QuestBookData>(questBookJson);
                 Dictionary<string, QuestBookPageData> idPageDataDictionary = new Dictionary<string, QuestBookPageData>();
                 foreach (QuestBookPageData questBookPageData in questBookData.PageDataList)
                 {
@@ -79,7 +83,7 @@ namespace UI.QuestBook {
                 string[] pageFiles = Directory.GetFiles(playerQuestBookDataPath);
                 foreach (string pageFile in pageFiles)
                 {
-                    string fileName = Path.GetFileName(pageFile).Replace(".bin","");
+                    string fileName = Path.GetFileName(pageFile).Replace(".json","");
                     if (!idPageDataDictionary.ContainsKey(fileName))
                     {
                         File.Delete(pageFile);
@@ -89,7 +93,7 @@ namespace UI.QuestBook {
 
                 foreach (var (pageId, pageData) in idPageDataDictionary)
                 {
-                    string pageFilePath = Path.Combine(playerQuestBookDataPath, pageId) + ".bin";
+                    string pageFilePath = Path.Combine(playerQuestBookDataPath, pageId) + ".json";
                     List<QuestBookTaskData> taskDataList;
                     if (!pageFiles.Contains(pageFilePath))
                     {
@@ -97,7 +101,8 @@ namespace UI.QuestBook {
                     }
                     else
                     {
-                        taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(pageFilePath);
+                        string taskDataJson =  File.ReadAllText(pageFilePath);
+                        taskDataList = JsonConvert.DeserializeObject<List<QuestBookTaskData>>(taskDataJson);
                     }
     
                     Dictionary<int, QuestBookTaskData> questBookNodeDataDict = new Dictionary<int, QuestBookTaskData>();
@@ -134,10 +139,10 @@ namespace UI.QuestBook {
                     {
                         questBookVerifyInfo.PagesAdded++;
                     }
-                    GlobalHelper.SerializeCompressedJson(taskDataList, pageFilePath);
+                    string json = JsonConvert.SerializeObject(taskDataList);
+                    File.WriteAllText(pageFilePath, json);
                 }
             }
-            Debug.Log(questBookVerifyInfo.ToString());
         }
     }
 }

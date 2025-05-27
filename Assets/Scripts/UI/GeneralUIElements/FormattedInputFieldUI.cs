@@ -13,13 +13,15 @@ namespace UI.GeneralUIElements
         public TMP_InputField InputField => mInputField;
 
 
-        public void DisplayUInt(string title, uint value, Action<uint> callback)
+        public void DisplayUInt(string title, uint value, Action<uint> callback, uint min = 0, uint max = uint.MaxValue)
         {
             mInputField.text = value.ToString();
             mTitleText.text = title;
             mInputField.onValueChanged.AddListener((text) =>
             {
                 value = uint.TryParse(text, out uint result) ? result : 0;
+                if (value < min) value = min;
+                if (value > max) value = max;
                 callback(value);
             });
         }

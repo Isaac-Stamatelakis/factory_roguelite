@@ -88,7 +88,8 @@ namespace DevTools.CraftingTrees.Selector
                         DisplayList();
                         break;
                     case DisplayMode.File:
-                        SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = GlobalHelper.DeserializeCompressedJson<SerializedCraftingTreeNodeNetwork>(elementPath);
+                        string json = File.ReadAllText(elementPath); 
+                        SerializedCraftingTreeNodeNetwork serializedCraftingTreeNodeNetwork = JsonConvert.DeserializeObject<SerializedCraftingTreeNodeNetwork>(json);
                         CraftingTreeNodeNetwork craftingTreeNodeNetwork = SerializedCraftingTreeNodeNetworkUtils.DeserializeNodeNetwork(serializedCraftingTreeNodeNetwork);
                         if (craftingTreeNodeNetwork == null)
                         {

@@ -74,10 +74,9 @@ namespace DevTools.Upgrades
             SerializedRobotUpgradeNodeNetwork nodeNetwork = new SerializedRobotUpgradeNodeNetwork(type,subType,new List<RobotUpgradeNodeData>());
             
             string folderPath = DevToolUtils.GetDevToolPath(DevTool.Upgrade);
-            string path = Path.Combine(folderPath,upgradeName) + ".bin";
+            string path = Path.Combine(folderPath,upgradeName) + ".json";
             string data = JsonConvert.SerializeObject(nodeNetwork);
-            byte[] compressed = WorldLoadUtils.CompressString(data);
-            File.WriteAllBytes(path, compressed);
+            File.WriteAllText(path, data);
             upgradeSelector.DisplayList();
             GameObject.Destroy(gameObject);
         }

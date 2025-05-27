@@ -20,7 +20,7 @@ namespace UI {
         public void Initialize(SerializedItemSlot serializedItemSlot, Action<SerializedItemSlot> callback, SerializedItemSlotEditorParameters parameters,List<ItemObject> itemRestrictions = null)
         {
             mItemSearchUI.Initialize(itemRestrictions, OnSelect);
-            if (parameters == null)
+            if (parameters == null || (!parameters.DisplayAmount && !parameters.DisplayTags && !parameters.EnableArrows && !parameters.EnableDelete))
             {
                 mSlotValueEditorUI.gameObject.SetActive(false);
             }
@@ -41,7 +41,7 @@ namespace UI {
                 }
                 
                 callback?.Invoke(serializedItemSlot);
-                if (parameters == null) CanvasController.Instance.PopStack();
+                if (parameters == null || parameters.RemoveOnSelect) CanvasController.Instance.PopStack();
             }
 
         }
@@ -84,6 +84,7 @@ namespace UI {
         public Action<SerializedItemSlot> OnValueChange;
         public Action IndexValueChange;
         public Action ListChangeCallback;
+        public bool RemoveOnSelect;
     }
     
 }

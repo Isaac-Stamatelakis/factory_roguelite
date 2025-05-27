@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -103,7 +104,8 @@ namespace UI.QuestBook {
             QuestBookSelectorUI selectorUI = AssetManager.cloneElement<QuestBookSelectorUI>("TITLE");
             selectorUI.transform.SetParent(transform.parent,false);
             string libraryDataPath = Path.Combine(libraryPath, QuestBookUtils.LIBRARY_DATA_PATH);
-            QuestBookLibraryData libraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libraryDataPath);
+            string json = File.ReadAllText(libraryDataPath);
+            QuestBookLibraryData libraryData = JsonConvert.DeserializeObject<QuestBookLibraryData>(json);
             selectorUI.Initialize(libraryData,libraryPath);
             GameObject.Destroy(gameObject);
             
@@ -131,8 +133,10 @@ namespace UI.QuestBook {
 
         private UnOrderedPageData GetNodesFromQuestBookPageData(QuestBookPageData page)
         {
-            UnOrderedPageData unOrderedPageData = new UnOrderedPageData();
-            unOrderedPageData.QuestBookNodeDataList = QuestBookFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
+            UnOrderedPageData unOrderedPageData = new UnOrderedPageData
+            {
+                QuestBookNodeDataList = QuestBookFactory.GetQuestBookPageNodeData(questBookPath, page.Id)
+            };
             if (DevToolUtils.OnDevToolScene)
             {
                 unOrderedPageData.TaskDataList = new List<QuestBookTaskData>();
@@ -140,8 +144,10 @@ namespace UI.QuestBook {
             else
             {
                 string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
-                string playerPageDataPath = Path.Combine(playerQuestBookPath, page.Id) + ".bin";
-                unOrderedPageData.TaskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(playerPageDataPath);
+                string playerPageDataPath = Path.Combine(playerQuestBookPath, page.Id) + ".json";
+                string json = File.ReadAllText(playerPageDataPath);
+                List<QuestBookTaskData> taskDataList = JsonConvert.DeserializeObject<List<QuestBookTaskData>>(json);
+                unOrderedPageData.TaskDataList = taskDataList;
                 unOrderedPageData.PlayerPageDataPath = playerPageDataPath;
             }
 
@@ -150,10 +156,10 @@ namespace UI.QuestBook {
         
         public void OnDestroy()
         {
-            if (DevToolUtils.OnDevToolScene)
-            {
-                GlobalHelper.SerializeCompressedJson(questBookData,Path.Combine(questBookPath,QuestBookUtils.QUESTBOOK_DATA_PATH));
-            }
+            if (!DevToolUtils.OnDevToolScene) return;
+            string json = JsonConvert.SerializeObject(questBookData);
+            string path = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
+            File.WriteAllText(path,json);
         }
 
         private struct UnOrderedPageData

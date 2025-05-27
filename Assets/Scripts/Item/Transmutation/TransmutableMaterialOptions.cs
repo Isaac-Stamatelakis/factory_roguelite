@@ -8,9 +8,16 @@ using UnityEngine.Tilemaps;
 
 namespace Items.Transmutable
 {
+    public enum TransmutableMaterialState
+    {
+        None,
+        Metal,
+        Gem,
+    }
     [CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item/Instances/Transmutable/Options")]
     public class TransmutableMaterialOptions : ScriptableObject
     {
+        public TransmutableMaterialState transmutableMaterialState;
         public TransmutableItemState BaseState = TransmutableItemState.Ingot;
         public List<TransmutableStateOptions> States;
         public List<TransmutableTileStateOptions> TileStates;

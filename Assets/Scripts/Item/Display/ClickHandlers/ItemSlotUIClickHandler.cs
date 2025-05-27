@@ -29,6 +29,7 @@ namespace Item.Display.ClickHandlers
         public void OnPointerClick(PointerEventData eventData)
         {
             if (ReferenceEquals(inventoryUI, null)) return;
+            
             switch (inventoryUI.InventoryInteractMode)
             {
                 case InventoryInteractMode.Standard:

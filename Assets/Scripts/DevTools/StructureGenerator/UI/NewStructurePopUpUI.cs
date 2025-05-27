@@ -90,13 +90,13 @@ namespace DevTools.Structures {
             editIntervalVectorButton.onClick.AddListener(() => {
                 IntervalVectorUI intervalVectorUI = GameObject.Instantiate(intervalVectorUIPrefab);
                 intervalVectorUI.transform.SetParent(transform.parent,false);
-                intervalVectorUI.display(bounds,reloadIntervalVector);
+                intervalVectorUI.display(bounds,ReloadIntervalVector);
             });
             Display(selectedItem);
 
         }
 
-        public void reloadIntervalVector() {
+        public void ReloadIntervalVector() {
             boundsText.text = bounds.ToString();
         }
 

@@ -53,7 +53,7 @@ namespace Items.Inventory {
         private InventoryRestrictionMode restrictionMode;
         private string restrictedItemId;
         public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
-        private bool enableToolTip = true;
+        [SerializeField] private bool enableToolTip = true;
         public bool EnableToolTip => enableToolTip;
         private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;

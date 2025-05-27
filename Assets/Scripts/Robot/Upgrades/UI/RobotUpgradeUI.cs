@@ -79,8 +79,7 @@ namespace Robot.Upgrades
 
             SerializedRobotUpgradeNodeNetwork serializedRobotUpgradeNodeNetwork = RobotUpgradeUtils.ToSerializedNetwork(nodeNetwork);
             string json = JsonConvert.SerializeObject(serializedRobotUpgradeNodeNetwork);
-            byte[] bytes = WorldLoadUtils.CompressString(json);
-            File.WriteAllBytes(path, bytes);
+            File.WriteAllText(path, json);
         }
 
         public void OnPointerClick(PointerEventData eventData)

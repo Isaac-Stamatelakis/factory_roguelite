@@ -20,13 +20,13 @@ namespace DevTools.Upgrades
         internal void Display(DevToolUpgradeSelector parent, DevToolUpgradeInfo upgradeInfo)
         {
             this.upgradeInfo = upgradeInfo;
-            mNameText.text = Path.GetFileName(upgradeInfo.Path).Replace(".bin","");
+            mNameText.text = Path.GetFileName(upgradeInfo.Path).Replace(".json","");
             this.parent = parent;
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            SerializedRobotUpgradeNodeNetwork sNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(File.ReadAllBytes(upgradeInfo.Path));
+            SerializedRobotUpgradeNodeNetwork sNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradeInfo.Path);
             RobotUpgradeUI robotUpgradeUI = Instantiate(robotUpgradeNetworkUIPrefab);
             RobotUpgradeNodeNetwork robotUpgradeNodeNetwork = RobotUpgradeUtils.FromSerializedNetwork(sNetwork);
             if (robotUpgradeNodeNetwork == null)

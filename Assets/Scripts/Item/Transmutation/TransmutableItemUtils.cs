@@ -20,11 +20,17 @@ namespace Items.Transmutable
 
         public static string GetStateName(TransmutableItemMaterial material, TransmutableItemState state)
         {
-            return GetStateName(material.name, state);
+            return GetStateName(material, material.name, state);
         }
         
-        public static string GetStateName(string materialName, TransmutableItemState state)
+        public static string GetStateName(TransmutableItemMaterial material, string materialName, TransmutableItemState state)
         {
+            TransmutableMaterialState materialState = material?.MaterialOptions?.transmutableMaterialState ?? TransmutableMaterialState.None;
+            if (materialState == TransmutableMaterialState.Metal && state == TransmutableItemState.Liquid)
+            {
+                return $"Molten {materialName}";
+            }
+            
             string stateName = state.ToString();
             string[] split = stateName.Split("_");
             if (split.Length == 1)
@@ -40,7 +46,7 @@ namespace Items.Transmutable
         public static TransmutableItemObject GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
         {
             const string DEFAULT_MATERIAL = "Iron";
-            string name = GetStateName(DEFAULT_MATERIAL, transmutableItemState);
+            string name = GetStateName(null,DEFAULT_MATERIAL, transmutableItemState);
 
             string id = name.ToLower().Replace(" ", "_");
             return ItemRegistry.GetInstance().GetTransmutableItemObject(id);

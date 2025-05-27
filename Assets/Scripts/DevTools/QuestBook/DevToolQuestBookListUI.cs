@@ -30,14 +30,16 @@ namespace DevTools.QuestBook
             Directory.CreateDirectory(path);
             string libDataPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
             QuestBookLibraryData questBookLibraryData = QuestBookFactory.GetDefaultLibraryData();
-            GlobalHelper.SerializeCompressedJson(questBookLibraryData, libDataPath);
+            string json = JsonConvert.SerializeObject(questBookLibraryData);
+            File.WriteAllText(libDataPath, json);
             foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
             {
                 string questBookPath = Path.Combine(path, selectorData.Id);
                 Directory.CreateDirectory(questBookPath);
                 QuestBookData questBookData = QuestBookFactory.GetDefaultQuestBookData();
                 string questBookDataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
-                GlobalHelper.SerializeCompressedJson(questBookData, questBookDataPath);
+                string questBookJson =  JsonConvert.SerializeObject(questBookData);
+                File.WriteAllText(questBookDataPath, questBookJson);
             }
             DisplayList();
         }
@@ -60,7 +62,8 @@ namespace DevTools.QuestBook
         {
             QuestBookSelectorUI questBookSelectorUI = Instantiate(questBookSelectorUIPrefab);
             string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
-            QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);
+            string json = File.ReadAllText(libPath);
+            QuestBookLibraryData questBookLibraryData = JsonConvert.DeserializeObject<QuestBookLibraryData>(json);
             if (questBookLibraryData == null)
             {
                 Debug.LogError($"Invalid lib data at path '{libPath}'");
