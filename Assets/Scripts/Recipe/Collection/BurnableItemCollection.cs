@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Item.Burnables;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using UnityEngine;
@@ -81,8 +82,8 @@ namespace Recipe.Collection
             List<BurnableItemDisplay> displayList = new List<BurnableItemDisplay>();
             foreach (var material in materialBurnDurations.Keys)
             {
-                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
-                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                ITransmutableItem defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot((ItemObject)defaultItem, 1,null);
                 displayList.Add(new BurnableItemDisplay(defaultItemSlot));
             }
 
@@ -111,8 +112,8 @@ namespace Recipe.Collection
             var shuffledMaterials = materials.OrderBy(_ => random.Next()).Take(materialAmount);
             foreach (var material in shuffledMaterials)
             {
-                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
-                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                ITransmutableItem defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot((ItemObject)defaultItem, 1,null);
                 displayList.Add(defaultItemSlot);
             }
             

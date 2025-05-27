@@ -17,12 +17,9 @@ namespace UI.Chat {
         private struct RecordedMessage
         {
             public string Content;
-            public float Time;
-
-            public RecordedMessage(string content, float time)
+            public RecordedMessage(string content)
             {
                 Content = content;
-                Time = time;
             }
         }
         private const float DISPLAY_DURATION = 6f;
@@ -40,6 +37,7 @@ namespace UI.Chat {
         [SerializeField] private TextChatMessageUI textChatMessageUIPrefab;
         private List<GameObject> tempMessages = new List<GameObject>();
         private List<RecordedMessage> recordedMessages;
+        private List<RecordedMessage> navigateableMessages;
       
         private bool typing = false;
         private readonly float hintBlinkTime = 0.4f;
@@ -51,6 +49,7 @@ namespace UI.Chat {
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<RecordedMessage>();
+            navigateableMessages = new List<RecordedMessage>();
             string title = "<color=purple>HAPPY Go Mine</color>";
             string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback. Thanks!";
             SendAndRecordMessage(message);
@@ -92,15 +91,11 @@ namespace UI.Chat {
         private void NavigatePress(InputAction.CallbackContext context)
         {
             float direction = context.ReadValue<float>();
-            if (direction > 0)
-            {
-                previousMessageIndex++;
-            } else if (direction < 0)
-            {
-                previousMessageIndex--;
-            }
+            previousMessageIndex += direction > 0 ? -1 : 1;
             SetInputToPreviousMessage();
         }
+
+        
 
         private void OnScroll(InputAction.CallbackContext context)
         {
@@ -148,10 +143,10 @@ namespace UI.Chat {
         {
             string parsedWhiteSpace = message.Replace(" ", "");
             if (parsedWhiteSpace.Length <= 0) return;
-            RecordMessage(message);
+            RecordMessage(message,sentByPlayer);
             SendChatMessage(message,sentByPlayer:sentByPlayer);
         }
-        public void RecordMessage(string message) {
+        public void RecordMessage(string message, bool canNavigate) {
             if (recordedMessages.Count > 50) {
                 recordedMessages.RemoveAt(0);
             }
@@ -165,13 +160,24 @@ namespace UI.Chat {
                 return;
             }
 
-            this.recordedMessages.Add(new RecordedMessage(message,Time.time));
+            this.recordedMessages.Add(new RecordedMessage(message));
+            if (canNavigate)
+            {
+                navigateableMessages.Add(new RecordedMessage(message));
+            }
+
+            if (navigateableMessages.Count > 50)
+            {
+                navigateableMessages.RemoveAt(0);
+            }
         }
 
-        private void SetInputToPreviousMessage() {
-            previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,recordedMessages.Count-1);
-           
-            inputField.text = previousMessageIndex == -1 ? "" : recordedMessages[previousMessageIndex].Content;
+        private void SetInputToPreviousMessage()
+        {
+            if (previousMessageIndex < 0) previousMessageIndex = 0;
+            string inputText = previousMessageIndex >= navigateableMessages.Count ? string.Empty : navigateableMessages[previousMessageIndex].Content;
+
+            inputField.text = inputText;
             inputField.caretPosition = 0;
         }
 
@@ -359,7 +365,7 @@ namespace UI.Chat {
         }
         public void HideTextField()
         {
-            previousMessageIndex = recordedMessages.Count;
+            previousMessageIndex = navigateableMessages.Count;
             EventSystem.current.SetSelectedGameObject(null);
             foreach (GameObject tempMessage in tempMessages)
             {

@@ -142,13 +142,6 @@ namespace TileMaps.Place {
         }
         public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
-            if (tileItem.tileType == TileType.Platform)
-            {
-                IWorldTileMap platformTileMap = closedChunkSystem.GetTileMap(TileMapType.Platform);
-                Vector2Int tilePosition = platformTileMap.GetHitTilePosition(worldPlaceLocation);
-                return !platformTileMap.HasTile(tilePosition);
-            }
-
             bool playerCollidable = tileItem.tileType == TileType.Block;
             if (playerCollidable)
             {
@@ -157,10 +150,7 @@ namespace TileMaps.Place {
                 if (RaycastTileInBox(centeredWorld, playerLayer)) return false;
             }
             
-            
-            
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
-            
             
             if (exclusion == null)
             {
@@ -170,7 +160,6 @@ namespace TileMaps.Place {
             {
                 if (TileWithinIntervalAreaRangeExclusion(intervalVector, exclusion, TileMapLayer.Base,tileItem.tileOptions.placeBreakable)) return false;
             }
-            
             
             if (DevMode.Instance.noPlaceLimit) return true;
             
@@ -530,9 +519,10 @@ namespace TileMaps.Place {
             return !conduitTileMap.HasTile(tileMapPosition);
         }
 
-        private static bool FluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+        public static bool FluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+            Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPosition);
+            if (RaycastTileInBox(centeredWorld, 1 << LayerMask.NameToLayer("Block"), true)) return false;
             Vector2Int tileMapPosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
-            if (RaycastTileInBox(worldPosition, TileMapLayer.Base.ToRaycastLayers(), true)) return false;
             return !iWorldTileMap.HasTile(tileMapPosition);
         }
 

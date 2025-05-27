@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using Recipe;

@@ -164,7 +164,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
                 remainingAmount -= spaceAtY;
             }
 
-            TileBase tile = fluidTileItem.GetTile(fillPercent);
+            TileBase tile = fluidTileItem.fluidTile?.GetTile(fillPercent);
             foreach (int x in xCoords)
             {
                 tilemap.SetTile(new Vector3Int(x,y,0), tile);

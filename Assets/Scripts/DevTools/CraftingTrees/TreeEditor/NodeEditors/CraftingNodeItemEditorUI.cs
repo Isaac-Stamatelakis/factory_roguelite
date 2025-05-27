@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DevTools.CraftingTrees.Network;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Inventory;
 using Items.Transmutable;
@@ -54,20 +55,22 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
             if (serializedItemSlot == null) return;
             if (node.NodeType != CraftingTreeNodeType.Transmutation) return;
             TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-            TransmutableItemObject currentNewItem = ItemRegistry.GetInstance().GetTransmutableItemObject(serializedItemSlot.id);
-            if (!currentNewItem)
+            ITransmutableItem currentNewItem = ItemRegistry.GetInstance().GetTransmutableItemObject(serializedItemSlot.id);
+            if (currentNewItem == null)
             {
                 transmutationNodeData.OutputItemId = null;
                 node.NetworkData.InputIds.Clear(); // Can clear because will only ever have one element
                 return;
             }
                             
-            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
-            if (!transmutableItemObject) return;
+            ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(transmutationNodeData.OutputItemId);
+            if (transmutableItemObject == null) return;
+            
             TransmutableItemMaterial material = currentNewItem.getMaterial();
             if (!material) return;
-            TransmutableItemObject newTransmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, transmutableItemObject.getState());
-            transmutationNodeData.OutputItemId = newTransmutableItemObject?.id;
+            
+            ITransmutableItem newTransmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, transmutableItemObject.getState());
+            transmutationNodeData.OutputItemId = ((ItemObject)newTransmutableItemObject)?.id;
             transmutationNodeData.InputState = currentNewItem.getState();
             transmutationNodeData.InputAmount = serializedItemSlot.amount;
             int id = node.GetId();

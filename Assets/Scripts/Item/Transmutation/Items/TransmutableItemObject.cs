@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
 using Item.Slot;
+using Item.Transmutation;
 using UnityEngine;
 
 namespace Items.Transmutable {
-    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem
+    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem, IColorableItem
     {
-        [SerializeField] private TransmutableItemState state;
+        [SerializeField] private TransmutableItemObjectState state;
         [SerializeField] private TransmutableItemMaterial material;
         public TransmutableItemMaterial getMaterial()
         {
@@ -16,12 +17,12 @@ namespace Items.Transmutable {
 
         public TransmutableItemState getState()
         {
-            return state;
+            return (TransmutableItemState)state;
         }
 
         public void setState(TransmutableItemState state)
         {
-            this.state = state;
+            this.state = (TransmutableItemObjectState)state;
         }
 
         public void setMaterial(TransmutableItemMaterial material)
@@ -31,11 +32,20 @@ namespace Items.Transmutable {
 
         public ItemState getItemState()
         {
-            return state.getMatterState();
+            return ((TransmutableItemState)state).getMatterState();
         }
         public override Sprite[] GetSprites()
         {
-            return material.GetOptionStateDict()[state].sprites;
+            // Probably worth caching this
+            foreach (var stateOptions in material.MaterialOptions.States)
+            {
+                if (stateOptions.state == state)
+                {
+                    return stateOptions.sprites;
+                }
+            }
+
+            return null;
         }
 
         public override Sprite GetSprite()
@@ -58,6 +68,8 @@ namespace Items.Transmutable {
         {
             // Cannot set :)
         }
+
+        public Color Color => material?.color ?? Color.white;
     }
 }
 

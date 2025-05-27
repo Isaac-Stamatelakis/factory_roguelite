@@ -25,17 +25,18 @@ namespace Item.Transmutation.Info
             
             mChemFormulaText.text = $"Chemical Formula: {TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula)}";
             TransmutableItemState defaultState = material.MaterialOptions.BaseState;
-            ItemObject defaultStateItem = TransmutableItemUtils.GetMaterialItem(material, defaultState);
-            ItemSlot defaultStateItemSlot = new ItemSlot(defaultStateItem,1,null);
+            ITransmutableItem defaultStateItem = TransmutableItemUtils.GetMaterialItem(material, defaultState);
+            ItemSlot defaultStateItemSlot = new ItemSlot((ItemObject)defaultStateItem,1,null);
             mDefaultStateInventory.DisplayInventory(new List<ItemSlot>{defaultStateItemSlot},clear:false);
             mDefaultStateInventory.SetInteractMode(InventoryInteractMode.Recipe);
             
             List<ItemSlot> stateInventory = new List<ItemSlot>();
             foreach (var stateOptions in material.MaterialOptions.States)
             {
-                if (stateOptions.state == material.MaterialOptions.BaseState) continue;
-                ItemObject stateItem = TransmutableItemUtils.GetMaterialItem(material, stateOptions.state);
-                ItemSlot stateItemSlot = new ItemSlot(stateItem,1,null);
+                TransmutableItemState state = (TransmutableItemState)stateOptions.state;
+                if (state == material.MaterialOptions.BaseState) continue;
+                ITransmutableItem stateItem = TransmutableItemUtils.GetMaterialItem(material, state);
+                ItemSlot stateItemSlot = new ItemSlot((ItemObject)stateItem,1,null);
                 stateInventory.Add(stateItemSlot);
             }
             mStateInventory.DisplayInventory(stateInventory);

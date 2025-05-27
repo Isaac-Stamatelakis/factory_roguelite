@@ -172,7 +172,7 @@ namespace Fluids {
         {
             particles.transform.position = position;
             var mainModule = particles.main;
-            mainModule.startColor = fluidTileItem.fluidOptions.ParticleColor;
+            mainModule.startColor = fluidTileItem.fluidOptions.GetFluidColor();
             particles.Play();
         }
 
@@ -235,12 +235,11 @@ namespace Fluids {
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
-            Tile tile = fluidTileItem.getTile(tileIndex);
+            Tile tile = fluidTileItem.fluidTile?.GetTile(tileIndex);
             map.SetTile(vector3Int,tile);
-            if (!lit) return;
-            if (map.GetTileFlags(vector3Int) == TileFlags.None) return;
+            Color fluidColor = fluidTileItem.fluidOptions.GetFluidColor();
             map.SetTileFlags(vector3Int,TileFlags.None);
-            map.SetColor(vector3Int,Color.white*0.9f);
+            map.SetColor(vector3Int,fluidColor*0.9f);
         }
         
         
@@ -327,15 +326,15 @@ namespace Fluids {
             flashCounter++;
             if (flashCounter < ticksToTryFlash) return;
             flashCounter = 0;
-            Bounds bounds = unlitCollider2D.bounds;
+            Bounds bounds = unlitCollider2D.composite.bounds;
             
             // Large pool of lava in large camera view has ~1000 tiles
             const float CHANCE = 1024;
             TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds,CHANCE);
             if (!randomPosition.HasValue) return;
             Vector3Int cellPosition = randomPosition.Value.CellPosition;
-            if (!unlitTileMap.HasTile(cellPosition) || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f) return;
-           
+            // || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f Might want to readd a check like this
+            if (!unlitTileMap.HasTile(cellPosition)) return;
             int flashSize = UnityEngine.Random.Range(6, 10);
             StartCoroutine(FlashUnlitMap(cellPosition,flashSize));
         }
@@ -363,7 +362,7 @@ namespace Fluids {
 
         private void DisplayRandomParticles(Tilemap map, Collider2D mapCollider)
         {
-            Bounds bounds = mapCollider.bounds;
+            Bounds bounds = mapCollider.composite.bounds;
             
             TileMapPositionInfo? nullableRandomPosition = GetRandomCellPosition(ref bounds,256);
             if (!nullableRandomPosition.HasValue) return;
@@ -386,7 +385,10 @@ namespace Fluids {
             {
                 unlitTileMap.SetTileFlags(vector3Int,TileFlags.None);
                 Color current = unlitTileMap.GetColor(vector3Int);
-                unlitTileMap.SetColor(vector3Int,Color.Lerp(Color.white,current,0.5f));
+                Color.RGBToHSV(current, out float h, out float s, out float v);
+                h = (h + 0.005f) % 1.0f;
+                Color hueShifted = Color.HSVToRGB(h, s, v);
+                unlitTileMap.SetColor(vector3Int, hueShifted);
             }
             
 

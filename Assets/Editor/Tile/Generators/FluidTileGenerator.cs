@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using Items;
+using Tiles.Fluid;
 
 public class FluidTileGeneratorWindow : EditorWindow {
     private Texture2D texture;
@@ -52,11 +53,11 @@ public class FluidTileGeneratorWindow : EditorWindow {
         
         if (GUILayout.Button("Generate Fluid Item"))
         {
-            createTileItem();
+            CreateTileItem();
         }
     }
 
-    void createTileItem()
+    private void CreateTileItem()
     {
         ItemEditorFactory.CreateDirectory(tileName);
         FluidTileItem fluidTileItem = ScriptableObject.CreateInstance<FluidTileItem>();
@@ -64,10 +65,17 @@ public class FluidTileGeneratorWindow : EditorWindow {
             viscosity: viscosity,
             invertedGravity: invertedGravity
         );
+        
+        FluidTile fluidTile = ScriptableObject.CreateInstance<FluidTile>();
+        fluidTile.name = "T~" + tileName;
+        fluidTile.tiles = EditorFactory.fluidTilesFromSprite(texture,"Assets/EditorCreations/" + tileName, tileName,invertedGravity);
+        AssetDatabase.CreateAsset(fluidTile,"Assets/EditorCreations/" + tileName + "/" + fluidTile.name + ".asset");
+        
         fluidTileItem.fluidOptions = fluidOptions;
         fluidTileItem.name = tileName;
         fluidTileItem.id = ItemEditorFactory.formatId(tileName);
-        fluidTileItem.tiles = EditorFactory.fluidTilesFromSprite(texture,"Assets/EditorCreations/" + tileName, tileName,invertedGravity);
+        fluidTileItem.fluidTile = fluidTile;
+        
         
         AssetDatabase.CreateAsset(fluidTileItem,"Assets/EditorCreations/" + tileName + "/" + tileName + ".asset");
         AssetDatabase.Refresh();

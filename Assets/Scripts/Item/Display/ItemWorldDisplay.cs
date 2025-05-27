@@ -74,30 +74,18 @@ namespace Item.Display
             }
             spriteRenderer.sprite = itemSlot.itemObject.GetSprite();
             spriteRenderer.material = defaultMaterial;
+            spriteRenderer.color = itemSlot.itemObject is IColorableItem colorableItem ? colorableItem.Color : Color.white;
+            
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
                 var material = transmutableItemObject.getMaterial();
                 if (material)
                 {
-                    spriteRenderer.color = transmutableItemObject.getMaterial().color;
                     if (material.WorldShaderMaterial)
                     {
                         spriteRenderer.material = material.WorldShaderMaterial;
                     }
                 }
-            } else if (itemSlot.itemObject is TileItem tileItem)
-            {
-                if (tileItem.tileOptions.TransmutableColorOverride)
-                {
-                    spriteRenderer.color = tileItem.tileOptions.TransmutableColorOverride.color;
-                } else if (tileItem.tileOptions.TileColor)
-                {
-                    spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
-                }
-                
-            } else if (itemSlot.itemObject is IColorableItem colorableItem)
-            {
-                spriteRenderer.color = colorableItem.Color;
             }
             gameObject.transform.localScale = new Vector3(0.5f, 0.5f,1f);
             

@@ -2,41 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
 using Item.ItemObjects.Interfaces;
+using Items.Transmutable;
 using TileEntity;
+using Tiles.Fluid;
+using Tiles.Options.Colors;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Items {
-    public class FluidTileItem : ItemObject, IPlacableItem
+    public class FluidTileItem : ItemObject, IPlacableItem, IColorableItem
     {
         public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
+        
+        [SerializeField] public FluidTile fluidTile;
+        [SerializeField] public FluidOptions fluidOptions;
         public override Sprite[] GetSprites()
         {
             return new Sprite[]{GetSprite()};
         }
-        public Tile getTile(int fill) {
-            if (fill == 0) {
-                return null;
-            }
-            fill--;
-            return fill switch
-            {
-                0 => tiles[1],
-                < 0 => null,
-                _ => fill >= tiles.Length ? tiles[^1] : tiles[fill]
-            };
-        }
-
-        public Tile GetTile(float fill)
-        {
-            int tileIndex = Mathf.FloorToInt(tiles.Length * fill);
-            if (tileIndex == 0) return null;
-            tileIndex--;
-            return tiles[tileIndex];
-        }
-
         public override ItemDisplayType? getDisplayType()
         {
             return ItemDisplayType.Single;
@@ -54,15 +39,17 @@ namespace Items {
 
         public override Sprite GetSprite()
         {
-            return tiles[^1].sprite;
+            TileBase defaultTile = fluidTile?.GetDefaultTile();
+            if (defaultTile is not Tile tile) return null;
+            return tile.sprite;
         }
 
-        [SerializeField] public Tile[] tiles;
-        [SerializeField] public FluidOptions fluidOptions;
         public TileBase GetTile()
         {
-            return tiles[^1];
+            return fluidTile?.GetDefaultTile();
         }
+
+        public Color Color => fluidOptions.GetFluidColor();
     }
     [System.Serializable]
     public class FluidOptions {
@@ -73,11 +60,30 @@ namespace Items {
         [Range(0,10)] public float DamagePerSecond = 0f;
         public int CollisionDominance = 0;
         public TileItem OnCollisionTile;
-        public Color ParticleColor;
         public bool DestroysItems;
+        public TileColorOptionObject Color;
+        public TransmutableItemMaterial MaterialColorOverride;
+        public float Opacity = 1f;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;
+        }
+
+        public Color GetFluidColor()
+        {
+            Color color = GetDefaultFluidColor();
+            color.a = Opacity;
+            return color;
+        }
+
+        private Color GetDefaultFluidColor()
+        {
+            if (MaterialColorOverride)
+            {
+                return MaterialColorOverride.color;
+            }
+
+            return Color ? Color.GetColor() : UnityEngine.Color.white;
         }
 
         public int Viscosity { get => viscosity;}

@@ -5,10 +5,16 @@ using UnityEngine;
 
 namespace Item.Transmutation.Items
 {
+    public enum TransmutableFluidItemState
+    {
+        Liquid = TransmutableItemState.Liquid,
+        Gas = TransmutableItemState.Gas,
+        Plasma = TransmutableItemState.Plasma,
+    }
     public class TransmutableFluidTileItemObject : FluidTileItem, ITransmutableItem
     {
         public TransmutableItemMaterial material;
-        public TransmutableItemState state;
+        public TransmutableFluidItemState state;
         public TransmutableItemMaterial getMaterial()
         {
             return material;
@@ -16,12 +22,12 @@ namespace Item.Transmutation.Items
 
         public TransmutableItemState getState()
         {
-            return state;
+            return (TransmutableItemState)state;
         }
 
         public void setState(TransmutableItemState state)
         {
-            this.state = state;
+            this.state = (TransmutableFluidItemState)state;
         }
 
         public void setMaterial(TransmutableItemMaterial material)

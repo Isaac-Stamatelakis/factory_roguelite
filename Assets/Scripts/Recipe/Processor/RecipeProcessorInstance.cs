@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Transmutable;
 using Recipe.Data;
@@ -340,6 +341,7 @@ namespace Recipe.Processor
                     List<TransmutableItemMaterial> materials = ItemRegistry.GetInstance().GetAllMaterials();
                     List<ItemSlot> inputs = new List<ItemSlot>();
                     List<ItemSlot> outputs = new List<ItemSlot>();
+                    // TODO add fluid and tile
                     foreach (TransmutableItemMaterial material in materials)
                     {
                         bool inputMatch = false;
@@ -347,7 +349,7 @@ namespace Recipe.Processor
                         foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
                         {
                             
-                            var state = stateOptions.state;
+                            TransmutableItemState state = (TransmutableItemState)stateOptions.state;
                             if (state == transRecipe.InputState)
                             {
                                 inputMatch = true;
