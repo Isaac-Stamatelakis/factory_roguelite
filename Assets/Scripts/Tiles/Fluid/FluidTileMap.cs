@@ -386,7 +386,7 @@ namespace Fluids {
                 unlitTileMap.SetTileFlags(vector3Int,TileFlags.None);
                 Color current = unlitTileMap.GetColor(vector3Int);
                 Color.RGBToHSV(current, out float h, out float s, out float v);
-                h = (h + 0.005f) % 1.0f;
+                h = (h + 0.003f) % 1.0f;
                 Color hueShifted = Color.HSVToRGB(h, s, v);
                 unlitTileMap.SetColor(vector3Int, hueShifted);
             }

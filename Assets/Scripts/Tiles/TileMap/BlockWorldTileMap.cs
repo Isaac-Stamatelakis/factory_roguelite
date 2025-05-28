@@ -41,6 +41,7 @@ namespace TileMaps {
             overlayTileMap = AddOverlay(OVERLAY_Z);
             GameObject outline = new GameObject();
             outline.name = "Outline";
+            outline.tag = "Outline";
             outline.AddComponent<TilemapRenderer>();
             outlineTileMap = outline.GetComponent<Tilemap>();
             outline.transform.SetParent(transform,false);

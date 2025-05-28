@@ -422,7 +422,7 @@ namespace DevTools.CraftingTrees.Network
 
         public override void OnDeleteSelectedNode()
         {
-            // TODO Hide side view
+            craftingTreeGeneratorUI.NodeEditorUI.Hide();
         }
         
         public override CraftingTreeGeneratorNode LookUpNode(int id)
@@ -448,11 +448,16 @@ namespace DevTools.CraftingTrees.Network
             return GameObject.Instantiate(mCraftingTreeNodeUIPrefab).gameObject;
         }
 
-        public void OnStatusChange(bool generationStatus)
+        public void OnStatusChange(bool generated)
         {
-            this.generated = generationStatus;
-            editController.ClearSpawnedObject();
-            SelectNode(null);
+            this.generated = generated;
+            if (generated)
+            {
+                editController.ClearSpawnedObject();
+                SelectNode(null);
+            }
+            editController.gameObject.SetActive(!generated);
+            
         }
     }
 }

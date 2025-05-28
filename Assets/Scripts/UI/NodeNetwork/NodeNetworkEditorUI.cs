@@ -40,8 +40,6 @@ namespace UI.NodeNetwork {
                                           "Click <b>[R]</b> to Recenter");
             multiSelectIndicator.transform.SetParent(this.nodeNetworkUI.GetContentContainer());
         }
-
-        
         
         public void OnDestroy() {
             addNode.onClick.RemoveAllListeners();
@@ -72,13 +70,12 @@ namespace UI.NodeNetwork {
             {
                 multiSelectAction = new MultiSelectAction(nodeNetworkUI,mousePosition,multiSelectIndicator,canvasCamera,canvasScaler);
             }
-            
-            multiSelectAction?.SetCurrentPosition(mousePosition);
-            if (Mouse.current.leftButton.wasReleasedThisFrame)
-            {
-                multiSelectAction?.Terminate();
-                multiSelectAction = null;
-            }
+
+            if (multiSelectAction == null) return;
+            multiSelectAction.SetCurrentPosition(mousePosition);
+            if (Mouse.current.leftButton.isPressed) return;
+            multiSelectAction.Terminate();
+            multiSelectAction = null;
         }
 
         private void SpawnNodePlacement() {
@@ -88,8 +85,11 @@ namespace UI.NodeNetwork {
            
             RectTransform parentRect = (RectTransform)transform.parent;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
-            Vector2 offset = parentRect.anchoredPosition/contentContainer.localScale.x;
+            Vector2 offset = parentRect.anchoredPosition;
+            
+            // Idk but it works
             Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Mouse.current.position.ReadValue()) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
+            mousePosition /= Screen.width / canvasScaler.referenceResolution.x;
             Vector2 gridPosition = SnapGrid(mousePosition,((RectTransform)contentContainer).anchoredPosition,contentContainer.localScale.x);
             RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = gridPosition;

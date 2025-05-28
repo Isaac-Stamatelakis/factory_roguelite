@@ -94,10 +94,12 @@ namespace UI.NodeNetwork {
         void DeletePress(InputAction.CallbackContext context)
         {
             if (CanvasController.Instance.IsTyping) return;
+            if (selectedNodes.Count == 0) return;
             foreach (var node in selectedNodes)
             {
                 DeleteNode(node.GetNode());
             }
+            selectedNodes.Clear();
             OnDeleteSelectedNode();
         }
 

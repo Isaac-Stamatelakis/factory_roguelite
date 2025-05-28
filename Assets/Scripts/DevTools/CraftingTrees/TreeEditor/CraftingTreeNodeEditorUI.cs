@@ -28,14 +28,23 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private FormattedInputFieldUI mFormattedInputFieldPrefab;
         [SerializeField] private GameObject mBlocker;
 
-        public void OnStatusChange(bool generationStatus)
+        public void OnStatusChange(bool generated)
         {
-            mBlocker.gameObject.SetActive(generationStatus);
+            mBlocker.gameObject.SetActive(generated);
+        }
+
+        public void Hide()
+        {
+            GlobalHelper.DeleteAllChildren(nodeContentContainer);
+            emptyContent.gameObject.SetActive(true);
+            baseNodeContent.SetActive(false);
+            nodeContentContainer.gameObject.SetActive(false);
         }
         public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI, bool openSearchInstantly)
         {
             baseNodeContent.SetActive(true);
             emptyContent.gameObject.SetActive(false);
+            nodeContentContainer.gameObject.SetActive(true);
             mDeleteButton.onClick.RemoveAllListeners();
             gameObject.SetActive(true);
             mDeleteButton.onClick.AddListener(DeletePress);
