@@ -10,40 +10,37 @@ namespace Player
     {
         BonusJump,
         Teleportation,
-        NanoBots
+        NanoBots,
+        RocketBoots
     }
-    public class PlayerParticles
+    [System.Serializable]
+    public class PlayerParticles : MonoBehaviour
     {
-        private PlayerRobot playerRobot;
-        private ParticleSystem bonusJumpParticles;
-        private ParticleSystem teleportParticles;
-        private ParticleSystem nanoBotParticles;
+        [SerializeField] private ParticleSystem bonusJumpParticles;
+        [SerializeField] private ParticleSystem teleportParticles;
+        [SerializeField] private ParticleSystem nanoBotParticles;
+        [SerializeField] private ParticleSystem rocketBootParticles;
 
-        public PlayerParticles(PlayerRobot playerRobot, ParticleSystem bonusJumpParticles, ParticleSystem teleportParticles, ParticleSystem nanoBotParticles)
-        {
-            this.playerRobot = playerRobot;
-            this.bonusJumpParticles = bonusJumpParticles;
-            this.teleportParticles = teleportParticles;
-            this.nanoBotParticles = nanoBotParticles;
-        }
         
-
         public void PlayParticle(PlayerParticle particle)
         {
-            switch (particle)
+            ParticleSystem particles = GetParticleSystem(particle);
+            if (!particles.isEmitting)
             {
-                case PlayerParticle.BonusJump:
-                    bonusJumpParticles.Play();
-                    break;
-                case PlayerParticle.Teleportation:
-                    teleportParticles.Play();
-                    break;
-                case PlayerParticle.NanoBots:
-                    nanoBotParticles.Play();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(particle), particle, null);
+                particles.Play();
             }
+        }
+
+        private ParticleSystem GetParticleSystem(PlayerParticle particle)
+        {
+            return particle switch
+            {
+                PlayerParticle.BonusJump => bonusJumpParticles,
+                PlayerParticle.Teleportation => teleportParticles,
+                PlayerParticle.NanoBots => nanoBotParticles,
+                PlayerParticle.RocketBoots => rocketBootParticles,
+                _ => throw new ArgumentOutOfRangeException(nameof(particle), particle, null)
+            };
         }
         
         

@@ -72,10 +72,9 @@ namespace Player {
         [SerializeField] private Collider2D leftSlopePlatformCollider;
         [SerializeField] private Collider2D rightSlopePlatformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
-
+        [SerializeField] private PlayerParticles playerParticles;
         [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
-        [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
         
         private PlayerMovementState movementState;
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
@@ -111,7 +110,8 @@ namespace Player {
         public RobotArmController gunController;
         public DevMode DevMode { get; private set; }
         public PlayerAnimationController AnimationController { get; private set; }
-        public PlayerParticles PlayerParticles { get; private set; }
+
+        public PlayerParticles PlayerParticles => playerParticles;
 
         public PlayerDamage PlayerDamage { get; private set; }
         
@@ -156,45 +156,10 @@ namespace Player {
             
             InitializeMovementState();
             
-            StartCoroutine(LoadAsyncAssets());
-
             enabled = false;
         }
 
-        private IEnumerator LoadAsyncAssets()
-        {
-            GameObject container = new GameObject("ParticleContainer");
-            container.transform.SetParent(transform,false);
-            container.transform.localPosition = Vector3.zero;
-            IEnumerator LoadAsset(AssetReference assetReference, Action<GameObject> onLoad)
-            {
-                var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
-                yield return handle;
-                var instantiated = GameObject.Instantiate(handle.Result, container.transform, false);
-                instantiated.transform.localPosition = new Vector3(0,0,5);
-                onLoad(instantiated);
-                Addressables.Release(handle);
-            }
-            ParticleSystem bonusJumpParticles = null;
-            ParticleSystem teleportParticles = null;
-            ParticleSystem nanoBotParticles = null;
-            var a = StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
-            {
-                bonusJumpParticles = result.gameObject.GetComponent<ParticleSystem>();
-            }));
-            var b = StartCoroutine(LoadAsset(RobotUpgradeAssets.TeleportParticles, (GameObject result) =>
-            {
-                teleportParticles = result.gameObject.GetComponent<ParticleSystem>();
-            }));
-            var c = StartCoroutine(LoadAsset(RobotUpgradeAssets.NanoBotParticles, (GameObject result) =>
-            {
-                nanoBotParticles = result.gameObject.GetComponent<ParticleSystem>();
-            }));
-            yield return a;
-            yield return b;
-            yield return c;
-            PlayerParticles = new PlayerParticles(this,bonusJumpParticles,teleportParticles,nanoBotParticles);
-        }
+       
 
         public void InitializeMovementState()
         {
@@ -614,6 +579,7 @@ namespace Player {
             fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
+            rb.velocity = Vector2.zero;
             
             InvincibilityFrames = int.MaxValue;
             if (currentMovement is StandardPlayerMovement standardPlayerMovement)
@@ -636,6 +602,7 @@ namespace Player {
             InvincibilityFrames = 0;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.velocity = Vector2.zero;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
             List<CollisionState> stateArray = collisionStates.ToList();
@@ -858,16 +825,13 @@ namespace Player {
             SetMovementState(upgrades > 0 ? PlayerMovementState.Flight : PlayerMovementState.Standard);
         }
         
-        
-
-        [System.Serializable]
-        private class RobotUpgradeAssetReferences
+        public void OnRocketBootUpgradeChange()
         {
-            public AssetReference RocketBootParticles;
-            public AssetReference BonusJumpParticles;
-            public AssetReference TeleportParticles;
-            public AssetReference NanoBotParticles;
+            if (currentMovement is not StandardPlayerMovement standardPlayerMovement) return;
+            int upgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
+            standardPlayerMovement.ToggleRocketBoots(upgrades > 0);
         }
+        
 
         public void ResetIgnorePlatformFrames()
         {
