@@ -89,7 +89,8 @@ namespace Player.Movement
 
         public override void FixedMovementUpdate()
         {
-            
+            playerRobot.AnimationController.PlayAnimation(playerRobot.IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         }
 
         public override void Disable()

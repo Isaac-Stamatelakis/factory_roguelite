@@ -498,8 +498,6 @@ namespace Player {
                 case Direction.Right:
                     bottomCenter.x += xExtent;
                     break;
-                default:
-                    break;
             }
 
             int layer = blockLayer;
@@ -512,7 +510,8 @@ namespace Player {
         public void FixedUpdate()
         {
             if (paused) return;
-            
+
+            BlockClimbingFrames--;
             IgnorePlatformFrames--;
             IgnoreSlopePlatformFrames--;
             InvincibilityFrames--;
@@ -526,46 +525,16 @@ namespace Player {
             
             currentMovement?.FixedMovementUpdate();
             LiveYUpdates--;
-            
-            switch (movementState)
-            {
-                case PlayerMovementState.Standard:
-                    FixedUpdateStandardPlayerMovement();
-                    break;
-                case PlayerMovementState.Flight or PlayerMovementState.CreativeFlight:
-                {
-                    var statistics = playerScript.PlayerStatisticCollection;
-                    if (statistics != null)
-                    {
-                        statistics.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime; 
-                    }
-                    AnimationController.PlayAnimation(PlayerAnimation.Air);
-                    break;
-                }
-                case PlayerMovementState.Climb:
-                    AnimationController.PlayAnimation(IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
-                    rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-                    break;
-            }
-
-            return;
-            void FixedUpdateStandardPlayerMovement()
-            {
-                StandardPlayerMovement standardPlayerMovement = (StandardPlayerMovement)currentMovement;
-
-                
-                
-            }
         }
         
         
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
             ulong maxEnergy = GetEnergyStorage();
-            if (robotData.Energy >= currentRobot.MaxEnergy) return;
+            if (robotData.Energy >= maxEnergy) return;
             
             robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
-            if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
+            if (robotData.Energy > maxEnergy) robotData.Energy = maxEnergy;
         }
 
         /// <summary>

@@ -366,7 +366,7 @@
                 {
                     "name": "TryClimb",
                     "type": "Button",
-                    "id": "02709779-9bab-4d0f-a6b1-4d84c8ba36a7",
+                    "id": "afea1a0a-fdfb-4b60-bad0-b9e084a5eed7",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -387,7 +387,7 @@
                 },
                 {
                     "name": "",
-                    "id": "379df6f6-b3cf-440e-8f42-e04476596df6",
+                    "id": "c1601295-da7e-4fc8-a206-8ee7f85e3e71",
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
@@ -398,7 +398,7 @@
                 },
                 {
                     "name": "",
-                    "id": "1bb2f18a-865c-424c-b2cd-73c29bd6c929",
+                    "id": "1eaf576c-7097-4294-8099-93e0b74f5c24",
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",

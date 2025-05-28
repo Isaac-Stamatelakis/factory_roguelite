@@ -89,7 +89,6 @@ namespace Player.Movement.Standard
         private RocketBoots rocketBoots;
         private SpriteRenderer spriteRenderer;
         private InputActions.StandardMovementActions playerMovementInput;
-        private int blockClimbingFrames;
         private PlayerScript playerScript;
 
         private float fallTime;
@@ -219,8 +218,8 @@ namespace Player.Movement.Standard
             coyoteFrames--;
             slipperyFrames--;
             highDragFrames--;
-            blockClimbingFrames--;
-            if (playerRobot.BlockClimbingFrames < 0 && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+
+            if (playerScript.InputActions.MiscMovement.TryClimb.IsPressed()) // This has to be seperated from standard input movement so holding up/down and going through platforms doesn't cancel when switching between states
             {
                 if (TryStartClimbing()) return;
             }
@@ -290,11 +289,13 @@ namespace Player.Movement.Standard
             vector2.y = -TERMINAL_VELOCITY;
             rb.velocity = vector2;
         }
-        
-        public bool TryStartClimbing()
+
+
+        private bool TryStartClimbing()
         {
+            if (playerRobot.BlockClimbingFrames >= 0) return false;
             if (playerRobot.GetClimbable(playerRobot.transform.position) == null) return false;
-            
+         
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
             Vector3 position = playerRobot.transform.position;

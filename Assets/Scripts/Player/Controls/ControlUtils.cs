@@ -289,6 +289,7 @@ namespace Player.Controls
                         new(inputActions.StandardMovement.Down, 0),
                         new(inputActions.FlightMovement.Move, 2),
                         new(inputActions.LadderMovement.Move, 1),
+                        new (inputActions.MiscMovement.TryClimb, 1),
                     };
                 
                 case PlayerControl.MoveUp:
@@ -296,6 +297,7 @@ namespace Player.Controls
                     {
                         new(inputActions.FlightMovement.Move, 1),
                         new(inputActions.LadderMovement.Move, 2),
+                        new (inputActions.MiscMovement.TryClimb, 0),
                     };
                 case PlayerControl.Teleport:
                     return new InputActionBinding[]
