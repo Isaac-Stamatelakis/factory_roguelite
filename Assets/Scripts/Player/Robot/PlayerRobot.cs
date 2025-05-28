@@ -579,7 +579,10 @@ namespace Player {
             fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
-            rb.velocity = Vector2.zero;
+            if (rb.bodyType != RigidbodyType2D.Static)
+            {
+                rb.velocity = Vector2.zero;
+            }
             
             InvincibilityFrames = int.MaxValue;
             if (currentMovement is StandardPlayerMovement standardPlayerMovement)
@@ -602,7 +605,11 @@ namespace Player {
             InvincibilityFrames = 0;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            rb.velocity = Vector2.zero;
+            if (rb.bodyType != RigidbodyType2D.Static)
+            {
+                rb.velocity = Vector2.zero;
+            }
+            
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
             List<CollisionState> stateArray = collisionStates.ToList();
