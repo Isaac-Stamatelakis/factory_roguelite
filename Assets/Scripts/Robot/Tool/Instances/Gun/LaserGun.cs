@@ -158,9 +158,7 @@ namespace Robot.Tool.Instances
             }
             playerRobot.gunController.SyncAnimation(toolData.LaserGunMode == LaserGunMode.Light ? RobotArmState.LaserGun : RobotArmState.LaserExplosion,0);
             Vector2 mouseDirection = ((Vector2)playerRobot.transform.position - mousePosition).normalized;
-            Debug.Log(mouseDirection);
-            Vector2 knockBackDirection = mouseDirection;
-            playerRobot.GetComponent<Rigidbody2D>().AddForce(1f*knockBackDirection,ForceMode2D.Impulse);
+            playerRobot.GetComponent<Rigidbody2D>().AddForce(1f*mouseDirection,ForceMode2D.Impulse);
         }
 
         private void FireLasers(Vector2 mousePosition)
