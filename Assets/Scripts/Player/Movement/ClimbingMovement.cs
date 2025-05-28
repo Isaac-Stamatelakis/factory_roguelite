@@ -23,7 +23,6 @@ namespace Player.Movement
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 0;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX |  RigidbodyConstraints2D.FreezeRotation;
-            playerRobot.FallTime = 0;
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
@@ -87,7 +86,12 @@ namespace Player.Movement
             velocity.y = climableTileEntity.GetSpeed() * movementDirection;
             rb.velocity = velocity;
         }
-        
+
+        public override void FixedMovementUpdate()
+        {
+            
+        }
+
         public override void Disable()
         {
             movementActions.Move.performed -= OnMovePress;

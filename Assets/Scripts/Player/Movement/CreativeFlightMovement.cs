@@ -49,7 +49,12 @@ namespace Player.Movement
             if (movementVector.x == 0) return;
             spriteRenderer.flipX = movementVector.x < 0;
         }
-        
+
+        public override void FixedMovementUpdate()
+        {
+            
+        }
+
         public override void Disable()
         {
             flightMovement.Move.performed -= OnMovePress;

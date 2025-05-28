@@ -113,7 +113,7 @@ namespace Robot.Upgrades
             return true;
         }
 
-        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange, Dictionary<int,Action> upgradeCallbacks, string title)
+        private void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange, Dictionary<int,Action> upgradeCallbacks, string title)
         {
             mTitleText.text = title;
             this.onLoadOutChange = onLoadOutChange;

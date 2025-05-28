@@ -93,22 +93,14 @@ namespace Player {
         public RobotUpgradeLoadOut RobotUpgradeLoadOut;
         
         // State Information
-        public float FallTime { get; set; }
-        private bool immuneToNextFall = false;
         public int InvincibilityFrames { get; private set; }
-        public TileMovementType CurrentTileMovementType { get; private set; }
         public bool Dead => robotData.Health <= 0;
-
-        private const float TERMINAL_VELOCITY = 20f;
+        
         public int LiveYUpdates { get; private set; }
         public int IgnorePlatformFrames { get; private set; }
         public int IgnoreSlopePlatformFrames { get; private set; }
-        public int SlipperyFrames { get; private set; }
-        private float moveDirTime;
-        public int CoyoteFrames{ get; private set; }
-        public int HighDragFrames { get; private set; }
+        
         public bool IsUsingTool { get; private set; }
-        private bool freezeY;
         private bool paused;
         public int BlockClimbingFrames { get; set; }
         // Upgrades
@@ -131,7 +123,6 @@ namespace Player {
         
         // Layers
         private int blockLayer;
-        private int baseCollidableLayer;
         
         
         private PlayerTeleportEvent playerTeleportEvent;
@@ -144,7 +135,7 @@ namespace Player {
             rb = GetComponent<Rigidbody2D>();
             playerScript = GetComponent<PlayerScript>();
             blockLayer = 1 << LayerMask.NameToLayer("Block");
-            baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
+            
             DefaultGravityScale = rb.gravityScale;
             DefaultLinearDrag = rb.drag;
             
@@ -328,21 +319,22 @@ namespace Player {
                 boxCollider2d.size = size;
             }
 
-            if (state is CollisionState.OnWallLeft or CollisionState.OnWallRight)
+            if (state is CollisionState.OnWallLeft or CollisionState.OnWallRight && currentMovement is IOnWallCollisionMovementListener wallListener)
             {
-                SlipperyFrames = 0;
+                wallListener.OnWallCollision();
             }
 
-            if (state is CollisionState.OnSlope)
+            if (state is CollisionState.OnSlope && currentMovement is IOnSlopeCollisionMovementListener slopeListener)
             {
-                float bonusSpeed = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                rb.drag = MovementStats.defaultDragOnSlope + bonusSpeed*MovementStats.speedUpgradeDragIncrease;
-                HighDragFrames = int.MaxValue;
+                slopeListener.OnSlopeCollision();
             }
 
             if (state is CollisionState.InFluid)
             {
-                FallTime = 0;
+                if (currentMovement is IOnFluidCollisionMovementListener fluidListener)
+                {
+                    fluidListener.OnFluidCollision();
+                }
                 Vector3 position = transform.position;
                 position.z = 2;
                 transform.position = position;
@@ -383,7 +375,6 @@ namespace Player {
                 PlayerDamage.Damage(fluidTileItem.fluidOptions.DamagePerSecond/2f);
             }
             fluidCollisionInformation.SetFluidItem(fluidTileItem);
-            
         }
 
         public void RemoveCollisionState(CollisionState state)
@@ -408,10 +399,9 @@ namespace Player {
                 size.x = defaultBoxColliderWidth + defaultBoxColliderEdge - EDGE_RADIUS/2f;
                 boxCollider2d.size = size;
             }
-            if (state is CollisionState.OnSlope)
+            if (state is CollisionState.OnSlope && currentMovement is IOnSlopeExitMovementListener slopeExitListener)
             {
-                //rb.drag = defaultLinearDrag;
-                HighDragFrames = 3;
+                slopeExitListener.OnSlopeExit();
             }
         }
 
@@ -445,8 +435,10 @@ namespace Player {
             if (!teleported) return;
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
             PlayerParticles.PlayParticle(PlayerParticle.Teleportation);
-            FallTime = 0;
-
+            if (currentMovement is IOnTeleportMovementListener teleportListener)
+            {
+                teleportListener.OnTeleport();
+            }
             
             IEnumerator DelayForceUpdate()
             {
@@ -462,11 +454,7 @@ namespace Player {
 
         public void OnJump()
         {
-            CoyoteFrames = 0;
             LiveYUpdates = 3;
-            rb.drag = DefaultLinearDrag;
-            FallTime = 0;
-            SlipperyFrames /= 2;
             IgnoreSlopePlatformFrames = 2;
         }
 
@@ -489,14 +477,7 @@ namespace Player {
         {
             return currentRobot.MaxEnergy * 2 << RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Energy);
         }
-
         
-        public float GetFriction()
-        {
-            if (SlipperyFrames > 0) return MovementStats.iceFriction;
-
-            return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
-        }
         
         public bool IsOnGround()
         {
@@ -531,13 +512,10 @@ namespace Player {
         public void FixedUpdate()
         {
             if (paused) return;
-            CoyoteFrames--;
-            SlipperyFrames--;
+            
             IgnorePlatformFrames--;
             IgnoreSlopePlatformFrames--;
             InvincibilityFrames--;
-            HighDragFrames--;
-            BlockClimbingFrames--;
             
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
@@ -546,21 +524,28 @@ namespace Player {
                 NanoBotHeal();
             }
             
-            if (movementState == PlayerMovementState.Standard)
+            currentMovement?.FixedMovementUpdate();
+            LiveYUpdates--;
+            
+            switch (movementState)
             {
-                FixedUpdateStandardPlayerMovement();
-            } else if (movementState is PlayerMovementState.Flight or PlayerMovementState.CreativeFlight)
-            {
-                var statistics = playerScript.PlayerStatisticCollection;
-                if (statistics != null)
+                case PlayerMovementState.Standard:
+                    FixedUpdateStandardPlayerMovement();
+                    break;
+                case PlayerMovementState.Flight or PlayerMovementState.CreativeFlight:
                 {
-                    statistics.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime; 
+                    var statistics = playerScript.PlayerStatisticCollection;
+                    if (statistics != null)
+                    {
+                        statistics.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime; 
+                    }
+                    AnimationController.PlayAnimation(PlayerAnimation.Air);
+                    break;
                 }
-                AnimationController.PlayAnimation(PlayerAnimation.Air);
-            } else if (movementState == PlayerMovementState.Climb)
-            {
-                AnimationController.PlayAnimation(IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
-                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+                case PlayerMovementState.Climb:
+                    AnimationController.PlayAnimation(IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
+                    rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+                    break;
             }
 
             return;
@@ -568,69 +553,12 @@ namespace Player {
             {
                 StandardPlayerMovement standardPlayerMovement = (StandardPlayerMovement)currentMovement;
 
-                if (BlockClimbingFrames < 0 && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
-                {
-                    if (TryStartClimbing()) return;
-                }
-                if (HighDragFrames == 0)  rb.drag = DefaultLinearDrag;
                 
-                platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-                bool ignoreSlopedPlatforms = standardPlayerMovement.HoldingDown && collisionStates.Contains(CollisionState.OnPlatform);
-                leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
-                rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
-                bool grounded = IsGrounded();
-                AnimationController.ToggleBool(PlayerAnimationState.Air,CoyoteFrames < 0 && !grounded);
-                if (grounded)
-                {
-                    CoyoteFrames = JumpStats.coyoteFrames;
-                }
-                else
-                {
-                    if (CoyoteFrames < 0)
-                    {
-                        AnimationController.PlayAnimation(PlayerAnimation.Air);
-                    }
-                }
-
-                if (!InFluid() && IsOnGround())
-                {
-                    CurrentTileMovementType = GetTileMovementModifier();
-                    SlipperyFrames = CurrentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
-                }
-                
-                CalculateFallTime();
-                ClampFallSpeed();
-                LiveYUpdates--;
-                rb.constraints = GetFreezeConstraints();
                 
             }
-        }
-
-        private RigidbodyConstraints2D GetFreezeConstraints()
-        {
-            const RigidbodyConstraints2D FREEZE_Y =
-                RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-            const RigidbodyConstraints2D FREEZE_Z = RigidbodyConstraints2D.FreezeRotation;
-            ;
-            const float epilson = 0.1f;
-            if (freezeY) return FREEZE_Y;
-            if (CurrentTileMovementType == TileMovementType.Slippery && CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
-
-            if (LiveYUpdates > 0) return FREEZE_Z;
-            
-            if (CollisionStateActive(CollisionState.OnSlope) || IsOnSlopedPlatform())
-            {
-                bool moving = rb.velocity.x != 0;
-                bool touchingWall = CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight);
-                return moving && !touchingWall ? FREEZE_Z : FREEZE_Y;
-            }
-            if (CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight)) return FREEZE_Z;
-            return IsOnGround() && rb.velocity.y < epilson
-                ? FREEZE_Y
-                : FREEZE_Z;
         }
         
-
+        
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
             ulong maxEnergy = GetEnergyStorage();
@@ -697,14 +625,7 @@ namespace Player {
             return true;
         }
 
-        private void ClampFallSpeed()
-        {
-            if (!(rb.velocity.y < -TERMINAL_VELOCITY)) return;
-            
-            var vector2 = rb.velocity;
-            vector2.y = -TERMINAL_VELOCITY;
-            rb.velocity = vector2;
-        }
+        
         
 
         private PlayerPickUp GetPlayerPick()
@@ -718,9 +639,13 @@ namespace Player {
             fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
-            immuneToNextFall = true;
+            
             InvincibilityFrames = int.MaxValue;
-            freezeY = true;
+            if (currentMovement is StandardPlayerMovement standardPlayerMovement)
+            {
+                standardPlayerMovement.OnPlayerPaused();
+            }
+            
         }
 
         public void TemporarilyPausePlayer()
@@ -738,43 +663,27 @@ namespace Player {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
-            freezeY = false;
             List<CollisionState> stateArray = collisionStates.ToList();
             foreach (CollisionState collisionState in stateArray)
             {
                 RemoveCollisionState(collisionState);
             }
             paused = false;
+            if (currentMovement is StandardPlayerMovement standardPlayerMovement)
+            {
+                standardPlayerMovement.OnPlayerUnpaused();
+            }
         }
-
-        private void CalculateFallTime()
-        {
-            if (!IsOnGround() && !IsOnSlopedPlatform() && !InFluid())
-            {
-                if (rb.velocity.y < 0) FallTime += Time.fixedDeltaTime;
-                return;
-            }
+        
+        public IClimableTileEntity GetClimbable(Vector2 position) {
+            int objectLayer = (1 << LayerMask.NameToLayer("Object"));
+            RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
             
-            if (immuneToNextFall)
-            {
-                immuneToNextFall = false;
-                FallTime = 0;
-                return;
-            }
+            WorldTileMap worldTileMap = objHit.collider?.GetComponent<WorldTileMap>();
+            if (ReferenceEquals(worldTileMap, null)) return null;
             
-            if (FallTime <= 0) return;
-            
-            
-            
-            const float DAMAGE_RATE = 2;
-            const float MIN_DAMAGE = 1f;
-
-            float damage = DAMAGE_RATE * FallTime * FallTime;
-    
-            FallTime = 0f;
-            if (damage < MIN_DAMAGE) return;
-            
-            PlayerDamage.Damage(damage);
+            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position));
+            return tileItem?.tileEntity as IClimableTileEntity;
         }
 
         
@@ -843,66 +752,28 @@ namespace Player {
             
         }
 
-        public bool TryStartClimbing()
+        public void TogglePlatformCollider()
         {
-            // Can only start climbing when not climbing, or flying
-            if (movementState != PlayerMovementState.Standard) return false;
-            
-            if (GetClimbable(transform.position) == null) return false;
-            
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-            rb.gravityScale = 0;
-            Vector3 position = transform.position;
-            float x = position.x;
-            x = Mathf.Floor(x*2)/2f+0.25f;
-            position.x = x;
-            transform.position = position;
-            SetMovementState(PlayerMovementState.Climb);
-            return true;
-        }
-        
-        private TileMovementType GetTileMovementModifier()
-        {
-            Vector2 extent = spriteRenderer.sprite.bounds.extents;
-            float y = gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y - Global.TILE_SIZE/4f;
-            float xDif = extent.x-0.1f;
-            Vector2 bottomLeft = new Vector2(gameObject.transform.position.x-xDif, y);
-            Vector2 bottomRight = new Vector2(gameObject.transform.position.x+xDif, y);
-            TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
-            TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
-            
-            if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
-            if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
-            return TileMovementType.None;
+            platformCollider.enabled = IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
         }
 
-        private TileItem GetTileItemBelow(Vector2 position)
+        internal void ToggleSlopePlatformCollider(SlopePlatformCollisionState slopePlatformCollisionState, bool ignoreSlopedPlatforms)
         {
-            // This can be made more efficent without a get component
-            Vector2 tileCenter = TileHelper.getRealTileCenter(position);
-            RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
-            if (ReferenceEquals(objHit.collider, null)) return null;
-            ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tileCenter);
-            var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
-            
-            return partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
+            switch (slopePlatformCollisionState)
+            {
+                case SlopePlatformCollisionState.Left:
+                    leftSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnLeftSlopePlatform) && !ignoreSlopedPlatforms;
+                    break;
+                case SlopePlatformCollisionState.Right:
+                    rightSlopePlatformCollider.enabled = IgnoreSlopePlatformFrames < 0 && collisionStates.Contains(CollisionState.OnRightSlopePlatform) && !ignoreSlopedPlatforms;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(slopePlatformCollisionState), slopePlatformCollisionState, null);
+            }
         }
-        private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
-        {
-            TileItem tileItem = GetTileItemBelow(position);
-            return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
-        }
-        public IClimableTileEntity GetClimbable(Vector2 position) {
-            int objectLayer = (1 << LayerMask.NameToLayer("Object"));
-            RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
-            
-            WorldTileMap worldTileMap = objHit.collider?.GetComponent<WorldTileMap>();
-            if (ReferenceEquals(worldTileMap, null)) return null;
-            
-            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position));
-            return tileItem?.tileEntity as IClimableTileEntity;
-        }
+        
+        
+        
 
         
 
@@ -999,6 +870,13 @@ namespace Player {
                 Colliding = false;
             }
         }
+
+        public void OnFlightUpgradeChange()
+        {
+            if (movementState == PlayerMovementState.CreativeFlight) return;
+            int upgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight);
+            SetMovementState(upgrades > 0 ? PlayerMovementState.Flight : PlayerMovementState.Standard);
+        }
         
         
 
@@ -1030,7 +908,15 @@ namespace Player {
         {
             enabled = true;
         }
+        
+        internal enum SlopePlatformCollisionState
+        {
+            Left = CollisionState.OnLeftSlopePlatform,
+            Right = CollisionState.OnRightSlopePlatform,
+        }
     }
+
+    
     [System.Serializable]
     internal class DirectionalMovementStats
     {

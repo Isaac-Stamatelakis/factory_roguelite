@@ -57,11 +57,16 @@ namespace Player.Movement
             {
                 speed += speedUpgrades;
             }
-
+            
             Vector2 velocity = movementVector * speed;
             if (movementVector.x != 0) spriteRenderer.flipX = velocity.x < 0;
             
             rb.velocity = velocity;
+        }
+
+        public override void FixedMovementUpdate()
+        {
+            
         }
 
         public override void Disable()

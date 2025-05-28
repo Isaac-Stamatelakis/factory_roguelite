@@ -131,16 +131,8 @@ namespace TileMaps.Previewer {
             if (itemObject is IColorableItem colorableItem && colorableItem.Color != Color.white)
             {
                 Color baseColor = colorableItem.Color;
-                Color highlightColor;
-    
-                if (canPlace)
-                {
-                    highlightColor = baseColor;
-                }
-                else
-                {
-                    highlightColor = Color.Lerp(baseColor, nonPlacableColor, 0.4f);
-                }
+                
+                Color highlightColor = canPlace ? baseColor : Color.Lerp(baseColor, nonPlacableColor, 0.4f);
                 
                 tilemap.color = tileOverlayMap.color = highlightColor;
                 return;

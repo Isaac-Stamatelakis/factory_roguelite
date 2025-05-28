@@ -1,9 +1,14 @@
+using Chunks;
+using Dimensions;
 using Player.Controls;
 using Player.Robot;
 using Robot.Upgrades;
 using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.RocketBoots;
 using Robot.Upgrades.LoadOut;
+using TileEntity;
+using TileMaps;
+using TileMaps.Layer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,6 +24,7 @@ namespace Player.Movement.Standard
         }
 
         public abstract void MovementUpdate();
+        public abstract void FixedMovementUpdate();
         public abstract void Disable();
         protected abstract InputActionMap GetInputActionMap();
 
@@ -40,7 +46,34 @@ namespace Player.Movement.Standard
     {
         public void OnGrounded();
     }
-    public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener
+
+    public interface IOnWallCollisionMovementListener
+    {
+        public void OnWallCollision();
+    }
+    
+    public interface IOnFluidCollisionMovementListener
+    {
+        public void OnFluidCollision();
+    }
+    
+    public interface IOnSlopeCollisionMovementListener
+    {
+        public void OnSlopeCollision();
+    }
+    
+    public interface IOnSlopeExitMovementListener
+    {
+        public void OnSlopeExit();
+    }
+
+    public interface IOnTeleportMovementListener
+    {
+        public void OnTeleport();
+    }
+    
+    public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener, IOnWallCollisionMovementListener, IOnSlopeCollisionMovementListener, IOnFluidCollisionMovementListener
+    , IOnSlopeExitMovementListener, IOnTeleportMovementListener
     {
         private readonly DirectionalMovementStats movementStats;
         private readonly JumpMovementStats jumpStats;
@@ -56,15 +89,29 @@ namespace Player.Movement.Standard
         private RocketBoots rocketBoots;
         private SpriteRenderer spriteRenderer;
         private InputActions.StandardMovementActions playerMovementInput;
+        private int blockClimbingFrames;
+        private PlayerScript playerScript;
+
+        private float fallTime;
+        private int highDragFrames;
+        private int coyoteFrames;
+        private bool freezeY;
+        private int slipperyFrames;
+        private bool immuneToNextFall = false;
+
+        private TileMovementType currentTileMovementType;
+        private int baseCollidableLayer;
 
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
+            playerScript = playerRobot.GetComponent<PlayerScript>();
             
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
             jumpStats = playerRobot.JumpStats;
+            baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
 
             playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
             
@@ -125,7 +172,7 @@ namespace Player.Movement.Standard
 
             void ReduceMoveDir()
             {
-                float dif = playerRobot.GetFriction();
+                float dif = GetFriction();
 
                 if (moveDirTime > 0)
                 {
@@ -167,6 +214,160 @@ namespace Player.Movement.Standard
             }
         }
 
+        public override void FixedMovementUpdate()
+        {
+            coyoteFrames--;
+            slipperyFrames--;
+            highDragFrames--;
+            blockClimbingFrames--;
+            if (playerRobot.BlockClimbingFrames < 0 && playerScript.InputActions.MiscMovement.TryClimb.IsPressed())
+            {
+                if (TryStartClimbing()) return;
+            }
+            if (highDragFrames == 0) rb.drag = playerRobot.DefaultLinearDrag;
+                
+            playerRobot.PlatformCollider.enabled = playerRobot.IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
+            bool ignoreSlopedPlatforms = HoldingDown && playerRobot.CollisionStateActive(CollisionState.OnPlatform);
+            playerRobot.TogglePlatformCollider();
+            playerRobot.ToggleSlopePlatformCollider(PlayerRobot.SlopePlatformCollisionState.Left, ignoreSlopedPlatforms);
+            playerRobot.ToggleSlopePlatformCollider(PlayerRobot.SlopePlatformCollisionState.Right, ignoreSlopedPlatforms);
+         
+            bool grounded = playerRobot.IsGrounded();
+            playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,coyoteFrames < 0 && !grounded);
+            if (grounded)
+            {
+                coyoteFrames = jumpStats.coyoteFrames;
+            }
+            else
+            {
+                if (coyoteFrames < 0)
+                {
+                    playerRobot.AnimationController.PlayAnimation(PlayerAnimation.Air);
+                }
+            }
+
+            if (!playerRobot.InFluid() && playerRobot.IsOnGround())
+            {
+                currentTileMovementType = GetTileMovementModifier();
+                slipperyFrames = currentTileMovementType == TileMovementType.Slippery ? movementStats.iceNoAirFrictionFrames : 0;
+            }
+                
+            CalculateFallTime();
+            ClampFallSpeed();
+            rb.constraints = GetFreezeConstraints();
+        }
+        
+        private RigidbodyConstraints2D GetFreezeConstraints()
+        {
+            const RigidbodyConstraints2D FREEZE_Y =
+                RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            const RigidbodyConstraints2D FREEZE_Z = RigidbodyConstraints2D.FreezeRotation;
+            ;
+            const float epilson = 0.1f;
+            if (freezeY) return FREEZE_Y;
+            if (currentTileMovementType == TileMovementType.Slippery && playerRobot.CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
+
+            if (playerRobot.LiveYUpdates > 0) return FREEZE_Z;
+            
+            if (playerRobot.CollisionStateActive(CollisionState.OnSlope) || playerRobot.IsOnSlopedPlatform())
+            {
+                bool moving = rb.velocity.x != 0;
+                bool touchingWall = playerRobot.CollisionStateActive(CollisionState.OnWallLeft) || playerRobot.CollisionStateActive(CollisionState.OnWallRight);
+                return moving && !touchingWall ? FREEZE_Z : FREEZE_Y;
+            }
+            if (playerRobot.CollisionStateActive(CollisionState.OnWallLeft) || playerRobot.CollisionStateActive(CollisionState.OnWallRight)) return FREEZE_Z;
+            return playerRobot.IsOnGround() && rb.velocity.y < epilson
+                ? FREEZE_Y
+                : FREEZE_Z;
+        }
+        
+        private void ClampFallSpeed()
+        {
+            const float TERMINAL_VELOCITY = 20f;
+            if (!(rb.velocity.y < -TERMINAL_VELOCITY)) return;
+            
+            var vector2 = rb.velocity;
+            vector2.y = -TERMINAL_VELOCITY;
+            rb.velocity = vector2;
+        }
+        
+        public bool TryStartClimbing()
+        {
+            if (playerRobot.GetClimbable(playerRobot.transform.position) == null) return false;
+            
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+            rb.gravityScale = 0;
+            Vector3 position = playerRobot.transform.position;
+            float x = position.x;
+            x = Mathf.Floor(x*2)/2f+0.25f;
+            position.x = x;
+            playerRobot.transform.position = position;
+            playerRobot.SetMovementState(PlayerMovementState.Climb);
+            return true;
+        }
+        
+        private TileMovementType GetTileMovementModifier()
+        {
+            Vector2 extent = spriteRenderer.sprite.bounds.extents;
+            float y = playerRobot.transform.position.y - spriteRenderer.sprite.bounds.extents.y - Global.TILE_SIZE/4f;
+            float xDif = extent.x-0.1f;
+            Vector2 bottomLeft = new Vector2(playerRobot.transform.position.x-xDif, y);
+            Vector2 bottomRight = new Vector2(playerRobot.transform.position.x+xDif, y);
+            TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
+            TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
+            
+            if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
+            if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
+            return TileMovementType.None;
+        }
+
+        private TileItem GetTileItemBelow(Vector2 position)
+        {
+            // This can be made more efficent without a get component
+            Vector2 tileCenter = TileHelper.getRealTileCenter(position);
+            RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
+            if (ReferenceEquals(objHit.collider, null)) return null;
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tileCenter);
+            ILoadedChunkSystem system = playerScript.CurrentSystem;
+            var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
+            
+            return partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
+        }
+        private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
+        {
+            TileItem tileItem = GetTileItemBelow(position);
+            return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
+        }
+        
+        private void CalculateFallTime()
+        {
+            if (!playerRobot.IsOnGround() && !playerRobot.IsOnSlopedPlatform() && !playerRobot.InFluid())
+            {
+                if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
+                return;
+            }
+            
+            if (immuneToNextFall)
+            {
+                immuneToNextFall = false;
+                fallTime = 0;
+                return;
+            }
+            
+            if (fallTime <= 0) return;
+            
+            
+            
+            const float DAMAGE_RATE = 2;
+            const float MIN_DAMAGE = 1f;
+
+            float damage = DAMAGE_RATE * fallTime * fallTime;
+    
+            fallTime = 0f;
+            if (damage < MIN_DAMAGE) return;
+            
+            playerRobot.PlayerDamage.Damage(damage);
+        }
         public override void Disable()
         {
             playerMovementInput.Move.performed -= OnMovePerformed;
@@ -178,6 +379,17 @@ namespace Player.Movement.Standard
             playerMovementInput.Down.performed -= OnDownPressed;
             playerMovementInput.Down.canceled -= OnDownReleased;
             playerMovementInput.Disable();
+        }
+
+        public void OnPlayerPaused()
+        {
+            immuneToNextFall = true;
+            freezeY = true;
+        }
+
+        public void OnPlayerUnpaused()
+        {
+            freezeY = false;
         }
 
         protected override InputActionMap GetInputActionMap()
@@ -243,7 +455,7 @@ namespace Player.Movement.Standard
 
             var fluidInformation = playerRobot.fluidCollisionInformation;
             if (fluidInformation.Colliding) speed *= fluidInformation.SpeedModifier;
-            switch (playerRobot.CurrentTileMovementType)
+            switch (currentTileMovementType)
             {
                 case TileMovementType.None:
                     break;
@@ -262,9 +474,32 @@ namespace Player.Movement.Standard
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
             var fluidCollisionInformation = playerRobot.fluidCollisionInformation;
-            float fluidGravityModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
-            
+            float fluidGravityModifer =
+                fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
+
             if (jumpEvent != null)
+            {
+                UpdateJumpEvent();
+                return;
+            }
+
+            float fluidSpeedModifier =
+                fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
+
+
+            if (rocketBoots != null && holdingJump)
+            {
+                RocketBootUpdate(ref velocity, fluidSpeedModifier);
+                if (rocketBoots != null) return;
+            }
+
+            rb.gravityScale = playerRobot.DefaultGravityScale * fluidGravityModifer;
+            const float BONUS_FALL_MODIFIER = 1.25f;
+            if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
+
+            return;
+
+            void UpdateJumpEvent()
             {
                 if (playerRobot.CollisionStateActive(CollisionState.HeadContact))
                 {
@@ -273,7 +508,9 @@ namespace Player.Movement.Standard
                 }
                 else if (holdingJump)
                 {
-                    rb.gravityScale = fluidGravityModifer * jumpEvent.GetGravityModifier(jumpStats.initialGravityPercent, jumpStats.maxGravityTime) * playerRobot.DefaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer *
+                                      jumpEvent.GetGravityModifier(jumpStats.initialGravityPercent,
+                                          jumpStats.maxGravityTime) * playerRobot.DefaultGravityScale;
                     jumpEvent.IterateTime();
                     if (holdingDown)
                     {
@@ -285,22 +522,9 @@ namespace Player.Movement.Standard
                 {
                     rb.gravityScale = fluidGravityModifer * playerRobot.DefaultGravityScale;
                 }
-                return;
             }
-
-            float fluidSpeedModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
-
-           
-            if (rocketBoots != null && holdingJump)
-            {
-                RocketBootUpdate(ref velocity,fluidSpeedModifier);
-                if (rocketBoots != null) return;
-            }
-      
-            rb.gravityScale = playerRobot.DefaultGravityScale * fluidGravityModifer;
-            const float BONUS_FALL_MODIFIER = 1.25f;
-            if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
         }
+
 
         public void OnGrounded()
         {
@@ -367,9 +591,9 @@ namespace Player.Movement.Standard
                     return;
                 }
             }
-            if (playerRobot.IgnorePlatformFrames > 0 || (!CanJump() && playerRobot.CoyoteFrames <= 0)) return;
+            if (playerRobot.IgnorePlatformFrames > 0 || (!CanJump() && coyoteFrames <= 0)) return;
             
-            if (bonusJumps > 0 && playerRobot.CoyoteFrames <= 0)
+            if (bonusJumps > 0 && coyoteFrames <= 0)
             {
                 playerRobot.PlayerParticles.PlayParticle(PlayerParticle.BonusJump);
                 bonusJumps--;
@@ -382,7 +606,11 @@ namespace Player.Movement.Standard
             var vector2 = rb.velocity;
             vector2.y = fluidModifier*(jumpStats.jumpVelocity+bonusJumpHeight);
             rb.velocity = vector2;
-            
+
+            coyoteFrames = 0;
+            rb.drag = playerRobot.DefaultLinearDrag;
+            fallTime = 0;
+            slipperyFrames /= 2;
             playerRobot.OnJump();
             jumpEvent = new JumpEvent();
         }
@@ -390,6 +618,7 @@ namespace Player.Movement.Standard
         void OnJumpReleased(InputAction.CallbackContext context)
         {
             holdingJump = false;
+            jumpEvent = null;
         }
         
         void OnDownPressed(InputAction.CallbackContext context)
@@ -400,6 +629,13 @@ namespace Player.Movement.Standard
         void OnDownReleased(InputAction.CallbackContext context)
         {
             holdingDown = false;
+        }
+        
+        public float GetFriction()
+        {
+            if (slipperyFrames > 0) return movementStats.iceFriction;
+
+            return playerRobot.IsOnGround() ? movementStats.friction : movementStats.airFriction;
         }
 
         
@@ -417,5 +653,31 @@ namespace Player.Movement.Standard
             }
         }
 
+        public void OnWallCollision()
+        {
+            slipperyFrames = 0;
+        }
+
+        public void OnSlopeCollision()
+        {
+            float bonusSpeed = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+            rb.drag = movementStats.defaultDragOnSlope + bonusSpeed*movementStats.speedUpgradeDragIncrease;
+            highDragFrames = int.MaxValue;
+        }
+
+        public void OnFluidCollision()
+        {
+            fallTime = 0;
+        }
+
+        public void OnSlopeExit()
+        {
+            highDragFrames = 3;
+        }
+
+        public void OnTeleport()
+        {
+            fallTime = 0;
+        }
     }
 }
