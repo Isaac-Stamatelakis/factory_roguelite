@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Fluids;
 using Items;
@@ -9,7 +10,11 @@ using Vector2 = UnityEngine.Vector2;
 
 namespace Player.Movement
 {
-    public class PlayerFluidCollider : MonoBehaviour
+    public interface IPlayerStartupListener
+    {
+        public void OnInitialized();
+    }
+    public class PlayerFluidCollider : MonoBehaviour, IPlayerStartupListener
     {
         private PlayerRobot playerRobot;
         private PlayerScript playerScript;
@@ -17,21 +22,23 @@ namespace Player.Movement
         private float yOffset;
         private const float PARTICLE_CHANCE = 0.1f;
         private FluidTileItem lastFluid;
+        private List<Vector2> checkPositions;
+        public FluidTileMap FluidTileMap { set; private get; }
         public void Start()
         {
             playerRobot = transform.GetComponent<PlayerRobot>();
             playerScript = transform.GetComponent<PlayerScript>();
             playerSpriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
-            yOffset = playerSpriteRenderer.bounds.extents.y-0.05f;
+            yOffset = playerSpriteRenderer.bounds.extents.y-0.005f;
+            enabled = false;
         }
-
+        
+        
         public void FixedUpdate()
         {
-            FluidTileMap fluidTileMap = playerScript.CurrentSystem?.GetFluidTileMap();
-            if (!fluidTileMap) return;
             Vector2 playerPosition = (Vector2)playerRobot.transform.position + Vector2.down * yOffset;
-            Vector2Int cellPosition = (Vector2Int)fluidTileMap.GetTilemap().WorldToCell(playerPosition);
-            FluidCell fluidCell = fluidTileMap.Simulator.GetFluidCell(cellPosition);
+            Vector2Int cellPosition = (Vector2Int)FluidTileMap.GetTilemap().WorldToCell(playerPosition);
+            FluidCell fluidCell = FluidTileMap.Simulator.GetFluidCell(cellPosition);
             FluidTileItem fluidTileItem = fluidCell?.FluidTileItem;
             if (!fluidTileItem)
             {
@@ -67,14 +74,21 @@ namespace Player.Movement
                 if (!playerRobot.IsMoving()) return;
                 float ran = UnityEngine.Random.value;
                 if (ran > PARTICLE_CHANCE) return;
-                fluidTileMap.PlayerParticles(playerRobot.transform.position,FluidTileMap.FluidParticleType.Standard);
+                FluidTileMap.PlayerParticles(playerRobot.transform.position,FluidTileMap.FluidParticleType.Standard);
                 return;
             }
             
             lastFluid =  fluidTileItem;
-            fluidTileMap.Disrupt(playerPosition,fluidTileItem);
+            FluidTileMap.Disrupt(playerPosition,fluidTileItem);
             playerRobot.AddCollisionState(CollisionState.InFluid);
             playerRobot.AddFluidCollisionData(fluidTileItem);
+            
+            
+        }
+
+        public void OnInitialized()
+        {
+            enabled = true;
         }
     }
 }

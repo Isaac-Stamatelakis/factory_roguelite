@@ -63,7 +63,7 @@ namespace Player {
         CreativeFlight
     }
     
-    public class PlayerRobot : MonoBehaviour
+    public class PlayerRobot : MonoBehaviour, IPlayerStartupListener
     {
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -166,6 +166,8 @@ namespace Player {
             InitializeMovementState();
             
             StartCoroutine(LoadAsyncAssets());
+
+            enabled = false;
         }
 
         private IEnumerator LoadAsyncAssets()
@@ -259,7 +261,7 @@ namespace Player {
 
         public void Update()
         {
-            if (robotData == null || paused) return; // Don't like this
+            if (paused) return;
             mPlayerRobotUI.Display(this);
             if (robotData.Health <= 0) return;
             currentMovement.MovementUpdate();
@@ -1022,6 +1024,11 @@ namespace Player {
         public void SetLiveY(int frames)
         {
             LiveYUpdates = frames;
+        }
+
+        public void OnInitialized()
+        {
+            enabled = true;
         }
     }
     [System.Serializable]
