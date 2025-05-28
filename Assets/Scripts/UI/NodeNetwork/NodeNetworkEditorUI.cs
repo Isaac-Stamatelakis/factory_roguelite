@@ -40,8 +40,6 @@ namespace UI.NodeNetwork {
                                           "Click <b>[R]</b> to Recenter");
             multiSelectIndicator.transform.SetParent(this.nodeNetworkUI.GetContentContainer());
         }
-
-        
         
         public void OnDestroy() {
             addNode.onClick.RemoveAllListeners();
@@ -72,13 +70,12 @@ namespace UI.NodeNetwork {
             {
                 multiSelectAction = new MultiSelectAction(nodeNetworkUI,mousePosition,multiSelectIndicator,canvasCamera,canvasScaler);
             }
-            
-            multiSelectAction?.SetCurrentPosition(mousePosition);
-            if (Mouse.current.leftButton.wasReleasedThisFrame)
-            {
-                multiSelectAction?.Terminate();
-                multiSelectAction = null;
-            }
+
+            if (multiSelectAction == null) return;
+            multiSelectAction.SetCurrentPosition(mousePosition);
+            if (Mouse.current.leftButton.isPressed) return;
+            multiSelectAction.Terminate();
+            multiSelectAction = null;
         }
 
         private void SpawnNodePlacement() {

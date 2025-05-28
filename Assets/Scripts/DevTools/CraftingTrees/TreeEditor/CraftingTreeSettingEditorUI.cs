@@ -28,7 +28,7 @@ namespace DevTools.CraftingTrees.TreeEditor
 {
     internal interface ITreeGenerationListener
     {
-        public void OnStatusChange(bool generationStatus);
+        public void OnStatusChange(bool generated);
     }
     
     internal class CraftingTreeSettingEditorUI : MonoBehaviour

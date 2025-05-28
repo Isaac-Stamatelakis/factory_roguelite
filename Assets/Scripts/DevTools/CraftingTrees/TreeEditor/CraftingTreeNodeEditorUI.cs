@@ -28,9 +28,9 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private FormattedInputFieldUI mFormattedInputFieldPrefab;
         [SerializeField] private GameObject mBlocker;
 
-        public void OnStatusChange(bool generationStatus)
+        public void OnStatusChange(bool generated)
         {
-            mBlocker.gameObject.SetActive(generationStatus);
+            mBlocker.gameObject.SetActive(generated);
         }
 
         public void Hide()
