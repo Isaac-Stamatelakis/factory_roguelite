@@ -131,6 +131,11 @@ namespace Player.Movement.Standard
             inputDir = value;
         }
 
+        public void SetHoldingDown(bool value)
+        {
+            holdingDown = value;
+        }
+
         public override void MovementUpdate()
         {
             Vector2 velocity = rb.velocity;
@@ -294,8 +299,8 @@ namespace Player.Movement.Standard
         private bool TryStartClimbing()
         {
             if (playerRobot.BlockClimbingFrames >= 0) return false;
-            if (playerRobot.GetClimbable(playerRobot.transform.position) == null) return false;
-         
+            if (playerRobot.GetClimbable((Vector2)playerRobot.transform.position) == null) return false;
+            //if (playerRobot.GetClimbable((Vector2)playerRobot.transform.position + Vector2.up * Global.TILE_SIZE / 2f) == null) return false;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
             Vector3 position = playerRobot.transform.position;

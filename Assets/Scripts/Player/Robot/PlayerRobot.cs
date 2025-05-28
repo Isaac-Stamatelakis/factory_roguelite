@@ -232,6 +232,13 @@ namespace Player {
             SetMovementState(PlayerMovementState.Standard);
             ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
         }
+        
+        public void SetStandardMovementHoldingDown()
+        {
+            SetMovementState(PlayerMovementState.Standard);
+            Debug.Log("HI");
+            ((StandardPlayerMovement)currentMovement).SetHoldingDown(true);
+        }
 
         private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
         {
@@ -646,12 +653,17 @@ namespace Player {
         
         public IClimableTileEntity GetClimbable(Vector2 position) {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
-            RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
+            RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.5f),0,Vector2.zero,Mathf.Infinity,objectLayer);
             
             WorldTileMap worldTileMap = objHit.collider?.GetComponent<WorldTileMap>();
             if (ReferenceEquals(worldTileMap, null)) return null;
-            
-            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position));
+       
+            const float OFFSET = 0.1f;
+            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position+Vector2.up*OFFSET));
+            if (!tileItem)
+            {
+                tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position+Vector2.down*OFFSET));
+            }
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 
