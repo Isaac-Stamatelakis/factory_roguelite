@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Items;
 using Player;
 using Player.Robot;
@@ -10,6 +11,8 @@ using Robot.Upgrades;
 using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.LoadOut;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Robot.Tool.Instances
 {
@@ -154,6 +157,10 @@ namespace Robot.Tool.Instances
                     throw new ArgumentOutOfRangeException();
             }
             playerRobot.gunController.SyncAnimation(toolData.LaserGunMode == LaserGunMode.Light ? RobotArmState.LaserGun : RobotArmState.LaserExplosion,0);
+            Vector2 mouseDirection = ((Vector2)playerRobot.transform.position - mousePosition).normalized;
+            Debug.Log(mouseDirection);
+            Vector2 knockBackDirection = mouseDirection;
+            playerRobot.GetComponent<Rigidbody2D>().AddForce(1f*knockBackDirection,ForceMode2D.Impulse);
         }
 
         private void FireLasers(Vector2 mousePosition)
