@@ -83,7 +83,8 @@ namespace TileEntity.Instances {
             }
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             CaveTeleporterParticles caveTeleporterParticles = Instantiate(mParticlePrefab, playerScript.transform, false);
-            caveTeleporterParticles.transform.localPosition = Vector3.zero;
+
+            caveTeleporterParticles.transform.localPosition = new Vector3(0, 0, 1);
             Canvas parentCanvas = CanvasController.Instance.GetComponentInParent<Canvas>();
             caveTeleporterParticles.StartTeleportIntoCaveRoutine(parentCanvas, currentCaveObject, teleportAction);
         }
