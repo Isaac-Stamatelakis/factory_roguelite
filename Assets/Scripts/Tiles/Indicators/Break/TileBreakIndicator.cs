@@ -87,7 +87,7 @@ namespace Tiles {
         }
 
         public void RemoveBreak(Vector2Int cellPosition) {
-a            tilemap.SetTile((Vector3Int) cellPosition,null);
+            tilemap.SetTile((Vector3Int) cellPosition,null);
         }
 
         public void UnloadPartition(Vector2Int partitionPosition) {
