@@ -4,6 +4,7 @@ using System.Numerics;
 using Items;
 using Player;
 using Player.Robot;
+using Player.Tool;
 using Player.Tool.Object;
 using Robot.Tool;
 using Robot.Tool.Instances.Gun;
@@ -66,11 +67,13 @@ namespace Robot.Tool.Instances
         const float EXPLOSION_RATE_REDUCTION = 4;
         private ToolObjectPool bombParticlePool;
         private ToolObjectPool laserParticlePool;
+        private Rigidbody2D playerRb;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
             // TODO auto adjust this based on firing rate
             bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE");
             laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser");
+            playerRb = playerScript.GetComponent<Rigidbody2D>();
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -156,9 +159,19 @@ namespace Robot.Tool.Instances
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            
             playerRobot.gunController.SyncAnimation(toolData.LaserGunMode == LaserGunMode.Light ? RobotArmState.LaserGun : RobotArmState.LaserExplosion,0);
+
+            float laserKnockback = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.Knockback);
+            if (laserKnockback == 0) return;
+            if (toolData.LaserGunMode == LaserGunMode.Blast)
+            {
+                laserKnockback *= 8;
+            }
+            
             Vector2 mouseDirection = ((Vector2)playerRobot.transform.position - mousePosition).normalized;
-            playerRobot.GetComponent<Rigidbody2D>().AddForce(1f*mouseDirection,ForceMode2D.Impulse);
+            Debug.Log(mouseDirection);
+            playerRb.AddForce(laserKnockback*mouseDirection,ForceMode2D.Impulse);
         }
 
         private void FireLasers(Vector2 mousePosition)

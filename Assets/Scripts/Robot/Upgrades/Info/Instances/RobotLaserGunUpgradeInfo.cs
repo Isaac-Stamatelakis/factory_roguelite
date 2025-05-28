@@ -24,6 +24,7 @@ namespace Robot.Upgrades.Info.Instances
                 LaserGunUpgrade.FireRate => "Increases Fire Rate",
                 LaserGunUpgrade.MultiShot => "Increases Lasers Fired",
                 LaserGunUpgrade.AoE => "Unlocks AoE Explosions",
+                LaserGunUpgrade.Knockback => "Gun knockbacks player",
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -47,7 +48,8 @@ namespace Robot.Upgrades.Info.Instances
         {
             return new List<int>
             {
-                (int)LaserGunUpgrade.FireRate
+                (int)LaserGunUpgrade.FireRate,
+                (int)LaserGunUpgrade.Knockback
             };
         }
 
