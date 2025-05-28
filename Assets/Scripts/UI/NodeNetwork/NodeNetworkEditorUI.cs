@@ -88,8 +88,11 @@ namespace UI.NodeNetwork {
            
             RectTransform parentRect = (RectTransform)transform.parent;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
-            Vector2 offset = parentRect.anchoredPosition/contentContainer.localScale.x;
+            Vector2 offset = parentRect.anchoredPosition;
+            
+            // Idk but it works
             Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Mouse.current.position.ReadValue()) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
+            mousePosition /= Screen.width / canvasScaler.referenceResolution.x;
             Vector2 gridPosition = SnapGrid(mousePosition,((RectTransform)contentContainer).anchoredPosition,contentContainer.localScale.x);
             RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = gridPosition;
