@@ -15,7 +15,7 @@ namespace Player.Movement
         private InputActions.FlightMovementActions movementActions;
 
         private Vector2 movementVector;
-
+        private FlightMovementFixedUpdateHandler fixedUpdateHandler;
         // Start is called before the first frame update
         public FlightMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
@@ -24,6 +24,8 @@ namespace Player.Movement
             rb.gravityScale = 0;
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
+            fixedUpdateHandler = new FlightMovementFixedUpdateHandler(playerRobot);
+            
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
@@ -57,11 +59,16 @@ namespace Player.Movement
             {
                 speed += speedUpgrades;
             }
-
+            
             Vector2 velocity = movementVector * speed;
             if (movementVector.x != 0) spriteRenderer.flipX = velocity.x < 0;
             
             rb.velocity = velocity;
+        }
+
+        public override void FixedMovementUpdate()
+        {
+            fixedUpdateHandler.FixedUpdate();   
         }
 
         public override void Disable()

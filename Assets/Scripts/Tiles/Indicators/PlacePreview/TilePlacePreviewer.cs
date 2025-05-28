@@ -126,31 +126,46 @@ namespace TileMaps.Previewer {
                 }
                 
             }
-            
-            tilemap.color = GetPlaceColor(position, itemObject);
-            if (itemObject is IColorableItem colorableItem)
+
+            bool canPlace = CanPlace(position, itemObject);
+            if (itemObject is IColorableItem colorableItem && colorableItem.Color != Color.white)
             {
-                tilemap.color *= colorableItem.Color;
+                Color baseColor = colorableItem.Color;
+                
+                Color highlightColor = canPlace ? baseColor : Color.Lerp(baseColor, nonPlacableColor, 0.4f);
+                
+                tilemap.color = tileOverlayMap.color = highlightColor;
+                return;
             }
+            
+            if (!canPlace)
+            {
+                tilemap.color = tileOverlayMap.color = nonPlacableColor;
+            }
+            else
+            {
+                tilemap.color = tileOverlayMap.color = placableColor;
+            }
+            
         }
 
-        private Color GetPlaceColor(Vector2 position, ItemObject itemObject)
+        private bool CanPlace(Vector2 position, ItemObject itemObject)
         {
             ClosedChunkSystem closedChunkSystem = playerScript.CurrentSystem;
-            if (!closedChunkSystem) return Color.white;
+            if (!closedChunkSystem) return false;
             switch (itemObject)
             {
                 case TileItem tileItem:
-                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.TilePlaceable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem);
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
-                    if (conduitMap is not ConduitTileMap conduitTileMap) return nonPlacableColor;
-                    return TilePlaceUtils.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
+                    if (conduitMap is not ConduitTileMap conduitTileMap) return false;
+                    return TilePlaceUtils.ConduitPlacable(conduitItem, position, conduitTileMap);
                 case FluidTileItem fluidTileItem:
-                    return TilePlaceUtils.FluidPlacable(fluidTileItem,position, closedChunkSystem.GetFluidTileMap()) ? placableColor : nonPlacableColor;
+                    return TilePlaceUtils.FluidPlacable(fluidTileItem, position, closedChunkSystem.GetFluidTileMap());
                 default:
-                    return Color.white;
+                    return false;
             }
         }
 

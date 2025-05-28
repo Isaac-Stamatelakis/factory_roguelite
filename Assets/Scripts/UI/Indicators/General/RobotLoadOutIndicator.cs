@@ -57,7 +57,8 @@ namespace UI.Indicators.General
 
             Dictionary<int, Action> callbacks = new Dictionary<int, Action>
             {
-                [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange
+                [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange,
+                [(int)RobotUpgrade.Flight] = playerRobot.OnFlightUpgradeChange
             };
             RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
                 upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks,"Robot Upgrades");
