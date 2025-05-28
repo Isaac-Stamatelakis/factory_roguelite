@@ -15,6 +15,7 @@ using Item.Slot;
 using Items;
 using Newtonsoft.Json;
 using Player.Controls;
+using Player.Movement;
 using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
@@ -130,6 +131,20 @@ namespace Player
             return playerData;
         }
 
+        public void CallInitializeListeners()
+        {
+            IPlayerStartupListener[] playerStartupListeners = GetComponents<IPlayerStartupListener>();
+            foreach (IPlayerStartupListener playerStartupListener in playerStartupListeners)
+            {
+                playerStartupListener.OnInitialized();
+            }
+
+            playerStartupListeners = GetComponentsInChildren<IPlayerStartupListener>();
+            foreach (IPlayerStartupListener playerStartupListener in playerStartupListeners)
+            {
+                playerStartupListener.OnInitialized();
+            }
+        }
         public void SyncKeyPressListeners(bool uiActive, bool typing, bool blockMovement)
         {
             GetComponent<PlayerKeyPress>().SyncEventsWithUIMode(uiActive || typing);
@@ -145,6 +160,9 @@ namespace Player
                 CaveController caveController = (CaveController)dimensionManager.GetDimController(dimension);
                 PlayerUIContainer.IndicatorManager.caveIndicatorUI.SyncToSystem(this,caveController.ReturnPortalLocation);
             }
+
+            PlayerFluidCollider playerFluidCollider = GetComponentInChildren<PlayerFluidCollider>();
+            playerFluidCollider.FluidTileMap = closedChunkSystem.GetFluidTileMap();
         }
 
         private void InitializeStages()

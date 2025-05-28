@@ -72,7 +72,8 @@ namespace Robot.Upgrades {
     {
         FireRate = 0,
         MultiShot = 1,
-        AoE = 2
+        AoE = 2,
+        Knockback = 3
     }
     
 
