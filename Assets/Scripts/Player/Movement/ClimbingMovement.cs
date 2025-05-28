@@ -68,7 +68,15 @@ namespace Player.Movement
             IClimableTileEntity climableTileEntity = playerRobot.GetClimbable(position);
             if (climableTileEntity == null)
             {
-                playerRobot.SetMovementState(PlayerMovementState.Standard);
+                if (movementDirection < 0)
+                {
+                    playerRobot.SetStandardMovementHoldingDown();
+                }
+                else
+                {
+                    playerRobot.SetMovementState(PlayerMovementState.Standard);
+                }
+                
                 return;
             }
 

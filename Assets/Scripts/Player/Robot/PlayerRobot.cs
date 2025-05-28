@@ -236,7 +236,6 @@ namespace Player {
         public void SetStandardMovementHoldingDown()
         {
             SetMovementState(PlayerMovementState.Standard);
-            Debug.Log("HI");
             ((StandardPlayerMovement)currentMovement).SetHoldingDown(true);
         }
 
