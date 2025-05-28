@@ -422,7 +422,7 @@ namespace DevTools.CraftingTrees.Network
 
         public override void OnDeleteSelectedNode()
         {
-            // TODO Hide side view
+            craftingTreeGeneratorUI.NodeEditorUI.Hide();
         }
         
         public override CraftingTreeGeneratorNode LookUpNode(int id)

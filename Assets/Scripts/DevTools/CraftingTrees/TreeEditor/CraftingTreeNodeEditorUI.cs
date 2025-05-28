@@ -32,10 +32,19 @@ namespace DevTools.CraftingTrees.TreeEditor
         {
             mBlocker.gameObject.SetActive(generationStatus);
         }
+
+        public void Hide()
+        {
+            GlobalHelper.DeleteAllChildren(nodeContentContainer);
+            emptyContent.gameObject.SetActive(true);
+            baseNodeContent.SetActive(false);
+            nodeContentContainer.gameObject.SetActive(false);
+        }
         public void Initialize(CraftingTreeGeneratorNode node, CraftingTreeNodeNetwork nodeNetwork, CraftingTreeNodeNetworkUI nodeNetworkUI, bool openSearchInstantly)
         {
             baseNodeContent.SetActive(true);
             emptyContent.gameObject.SetActive(false);
+            nodeContentContainer.gameObject.SetActive(true);
             mDeleteButton.onClick.RemoveAllListeners();
             gameObject.SetActive(true);
             mDeleteButton.onClick.AddListener(DeletePress);
