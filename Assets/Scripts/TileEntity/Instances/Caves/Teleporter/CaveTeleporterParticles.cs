@@ -16,12 +16,21 @@ namespace TileEntity.Instances.Caves.Teleporter
         [SerializeField] private ParticleSystem inner;
         private List<ParticleSystem> particleSystems = new();
         private bool loaded;
+        private int defaultCameraCullingMask;
+        private Color defaultCameraColor;
 
         /// <summary>
         /// This coroutine must be seperated from CaveSelectController since the player can destroy a Coroutine started in a UserInterface by pressing Escape 
         /// </summary>
         public void StartTeleportIntoCaveRoutine(Canvas parentCanvas, CaveObject caveObject, Action teleportAction)
         {
+            defaultCameraCullingMask = Camera.main.cullingMask;
+            int playerLayer = LayerMask.NameToLayer("Player");
+            gameObject.layer = playerLayer;
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                transform.GetChild(i).gameObject.layer = playerLayer;
+            }
             StartCoroutine(TeleportIntoCave(parentCanvas, caveObject, teleportAction));
         }
 
@@ -34,6 +43,7 @@ namespace TileEntity.Instances.Caves.Teleporter
             teleportAction.Invoke();
             if (restoreCanvas) parentCanvas.enabled = true;
             StartFadeParticlesRoutine();
+            Camera.main.cullingMask = defaultCameraCullingMask;
             
         }
 
@@ -60,6 +70,8 @@ namespace TileEntity.Instances.Caves.Teleporter
             particleSystems.Add(inner);
             inner.Play();
             yield return wait;
+            yield return new WaitForSeconds(2f);
+            mainCamera.cullingMask = 1 << LayerMask.NameToLayer("Player");
         }
 
         private void StartFadeParticlesRoutine()
