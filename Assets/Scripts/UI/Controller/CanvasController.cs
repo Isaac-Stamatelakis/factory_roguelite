@@ -179,7 +179,7 @@ namespace UI
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
-            
+            typing = false;
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo current = uiObjectStack.Peek();

@@ -46,7 +46,7 @@ namespace DevTools.CraftingTrees.Selector
                 {
                     SerializedNodes = new List<SerializedNodeData>()
                 };
-                string path = Path.Combine(craftingTreeSelectorUI.CurrentFolder,upgradeName) + ".bin";
+                string path = Path.Combine(craftingTreeSelectorUI.CurrentFolder,upgradeName) + ".json";
                 string json = JsonConvert.SerializeObject(nodeNetwork);
                 File.WriteAllText(path, json);
                 craftingTreeSelectorUI.DisplayList();

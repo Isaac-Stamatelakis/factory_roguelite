@@ -54,6 +54,8 @@ namespace DevTools.CraftingTrees.TreeEditor
         private System.Action<InputAction.CallbackContext> select1Handler;
         private System.Action<InputAction.CallbackContext> select2Handler;
         private System.Action<InputAction.CallbackContext> select3Handler;
+
+        private string recipeTreeName;
         public void Start()
         {
             canvasController = CanvasController.Instance;
@@ -81,7 +83,7 @@ namespace DevTools.CraftingTrees.TreeEditor
         
         private void SwitchCraftingType(Button button, CraftingTreeNodeType type)
         {
-            if (generateNodeType == type) return;
+            if (generateNodeType == type || canvasController.IsTyping) return;
             generateNodeType = type;
             if (currentHighlightButton)
             {
@@ -92,8 +94,9 @@ namespace DevTools.CraftingTrees.TreeEditor
             craftingTreeGenerator.SetType(type);
         }
 
-        public void Initialize(CraftingTreeGeneratorUI generatorUI, CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator, List<ITreeGenerationListener> listeners)
+        public void Initialize(CraftingTreeGeneratorUI generatorUI, CraftingTreeNodeNetwork craftingTreeNodeNetwork, CraftingTreeGenerator treeGenerator, List<ITreeGenerationListener> listeners, string recipeTreeName)
         {
+            this.recipeTreeName = recipeTreeName;
             craftingTreeGenerationStatusListeners = listeners;
             this.network = craftingTreeNodeNetwork;
             craftingTreeGenerator = treeGenerator;
@@ -318,7 +321,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                     string collectionPath = AssetDatabase.GetAssetPath(recipeModeCollection);
                     string folder = Path.GetDirectoryName(collectionPath);
                     string randomSuffix = Guid.NewGuid().ToString("N"); // "N" removes hyphens
-                    string recipeName = recipeModeCollection.name + "_" + randomSuffix;
+                    string recipeName = recipeTreeName + "_GENERATED_" + randomSuffix;
                     recipeObject.name = recipeName;
                     AssetDatabase.CreateAsset(recipeObject, Path.Combine(folder, recipeName + ".asset"));
                     recipeModeCollection.Recipes.Add(recipeObject);

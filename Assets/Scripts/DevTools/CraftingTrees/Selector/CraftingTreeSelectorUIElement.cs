@@ -28,7 +28,7 @@ namespace DevTools.CraftingTrees.Selector
                     mTextElement.text = tier.ToString();
                     break;
                 case CraftingTreeSelectorUI.DisplayMode.File:
-                    mTextElement.text = Path.GetFileName(craftingTreeInfo.Path).Replace(".bin","");
+                    mTextElement.text = Path.GetFileName(craftingTreeInfo.Path).Replace(".json","");
                     mEditButton.onClick.AddListener(() =>
                     {
                         CraftingTreeFileEditorUI craftingTreeEditor = Instantiate(mFileEditorPrefab);

@@ -19,6 +19,7 @@ namespace DevTools.CraftingTrees.Network
         public CraftingTreeSettingEditorUI SettingEditorUI => mSettingEditorUI;
         public void Initialize(CraftingTreeNodeNetwork nodeNetwork, string filePath)
         {
+            string treeName =  Path.GetFileName(filePath).Replace(".json",string.Empty);
             this.nodeNetwork = nodeNetwork;
             this.filePath = filePath;
             craftingTreeGenerator = new CraftingTreeGenerator();
@@ -28,7 +29,7 @@ namespace DevTools.CraftingTrees.Network
                 mNodeNetworkUI,
                 mNodeEditorUI
             };
-            mSettingEditorUI.Initialize(this,nodeNetwork,craftingTreeGenerator,listeners);
+            mSettingEditorUI.Initialize(this,nodeNetwork,craftingTreeGenerator,listeners,treeName);
         }
 
         public void OnDestroy()
