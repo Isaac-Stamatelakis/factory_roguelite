@@ -93,7 +93,12 @@ namespace PlayerModule.Mouse {
         {
             enableAutoSelect = !enableAutoSelect;
             PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
-            if (!enableAutoSelect) tileBreakHighlighter.Clear();
+            if (!enableAutoSelect)
+            {
+                tileBreakHighlighter.Clear();
+                tileHighlighter.Hide();
+                highlightPosition = null;
+            }
             return enableAutoSelect;
         }
 
@@ -186,6 +191,7 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
+            if (!enableAutoSelect) return;
             previewController.Preview(playerInventory.CurrentTool,toolHitPosition);
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
