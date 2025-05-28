@@ -72,6 +72,7 @@ namespace PlayerModule.Mouse {
         private Vector2 toolHitPosition;
         private CanvasController canvasController;
         private bool holdingShift;
+        private Vector2? highlightPosition;
         
         void Start()
         {
@@ -188,15 +189,13 @@ namespace PlayerModule.Mouse {
             previewController.Preview(playerInventory.CurrentTool,toolHitPosition);
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
-                var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 3);
-                if (!result.HasValue)
-                {
-                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
-                    continue;
-                }
+                var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 5);
+                if (!result.HasValue) continue;
                 bool highlight = TryHighlight(currentSystem, (result.Value,worldTileMap));
                 if (highlight) return;
             }
+            ToolTipController.Instance.HideToolTip(ToolTipType.World);
+            highlightPosition = null;
             tileHighlighter.Hide();
         }
         
@@ -214,6 +213,7 @@ namespace PlayerModule.Mouse {
             }
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
             tileHighlighter.Highlight(position, tilemap.GetTilemap());
+            highlightPosition = position;
             return true;
         }
 
@@ -344,6 +344,10 @@ namespace PlayerModule.Mouse {
         /// <param name="offset"></param>
         /// <returns></returns>
         public bool TryClickTileEntity(Vector2 mousePosition) {
+            if (highlightPosition.HasValue)
+            {
+                mousePosition = highlightPosition.Value;
+            }
             int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             if (ReferenceEquals(tilemapObject,null)) return false;
