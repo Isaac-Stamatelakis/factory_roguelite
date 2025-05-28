@@ -86,7 +86,7 @@ namespace TileEntity.Instances {
             
             caveTeleporterParticles.transform.localPosition = new Vector3(0, 0, 1);
             Canvas parentCanvas = CanvasController.Instance.GetComponentInParent<Canvas>();
-            caveTeleporterParticles.StartTeleportIntoCaveRoutine(parentCanvas, currentCaveObject, teleportAction);
+            caveTeleporterParticles.StartTeleportIntoCaveRoutine(parentCanvas, currentCaveObject, teleportAction,playerScript);
         }
     }
 }

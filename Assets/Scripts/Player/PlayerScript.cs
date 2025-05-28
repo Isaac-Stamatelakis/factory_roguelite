@@ -235,6 +235,14 @@ namespace Player
             ConduitViewController = null;
         }
 
+        public void SetAllViewerState(bool state)
+        {
+            TileBreakIndicator.gameObject.SetActive(state);
+            TilePlacePreviewer.gameObject.SetActive(state);
+            TileHighlighter.gameObject.SetActive(state);
+            ConduitPortViewer.gameObject.SetActive(state);
+        }
+
     }
     [System.Serializable]
     public class PlayerUIPrefabs

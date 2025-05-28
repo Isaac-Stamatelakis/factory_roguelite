@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Dimensions;
+using Player;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using WorldModule.Caves;
@@ -69,15 +70,20 @@ namespace TileEntity.Instances.Caves.Teleporter
         private List<ParticleSystem> particleSystems = new();
         private bool loaded;
         private TilemapRendererFader tilemapFader;
+        private PlayerScript playerScript;
         
         /// <summary>
         /// This coroutine must be seperated from CaveSelectController since the player can destroy a Coroutine started in a UserInterface by pressing Escape 
         /// </summary>
-        public void StartTeleportIntoCaveRoutine(Canvas parentCanvas, CaveObject caveObject, Action teleportAction)
+        public void StartTeleportIntoCaveRoutine(Canvas parentCanvas, CaveObject caveObject, Action teleportAction, PlayerScript playerScript)
         {
+            this.playerScript =  playerScript;
             var tileMaps = DimensionManager.Instance.GetComponentsInChildren<Tilemap>();
             tilemapFader = new TilemapRendererFader(tileMaps,5,Color.yellow);
+            playerScript.TileViewers.DisableConduitViewers();
             StartCoroutine(TeleportIntoCave(parentCanvas, caveObject, teleportAction));
+            playerScript.TileViewers.SetAllViewerState(false);
+            playerScript.PlayerRobot.PausePlayer();
         }
 
 
@@ -95,7 +101,7 @@ namespace TileEntity.Instances.Caves.Teleporter
             teleportAction.Invoke();
             if (restoreCanvas) parentCanvas.enabled = true;
             StartFadeParticlesRoutine();
-            //tilemapFader.Reset();
+            playerScript.TileViewers.SetAllViewerState(true);
         }
 
         private IEnumerator LoadParticles()
@@ -121,7 +127,11 @@ namespace TileEntity.Instances.Caves.Teleporter
             particleSystems.Add(inner);
             inner.Play();
             yield return wait;
-            yield return new WaitForSeconds(2f);
+            PlayerAnimationController playerAnimationController = playerScript.PlayerRobot.AnimationController;
+            playerAnimationController.PlayAnimation(PlayerAnimation.Air);
+            playerAnimationController.ToggleBool(PlayerAnimationState.Walk,false);
+            playerAnimationController.ToggleBool(PlayerAnimationState.Air,true);
+            playerAnimationController.ToggleBool(PlayerAnimationState.Action,false);
         }
 
         private void StartFadeParticlesRoutine()

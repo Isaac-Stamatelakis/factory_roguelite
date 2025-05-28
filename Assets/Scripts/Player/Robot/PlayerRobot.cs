@@ -109,6 +109,7 @@ namespace Player {
         public int HighDragFrames { get; private set; }
         public bool IsUsingTool { get; private set; }
         private bool freezeY;
+        private bool paused;
         public int BlockClimbingFrames { get; set; }
         // Upgrades
         
@@ -258,7 +259,7 @@ namespace Player {
 
         public void Update()
         {
-            if (robotData == null) return; // Don't like this
+            if (robotData == null || paused) return; // Don't like this
             mPlayerRobotUI.Display(this);
             if (robotData.Health <= 0) return;
             currentMovement.MovementUpdate();
@@ -527,6 +528,7 @@ namespace Player {
         
         public void FixedUpdate()
         {
+            if (paused) return;
             CoyoteFrames--;
             SlipperyFrames--;
             IgnorePlatformFrames--;
@@ -708,15 +710,22 @@ namespace Player {
             return GetComponentInChildren<PlayerPickUp>();
         }
 
-        public void TemporarilyPausePlayer()
+        public void PausePlayer()
         {
+            paused = true;
             fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
             InvincibilityFrames = int.MaxValue;
             freezeY = true;
+        }
+
+        public void TemporarilyPausePlayer()
+        {
             StartCoroutine(UnPausePlayer());
+            if (paused) return;
+            PausePlayer();
         }
 
         private IEnumerator UnPausePlayer()
@@ -733,6 +742,7 @@ namespace Player {
             {
                 RemoveCollisionState(collisionState);
             }
+            paused = false;
         }
 
         private void CalculateFallTime()
