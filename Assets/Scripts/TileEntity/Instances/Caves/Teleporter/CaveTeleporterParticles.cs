@@ -1,13 +1,65 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Dimensions;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using WorldModule.Caves;
 
 namespace TileEntity.Instances.Caves.Teleporter
 {
     public class CaveTeleporterParticles : MonoBehaviour
     {
+        private class TilemapRendererFader
+        {
+            private struct TilemapColorValue
+            {
+                public Tilemap Tilemap;
+                public Color InitialColor;
+
+                public TilemapColorValue(Tilemap tilemap, Color initialColor)
+                {
+                    Tilemap = tilemap;
+                    InitialColor = initialColor;
+                }
+            }
+            private List<TilemapColorValue> tilemapColorValues;
+            private float fadeTime;
+            private float time;
+            private Color fadeColor;
+            public TilemapRendererFader(Tilemap[] tileMapRenderers, float fadeTime, Color fadeColor)
+            {
+                fadeColor.a = 0;
+                this.fadeColor = fadeColor;
+                this.fadeTime = fadeTime;
+                tilemapColorValues = new List<TilemapColorValue>();
+                foreach (Tilemap tilemap in tileMapRenderers)
+                {
+                    if (tilemap.gameObject.tag == "Outline")
+                    {
+                        tilemap.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        tilemapColorValues.Add(new TilemapColorValue(tilemap,tilemap.color));
+                    }
+                }
+                
+            }
+
+            public void FadeUpdate(float deltaTime)
+            {
+                time += deltaTime;
+                float progress = time / fadeTime;
+                foreach (TilemapColorValue tilemapColorValue in tilemapColorValues)
+                {
+                    Tilemap tilemap = tilemapColorValue.Tilemap;
+                    if (!tilemap) continue;
+                    tilemapColorValue.Tilemap.color = Color.Lerp(tilemapColorValue.InitialColor,fadeColor,progress);
+                }
+            }
+            
+        }
         [SerializeField] private float simulationAccerlation = 0.5f;
         [SerializeField] private float simulationAccerlationFalloff = 0.1f;
         [SerializeField] private float delay = 0.5f;
@@ -16,22 +68,22 @@ namespace TileEntity.Instances.Caves.Teleporter
         [SerializeField] private ParticleSystem inner;
         private List<ParticleSystem> particleSystems = new();
         private bool loaded;
-        private int defaultCameraCullingMask;
-        private Color defaultCameraColor;
-
+        private TilemapRendererFader tilemapFader;
+        
         /// <summary>
         /// This coroutine must be seperated from CaveSelectController since the player can destroy a Coroutine started in a UserInterface by pressing Escape 
         /// </summary>
         public void StartTeleportIntoCaveRoutine(Canvas parentCanvas, CaveObject caveObject, Action teleportAction)
         {
-            defaultCameraCullingMask = Camera.main.cullingMask;
-            int playerLayer = LayerMask.NameToLayer("Player");
-            gameObject.layer = playerLayer;
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                transform.GetChild(i).gameObject.layer = playerLayer;
-            }
+            var tileMaps = DimensionManager.Instance.GetComponentsInChildren<Tilemap>();
+            tilemapFader = new TilemapRendererFader(tileMaps,5,Color.yellow);
             StartCoroutine(TeleportIntoCave(parentCanvas, caveObject, teleportAction));
+        }
+
+
+        public void FixedUpdate()
+        {
+            tilemapFader.FadeUpdate(Time.fixedDeltaTime);
         }
 
         private IEnumerator TeleportIntoCave(Canvas parentCanvas, CaveObject caveObject, Action teleportAction)
@@ -43,8 +95,7 @@ namespace TileEntity.Instances.Caves.Teleporter
             teleportAction.Invoke();
             if (restoreCanvas) parentCanvas.enabled = true;
             StartFadeParticlesRoutine();
-            Camera.main.cullingMask = defaultCameraCullingMask;
-            
+            //tilemapFader.Reset();
         }
 
         private IEnumerator LoadParticles()
@@ -71,7 +122,6 @@ namespace TileEntity.Instances.Caves.Teleporter
             inner.Play();
             yield return wait;
             yield return new WaitForSeconds(2f);
-            mainCamera.cullingMask = 1 << LayerMask.NameToLayer("Player");
         }
 
         private void StartFadeParticlesRoutine()
