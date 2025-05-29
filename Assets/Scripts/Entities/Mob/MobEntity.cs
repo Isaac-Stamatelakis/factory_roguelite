@@ -65,7 +65,7 @@ namespace Entities.Mobs {
         private string id;
         public void Deserialize(SerializedMobEntityData entityData) {
             this.id = entityData.Id;
-            if (entityData.Health > float.MinValue)
+            if (!Mathf.Approximately(entityData.Health, float.MaxValue))
             {
                 this.Health = entityData.Health;
             }
@@ -73,7 +73,11 @@ namespace Entities.Mobs {
             if (RandomizeSize)
             {
                 float size = entityData.Size;
-                if (size <= 0) size = 1;
+                if (Mathf.Approximately(size, float.MaxValue))
+                {
+                    size = GetRandomSize();
+                }
+                size = Mathf.Clamp(size,0.9f, 1.2f);
                 transform.localScale = new Vector3(size,size,1f);
             }
             

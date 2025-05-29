@@ -15,6 +15,7 @@ using Items;
 using Entities;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using Items.Transmutable;
 using Player;
 using Robot.Tool.Instances;
 using Robot.Upgrades;
@@ -269,10 +270,12 @@ namespace TileMaps {
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
+            TransmutableItemMaterial transmutableItemMaterial = tileItem.tileOptions.TransmutableColorOverride;
+            
             SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
             
             // Don't use get tile color for performance
-            if (tileItem.tileOptions.TransmutableColorOverride)
+            if (transmutableItemMaterial)
             {
                 tilemap.SetTileFlags(vector3Int, TileFlags.None);
                 tilemap.SetColor(vector3Int,tileItem.tileOptions.TransmutableColorOverride.color);
@@ -530,15 +533,21 @@ namespace TileMaps {
         }
     }
 
-    public class ShaderOverlayTilemapManager
+    public class ShaderTilemapManager
     {
-        private const int DEFAULT_COUNT = 3;
-        private Transform parentTransform;
-        public ShaderOverlayTilemapManager(Transform parent)
+        private readonly bool hasCollider;
+        private readonly float zOffset;
+        private readonly Transform parentTransform;
+        private readonly Dictionary<Material, Tilemap> materialTileMaps = new();
+        private readonly Stack<Tilemap> unusedTileMaps = new();
+        private readonly List<Tilemap> usedTileMaps = new();
+        public ShaderTilemapManager(Transform parent, float zOffset, bool collider, int defaultCount = 3)
         {
+            this.hasCollider = collider;
+            this.zOffset = zOffset;
             this.parentTransform = parent;
             int i = 0;
-            while (i < DEFAULT_COUNT)
+            while (i < defaultCount)
             {
                 PushNewTilemap();
                 i++;
@@ -552,13 +561,17 @@ namespace TileMaps {
             overlayTileMapObject.transform.SetParent(parentTransform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, WorldTileMap.OVERLAY_Z);
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, zOffset);
+            
+            if (hasCollider)
+            {
+                TilemapCollider2D collider2D = overlayTileMapObject.AddComponent<TilemapCollider2D>();
+                collider2D.usedByComposite = true;
+            }
             overlayTileMapObject.gameObject.SetActive(false);
             unusedTileMaps.Push(overlayTileMap);
         }
-        private Dictionary<Material, Tilemap> materialTileMaps = new();
-        private Stack<Tilemap> unusedTileMaps = new();
-        private List<Tilemap> usedTileMaps = new();
+        
         public Tilemap GetTileMap(Material material)
         {
             if (materialTileMaps.TryGetValue(material, out Tilemap tilemap)) return tilemap;
@@ -571,7 +584,7 @@ namespace TileMaps {
             tilemap.GetComponent<TilemapRenderer>().material = material;
             materialTileMaps[material] = tilemap;
             usedTileMaps.Add(tilemap);
-
+            
             return tilemap;
         }
 

@@ -286,10 +286,10 @@ namespace Player.Controls
                 case PlayerControl.MoveDown:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.StandardMovement.Down, 0),
+                        new(inputActions.ConstantMovement.Down, 0),
                         new(inputActions.FlightMovement.Move, 2),
                         new(inputActions.LadderMovement.Move, 1),
-                        new (inputActions.MiscMovement.TryClimb, 1),
+                        new (inputActions.ConstantMovement.TryClimb, 1),
                     };
                 
                 case PlayerControl.MoveUp:
@@ -297,12 +297,12 @@ namespace Player.Controls
                     {
                         new(inputActions.FlightMovement.Move, 1),
                         new(inputActions.LadderMovement.Move, 2),
-                        new (inputActions.MiscMovement.TryClimb, 0),
+                        new (inputActions.ConstantMovement.TryClimb, 0),
                     };
                 case PlayerControl.Teleport:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.MiscMovement.Teleport, 0),
+                        new(inputActions.ConstantMovement.Teleport, 0),
                     };
                 case PlayerControl.SwitchToolMode:
                     return new InputActionBinding[]

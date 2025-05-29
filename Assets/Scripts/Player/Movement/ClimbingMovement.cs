@@ -68,15 +68,7 @@ namespace Player.Movement
             IClimableTileEntity climableTileEntity = playerRobot.GetClimbable(position);
             if (climableTileEntity == null)
             {
-                if (movementDirection < 0)
-                {
-                    playerRobot.SetStandardMovementHoldingDown();
-                }
-                else
-                {
-                    playerRobot.SetMovementState(PlayerMovementState.Standard);
-                }
-                
+                playerRobot.SetMovementState(PlayerMovementState.Standard);
                 return;
             }
 
@@ -95,6 +87,7 @@ namespace Player.Movement
             rb.velocity = velocity;
         }
 
+        
         public override void FixedMovementUpdate()
         {
             playerRobot.AnimationController.PlayAnimation(playerRobot.IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);

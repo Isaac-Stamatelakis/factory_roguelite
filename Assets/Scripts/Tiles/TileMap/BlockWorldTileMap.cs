@@ -34,7 +34,8 @@ namespace TileMaps {
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
-        private ShaderOverlayTilemapManager shaderOverlayTilemapManager;
+        private ShaderTilemapManager shaderOverlayTilemapManager;
+        private ShaderTilemapManager colliderShaderTilemapManager;
         public override void Initialize(TileMapType tileMapType)
         {
             base.Initialize(tileMapType);
@@ -47,7 +48,8 @@ namespace TileMaps {
             outline.transform.SetParent(transform,false);
             setView(false,Color.black);
             
-            shaderOverlayTilemapManager = new ShaderOverlayTilemapManager(transform);
+            shaderOverlayTilemapManager = new ShaderTilemapManager(transform,OVERLAY_Z,false);
+            colliderShaderTilemapManager = new ShaderTilemapManager(transform, 0, true);
         }
 
         public void setView(bool? wireFrame, Color? color) {
