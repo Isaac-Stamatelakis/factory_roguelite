@@ -31,15 +31,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Down",
-                    "type": "Button",
-                    "id": "01b673a6-048d-4e1c-bfa5-52a42db4d36e",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -51,17 +42,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8245de48-4285-40b8-aa97-e37b99b3c8a8",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -351,13 +331,22 @@
             ]
         },
         {
-            "name": "MiscMovement",
+            "name": "ConstantMovement",
             "id": "0d16a910-b506-4524-b6f4-77e892d7a811",
             "actions": [
                 {
                     "name": "Teleport",
                     "type": "Button",
                     "id": "46cd9f62-b022-4590-8390-cc5f9388afb5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Down",
+                    "type": "Button",
+                    "id": "6695da98-43a7-45ad-801d-6ba0992cd5e3",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -404,6 +393,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "TryClimb",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "44a552dc-39eb-401f-8735-3c348dc39735",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

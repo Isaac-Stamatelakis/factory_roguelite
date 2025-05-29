@@ -53,15 +53,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Down"",
-                    ""type"": ""Button"",
-                    ""id"": ""01b673a6-048d-4e1c-bfa5-52a42db4d36e"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -73,17 +64,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""8245de48-4285-40b8-aa97-e37b99b3c8a8"",
-                    ""path"": ""<Keyboard>/s"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -373,13 +353,22 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ]
         },
         {
-            ""name"": ""MiscMovement"",
+            ""name"": ""ConstantMovement"",
             ""id"": ""0d16a910-b506-4524-b6f4-77e892d7a811"",
             ""actions"": [
                 {
                     ""name"": ""Teleport"",
                     ""type"": ""Button"",
                     ""id"": ""46cd9f62-b022-4590-8390-cc5f9388afb5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Down"",
+                    ""type"": ""Button"",
+                    ""id"": ""6695da98-43a7-45ad-801d-6ba0992cd5e3"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -426,6 +415,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""TryClimb"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""44a552dc-39eb-401f-8735-3c348dc39735"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1604,7 +1604,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_StandardMovement_Move = m_StandardMovement.FindAction("Move", throwIfNotFound: true);
         m_StandardMovement_Jump = m_StandardMovement.FindAction("Jump", throwIfNotFound: true);
         m_StandardMovement_Teleport = m_StandardMovement.FindAction("Teleport", throwIfNotFound: true);
-        m_StandardMovement_Down = m_StandardMovement.FindAction("Down", throwIfNotFound: true);
         // FlightMovement
         m_FlightMovement = asset.FindActionMap("FlightMovement", throwIfNotFound: true);
         m_FlightMovement_Move = m_FlightMovement.FindAction("Move", throwIfNotFound: true);
@@ -1613,10 +1612,11 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_LadderMovement_Move = m_LadderMovement.FindAction("Move", throwIfNotFound: true);
         m_LadderMovement_HorizontalEscape = m_LadderMovement.FindAction("HorizontalEscape", throwIfNotFound: true);
         m_LadderMovement_JumpEscape = m_LadderMovement.FindAction("JumpEscape", throwIfNotFound: true);
-        // MiscMovement
-        m_MiscMovement = asset.FindActionMap("MiscMovement", throwIfNotFound: true);
-        m_MiscMovement_Teleport = m_MiscMovement.FindAction("Teleport", throwIfNotFound: true);
-        m_MiscMovement_TryClimb = m_MiscMovement.FindAction("TryClimb", throwIfNotFound: true);
+        // ConstantMovement
+        m_ConstantMovement = asset.FindActionMap("ConstantMovement", throwIfNotFound: true);
+        m_ConstantMovement_Teleport = m_ConstantMovement.FindAction("Teleport", throwIfNotFound: true);
+        m_ConstantMovement_Down = m_ConstantMovement.FindAction("Down", throwIfNotFound: true);
+        m_ConstantMovement_TryClimb = m_ConstantMovement.FindAction("TryClimb", throwIfNotFound: true);
         // InventoryNavigation
         m_InventoryNavigation = asset.FindActionMap("InventoryNavigation", throwIfNotFound: true);
         m_InventoryNavigation_Select0 = m_InventoryNavigation.FindAction("Select0", throwIfNotFound: true);
@@ -1740,7 +1740,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_StandardMovement_Move;
     private readonly InputAction m_StandardMovement_Jump;
     private readonly InputAction m_StandardMovement_Teleport;
-    private readonly InputAction m_StandardMovement_Down;
     public struct StandardMovementActions
     {
         private @InputActions m_Wrapper;
@@ -1748,7 +1747,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_StandardMovement_Move;
         public InputAction @Jump => m_Wrapper.m_StandardMovement_Jump;
         public InputAction @Teleport => m_Wrapper.m_StandardMovement_Teleport;
-        public InputAction @Down => m_Wrapper.m_StandardMovement_Down;
         public InputActionMap Get() { return m_Wrapper.m_StandardMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1767,9 +1765,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Teleport.started += instance.OnTeleport;
             @Teleport.performed += instance.OnTeleport;
             @Teleport.canceled += instance.OnTeleport;
-            @Down.started += instance.OnDown;
-            @Down.performed += instance.OnDown;
-            @Down.canceled += instance.OnDown;
         }
 
         private void UnregisterCallbacks(IStandardMovementActions instance)
@@ -1783,9 +1778,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Teleport.started -= instance.OnTeleport;
             @Teleport.performed -= instance.OnTeleport;
             @Teleport.canceled -= instance.OnTeleport;
-            @Down.started -= instance.OnDown;
-            @Down.performed -= instance.OnDown;
-            @Down.canceled -= instance.OnDown;
         }
 
         public void RemoveCallbacks(IStandardMovementActions instance)
@@ -1912,59 +1904,67 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     }
     public LadderMovementActions @LadderMovement => new LadderMovementActions(this);
 
-    // MiscMovement
-    private readonly InputActionMap m_MiscMovement;
-    private List<IMiscMovementActions> m_MiscMovementActionsCallbackInterfaces = new List<IMiscMovementActions>();
-    private readonly InputAction m_MiscMovement_Teleport;
-    private readonly InputAction m_MiscMovement_TryClimb;
-    public struct MiscMovementActions
+    // ConstantMovement
+    private readonly InputActionMap m_ConstantMovement;
+    private List<IConstantMovementActions> m_ConstantMovementActionsCallbackInterfaces = new List<IConstantMovementActions>();
+    private readonly InputAction m_ConstantMovement_Teleport;
+    private readonly InputAction m_ConstantMovement_Down;
+    private readonly InputAction m_ConstantMovement_TryClimb;
+    public struct ConstantMovementActions
     {
         private @InputActions m_Wrapper;
-        public MiscMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Teleport => m_Wrapper.m_MiscMovement_Teleport;
-        public InputAction @TryClimb => m_Wrapper.m_MiscMovement_TryClimb;
-        public InputActionMap Get() { return m_Wrapper.m_MiscMovement; }
+        public ConstantMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Teleport => m_Wrapper.m_ConstantMovement_Teleport;
+        public InputAction @Down => m_Wrapper.m_ConstantMovement_Down;
+        public InputAction @TryClimb => m_Wrapper.m_ConstantMovement_TryClimb;
+        public InputActionMap Get() { return m_Wrapper.m_ConstantMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(MiscMovementActions set) { return set.Get(); }
-        public void AddCallbacks(IMiscMovementActions instance)
+        public static implicit operator InputActionMap(ConstantMovementActions set) { return set.Get(); }
+        public void AddCallbacks(IConstantMovementActions instance)
         {
-            if (instance == null || m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_ConstantMovementActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_ConstantMovementActionsCallbackInterfaces.Add(instance);
             @Teleport.started += instance.OnTeleport;
             @Teleport.performed += instance.OnTeleport;
             @Teleport.canceled += instance.OnTeleport;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
             @TryClimb.started += instance.OnTryClimb;
             @TryClimb.performed += instance.OnTryClimb;
             @TryClimb.canceled += instance.OnTryClimb;
         }
 
-        private void UnregisterCallbacks(IMiscMovementActions instance)
+        private void UnregisterCallbacks(IConstantMovementActions instance)
         {
             @Teleport.started -= instance.OnTeleport;
             @Teleport.performed -= instance.OnTeleport;
             @Teleport.canceled -= instance.OnTeleport;
+            @Down.started -= instance.OnDown;
+            @Down.performed -= instance.OnDown;
+            @Down.canceled -= instance.OnDown;
             @TryClimb.started -= instance.OnTryClimb;
             @TryClimb.performed -= instance.OnTryClimb;
             @TryClimb.canceled -= instance.OnTryClimb;
         }
 
-        public void RemoveCallbacks(IMiscMovementActions instance)
+        public void RemoveCallbacks(IConstantMovementActions instance)
         {
-            if (m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_ConstantMovementActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
-        public void SetCallbacks(IMiscMovementActions instance)
+        public void SetCallbacks(IConstantMovementActions instance)
         {
-            foreach (var item in m_Wrapper.m_MiscMovementActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_ConstantMovementActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_MiscMovementActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_ConstantMovementActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
-    public MiscMovementActions @MiscMovement => new MiscMovementActions(this);
+    public ConstantMovementActions @ConstantMovement => new ConstantMovementActions(this);
 
     // InventoryNavigation
     private readonly InputActionMap m_InventoryNavigation;
@@ -2596,7 +2596,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnTeleport(InputAction.CallbackContext context);
-        void OnDown(InputAction.CallbackContext context);
     }
     public interface IFlightMovementActions
     {
@@ -2608,9 +2607,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnHorizontalEscape(InputAction.CallbackContext context);
         void OnJumpEscape(InputAction.CallbackContext context);
     }
-    public interface IMiscMovementActions
+    public interface IConstantMovementActions
     {
         void OnTeleport(InputAction.CallbackContext context);
+        void OnDown(InputAction.CallbackContext context);
         void OnTryClimb(InputAction.CallbackContext context);
     }
     public interface IInventoryNavigationActions

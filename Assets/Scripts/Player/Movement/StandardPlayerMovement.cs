@@ -88,7 +88,7 @@ namespace Player.Movement.Standard
         private int bonusJumps;
         private RocketBoots rocketBoots;
         private SpriteRenderer spriteRenderer;
-        private InputActions.StandardMovementActions playerMovementInput;
+        private InputActions inputActions;
         private PlayerScript playerScript;
 
         private float fallTime;
@@ -113,7 +113,8 @@ namespace Player.Movement.Standard
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             ToggleRocketBoots(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots) > 0);
 
-            playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
+            inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
+            var playerMovementInput = inputActions.StandardMovement;
             
             playerMovementInput.Move.performed += OnMovePerformed;
             playerMovementInput.Move.canceled += OnMoveCancelled;
@@ -121,9 +122,9 @@ namespace Player.Movement.Standard
             playerMovementInput.Jump.performed += OnJumpPressed;
             playerMovementInput.Jump.canceled += OnJumpReleased;
             
-            playerMovementInput.Down.performed += OnDownPressed;
-            playerMovementInput.Down.canceled += OnDownReleased;
-            
+            inputActions.ConstantMovement.Down.performed += OnDownPressed;
+            inputActions.ConstantMovement.Down.canceled += OnDownReleased;
+            holdingDown = inputActions.ConstantMovement.Down.IsPressed();
             playerMovementInput.Enable();
         }
 
@@ -131,12 +132,7 @@ namespace Player.Movement.Standard
         {
             inputDir = value;
         }
-
-        public void SetHoldingDown(bool value)
-        {
-            holdingDown = value;
-        }
-
+        
         public override void MovementUpdate()
         {
             Vector2 velocity = rb.velocity;
@@ -225,7 +221,7 @@ namespace Player.Movement.Standard
             slipperyFrames--;
             highDragFrames--;
 
-            if (playerScript.InputActions.MiscMovement.TryClimb.IsPressed()) // This has to be seperated from standard input movement so holding up/down and going through platforms doesn't cancel when switching between states
+            if (playerScript.InputActions.ConstantMovement.TryClimb.IsPressed()) // This has to be seperated from standard input movement so holding up/down and going through platforms doesn't cancel when switching between states
             {
                 if (TryStartClimbing()) return;
             }
@@ -377,14 +373,15 @@ namespace Player.Movement.Standard
         }
         public override void Disable()
         {
+            var playerMovementInput = inputActions.StandardMovement;
             playerMovementInput.Move.performed -= OnMovePerformed;
             playerMovementInput.Move.canceled -= OnMoveCancelled;
             
             playerMovementInput.Jump.performed -= OnJumpPressed;
             playerMovementInput.Jump.canceled -= OnJumpReleased;
             
-            playerMovementInput.Down.performed -= OnDownPressed;
-            playerMovementInput.Down.canceled -= OnDownReleased;
+            inputActions.ConstantMovement.Down.performed -= OnDownPressed;
+            inputActions.ConstantMovement.Down.canceled -= OnDownReleased;
             playerMovementInput.Disable();
         }
 
@@ -401,7 +398,7 @@ namespace Player.Movement.Standard
 
         protected override InputActionMap GetInputActionMap()
         {
-            return playerMovementInput;
+            return inputActions.StandardMovement;
         }
 
         private void OnMovePerformed(InputAction.CallbackContext context)

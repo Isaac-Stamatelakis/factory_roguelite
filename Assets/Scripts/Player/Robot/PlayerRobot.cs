@@ -150,9 +150,9 @@ namespace Player {
             AnimationController = new PlayerAnimationController(this, GetComponent<Animator>());
             
             
-            InputActions.MiscMovementActions miscMovementActions = playerScript.InputActions.MiscMovement;
-            ControlUtils.AssignAction(miscMovementActions.Teleport,PlayerControl.Teleport,Teleport);
-            miscMovementActions.Enable();
+            InputActions.ConstantMovementActions constantMovementActions = playerScript.InputActions.ConstantMovement;
+            ControlUtils.AssignAction(constantMovementActions.Teleport,PlayerControl.Teleport,Teleport);
+            constantMovementActions.Enable();
             
             InitializeMovementState();
             
@@ -177,11 +177,11 @@ namespace Player {
             currentMovement?.SetMovementStatus(allowMovement);
             if (allowMovement)
             {
-                playerScript.InputActions.MiscMovement.Enable();
+                playerScript.InputActions.ConstantMovement.Enable();
             }
             else
             {
-                playerScript.InputActions.MiscMovement.Disable();
+                playerScript.InputActions.ConstantMovement.Disable();
             }
         }
         public void SetMovementState(PlayerMovementState newMovementState)
@@ -198,11 +198,6 @@ namespace Player {
             ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
         }
         
-        public void SetStandardMovementHoldingDown()
-        {
-            SetMovementState(PlayerMovementState.Standard);
-            ((StandardPlayerMovement)currentMovement).SetHoldingDown(true);
-        }
 
         private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
         {
