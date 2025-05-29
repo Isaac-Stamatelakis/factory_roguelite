@@ -19,6 +19,7 @@ using TMPro;
 using UI;
 using UI.Catalogue.ItemSearch;
 using UI.Chat;
+using UI.Indicators.General;
 using UI.QuestBook;
 using UI.RingSelector;
 using UI.ToolTip;
@@ -51,8 +52,8 @@ namespace PlayerModule.KeyPress {
             ControlUtils.AssignAction(miscKeys.SwitchPlacementMode,PlayerControl.SwitchPlacementMode, SwitchPlacementMode);
             ControlUtils.AssignAction(miscKeys.SubPlacementMode,PlayerControl.SwitchPlacementSubMode,SwitchSubPlacementMode);
             ControlUtils.AssignAction(miscKeys.TerminateConduitGroup,PlayerControl.TerminateConduitGroup,TerminateConduitGroup);
-            ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
-            ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview,_ => playerScript.PlayerUIContainer.IndicatorManager.tilePreviewerIndicatorUI.Toggle());
+            ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
+            ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview, _ => playerScript.PlayerUIContainer.IndicatorManager.tilePreviewerIndicatorUI.Toggle());
             
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
@@ -128,20 +129,14 @@ namespace PlayerModule.KeyPress {
 
         void SwitchPlacementMode(InputAction.CallbackContext context)
         {
-            // TODO
-            ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
-            conduitPlacementOptions.ResetPlacementRecord();
-            conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-            playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Display();
+            TileStateIndicatorUI tileStateIndicatorUI = playerScript.PlayerUIContainer.TileIndicatorManagerUI.tileStateIndicatorUI;
+            tileStateIndicatorUI.Toggle(1);
         }
         
         void SwitchSubPlacementMode(InputAction.CallbackContext context)
         {
-            // TODO
-            ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
-            conduitPlacementOptions.ResetPlacementRecord();
-            conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-            playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Display();
+            TileRotationIndicatorUI rotationIndicatorUI = playerScript.PlayerUIContainer.TileIndicatorManagerUI.rotationIndicatorUI;
+            rotationIndicatorUI.Toggle(1);
         }
 
 

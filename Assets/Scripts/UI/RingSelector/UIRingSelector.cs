@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace UI.RingSelector
@@ -73,7 +74,7 @@ namespace UI.RingSelector
 
         public void Update()
         {
-            if (Input.GetMouseButtonUp(0))
+            if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 if (lastSelectedIndex == -1)
                 {
@@ -96,7 +97,7 @@ namespace UI.RingSelector
                 return;
             }
             Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
-            Vector2 dif = (Vector2)Input.mousePosition - screenCenter;
+            Vector2 dif = Mouse.current.position.ReadValue() - screenCenter;
             float angle = Mathf.Atan2(dif.y, dif.x) * Mathf.Rad2Deg+180;
             float startAngle = (90 - 360f / currentComponents.Count);
             if (startAngle < 0)

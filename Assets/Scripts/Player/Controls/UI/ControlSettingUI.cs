@@ -75,7 +75,7 @@ namespace Player.Controls.UI
         {
             PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();
             if (!playerScript) return;
-            playerScript.PlayerUIContainer.IndicatorManager.SyncKeyCodes(false);
+            playerScript.PlayerUIContainer.SyncKeyCodes();
         }
     }
 }

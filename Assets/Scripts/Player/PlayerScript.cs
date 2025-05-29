@@ -105,6 +105,7 @@ namespace Player
             playerStatisticCollection = playerData.playerStatistics;
             playerInventory.Initialize(playerData.sInventoryData);
             
+            
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
             playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
@@ -116,9 +117,9 @@ namespace Player
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             
-            
-            
             playerUIContainer.IndicatorManager.Initialize(this);
+            playerUIContainer.TileIndicatorManagerUI.Initialize(this);
+            
             tileViewers.Initialize(this);
             
             ControlUtils.LoadRequiredAndBlocked();
@@ -128,6 +129,7 @@ namespace Player
             
             OnReachUpgradeChange();
             
+            playerInventory.ChangeSelectedSlot(0);
             return playerData;
         }
 
@@ -206,7 +208,7 @@ namespace Player
             ItemSlot currentPlayerItem = playerInventory.getSelectedItemSlot();
             if (currentPlayerItem?.itemObject is ConduitItem)
             {
-                playerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.IterateCounter();
+                playerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.IterateCounter();
             }
             if (!DevMode.Instance.noPlaceCost)
             {

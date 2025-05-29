@@ -111,6 +111,7 @@ namespace Player.Movement.Standard
             movementStats = playerRobot.MovementStats;
             jumpStats = playerRobot.JumpStats;
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
+            ToggleRocketBoots(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots) > 0);
 
             playerMovementInput = playerRobot.GetComponent<PlayerScript>().InputActions.StandardMovement;
             
@@ -493,10 +494,10 @@ namespace Player.Movement.Standard
                 fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
 
 
-            if (rocketBoots != null && holdingJump)
+            if (holdingJump && rocketBoots != null && rocketBoots.FlightTime > 0)
             {
                 RocketBootUpdate(ref velocity, fluidSpeedModifier);
-                if (rocketBoots != null) return;
+                return;
             }
 
             rb.gravityScale = playerRobot.DefaultGravityScale * fluidGravityModifer;
@@ -536,47 +537,31 @@ namespace Player.Movement.Standard
         {
             if (bonusJumps <= 0)
             {
-                bonusJumps = playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
+                bonusJumps = playerRobot.RobotUpgradeLoadOut.SelfLoadOuts.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
             }
 
-            int rocketBootUpgrades = RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
-            if (rocketBootUpgrades > 0)
-            {
-                rocketBoots?.Terminate();
-                rocketBoots ??= new RocketBoots();
-                rocketBoots.FlightTime = 1+rocketBootUpgrades;
-            }
-            else
-            {
-                rocketBoots = null;
-            }
+            rocketBoots?.SetFlightTime(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots));
         }
 
         public void RocketBootUpdate(ref Vector2 velocity, float fluidSpeedModifier)
         {
-            if (holdingJump)
+            if (rocketBoots.Boost > 0)
             {
-                if (rocketBoots.Boost > 0)
+                rb.gravityScale = 0;
+                float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
+                velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1 + 0.33f * bonusJumpHeight);
+            }
+            else
+            {
+                if (rb.velocity.y < 0)
                 {
-                    rb.gravityScale = 0;
-                    float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
-                    velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1 + 0.33f * bonusJumpHeight);
+                    var vector2 = rb.velocity;
+                    vector2.y = 0;
+                    rb.velocity = vector2;
                 }
-                else
-                {
-                    if (rb.velocity.y < 0)
-                    {
-                        var vector2 = rb.velocity;
-                        vector2.y = 0;
-                        rb.velocity = vector2;
-                    }
-                    rocketBoots.Boost = rb.velocity.y/2f;
-                }
+                rocketBoots.Boost = rb.velocity.y/2f;
             }
             rocketBoots.UpdateBoost(holdingJump);
-            if (rocketBoots.FlightTime >= 0) return;
-            rocketBoots.Terminate();
-            rocketBoots = null;
         }
 
         void OnJumpPressed(InputAction.CallbackContext context)
@@ -684,6 +669,26 @@ namespace Player.Movement.Standard
         public void OnTeleport()
         {
             fallTime = 0;
+        }
+
+        public void ToggleRocketBoots(bool active)
+        {
+            switch (active)
+            {
+                case true when rocketBoots == null:
+                {
+                    rocketBoots = new RocketBoots(playerRobot);
+                    if (playerRobot.IsGrounded())
+                    {
+                        rocketBoots.SetFlightTime(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots));
+                    }
+
+                    break;
+                }
+                case false when rocketBoots != null:
+                    rocketBoots = null;
+                    break;
+            }
         }
     }
 }

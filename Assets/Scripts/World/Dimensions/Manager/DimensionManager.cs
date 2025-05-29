@@ -110,6 +110,7 @@ namespace Dimensions {
             GraphicSettingsUtils.ApplyWorldGraphicSettings();
             
             playerScript.CallInitializeListeners();
+            playerScript.GetComponent<PlayerIO>().OnValidated();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)
@@ -410,20 +411,6 @@ namespace Dimensions {
                 yield break;
             }
             
-            IndicatorManager indicatorManager = player.PlayerUIContainer.IndicatorManager;
-            switch (dimension)
-            {
-                case Dimension.OverWorld:
-                case Dimension.CompactMachine:
-                    indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitSystem);
-                    break;
-                case Dimension.Cave:
-                    indicatorManager.RemoveBundle(IndicatorDisplayBundle.ConduitSystem);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(dimension), dimension, null);
-            }
-            
             if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
@@ -474,6 +461,8 @@ namespace Dimensions {
             {
                 MusicTrackController.Instance.RestoreDefaultSong();
             }
+            
+            player.PlayerUIContainer.IndicatorManager.Display(player);
             
             newSystem.InstantCacheChunksNearPlayer();
             yield return newSystem.LoadTileEntityAssets();

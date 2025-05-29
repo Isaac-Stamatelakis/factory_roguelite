@@ -387,7 +387,7 @@ namespace Player.Controls
                 case PlayerControl.PlacePreview:
                     return new InputActionBinding[]
                     {
-                        new(inputActions.MiscKeys.ConduitOptions, 0),
+                        new(inputActions.MiscKeys.PlacePreview, 0),
                     };
                 case PlayerControl.ShowItemRecipes:
                     return new InputActionBinding[]
