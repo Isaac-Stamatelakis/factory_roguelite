@@ -12,9 +12,8 @@ namespace Entities.Mobs {
             FlipSprite,
             RotateObject
         }
-        [Header("Chance that every Fixed Update (25/second), the entity walks")]
+        
         [SerializeField] private int frequency = 100;
-        [Header("Range of time they walk")]
         [SerializeField] private Vector2Int durationRange = new Vector2Int(150,300);
         [SerializeField] private float speed;
         [SerializeField] private float jumpHeight;
@@ -48,9 +47,13 @@ namespace Entities.Mobs {
                 return;
             }
             if (direction == Direction.Left) {
-                rb.AddForce(speed*Vector2.left);
+                var vector2 = rb.velocity;
+                vector2.x = speed;
+                rb.velocity = vector2;
             } else if (direction == Direction.Right) {
-                rb.AddForce(speed*Vector2.right);
+                var vector2 = rb.velocity;
+                vector2.x = -speed;
+                rb.velocity = vector2;
             }
             duration--;
         }

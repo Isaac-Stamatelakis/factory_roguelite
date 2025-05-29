@@ -73,7 +73,11 @@ namespace Entities.Mobs {
             if (RandomizeSize)
             {
                 float size = entityData.Size;
-                if (size <= 0) size = 1;
+                if (Mathf.Approximately(size, float.MaxValue))
+                {
+                    size = GetRandomSize();
+                }
+                size = Mathf.Clamp(size,0.9f, 1.2f);
                 transform.localScale = new Vector3(size,size,1f);
             }
             

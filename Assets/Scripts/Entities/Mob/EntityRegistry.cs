@@ -47,8 +47,7 @@ namespace Entities.Mobs {
         {
             return assetLocationMap.Keys.ToList();
         }
-
-
+        
         public static IEnumerator Initialize()
         {
             if (assetLocationMap != null) yield break;
