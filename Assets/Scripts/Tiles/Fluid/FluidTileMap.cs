@@ -329,7 +329,7 @@ namespace Fluids {
             if (flashCounter < ticksToTryFlash) return;
             flashCounter = 0;
             Bounds bounds = unlitCollider2D.composite.bounds;
-            Debug.Log(bounds);
+            
             // Large pool of lava in large camera view has ~1000 tiles
             const float CHANCE = 1024;
             TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds,CHANCE);
