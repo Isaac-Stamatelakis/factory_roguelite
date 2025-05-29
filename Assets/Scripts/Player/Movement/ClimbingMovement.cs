@@ -52,7 +52,7 @@ namespace Player.Movement
 
         private void OnEscapeVerticalPress(InputAction.CallbackContext context)
         {
-            playerRobot.SetMovementState(PlayerMovementState.Standard);
+            SetPlayerStateOnEscape();
             playerRobot.BlockClimbingFrames = 5;
             playerRobot.ResetIgnorePlatformFrames();
         }
@@ -68,15 +68,7 @@ namespace Player.Movement
             IClimableTileEntity climableTileEntity = playerRobot.GetClimbable(position);
             if (climableTileEntity == null)
             {
-                if (movementDirection < 0)
-                {
-                    playerRobot.SetStandardMovementHoldingDown();
-                }
-                else
-                {
-                    playerRobot.SetMovementState(PlayerMovementState.Standard);
-                }
-                
+                SetPlayerStateOnEscape();
                 return;
             }
 
@@ -95,6 +87,18 @@ namespace Player.Movement
             rb.velocity = velocity;
         }
 
+        private void SetPlayerStateOnEscape()
+        {
+            if (movementDirection < 0)
+            {
+                playerRobot.SetStandardMovementHoldingDown();
+            }
+            else
+            {
+                playerRobot.SetMovementState(PlayerMovementState.Standard);
+            }
+
+        }
         public override void FixedMovementUpdate()
         {
             playerRobot.AnimationController.PlayAnimation(playerRobot.IsGrounded() ? PlayerAnimation.Idle : PlayerAnimation.Air);
