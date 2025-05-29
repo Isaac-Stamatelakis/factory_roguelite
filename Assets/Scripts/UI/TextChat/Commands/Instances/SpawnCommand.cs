@@ -25,7 +25,9 @@ namespace UI.Chat {
          
             int dim = DimensionManager.Instance.GetPlayerDimension();
             DimController dimController = DimensionManager.Instance.GetDimController((Dimension)dim);
-            SerializedMobEntityData spawnEntityData = new SerializedMobEntityData(id, 1f,float.MinValue, null);
+            
+            // float.max health tells registry to spawn with max health
+            SerializedMobEntityData spawnEntityData = new SerializedMobEntityData(id, float.MaxValue,1f, null);
             while (amount > 0)
             {
                 EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.GetActiveSystem()?.EntityContainer);

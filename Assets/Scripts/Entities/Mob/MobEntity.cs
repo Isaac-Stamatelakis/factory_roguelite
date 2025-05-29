@@ -65,7 +65,7 @@ namespace Entities.Mobs {
         private string id;
         public void Deserialize(SerializedMobEntityData entityData) {
             this.id = entityData.Id;
-            if (entityData.Health > float.MinValue)
+            if (!Mathf.Approximately(entityData.Health, float.MaxValue))
             {
                 this.Health = entityData.Health;
             }

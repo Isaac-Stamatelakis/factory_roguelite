@@ -76,7 +76,6 @@ namespace Items.Transmutable {
                     int hueShift = Shader.PropertyToID("_HueShift");
                     worldCopy.SetFloat(hueShift,hueShiftOption.HueShift);
                     uiCopy.SetFloat(hueShift,hueShiftOption.HueShift);
-                    Debug.Log(hueShiftOption.HueShift);
                     break;
                 }
                     

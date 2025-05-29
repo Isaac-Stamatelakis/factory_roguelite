@@ -65,7 +65,7 @@ namespace Robot.Tool.Instances
             if (pool.Count < minCount)
             {
                 double r = random.NextDouble();
-                if (r < growthFactor)
+                if (r < 2*growthFactor)
                 {
                     PushToPool();
                 }
@@ -104,8 +104,8 @@ namespace Robot.Tool.Instances
         private Rigidbody2D playerRb;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
-            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE",0.05f);
-            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser",0.05f);
+            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE",0.1f);
+            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser",0.01f);
             playerRb = playerScript.GetComponent<Rigidbody2D>();
         }
         

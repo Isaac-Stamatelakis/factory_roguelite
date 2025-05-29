@@ -55,7 +55,7 @@ namespace Robot.Tool.Instances.Gun
             foreach (var hit in hits)
             {
                 Vector2 collisionPoint = hit.collider.ClosestPoint(transform.position);
-                Vector2 damageDirection = (collisionPoint-(Vector2)hit.transform.position).normalized;
+                Vector2 damageDirection = ((Vector2)hit.transform.position-collisionPoint).normalized;
                 IDamageableEntity damageableEntity = hit.collider.GetComponent<IDamageableEntity>();
                 damageableEntity?.Damage(damage,damageDirection);
             }
@@ -104,7 +104,11 @@ namespace Robot.Tool.Instances.Gun
                 particleComponent.transform.position = transform.position;
                 var particleModule = particleComponent.main;
                 particleModule.loop = true;
-                particleModule.duration = TICK_RATE * Time.fixedDeltaTime;
+                if (!particleComponent.isPlaying)
+                {
+                    particleModule.duration = TICK_RATE * Time.fixedDeltaTime;
+                }
+                
                 particleComponent.Play();
             }
             GetComponent<SpriteRenderer>().enabled = false;
