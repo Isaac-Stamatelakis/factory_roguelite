@@ -66,7 +66,7 @@ namespace Entities.Mobs {
                 }
                 assetLocationMap[entityId] = resourceLocation;
             }
-            Debug.Log($"Loaded {assetLocationMap.Count} Entity Asset References");
+            Debug.Log($"Entity Registry Initialized! Loaded {assetLocationMap.Count} Entity Asset References.");
             Addressables.Release(handle);
         }
 

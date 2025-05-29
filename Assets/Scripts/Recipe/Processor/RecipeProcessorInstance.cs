@@ -370,7 +370,7 @@ namespace Recipe.Processor
                     if (inputs.Count == 0 || outputs.Count == 0) continue;
                     RecipeData recipeData = new RecipeData(mode, transRecipe, this);
                     
-                    recipes.Add(new TransmutationDisplayableRecipe(recipeData, inputs,outputs,inputState.getMatterState(),transRecipe.OutputState.getMatterState()));
+                    recipes.Add(new TransmutationDisplayableRecipe(recipeData, inputs,outputs,inputState.GetMatterState(),transRecipe.OutputState.GetMatterState()));
                 }
             }
 
@@ -457,7 +457,7 @@ namespace Recipe.Processor
         {
             List<ItemSlot> solid = null;
             List<ItemSlot> fluid = null;
-            ItemState itemState = outputState.getMatterState();
+            ItemState itemState = outputState.GetMatterState();
             switch (itemState)
             {
                 case ItemState.Solid:
@@ -513,8 +513,8 @@ namespace Recipe.Processor
 
         private static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, TransmutableRecipeObject transmutableRecipeObject, TransmutableItemObject inputItem)
         {
-            var inputMatterState = transmutableRecipeObject.InputState.getMatterState();
-            var outputMatterState = transmutableRecipeObject.OutputState.getMatterState();
+            var inputMatterState = transmutableRecipeObject.InputState.GetMatterState();
+            var outputMatterState = transmutableRecipeObject.OutputState.GetMatterState();
             List<ItemSlot> solidInput = null;
             List<ChanceItemSlot> solidOutput = null;
             List<ItemSlot> fluidInput = null;

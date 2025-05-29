@@ -26,91 +26,13 @@ namespace Item.Transmutation
         Ore = 20,
         Brick = 21,
     }
-
-    public enum TransmutableItemObjectState
-    {
-        Ingot = TransmutableItemState.Ingot,
-        Dust = TransmutableItemState.Dust,
-        Plate = TransmutableItemState.Plate,
-        Wire = TransmutableItemState.Wire,
-        Fine_Wire = TransmutableItemState.Fine_Wire,
-        Double_Plate = TransmutableItemState.Double_Plate,
-        Small_Dust = TransmutableItemState.Small_Dust,
-        Tiny_Dust = TransmutableItemState.Tiny_Dust,
-        Rod = TransmutableItemState.Rod,
-        Bolt = TransmutableItemState.Bolt,
-        Screw = TransmutableItemState.Screw,
-        Magnificent_Gem = TransmutableItemState.Magnificent_Gem,
-        Exceptional_Gem = TransmutableItemState.Exceptional_Gem,
-        Gem = TransmutableItemState.Gem,
-        Mediocre_Gem = TransmutableItemState.Mediocre_Gem,
-        Poor_Gem = TransmutableItemState.Poor_Gem,
-        Ore = TransmutableItemState.Ore,
-    }
+    
 
     public static class TransmutableItemStateExtension {
-        public static string GetPrefix(this TransmutableItemState state)
-        {
-            return state switch
-            {
-                TransmutableItemState.Ingot => "",
-                TransmutableItemState.Dust => "",
-                TransmutableItemState.Plate => "",
-                TransmutableItemState.Wire => "",
-                TransmutableItemState.Block => "",
-                TransmutableItemState.Fine_Wire => "Fine",
-                TransmutableItemState.Double_Plate => "Double",
-                TransmutableItemState.Small_Dust => "Small",
-                TransmutableItemState.Tiny_Dust => "Tiny",
-                TransmutableItemState.Rod => "",
-                TransmutableItemState.Bolt => "",
-                TransmutableItemState.Screw => "",
-                TransmutableItemState.Liquid => "",
-                TransmutableItemState.Gas => "",
-                TransmutableItemState.Plasma => "",
-                TransmutableItemState.Magnificent_Gem => "Magnificent",
-                TransmutableItemState.Exceptional_Gem => "Exceptional",
-                TransmutableItemState.Gem => "",
-                TransmutableItemState.Mediocre_Gem => "Mediocre",
-                TransmutableItemState.Poor_Gem => "Poor",
-                TransmutableItemState.Ore => "",
-                _ => ""
-            };
-        }
-
-        public static string GetSuffix(this TransmutableItemState state)
-        {
-            return state switch
-            {
-                TransmutableItemState.Ingot => "Ingot",
-                TransmutableItemState.Dust => "Dust",
-                TransmutableItemState.Plate => "Plate",
-                TransmutableItemState.Wire => "Wire",
-                TransmutableItemState.Block => "Block",
-                TransmutableItemState.Fine_Wire => "Wire",
-                TransmutableItemState.Double_Plate => "Plate",
-                TransmutableItemState.Small_Dust => "Dust",
-                TransmutableItemState.Tiny_Dust => "Dust",
-                TransmutableItemState.Rod => "Rod",
-                TransmutableItemState.Bolt => "Bolt",
-                TransmutableItemState.Screw => "Screw",
-                TransmutableItemState.Liquid => "Liquid",
-                TransmutableItemState.Gas => "Gas",
-                TransmutableItemState.Plasma => "Plasma",
-                TransmutableItemState.Magnificent_Gem => "",
-                TransmutableItemState.Exceptional_Gem => "",
-                TransmutableItemState.Gem => "",
-                TransmutableItemState.Mediocre_Gem => "",
-                TransmutableItemState.Poor_Gem => "",
-                TransmutableItemState.Ore => "Ore",
-                _ => ""
-            };
-        }
         /// <summary>
         /// Returns the ratio of the state in terms of ingot.
         /// <summary>
-        public static float getRatio(this TransmutableItemState state) {
-            // TODO invert this
+        public static float GetRatio(this TransmutableItemState state) {
             switch (state) {
                 case TransmutableItemState.Ingot:
                     return 1f;
@@ -158,7 +80,7 @@ namespace Item.Transmutation
                     return 0;
             }
         }
-        public static ItemState getMatterState(this TransmutableItemState state) {
+        public static ItemState GetMatterState(this TransmutableItemState state) {
             switch (state) {
                 case TransmutableItemState.Liquid:
                     return ItemState.Fluid;

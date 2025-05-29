@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
 using Item.Tags.ItemTagManagers;
+using Item.Transmutation;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -173,9 +174,9 @@ namespace Items {
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
                     }
 
-                    if (transmutableMaterial.UIShaderMaterial)
+                    if (transmutableMaterial.HasShaders)
                     {
-                        ItemImage.material = transmutableMaterial.UIShaderMaterial;
+                        ItemImage.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterial);
                     }
                 }
             } else if (itemSlot.itemObject is TileItem tileItem)

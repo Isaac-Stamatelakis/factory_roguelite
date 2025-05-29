@@ -592,16 +592,16 @@ namespace Player {
             
         }
 
-        public void TemporarilyPausePlayer()
+        public void TemporarilyPausePlayer(float delay = 0.2f)
         {
-            StartCoroutine(UnPausePlayer());
+            StartCoroutine(UnPausePlayer(delay));
             if (paused) return;
             PausePlayer();
         }
 
-        private IEnumerator UnPausePlayer()
+        private IEnumerator UnPausePlayer(float delay)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(delay);
             InvincibilityFrames = 0;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -759,6 +759,12 @@ namespace Player {
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 
+        public void SafeTeleport(Vector2 position)
+        {
+            transform.position = position;
+            TemporarilyPausePlayer(.1f);
+        }
+        
         public void SetRobotLoadOut(RobotUpgradeLoadOut loadOut)
         {
             this.RobotUpgradeLoadOut = loadOut;

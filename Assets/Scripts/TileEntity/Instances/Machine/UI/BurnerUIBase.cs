@@ -86,7 +86,7 @@ namespace TileEntity.Instances.Machine.UI
                 }
                 return restrictedSlots;
             }
-            return RecipeRegistry.BurnableItemRegistry.GetRandomBurnableItems(); 
+            return ItemRegistry.BurnableItemRegistry.GetRandomBurnableItems(); 
         }
 
         public void FixedUpdate()

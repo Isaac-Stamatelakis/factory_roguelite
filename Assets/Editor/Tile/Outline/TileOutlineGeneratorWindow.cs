@@ -12,6 +12,12 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         HammerTile,
         NatureTile
     }
+
+    public enum Scale
+    {
+        Scale1x,
+        Scale2x,
+    }
     private Texture2D texture;
     private Texture2D slabs;
     private Texture2D slants;
@@ -23,7 +29,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
     private OutlineTileType outlineType;
     private static HammerTileValues hammerTileValues;
     private Vector2Int sliceSize = new Vector2Int(16,16);
-
+    private Scale scale;
     [MenuItem("Tools/Item Constructors/Tile/Outline")]
     public static void ShowWindow()
     {
@@ -61,6 +67,8 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
         
+        EditorGUILayout.LabelField("Size:", GUILayout.Width(100));
+        scale = (Scale)EditorGUILayout.EnumPopup(scale);
         if (outlineType == OutlineTileType.Standard) {
             spriteSheet = EditorGUILayout.Toggle("SpriteSheet",spriteSheet);
             if (spriteSheet) {
@@ -72,24 +80,25 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         
         if (GUILayout.Button("Generate"))
         {
-            generate();
+            Generate();
         }
     }
-    void generateStandard(string path) {
-        Sprite sprite = generateFromTexture(texture,path,"", tileName);
+
+    private void GenerateStandard(string path) {
+        Sprite sprite = GenerateFromTexture(texture,path,"", tileName,scale);
         Tile tile = ScriptableObject.CreateInstance<Tile>();
         tile.name = tileName;
         tile.sprite = sprite;
         AssetDatabase.CreateAsset(tile,path + tile.name + ".asset");
     }
 
-    void generateHammer(string path)
+    private void GenerateHammer(string path)
     {
         List<Sprite> sprites = new List<Sprite>();
-        sprites.Add(generateFromTexture(texture, path, "", tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Slab.GetDefaultReadSprite().texture,path,"slab_",tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Slant.GetDefaultReadSprite().texture,path,"slant_",tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Stairs.GetDefaultReadSprite().texture,path,"stair_",tileName));
+        sprites.Add(GenerateFromTexture(texture, path, "", tileName,scale));
+        sprites.Add(GenerateFromTexture(hammerTileValues.Slab.GetDefaultReadSprite().texture,path,"slab_",tileName,scale));
+        sprites.Add(GenerateFromTexture(hammerTileValues.Slant.GetDefaultReadSprite().texture,path,"slant_",tileName,scale));
+        sprites.Add(GenerateFromTexture(hammerTileValues.Stairs.GetDefaultReadSprite().texture,path,"stair_",tileName,scale));
         
         Tile baseTile = ItemEditorFactory.createTile(sprites[0],tileName,path);
         Tile slabTile = ItemEditorFactory.createTile(sprites[1],$"slab_{tileName}",path);
@@ -107,14 +116,14 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         Tile[] natureSlabTiles = new Tile[hammerTileValues.NatureSlabs.Length];
         for (int i = 0; i < hammerTileValues.NatureSlabs.Length; i++)
         {
-            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlabs[i].GetDefaultReadSprite().texture,path,$"nature_slab_{i}_",tileName);
+            Sprite sprite = GenerateFromTexture(hammerTileValues.NatureSlabs[i].GetDefaultReadSprite().texture,path,$"nature_slab_{i}_",tileName,scale);
             natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slab_{tileName}_{i}",path));
         }
         
         Tile[] natureSlantTiles = new Tile[hammerTileValues.NatureSlants.Length];
         for (int i = 0; i < hammerTileValues.NatureSlants.Length; i++)
         {
-            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlants[i].GetDefaultReadSprite().texture,path,$"nature_slant_{i}_",tileName);
+            Sprite sprite = GenerateFromTexture(hammerTileValues.NatureSlants[i].GetDefaultReadSprite().texture,path,$"nature_slant_{i}_",tileName,scale);
             natureSlantTiles[i] = (ItemEditorFactory.createTile(sprite,$"slant_{tileName}_{i}",path));
         }
 
@@ -124,7 +133,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         natureTile.name = $"nature_{tileName}";
     }
 
-    void generate()
+    void Generate()
     {
         string path = "Assets/EditorCreations/" + tileName + "/";
     
@@ -134,18 +143,43 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         if (outlineType == OutlineTileType.Standard) {
-            generateStandard(path);
+            GenerateStandard(path);
         } else if (outlineType == OutlineTileType.HammerTile || outlineType == OutlineTileType.NatureTile) {
-            generateHammer(path);
+            GenerateHammer(path);
         }
         
     }
 
-    private static Sprite generateFromTexture(Texture2D texture, string path, string prefix, string tileName) {
+    private static Sprite GenerateFromTexture(Texture2D texture, string path, string prefix, string tileName, Scale scale) {
         Color[] pixelsArr = texture.GetPixels();
         Color[,] pixels = EditorFactory.pixels1DTo2D(pixelsArr,texture.width,texture.height);
+        if (scale == Scale.Scale2x)
+        {
+            pixels = ScalePixelArray(pixels, 2);
+        }
         SpriteOutlineGenerator tileOutlineGenerator = new SpriteOutlineGenerator(true,pixels,Color.white);
         Color[,] outlinePixels = tileOutlineGenerator.generate();
         return EditorFactory.saveSprite(outlinePixels, path, $"{prefix}_{tileName}");
+    }
+
+    private static Color[,]  ScalePixelArray(Color[,] pixels, int scaleFactor)
+    {
+        Color[,] scaledPixels = new  Color[2*pixels.GetLength(0), 2*pixels.GetLength(1)];
+        for (int x = 0; x < pixels.GetLength(0); x++)
+        {
+            for (int y = 0; y < pixels.GetLength(1); y ++)
+            {
+                for (int xs = 0; xs < scaleFactor; xs++)
+                {
+                    for (int ys = 0; ys < scaleFactor; ys++)
+                    {
+                        int idx = scaleFactor * x + xs;
+                        int idy = scaleFactor * y + ys;
+                        scaledPixels[idx,idy] = pixels[x,y];
+                    }
+                }
+            }
+        }
+        return scaledPixels;
     }
 }

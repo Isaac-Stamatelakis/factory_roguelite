@@ -52,7 +52,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             foreach (ItemSlot itemSlot in BurnerSlots)
             {
                 if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
-                uint duration = RecipeRegistry.BurnableItemRegistry.GetBurnDuration(itemSlot.itemObject);
+                uint duration = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemSlot.itemObject);
                 if (duration == 0) continue;
                 SetFuel(duration);
                 itemSlot.amount--;

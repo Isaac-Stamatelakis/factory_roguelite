@@ -61,9 +61,9 @@ namespace Items.Transmutable
         {
             ITransmutableItem inputItem = GetMaterialItem(material, inputState);
             ITransmutableItem outputItem = GetMaterialItem(material, outputState);
-            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
-            uint inputAmount = (uint)(gcd * inputState.getRatio() / efficency);
-            uint outputAmount = (uint)(gcd * outputState.getRatio());
+            uint gcd = GetGcd((uint)(1 / inputState.GetRatio()), (uint)(1 / outputState.GetRatio()));
+            uint inputAmount = (uint)(gcd * inputState.GetRatio() / efficency);
+            uint outputAmount = (uint)(gcd * outputState.GetRatio());
             ItemSlot input = new ItemSlot((ItemObject)inputItem, inputAmount, null);
             ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount, null);
             return (input, output);
@@ -72,8 +72,8 @@ namespace Items.Transmutable
         public static float GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
             float efficency = 1f)
         {
-            uint gcd = GetGcd((uint)(inputState.getRatio()), (uint)(outputState.getRatio()));
-            return outputState.getRatio() / inputState.getRatio() * efficency;
+            uint gcd = GetGcd((uint)(inputState.GetRatio()), (uint)(outputState.GetRatio()));
+            return outputState.GetRatio() / inputState.GetRatio() * efficency;
         }
         
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)

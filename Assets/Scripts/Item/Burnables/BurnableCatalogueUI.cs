@@ -11,6 +11,7 @@ using Recipe.Collection;
 using TMPro;
 using UI.Catalogue.InfoViewer;
 using UnityEngine;
+using BurnableItemRegistry = Item.Registry.BurnableItemRegistry;
 
 namespace Item.Burnables
 {
@@ -45,7 +46,7 @@ namespace Item.Burnables
             mItemSlotInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
             ItemObject itemObject = itemSlot.itemObject;
             mNameText.text = $"Name: {itemObject.name}";
-            uint burnTicks = RecipeRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
+            uint burnTicks = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
             mBurnTimeText.text = $"Burn Time: {burnTicks}T";
         }
     }
@@ -88,7 +89,7 @@ namespace Item.Burnables
 
         public ItemObject GetDisplayItem()
         {
-            return RecipeRegistry.BurnableItemRegistry.BurnableRegistryImage;
+            return ItemRegistry.BurnableItemRegistry.BurnableRegistryImage;
         }
 
         public string GetPageIndicatorString(int pageIndex)
@@ -103,7 +104,7 @@ namespace Item.Burnables
 
         public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)
         {
-            BurnableItemRegistry burnableItemRegistry = RecipeRegistry.BurnableItemRegistry;
+            BurnableItemRegistry burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
             List<BurnableDisplay> toDisplay = new List<BurnableDisplay>();
             toDisplay.AddRange(burnableItemRegistry.GetAllItemsToDisplay());
             toDisplay.AddRange(burnableItemRegistry.GetAllMaterialsToDisplay());

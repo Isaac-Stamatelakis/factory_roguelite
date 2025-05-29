@@ -40,6 +40,7 @@ namespace TileEntity.Instances.Matrix {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
+            /*
             MatrixDriverPixelContainer pixelContainer = GameObject.Instantiate(TileEntityObject.getAssetManager().getElement<MatrixDriverPixelContainer>("Pixels"));
             pixelContainer.name = "DrivePixels" + GetPositionInChunk();
             pixelContainer.transform.position = GetWorldPosition();
@@ -50,6 +51,7 @@ namespace TileEntity.Instances.Matrix {
                     storageDrives.Add(null);
                 }
             }
+            */
             loadPixels();
         }
 

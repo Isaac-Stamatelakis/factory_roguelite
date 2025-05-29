@@ -68,10 +68,11 @@ namespace Fluids {
             unlitFluidParticles = new FluidParticles(miscDimAssets.SplashParticlePrefab, miscDimAssets.FluidParticlePrefab, transform, miscDimAssets.UnlitMaterial);
             
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
-            TileMapBundleFactory.AddCompositeCollider(unlitTileMap.gameObject,TileMapType.Fluid);
+            unlitCollider2D.usedByComposite = true;
             
             mapCollider2D = tilemap.GetComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
+            
             tilemapCollider.isTrigger = true;
             simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileMap);
             
@@ -316,6 +317,7 @@ namespace Fluids {
         public void FixedUpdate()
         {
             simulator.Simulate();
+            
             RandomlyFlashUnlitMap();
             DisplayRandomParticles(unlitTileMap,unlitCollider2D);
             DisplayRandomParticles(tilemap,mapCollider2D);
@@ -333,6 +335,7 @@ namespace Fluids {
             TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds,CHANCE);
             if (!randomPosition.HasValue) return;
             Vector3Int cellPosition = randomPosition.Value.CellPosition;
+            
             // || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f Might want to readd a check like this
             if (!unlitTileMap.HasTile(cellPosition)) return;
             int flashSize = UnityEngine.Random.Range(6, 10);

@@ -52,7 +52,17 @@ namespace Player.Movement
             if (!other.CompareTag(tagLayer)) return;
             playerRobot.AddCollisionState((CollisionState)CollisionState);
         }
-        
+
+        public void OnTriggerStay2D(Collider2D other)
+        {
+            if (!other.CompareTag(tagLayer))
+            {
+                playerRobot.RemoveCollisionState((CollisionState)CollisionState);
+                return;
+            }
+            playerRobot.AddCollisionState((CollisionState)CollisionState);
+        }
+
 
         public void OnTriggerExit2D(Collider2D other)
         {

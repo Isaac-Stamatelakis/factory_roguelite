@@ -259,7 +259,7 @@ public class TransmutableItemGenerator : EditorWindow
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
 
-            if (material.WorldShaderMaterial)
+            if (material.HasShaders)
             {
                 TryCreateMiscFolder(materialItemsPath, material);
                 string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
@@ -377,6 +377,7 @@ public class TransmutableItemGenerator : EditorWindow
 
     private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
     {
+        TransmutationShaderPair shaderPair = material.GetShaderPair();
         string transmutableItemFolder = GetMaterialItemPath(material);
         string instancePath = Path.Combine(transmutableItemFolder, GEN_FOLDER);
         if (!Directory.Exists(instancePath)) return;
@@ -397,8 +398,7 @@ public class TransmutableItemGenerator : EditorWindow
             Debug.Log($"Created ore folder for {material.name}");
             AssetDatabase.CreateFolder(materialItemsPath, ORE_PATH);
         }
-
-
+        
         string overlayPath = Path.Combine(oreFolderPath, ORE_OVERLAY_NAME + ".asset");
         TransmutableTileOverlay tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
         if (!tileOverlay)
@@ -406,7 +406,7 @@ public class TransmutableItemGenerator : EditorWindow
             tileOverlay = CreateInstance<TransmutableTileOverlay>();
             tileOverlay.ItemMaterial = material;
             tileOverlay.name = ORE_OVERLAY_NAME;
-            tileOverlay.OverlayWrapper = material.WorldShaderMaterial ? shaderOutlineWrapper : outlineWrapper;
+            tileOverlay.OverlayWrapper = shaderPair?.WorldMaterial ? shaderOutlineWrapper : outlineWrapper;
             string savePath = overlayPath + ".asset";
             AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.SaveAssets();
