@@ -12,6 +12,7 @@ using Chunks.Systems;
 using UnityEngine.UI;
 using Entities;
 using Item.GrabbedItem;
+using Item.ItemObjects.Interfaces;
 using Item.Slot;
 using Items.Tags;
 using Items.Tags.FluidContainers;
@@ -31,6 +32,7 @@ using Tiles;
 using UI;
 using UI.Indicators;
 using UI.Indicators.General;
+using UI.Indicators.Placement;
 using UI.ToolTip;
 
 namespace PlayerModule {
@@ -62,16 +64,16 @@ namespace PlayerModule {
         public IRobotToolInstance CurrentTool => playerRobot.RobotTools[selectedTool];
         public RobotToolType CurrentToolType => playerRobot.ToolTypes[selectedTool];
         public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
-        private CanvasController canvasController;
         private InventoryMode inventoryMode = InventoryMode.Closed;
+        private PlayerScript playerScript;
 
         private GameObject inventoryIndicator;
         // Start is called before the first frame update
         void Start()
         {
+            playerScript = GetComponent<PlayerScript>();
             playerRobot = GetComponent<PlayerRobot>();
             playerMouse = GetComponent<PlayerMouse>();
-            canvasController = CanvasController.Instance;
         }
 
         public void Initialize(string json) {
@@ -105,20 +107,14 @@ namespace PlayerModule {
                     playerInventoryGrid.HighlightSlot(slot);
                     ItemSlot itemSlot = playerInventoryGrid.GetItemSlot(selectedSlot);
                     
-                    IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
-                    indicatorManager.RemovePlaceBundles();
-                    if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+                    TilePlacementIndicatorManagerUI tilePlacementIndicatorManager = playerScript.PlayerUIContainer.TileIndicatorManagerUI;
                     
-                    if (itemSlot.itemObject is TileItem tileItem && (tileItem.tile is IStateTile || tileItem.tileOptions.rotatable))
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.itemObject is not IPlacableItem placableItem)
                     {
-                        indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
-                        indicatorManager.tilePlacementIndicatorUI.Display(tileItem);
-                    } else if (itemSlot.itemObject is ConduitItem conduitItem)
-                    {
-                        indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
-                        indicatorManager.conduitPlacementModeIndicatorUI.Display(conduitItem);
+                        tilePlacementIndicatorManager.gameObject.SetActive(false);
+                        return;
                     }
-                   
+                    tilePlacementIndicatorManager.DisplayTile(playerScript,placableItem);
                     break;
                 case InteractMode.Tools:
                     ChangeSelectedTool(slot % playerRobot.RobotTools.Count);

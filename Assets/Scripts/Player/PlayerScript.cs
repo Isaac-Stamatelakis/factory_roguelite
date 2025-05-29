@@ -116,9 +116,8 @@ namespace Player
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             
-            
-            
             playerUIContainer.IndicatorManager.Initialize(this);
+            
             tileViewers.Initialize(this);
             
             ControlUtils.LoadRequiredAndBlocked();
@@ -206,7 +205,7 @@ namespace Player
             ItemSlot currentPlayerItem = playerInventory.getSelectedItemSlot();
             if (currentPlayerItem?.itemObject is ConduitItem)
             {
-                playerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.IterateCounter();
+                playerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.IterateCounter();
             }
             if (!DevMode.Instance.noPlaceCost)
             {

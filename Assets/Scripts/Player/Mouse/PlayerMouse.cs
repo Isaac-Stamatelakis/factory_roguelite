@@ -474,7 +474,6 @@ namespace PlayerModule.Mouse {
         public void UpdateOnToolChange()
         {
             autoSelectableTool = playerInventory.CurrentTool is IAutoSelectTool;
-            IndicatorManager indicatorManager = playerScript.PlayerUIContainer.IndicatorManager;
             
             RobotArmController gunController = playerRobot.gunController;
             IRobotToolInstance currentTool = playerInventory.CurrentTool;
@@ -485,15 +484,6 @@ namespace PlayerModule.Mouse {
                 gunController.SetToolColor(colorableTool.GetColor());
             }
             
-            if (playerInventory.CurrentTool is IAutoSelectTool)
-            {
-                
-                indicatorManager.AddViewBundle(IndicatorDisplayBundle.AutoSelect);
-            }
-            else
-            {
-                indicatorManager.RemoveBundle(IndicatorDisplayBundle.AutoSelect);
-            }
             
             ClearToolPreview();
         }

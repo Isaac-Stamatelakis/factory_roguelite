@@ -170,7 +170,6 @@ namespace Robot.Tool.Instances
             }
             
             Vector2 mouseDirection = ((Vector2)playerRobot.transform.position - mousePosition).normalized;
-            Debug.Log(mouseDirection);
             playerRb.AddForce(laserKnockback*mouseDirection,ForceMode2D.Impulse);
         }
 

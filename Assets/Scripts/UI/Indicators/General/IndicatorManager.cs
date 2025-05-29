@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using Chunks.Systems;
+using Conduits.Systems;
+using Dimensions;
 using Player;
 using Player.Controls;
 using TMPro;
@@ -11,35 +14,20 @@ using UnityEngine.UI;
 
 namespace UI.Indicators.General
 {
-    public enum IndicatorDisplayBundle
+    public class IndicatorManager : BaseIndiciatorManagerUI
     {
-        TilePlace = 1,
-        ConduitPlace = 2,
-        ConduitSystem = 4,
-        AutoSelect = 8,
-    }
-    public class IndicatorManager : MonoBehaviour
-    {
-        public GameObject keyCodePrefab;
-        public Transform keyCodeContainer;
         public ConduitPortIndicatorUI conduitPortIndicatorUI;
         public ConduitViewIndicatorUI conduitViewIndicatorUI;
-        public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
-        public TilePlacementIndicatorUI tilePlacementIndicatorUI;
-        public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
+       
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
         public RobotLoadOutIndicator loadOutIndicator;
         public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
         public TileAutoSelectIndicatorUI autoSelectIndicator;
-        private Transform indicatorTransform;
-        private int viewMode;
-
         public void Start()
         {
-            indicatorTransform = conduitPortIndicatorUI.transform.parent; // The indicator doesn't matter, they all share the same parent
-
+            
             void OnQuestBookClick()
             {
                 QuestBookUIManager questBookUIManager = MainCanvasController.TInstance.QuestBookUIManager;
@@ -72,154 +60,28 @@ namespace UI.Indicators.General
         {
             conduitPortIndicatorUI?.Display(playerScript);
             conduitViewIndicatorUI?.Display(playerScript);
-
-            conduitPlacementModeIndicatorUI?.Initialize(playerScript);
-            tilePlacementIndicatorUI.Initialize(playerScript);
-            tilePreviewerIndicatorUI.Display(playerScript);
+            
             loadOutIndicator.Initialize(playerScript);
             autoSelectIndicator.Initialize(playerScript.PlayerMouse);
-
-            DisplayMode();
         }
 
-        public void AddViewBundle(IndicatorDisplayBundle bundle)
-        {
-            if ((viewMode & (int)bundle) != 0) return;
-            viewMode += (int)bundle;
-            
-            DisplayMode();
-        }
-
-        public void RemovePlaceBundles()
-        {
-            RemoveBundle(IndicatorDisplayBundle.ConduitPlace);
-            RemoveBundle(IndicatorDisplayBundle.TilePlace);
-        }
-
-        public void RemoveBundle(IndicatorDisplayBundle bundle)
-        {
-            if ((viewMode & (int)bundle) == 0) return;
-            viewMode -= (int)bundle;
-            DisplayMode();
-        }
         
-
-        public void DisplayMode()
+        public void Display(PlayerScript playerScript)
         {
-            for (int i = 0; i < indicatorTransform.childCount; i++)
-            {
-                indicatorTransform.transform.GetChild(i).gameObject.SetActive(false);
-            }
-      
             questBookIndicator.gameObject.SetActive(true);
             inventoryIndicator.gameObject.SetActive(true);
             loadOutIndicator.gameObject.SetActive(true);
             searchIndicator.gameObject.SetActive(true);
-
-            bool ViewBundleActive(IndicatorDisplayBundle bundle)
-            {
-                return (viewMode & (int)bundle) != 0;
-            }
-
-            if (ViewBundleActive(IndicatorDisplayBundle.TilePlace))
-            {
-                tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                tilePlacementIndicatorUI.gameObject.SetActive(true);
-            }
             
-            if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
-            {
-                conduitViewIndicatorUI.gameObject.SetActive(true);
-                conduitPortIndicatorUI.gameObject.SetActive(true);
-                if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
-                {
-                    tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                    conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
-                }
-            }
-            else
-            {
-                caveIndicatorUI.gameObject.SetActive(true);
-            }
-
-            if (ViewBundleActive(IndicatorDisplayBundle.AutoSelect))
-            {
-                autoSelectIndicator.gameObject.SetActive(true);
-            }
+            bool caveSystem = playerScript.CurrentSystem.Dim == (int)Dimension.Cave;
+            caveIndicatorUI.gameObject.SetActive(caveSystem);
+            
+            bool conduitSystem = !caveSystem;
+            conduitViewIndicatorUI.gameObject.SetActive(conduitSystem);
+            conduitPortIndicatorUI.gameObject.SetActive(conduitSystem);
+            autoSelectIndicator.gameObject.SetActive(true);
             
             SyncKeyCodes(true);
-        }
-        
-        public void SyncKeyCodes(bool instantiate)
-        {
-            if (instantiate)
-            {
-                GlobalHelper.DeleteAllChildren(keyCodeContainer);
-            }
-
-            float baseTextSize = keyCodePrefab.GetComponentInChildren<TextMeshProUGUI>().fontSize;
-            int idx = 0;
-            for (int i = 0; i < indicatorTransform.childCount; i++)
-            {
-                GameObject indicatorObject = indicatorTransform.GetChild(i).gameObject;
-                if (!indicatorObject.activeInHierarchy) continue;
-                
-                IKeyCodeIndicator keyCodeIndicator = indicatorObject.GetComponent<IKeyCodeIndicator>();
-                PlayerControl? nullableControl = keyCodeIndicator?.GetPlayerControl();
-                
-                string text = nullableControl.HasValue
-                    ? ControlUtils.FormatInputText(nullableControl.Value)
-                    : string.Empty;
-                
-                GameObject keyCodeElement = instantiate ? 
-                    Instantiate(keyCodePrefab, keyCodeContainer)
-                    : keyCodeContainer.GetChild(idx).gameObject;
-                
-                if (string.IsNullOrEmpty(text))
-                {
-                    keyCodeElement.GetComponent<Image>().enabled = false;
-                }
-                if (keyCodeIndicator is IKeyCodeDescriptionIndicator optionalKeyCodeIndicator)
-                {
-                    ToolTipUIDisplayer toolTipUIDisplayer = keyCodeElement.AddComponent<ToolTipUIDisplayer>();
-                    optionalKeyCodeIndicator.SyncToolTipDisplayer(toolTipUIDisplayer);
-                }
-                
-                TextMeshProUGUI textElement = keyCodeElement.GetComponentInChildren<TextMeshProUGUI>();
-                textElement.text = text;
-                int longestWord = LongestWord(text);
-                textElement.fontSize = baseTextSize - 1.05f*(longestWord -1);
-                idx++;
-            }
-
-            return;
-            int LongestWord(string text)
-            {
-                if (string.IsNullOrEmpty(text)) return 0;
-                int longest = 0;
-                int current = 0;
-                foreach (char c in text)
-                {
-                    if (char.IsWhiteSpace(c))
-                    {
-                        current = 0;
-                        continue;
-                    }
-
-                    current++;
-                    if (current > longest) longest = current;
-                }
-                return longest;
-            }
-        }
-
-        public void SetColor(Color color)
-        {
-            Image[] images = GetComponentsInChildren<Image>();
-            foreach (Image image in images)
-            {
-                image.color = color;
-            }
         }
     }
 }
