@@ -94,21 +94,33 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
             int dir = eventData.button == PointerEventData.InputButton.Right ? -1 : 1;
+            Toggle(dir);
+            OnPointerEnter(eventData);
+        }
+        
+        public PlayerControl GetPlayerControl()
+        {
+            return PlayerControl.SwitchPlacementSubMode;
+        }
+
+        public void Toggle(int direction)
+        {
+            PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
+           
             UpdateRotation();
 
             Display();
-            OnPointerEnter(eventData);
+            
             
             void UpdateRotation()
             {
                 if (currentItem.tile is PlatformStateTile)
                 {
-                    placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
+                    placementOptions.Rotation = GlobalHelper.ShiftEnum(direction, placementOptions.Rotation);
                     bool invalid = placementOptions.Rotation is PlayerTileRotation.Degrees180 or PlayerTileRotation.Degrees270;
                     if (!invalid) return;
-                    if (dir > 0)
+                    if (direction > 0)
                     {
                         placementOptions.Rotation = PlayerTileRotation.Auto;
                     }
@@ -118,13 +130,8 @@ namespace UI.Indicators.General
                     }
                     return;
                 }
-                placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
+                placementOptions.Rotation = GlobalHelper.ShiftEnum(direction, placementOptions.Rotation);
             }
-        }
-        
-        public PlayerControl GetPlayerControl()
-        {
-            return PlayerControl.SwitchPlacementMode;
         }
     }
 }

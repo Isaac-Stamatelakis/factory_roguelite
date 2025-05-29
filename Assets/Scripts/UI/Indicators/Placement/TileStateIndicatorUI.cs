@@ -64,12 +64,10 @@ namespace UI.Indicators.General
         {
             ToolTipController.Instance.HideToolTip();
         }
-        
 
-        public void OnPointerClick(PointerEventData eventData)
+        public void Toggle(int direction)
         {
             PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
-            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
             UpdateState();
 
             if (tileRotationIndicatorUI.gameObject.activeInHierarchy)
@@ -78,23 +76,29 @@ namespace UI.Indicators.General
             }
             
             Display();
-            OnPointerEnter(eventData);
+            
 
             return;
             void UpdateState()
             {
                 if (currentItem.tile is IRestrictedIndicatorStateTile restrictedIndicatorStateTile)
                 {
-                    placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, dir);
+                    placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, direction);
                     return;
                 }
                 if (currentItem.tile is not IStateTile stateTile) return; 
                 
                 int maxStates = stateTile.GetStateAmount();
-                placementOptions.State += dir;
+                placementOptions.State += direction;
                 if (placementOptions.State > maxStates) placementOptions.State = 0;
                 if (placementOptions.State < 0) placementOptions.State = maxStates;
             }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            Toggle(eventData.button == PointerEventData.InputButton.Left ? 1 : -1);
+            OnPointerEnter(eventData);
         }
         
         public PlayerControl GetPlayerControl()

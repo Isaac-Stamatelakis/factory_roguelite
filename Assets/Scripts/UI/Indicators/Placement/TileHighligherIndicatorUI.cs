@@ -1,4 +1,5 @@
 using Player;
+using Player.Controls;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators.General
 {
-    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
@@ -43,6 +44,11 @@ namespace UI.Indicators.General
             playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
             playerScript.TileViewers.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
             Refresh();
+        }
+
+        public PlayerControl GetPlayerControl()
+        {
+            return PlayerControl.PlacePreview;
         }
     }
 }
