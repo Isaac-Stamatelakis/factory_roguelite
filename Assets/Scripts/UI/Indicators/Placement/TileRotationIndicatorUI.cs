@@ -10,19 +10,19 @@ using UnityEngine.UI;
 using JetBrains.Annotations;
 using Tiles;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 namespace UI.Indicators.General
 {
-    public class TilePlacementIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator, IKeyCodeDescriptionIndicator
+    public class TileRotationIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image tileImage;
+        [SerializeField] private TextMeshProUGUI mRotationText;
         private PlayerScript playerScript;
-        private bool rotatable;
         private TileItem currentItem;
-        private INamedStateTile currentStateTile;
         public void Initialize(PlayerScript playerScript)
         {
             this.playerScript = playerScript;
@@ -30,9 +30,7 @@ namespace UI.Indicators.General
 
         public void Display([NotNull] TileItem tileItem)
         {
-            rotatable = tileItem.tileOptions.rotatable || tileItem.tileType == TileType.Platform;
             currentItem = tileItem;
-            currentStateTile = tileItem.tile as INamedStateTile;
             Display();
         }
         
@@ -40,20 +38,18 @@ namespace UI.Indicators.General
         {
             PlayerTileRotation rotation = playerScript.TilePlacementOptions.Rotation;
             int rotationValue = 0;
-            if (rotatable)
+            if (rotation == PlayerTileRotation.Auto)
             {
-                if (rotation == PlayerTileRotation.Auto)
-                {
-                    // TODO Display special icon
-                }
-                else
-                {
-                    rotationValue = (int)playerScript.TilePlacementOptions.Rotation;
-                }
+                // TODO Display special icon
+            }
+            else
+            {
+                rotationValue = (int)playerScript.TilePlacementOptions.Rotation;
             }
 
             bool stateRotatable = false;
             int state = playerScript.TilePlacementOptions.State;
+            
             if (currentItem.tile is IStateTileSingle stateTileSingle)
             {
                 TileBase tileBase = stateTileSingle.GetTileAtState(state);
@@ -70,7 +66,6 @@ namespace UI.Indicators.General
                 if (state == 0) rotationValue = 0;
                 tileImage.sprite = sprite;
             }
-
             tileImage.color = currentItem.tileOptions.GetTileColor();
             
             if (!stateRotatable)
@@ -78,7 +73,13 @@ namespace UI.Indicators.General
                 tileImage.transform.rotation = Quaternion.Euler(0, 0, 90 * rotationValue);
             }
 
+            mRotationText.text = playerScript.TilePlacementOptions.Rotation.ToString().Replace("Degrees","");
+            return;
 
+            void AddTileOverlay()
+            {
+                // TODO
+            }
         }
         
         public void OnPointerEnter(PointerEventData eventData)
@@ -88,17 +89,11 @@ namespace UI.Indicators.General
             {
                 rotationText += "DEG";
             }
-            string rotationMessage = rotatable ? $"Tile Rotation:{rotationText}" : string.Empty;
-            string stateMessage = currentStateTile != null ? $"Tile State:{currentStateTile.GetStateName(playerScript.TilePlacementOptions.State)}" : string.Empty;
-            string message = rotationMessage;
-            if (rotationMessage != string.Empty && stateMessage != string.Empty)
-            {
-                message += $"\n";
-            }
-            message += stateMessage;
-            ToolTipController.Instance.ShowToolTip(transform.position, message);
+            string rotationMessage = $"Tile Rotation:{rotationText}";
+            ToolTipController.Instance.ShowToolTip(transform.position, rotationMessage);
         }
 
+        
         public void OnPointerExit(PointerEventData eventData)
         {
             ToolTipController.Instance.HideToolTip();
@@ -108,41 +103,15 @@ namespace UI.Indicators.General
         public void OnPointerClick(PointerEventData eventData)
         {
             PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
-            int dir = Keyboard.current.ctrlKey.isPressed ? -1 : 1;
-            
-            switch (eventData.button)
-            {
-                case PointerEventData.InputButton.Left:
-                    UpdateRotation();
-                    break;
-                case PointerEventData.InputButton.Right:
-                    UpdateState();
-                    break;
-                case PointerEventData.InputButton.Middle:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            int dir = eventData.button == PointerEventData.InputButton.Right ? -1 : 1;
+            UpdateRotation();
 
             Display();
             OnPointerEnter(eventData);
-
-            void UpdateState()
-            {
-                if (currentStateTile is IRestrictedIndicatorStateTile restrictedIndicatorStateTile)
-                {
-                    placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, dir);
-                    return;
-                }
-                int maxStates = currentStateTile.GetStateAmount();
-                placementOptions.State += dir;
-                if (placementOptions.State > maxStates) placementOptions.State = 0;
-                if (placementOptions.State < 0) placementOptions.State = maxStates;
-            }
-
+            
             void UpdateRotation()
             {
-                if (currentStateTile is PlatformStateTile)
+                if (currentItem.tile is PlatformStateTile)
                 {
                     placementOptions.Rotation = GlobalHelper.ShiftEnum(dir, placementOptions.Rotation);
                     bool invalid = placementOptions.Rotation is PlayerTileRotation.Degrees180 or PlayerTileRotation.Degrees270;
@@ -164,17 +133,6 @@ namespace UI.Indicators.General
         public PlayerControl GetPlayerControl()
         {
             return PlayerControl.SwitchPlacementMode;
-        }
-
-        public void SyncToolTipDisplayer(ToolTipUIDisplayer toolTipUIDisplayer)
-        {
-
-            toolTipUIDisplayer.SetAction(() =>
-            {
-                string controlMessage = ControlUtils.FormatInputText(GetPlayerControl());
-                return
-                    $"Press {controlMessage} to Switch Rotation\nPress LCtrl+{controlMessage} to Switch State\nLeft Click to Switch Rotation\nRight Click to Switch State\nHold LCtrl to Reverse";
-            });
         }
     }
 }

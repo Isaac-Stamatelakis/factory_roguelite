@@ -1,29 +1,32 @@
 using Item.ItemObjects.Interfaces;
 using Items;
 using Player;
+using Tiles;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using UI.Indicators.General;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.Tilemaps;
 
 namespace UI.Indicators.Placement
 {
     public class TilePlacementIndicatorManagerUI : BaseIndiciatorManagerUI
     {
-        private IPlacableItem item;
         public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
-        public TilePlacementIndicatorUI tilePlacementIndicatorUI;
-        
+        public TileStateIndicatorUI tileStateIndicatorUI;
+        public TileRotationIndicatorUI rotationIndicatorUI;
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
 
         public void Initialize(PlayerScript playerScript)
         {
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
-            tilePlacementIndicatorUI.Initialize(playerScript);
+            tileStateIndicatorUI.Initialize(playerScript);
+            rotationIndicatorUI.Initialize(playerScript);
             tilePreviewerIndicatorUI.Display(playerScript);
             
         }
         public void DisplayTile(PlayerScript playerScript, IPlacableItem displayItem)
         {
-            this.item = displayItem;
             for (int i = 0; i < indicatorContainer.childCount; i++)
             {
                 indicatorContainer.GetChild(i).gameObject.SetActive(false);
@@ -36,10 +39,33 @@ namespace UI.Indicators.Placement
                 conduitPlacementModeIndicatorUI.Display(conduitItem);
             } else if (displayItem is TileItem tileItem)
             {
-                tilePlacementIndicatorUI.gameObject.SetActive(true);
-                tilePlacementIndicatorUI.Display(tileItem);
+                if (tileItem.tile is IStateTile)
+                {
+                    tileStateIndicatorUI.gameObject.SetActive(true);
+                    tileStateIndicatorUI.Display(tileItem);
+                }
+
+                if (tileItem.tileOptions.rotatable)
+                {
+                    TryDisplayRotation(tileItem);
+                }
             }
             SyncKeyCodes(true);
+
+            return;
+
+            void TryDisplayRotation(TileItem tileItem)
+            {
+                if (tileItem.tile is not PlatformStateTile)
+                {
+                    // Cannot rotate flat platforms
+                    int currentState = playerScript.TilePlacementOptions.State;
+                    bool sloped = currentState >= (int)PlatformTileState.SlopeDeco;
+                    if (!sloped) return;
+                }
+                rotationIndicatorUI.gameObject.SetActive(true);
+                rotationIndicatorUI.Display(tileItem);
+            } 
         }
         
     }
