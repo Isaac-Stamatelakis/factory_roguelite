@@ -114,6 +114,8 @@ namespace PlayerModule {
                         tilePlacementIndicatorManager.gameObject.SetActive(false);
                         return;
                     }
+                   
+                    tilePlacementIndicatorManager.gameObject.SetActive(true);
                     tilePlacementIndicatorManager.DisplayTile(playerScript,placableItem);
                     break;
                 case InteractMode.Tools:

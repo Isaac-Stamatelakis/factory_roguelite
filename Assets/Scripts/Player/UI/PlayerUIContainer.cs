@@ -12,5 +12,11 @@ namespace Player.UI
         public TilePlacementIndicatorManagerUI TileIndicatorManagerUI;
         public Transform IndicatorContainer;
         public GameObject InventoryIndicatorPrefab;
+
+        public void SyncKeyCodes()
+        {
+            IndicatorManager.SyncKeyCodes(false);
+            TileIndicatorManagerUI.SyncKeyCodes(false);
+        }
     }
 }
