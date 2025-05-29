@@ -16,8 +16,8 @@ namespace Player.Robot
         LaserGun,
         LaserExplosion,
         ConduitCutter,
-            
     }
+    
     public class RobotArmController : MonoBehaviour
     {
         private static readonly int ActiveParameter = Animator.StringToHash("Active");
@@ -41,7 +41,6 @@ namespace Player.Robot
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
             defaultPosition = transform.localPosition;
-            spriteRenderer.enabled = false;
         }
 
         public void PlayAnimationState(RobotArmState state, int subState)

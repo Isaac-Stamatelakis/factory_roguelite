@@ -63,10 +63,16 @@ namespace Dimensions {
         protected ClosedChunkSystem activeSystem;
         
         public void Start() {
-            StartCoroutine(InitalLoad());
+            StartCoroutine(InitialLoad());
         }
-        public IEnumerator InitalLoad()
+
+        private IEnumerator InitialLoad()
         {
+            Canvas[] canvasArray = GameObject.FindObjectsOfType<Canvas>();
+            PlayerScript playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
+            InitialLoadBeautifier loadBeautifier = new InitialLoadBeautifier(canvasArray, playerScript);
+            loadBeautifier.Hide();
+            
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             Coroutine entityInitialize = StartCoroutine(EntityRegistry.Initialize());
@@ -86,7 +92,6 @@ namespace Dimensions {
             }
             if (!TryExecuteInitialLoad(InlineLoadQuestBook,null, "QuestBook")) yield break;
             
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             PlayerData playerData = null;
             void InlineLoadPlayer()
             {
@@ -111,6 +116,7 @@ namespace Dimensions {
             
             playerScript.CallInitializeListeners();
             playerScript.GetComponent<PlayerIO>().OnValidated();
+            loadBeautifier.Show();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)
@@ -483,6 +489,45 @@ namespace Dimensions {
                     return new DimensionOptions(Color.white, Color.black, 0.05f, null,true);
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        private class InitialLoadBeautifier
+        {
+            private readonly Canvas[] canvasArray;
+            private readonly SpriteRenderer playerSpriteRenderer;
+            private readonly SpriteRenderer[] playerSubSpriteRenderers;
+
+            public InitialLoadBeautifier(Canvas[] canvasArray, PlayerScript playerScript)
+            {
+                this.canvasArray = canvasArray;
+                this.playerSpriteRenderer = playerScript.GetComponent<SpriteRenderer>();
+                playerSubSpriteRenderers = playerScript.GetComponentsInChildren<SpriteRenderer>();
+            }
+
+
+            private void SetState(bool enabled)
+            {
+                foreach (Canvas canvas in canvasArray)
+                {
+                    canvas.enabled = enabled;
+                }
+                playerSpriteRenderer.enabled = enabled;
+                foreach (SpriteRenderer spriteRenderer in playerSubSpriteRenderers)
+                {
+                    if (enabled && spriteRenderer.tag == "RobotArm") continue; // Don't re-enable gun arm
+                    spriteRenderer.enabled = enabled;
+                }
+            }
+        
+            public void Hide()
+            {
+                SetState(false);
+            }
+
+            public void Show()
+            {
+                SetState(true);
             }
         }
     }

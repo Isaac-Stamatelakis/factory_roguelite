@@ -18,30 +18,11 @@ namespace TileEntity.Instances.Matrix {
         public int rows;
         public int columns;
         public AssetReference PixelPrefabReference;
-        private TileEntityAssetManager assetManager;
+        //private TileEntityAssetManager assetManager;
 
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MatrixDriveInstance(this,tilePosition,tileItem,chunk);
-        }
-
-        public void free()
-        {
-            
-        }
-
-        public TileEntityAssetManager getAssetManager()
-        {
-            return assetManager;
-        }
-
-        public void load()
-        {
-            Dictionary<string, AssetReference> dict = new Dictionary<string, AssetReference>
-            {
-                { "Pixels", PixelPrefabReference }
-            };
-            assetManager = new TileEntityAssetManager(dict);
         }
 
         public AssetReference GetAssetReference()
