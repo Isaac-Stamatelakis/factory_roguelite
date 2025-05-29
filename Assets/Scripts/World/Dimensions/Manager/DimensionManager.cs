@@ -110,6 +110,7 @@ namespace Dimensions {
             GraphicSettingsUtils.ApplyWorldGraphicSettings();
             
             playerScript.CallInitializeListeners();
+            playerScript.GetComponent<PlayerIO>().OnValidated();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)

@@ -22,7 +22,7 @@ namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
-        private bool deserialized;
+        private bool validStartup;
         public PlayerData Deserialize() {
             string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             if (!File.Exists(path))
@@ -40,8 +40,7 @@ namespace PlayerModule.IO {
                 Debug.LogError($"Resetting Player Inventory: {e.Message}");
                 playerData = WorldCreation.GetDefaultPlayerData();
             }
-
-            deserialized = true;
+            
             return playerData;
         }
 
@@ -52,9 +51,13 @@ namespace PlayerModule.IO {
             playerData.miscPlayerData ??= WorldCreation.GetDefaultMiscPlayerData();
         }
 
+        public void OnValidated()
+        {
+            validStartup = true;
+        }
         public void Serialize()
         {
-            if (!deserialized) return;
+            if (!validStartup) return;
             PlayerInventory playerInventory = GetComponent<PlayerInventory>();
             PlayerRobot playerRobot = GetComponent<PlayerRobot>();
             PlayerScript playerScript = GetComponent<PlayerScript>();
