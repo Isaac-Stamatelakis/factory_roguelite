@@ -18,9 +18,11 @@ using UI.JEI;
 using Dimensions;
 using Item.GameStage;
 using Item.ItemObjects.Instances.Tile.Chisel;
+using Item.Registry;
 using Item.Slot;
 using Item.Transmutation;
 using Player;
+using Recipe.Collection;
 using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
@@ -37,6 +39,8 @@ namespace Items {
         }
         private static readonly Dictionary<string,ItemObject> items = new();
         private static readonly Dictionary<TransmutableItemShaderType,TransmutationShaderPairObject> transmutableShaderDict = new();
+        private static BurnableItemRegistry burnableItemRegistry;
+        public static BurnableItemRegistry BurnableItemRegistry => burnableItemRegistry;
         
         private static ItemRegistry instance;
         private ItemRegistry() {
@@ -53,19 +57,15 @@ namespace Items {
             instance = new ItemRegistry();
             var itemHandle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
             var materialShaderHandle =  Addressables.LoadAssetsAsync<TransmutationShaderPairObject>("transmutation_shader", null);
+            var burnableCollectionHandle = Addressables.LoadAssetAsync<BurnableItemCollection>("Assets/Objects/Recipe/BurnRegistry.asset");
+            
             yield return itemHandle;
             yield return materialShaderHandle;
+            yield return burnableCollectionHandle;
             
-            
-            if (itemHandle.Status != AsyncOperationStatus.Succeeded || itemHandle.Result == null)
-            {
-                throw new ItemLoadException("Failed to load item assets from group: " + itemHandle.OperationException); 
-            }
-            
-            if (materialShaderHandle.Status != AsyncOperationStatus.Succeeded || materialShaderHandle.Result == null)
-            {
-                throw new ItemLoadException("Failed to load transmutation shader assets from group: " + materialShaderHandle.OperationException); 
-            }
+            ValidateAsyncLoad(itemHandle, "Item");
+            ValidateAsyncLoad(materialShaderHandle, "Transmutation Shader");
+            ValidateAsyncLoad(burnableCollectionHandle, "Burnable Item Collection");
             
             var materialSet = new HashSet<TransmutableItemMaterial>();
             var loadedItemAssets = itemHandle.Result;
@@ -80,9 +80,18 @@ namespace Items {
                 AddShaderPairToDict(transmutationShaderPairObject);
             }
             
-            Debug.Log($"Item Registry Initialized! Loaded {items.Count} Items, {materialSet.Count} Materials & {transmutableShaderDict.Count} Transmutation Shaders.");
-
+            burnableItemRegistry = new BurnableItemRegistry(burnableCollectionHandle.Result);
+            Debug.Log($"Item Registry Initialized! Loaded {items.Count} Items. Loaded {materialSet.Count} Transmutable Materials & {transmutableShaderDict.Count} Transmutation Shaders. Loaded {burnableItemRegistry.MaterialCount} Burnable Materials & {burnableItemRegistry.ItemCount} Burnable Items.");
+            
             yield break;
+
+            void ValidateAsyncLoad<T>(AsyncOperationHandle<T> handle, string handleTitle)
+            {
+                if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
+                {
+                    throw new ItemLoadException($"Failed to load {handleTitle} assets from group: {itemHandle.OperationException}"); 
+                }
+            }
             void AddItemToDict(ItemObject itemObject) {
                 if (itemObject is TransmutableItemObject transmutableItemObject)
                 {

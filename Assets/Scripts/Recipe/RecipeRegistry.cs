@@ -12,14 +12,13 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using BurnableItemRegistry = Item.Registry.BurnableItemRegistry;
 
 namespace Recipe {
     public class RecipeRegistry
     {
         private static Dictionary<RecipeProcessor, RecipeProcessorInstance> processorDict;
         private static List<RecipeProcessorInstance> processors;
-        private static BurnableItemRegistry burnableItemRegistry;
-        public static BurnableItemRegistry BurnableItemRegistry => burnableItemRegistry;
         private static RecipeRegistry instance;
         private RecipeRegistry() {
             processors = new List<RecipeProcessorInstance>();
@@ -34,11 +33,9 @@ namespace Recipe {
             instance = new RecipeRegistry();
             
             var handle = Addressables.LoadAssetsAsync<RecipeProcessor>("recipe_processor", null);
-            var burnableCollectionHandle = Addressables.LoadAssetAsync<BurnableItemCollection>("Assets/Objects/Recipe/BurnRegistry.asset");
+            
             yield return handle;
-            yield return burnableCollectionHandle;
             LoadProcessors(handle);
-            LoadBurnableHandle(burnableCollectionHandle);
         }
 
         private static void LoadProcessors(AsyncOperationHandle<IList<RecipeProcessor>> processorHandles)
@@ -63,18 +60,7 @@ namespace Recipe {
             Debug.Log("Recipe Registry Initialized! Loaded " + processors.Count + " recipe processors & " + count + " recipes");
         }
         
-
-        private static void LoadBurnableHandle(AsyncOperationHandle<BurnableItemCollection> burnableHandle)
-        {
-            if (burnableHandle.Status != AsyncOperationStatus.Succeeded)
-            {
-                Debug.LogError("Failed to load burnable recipe collections: " + burnableHandle.OperationException);
-                return;
-            }
-            var collection = burnableHandle.Result;
-            burnableItemRegistry = new BurnableItemRegistry(collection);
-            Debug.Log($"Burnable item registry loaded with {burnableItemRegistry.MaterialCount} materials and {burnableItemRegistry.ItemCount} items");
-        }
+        
         
         public static RecipeRegistry GetInstance() {
             if (instance == null) {

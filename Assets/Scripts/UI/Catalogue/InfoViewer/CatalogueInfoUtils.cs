@@ -5,6 +5,7 @@ using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Slot;
 using Item.Transmutation;
 using Item.Transmutation.Info;
+using Items;
 using Items.Transmutable;
 using Player;
 using Recipe;
@@ -59,7 +60,7 @@ namespace UI.Catalogue.InfoViewer
 
         private static void TryAddBurnDisplay(ItemSlot itemSlot, List<CatalogueElementData> elements)
         {
-            uint burnTime = RecipeRegistry.BurnableItemRegistry.GetBurnDuration(itemSlot.itemObject);
+            uint burnTime = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemSlot.itemObject);
             if (burnTime <= 0) return;
             
             BurnableItemDisplay burnableItemDisplay = new BurnableItemDisplay(itemSlot);
