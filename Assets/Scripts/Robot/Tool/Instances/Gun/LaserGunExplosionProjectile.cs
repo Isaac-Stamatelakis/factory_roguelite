@@ -92,7 +92,10 @@ namespace Robot.Tool.Instances.Gun
         private void StartExplosion()
         {
             speed = 0;
-            particles = particlePool.TakeFromPool();
+            if (!particles)
+            {
+                particles = particlePool.TakeFromPool();
+            }
    
             if (particles)
             {

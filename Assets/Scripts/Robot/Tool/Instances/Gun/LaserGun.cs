@@ -12,6 +12,7 @@ using Robot.Upgrades;
 using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.LoadOut;
 using UnityEngine;
+using Random = System.Random;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -30,30 +31,63 @@ namespace Robot.Tool.Instances
 
     public class ToolObjectPool
     {
-        public ToolObjectPool(int count, GameObject prefab, Transform container, string name)
+        private float growthFactor;
+        private int minCount;
+        private GameObject prefab;
+        private Transform container;
+        private System.Random random;
+        public ToolObjectPool(int count, GameObject prefab, Transform parentContainer, string name, float growthFactor)
         {
+            this.growthFactor = growthFactor;
+            random = new Random();
+            this.prefab = prefab;
+            this.minCount = count;
             GameObject objectContainer = new GameObject(name);
-            objectContainer.transform.SetParent(container,false);
+            this.container = objectContainer.transform;
+            container.SetParent(parentContainer,false);
             while (count > 0)
             {
-                GameObject obj = GameObject.Instantiate(prefab, objectContainer.transform, false);
-                pool.Push(obj);
-                obj.SetActive(false);
+                PushToPool();
                 count--;
             }
         }
 
+        private void PushToPool()
+        {
+            GameObject obj = UnityEngine.Object.Instantiate(prefab, container, false);
+            pool.Push(obj);
+            obj.SetActive(false);
+        }
         private Stack<GameObject> pool = new Stack<GameObject>();
 
         public GameObject TakeFromPool()
         {
+            if (pool.Count < minCount)
+            {
+                double r = random.NextDouble();
+                if (r < growthFactor)
+                {
+                    PushToPool();
+                }
+            }
+
             if (pool.Count == 0) return null;
+            
             GameObject top = pool.Pop();
             top.SetActive(true);
             return top;
         }
         public void ReturnToPool(GameObject obj)
         {
+            if (1 + pool.Count > minCount)
+            {
+                double r = random.NextDouble();
+                if (r < growthFactor)
+                {
+                    GameObject.Destroy(obj);
+                    return;
+                }
+            }
             obj.SetActive(false);
             obj.transform.position = Vector3.zero;
             pool.Push(obj);
@@ -70,9 +104,8 @@ namespace Robot.Tool.Instances
         private Rigidbody2D playerRb;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
-            // TODO auto adjust this based on firing rate
-            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE");
-            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser");
+            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.PersistentObjectContainer, "GunAoE",0.05f);
+            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.PersistentObjectContainer, "Laser",0.05f);
             playerRb = playerScript.GetComponent<Rigidbody2D>();
         }
         
