@@ -1,3 +1,4 @@
+using Conduit.Placement.LoadOut;
 using Item.ItemObjects.Interfaces;
 using Items;
 using Player;
@@ -15,6 +16,7 @@ namespace UI.Indicators.Placement
         public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
         public TileStateIndicatorUI tileStateIndicatorUI;
         public TileRotationIndicatorUI rotationIndicatorUI;
+        public ConduitLoadoutIndicatorUI conduitLoadoutIndicatorUI;
         
 
         public void Initialize(PlayerScript playerScript)
@@ -22,6 +24,7 @@ namespace UI.Indicators.Placement
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
             tileStateIndicatorUI.Initialize(playerScript,rotationIndicatorUI);
             rotationIndicatorUI.Initialize(playerScript);
+            conduitLoadoutIndicatorUI.Initialize(playerScript);
             
         }
         public void DisplayTile(PlayerScript playerScript, IPlacableItem displayItem)
@@ -35,6 +38,8 @@ namespace UI.Indicators.Placement
             {
                 conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
                 conduitPlacementModeIndicatorUI.Display(conduitItem);
+                conduitLoadoutIndicatorUI.gameObject.SetActive(true);
+                conduitLoadoutIndicatorUI.Display(LoadOutConduitTypeExtension.FromConduitType(conduitItem.GetConduitType()));
             } else if (displayItem is TileItem tileItem)
             {
                 if (tileItem.tile is IStateTile and not IMousePositionStateTile)

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 988cf070f9bd87d4fa9fdddb999fbece
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - conduitImage: {instanceID: 0}
+  - anyModeSprite: {fileID: 21300000, guid: c9193ee0cc178bb44909216c0482c0ce, type: 3}
+  - newModeSprite: {fileID: 21300000, guid: fa672514b53be0147b42e3f52c62334d, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

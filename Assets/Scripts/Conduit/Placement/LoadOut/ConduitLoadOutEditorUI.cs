@@ -36,6 +36,22 @@ namespace Conduit.Placement.LoadOut
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
+
+        public static LoadOutConduitType FromConduitType(ConduitType type)
+        {
+            switch (type)
+            {
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    return LoadOutConduitType.ItemFluid;
+                case ConduitType.Energy:
+                   return LoadOutConduitType.Energy;
+                case ConduitType.Signal:
+                    return LoadOutConduitType.Signal;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
     }
     public class ConduitLoadOutEditorUI : MonoBehaviour
     {
