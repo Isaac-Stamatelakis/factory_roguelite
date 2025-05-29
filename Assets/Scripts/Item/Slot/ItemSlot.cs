@@ -32,7 +32,7 @@ namespace Item.Slot
                 case TransmutableItemObject transmutableItemObject:
                 {
                     TransmutableItemState state = transmutableItemObject.getState();
-                    return state.getMatterState();
+                    return state.GetMatterState();
                 }
                 case CraftingItem craftingItem:
                     return craftingItem.getItemState();

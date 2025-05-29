@@ -60,7 +60,7 @@ namespace Recipe {
             {
                 count += processorInstance.GetCount();
             }
-            Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + count + " recipes");
+            Debug.Log("Recipe Registry Initialized! Loaded " + processors.Count + " recipe processors & " + count + " recipes");
         }
         
 

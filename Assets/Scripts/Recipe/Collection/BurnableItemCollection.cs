@@ -59,7 +59,7 @@ namespace Recipe.Collection
             var material = transmutableItemObject.getMaterial();
             if (!materialBurnDurations.TryGetValue(material, out var matDuration)) return 0;
             var state = transmutableItemObject.getState();
-            float stateRatio = state.getRatio();
+            float stateRatio = state.GetRatio();
             return (uint) (matDuration / stateRatio);
         }
 

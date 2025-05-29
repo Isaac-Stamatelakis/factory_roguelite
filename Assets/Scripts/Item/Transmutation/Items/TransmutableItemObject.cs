@@ -6,6 +6,26 @@ using Item.Transmutation;
 using UnityEngine;
 
 namespace Items.Transmutable {
+    public enum TransmutableItemObjectState
+    {
+        Ingot = TransmutableItemState.Ingot,
+        Dust = TransmutableItemState.Dust,
+        Plate = TransmutableItemState.Plate,
+        Wire = TransmutableItemState.Wire,
+        Fine_Wire = TransmutableItemState.Fine_Wire,
+        Double_Plate = TransmutableItemState.Double_Plate,
+        Small_Dust = TransmutableItemState.Small_Dust,
+        Tiny_Dust = TransmutableItemState.Tiny_Dust,
+        Rod = TransmutableItemState.Rod,
+        Bolt = TransmutableItemState.Bolt,
+        Screw = TransmutableItemState.Screw,
+        Magnificent_Gem = TransmutableItemState.Magnificent_Gem,
+        Exceptional_Gem = TransmutableItemState.Exceptional_Gem,
+        Gem = TransmutableItemState.Gem,
+        Mediocre_Gem = TransmutableItemState.Mediocre_Gem,
+        Poor_Gem = TransmutableItemState.Poor_Gem,
+        Ore = TransmutableItemState.Ore,
+    }
     public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem, IColorableItem
     {
         [SerializeField] private TransmutableItemObjectState state;
@@ -32,7 +52,7 @@ namespace Items.Transmutable {
 
         public ItemState getItemState()
         {
-            return ((TransmutableItemState)state).getMatterState();
+            return ((TransmutableItemState)state).GetMatterState();
         }
         public override Sprite[] GetSprites()
         {

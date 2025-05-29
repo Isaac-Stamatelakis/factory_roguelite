@@ -19,6 +19,7 @@ using Dimensions;
 using Item.GameStage;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using Item.Transmutation;
 using Player;
 using Recipe.Objects;
 using Recipe.Processor;
@@ -28,12 +29,18 @@ using WorldModule;
 
 namespace Items {
     public class ItemRegistry {
-        private static Dictionary<string,ItemObject> items;
-        private static List<TransmutableItemMaterial> materials;
+        private class ItemLoadException : Exception
+        {
+            public ItemLoadException(string message) : base(message)
+            {
+            }
+        }
+        private static readonly Dictionary<string,ItemObject> items = new();
+        private static readonly Dictionary<TransmutableItemShaderType,TransmutationShaderPairObject> transmutableShaderDict = new();
         
         private static ItemRegistry instance;
         private ItemRegistry() {
-            items = new Dictionary<string, ItemObject>();
+            
         }
         
 
@@ -44,41 +51,67 @@ namespace Items {
                 yield break;
             }
             instance = new ItemRegistry();
-            var handle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
-            yield return handle;
-            HashSet<TransmutableItemMaterial> materialSet = new HashSet<TransmutableItemMaterial>();
-            if (handle.Status == AsyncOperationStatus.Succeeded) {
-                IList<ItemObject> loadedAssets = handle.Result;
-                foreach (ItemObject asset in loadedAssets)
+            var itemHandle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
+            var materialShaderHandle =  Addressables.LoadAssetsAsync<TransmutationShaderPairObject>("transmutation_shader", null);
+            yield return itemHandle;
+            yield return materialShaderHandle;
+            
+            
+            if (itemHandle.Status != AsyncOperationStatus.Succeeded || itemHandle.Result == null)
+            {
+                throw new ItemLoadException("Failed to load item assets from group: " + itemHandle.OperationException); 
+            }
+            
+            if (materialShaderHandle.Status != AsyncOperationStatus.Succeeded || materialShaderHandle.Result == null)
+            {
+                throw new ItemLoadException("Failed to load transmutation shader assets from group: " + materialShaderHandle.OperationException); 
+            }
+            
+            var materialSet = new HashSet<TransmutableItemMaterial>();
+            var loadedItemAssets = itemHandle.Result;
+            foreach (ItemObject asset in loadedItemAssets)
+            {
+                AddItemToDict(asset);
+            }
+            
+            var loadedShaderPairAssets = materialShaderHandle.Result;
+            foreach (TransmutationShaderPairObject transmutationShaderPairObject in loadedShaderPairAssets)
+            {
+                AddShaderPairToDict(transmutationShaderPairObject);
+            }
+            
+            Debug.Log($"Item Registry Initialized! Loaded {items.Count} Items, {materialSet.Count} Materials & {transmutableShaderDict.Count} Transmutation Shaders.");
+
+            yield break;
+            void AddItemToDict(ItemObject itemObject) {
+                if (itemObject is TransmutableItemObject transmutableItemObject)
                 {
-                    AddToDict(asset, materialSet);
+                    var material = transmutableItemObject.getMaterial();
+                    if (!ReferenceEquals(material, null))
+                    {
+                        materialSet.Add(material);
+                    }
+                }
+                if (!items.TryGetValue(itemObject.id, out var contained))
+                {
+                    items[itemObject.id] = itemObject;
+                } else
+                {
+                    Debug.LogWarning("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
                 }
             }
-            else {
-                Debug.LogError("Failed to load assets from group: " + handle.OperationException);
+
+            void AddShaderPairToDict(TransmutationShaderPairObject shaderPair)
+            {
+                if (transmutableShaderDict.TryGetValue(shaderPair.TransmutationShaderType, out var duplicate))
+                {
+                    Debug.LogWarning($"Duplicate transmutation shader pairs of type {shaderPair.TransmutationShaderType} {shaderPair.name} and {duplicate.name}");
+                }
+                transmutableShaderDict[shaderPair.TransmutationShaderType] = shaderPair;
             }
-            materials = materialSet.ToList();
-            Debug.Log($"Loaded {items.Count} Items and {materials.Count} Materials");
-            yield return null;
         }
 
-        private static bool AddToDict(ItemObject itemObject, HashSet<TransmutableItemMaterial> materialSet) {
-            if (itemObject is TransmutableItemObject transmutableItemObject)
-            {
-                var material = transmutableItemObject.getMaterial();
-                if (!ReferenceEquals(material, null))
-                {
-                    materialSet.Add(material);
-                }
-            }
-            if (!items.TryGetValue(itemObject.id, out var contained)) {
-                items[itemObject.id] = itemObject;
-                return true;
-            } else {
-                Debug.LogWarning("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
-                return false;
-            }
-        }
+        
         public static ItemRegistry GetInstance() {
             if (instance == null) {
                 throw new NullReferenceException("Tried to access null item registry");
@@ -268,6 +301,12 @@ namespace Items {
                 if (itemObject is T item) queried.Add(item);
             }
             return queried;
+        }
+
+        public TransmutationShaderPairObject GetShaderMaterial(TransmutableItemShaderType shaderType)
+        {
+            if (shaderType == TransmutableItemShaderType.None) return null;
+            return transmutableShaderDict.GetValueOrDefault(shaderType);
         }
     }
 }
