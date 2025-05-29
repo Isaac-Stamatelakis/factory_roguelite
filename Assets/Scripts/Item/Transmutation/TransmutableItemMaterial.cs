@@ -19,10 +19,7 @@ namespace Items.Transmutable {
         public string chemicalFormula;
         public TieredGameStage gameStageObject;
         public Sprite OverlaySprite;
-        public TransmutableItemShaderType ShaderMaterial;
-        public Material UIShaderMaterial;
-        public Material WorldShaderMaterial;
-        
+        public TransmutationShaderPairObject ShaderMaterial;
         public TransmutableMaterialOptions MaterialOptions;
     }
 }

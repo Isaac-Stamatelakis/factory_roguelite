@@ -38,7 +38,6 @@ namespace Items {
             }
         }
         private static readonly Dictionary<string,ItemObject> items = new();
-        private static readonly Dictionary<TransmutableItemShaderType,TransmutationShaderPairObject> transmutableShaderDict = new();
         private static BurnableItemRegistry burnableItemRegistry;
         public static BurnableItemRegistry BurnableItemRegistry => burnableItemRegistry;
         
@@ -56,15 +55,12 @@ namespace Items {
             }
             instance = new ItemRegistry();
             var itemHandle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
-            var materialShaderHandle =  Addressables.LoadAssetsAsync<TransmutationShaderPairObject>("transmutation_shader", null);
             var burnableCollectionHandle = Addressables.LoadAssetAsync<BurnableItemCollection>("Assets/Objects/Recipe/BurnRegistry.asset");
             
             yield return itemHandle;
-            yield return materialShaderHandle;
             yield return burnableCollectionHandle;
             
             ValidateAsyncLoad(itemHandle, "Item");
-            ValidateAsyncLoad(materialShaderHandle, "Transmutation Shader");
             ValidateAsyncLoad(burnableCollectionHandle, "Burnable Item Collection");
             
             var materialSet = new HashSet<TransmutableItemMaterial>();
@@ -74,14 +70,8 @@ namespace Items {
                 AddItemToDict(asset);
             }
             
-            var loadedShaderPairAssets = materialShaderHandle.Result;
-            foreach (TransmutationShaderPairObject transmutationShaderPairObject in loadedShaderPairAssets)
-            {
-                AddShaderPairToDict(transmutationShaderPairObject);
-            }
-            
             burnableItemRegistry = new BurnableItemRegistry(burnableCollectionHandle.Result);
-            Debug.Log($"Item Registry Initialized! Loaded {items.Count} Items. Loaded {materialSet.Count} Transmutable Materials & {transmutableShaderDict.Count} Transmutation Shaders. Loaded {burnableItemRegistry.MaterialCount} Burnable Materials & {burnableItemRegistry.ItemCount} Burnable Items.");
+            Debug.Log($"Item Registry Initialized! Loaded {items.Count} Items & {materialSet.Count} Transmutable Materials. Loaded {burnableItemRegistry.MaterialCount} Burnable Materials & {burnableItemRegistry.ItemCount} Burnable Items.");
             
             yield break;
 
@@ -108,15 +98,6 @@ namespace Items {
                 {
                     Debug.LogWarning("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
                 }
-            }
-
-            void AddShaderPairToDict(TransmutationShaderPairObject shaderPair)
-            {
-                if (transmutableShaderDict.TryGetValue(shaderPair.TransmutationShaderType, out var duplicate))
-                {
-                    Debug.LogWarning($"Duplicate transmutation shader pairs of type {shaderPair.TransmutationShaderType} {shaderPair.name} and {duplicate.name}");
-                }
-                transmutableShaderDict[shaderPair.TransmutationShaderType] = shaderPair;
             }
         }
 
@@ -310,12 +291,6 @@ namespace Items {
                 if (itemObject is T item) queried.Add(item);
             }
             return queried;
-        }
-
-        public TransmutationShaderPairObject GetShaderMaterial(TransmutableItemShaderType shaderType)
-        {
-            if (shaderType == TransmutableItemShaderType.None) return null;
-            return transmutableShaderDict.GetValueOrDefault(shaderType);
         }
     }
 }

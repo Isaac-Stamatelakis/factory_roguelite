@@ -259,7 +259,7 @@ public class TransmutableItemGenerator : EditorWindow
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
 
-            if (material.WorldShaderMaterial)
+            if (material.ShaderMaterial.WorldMaterial)
             {
                 TryCreateMiscFolder(materialItemsPath, material);
                 string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
@@ -406,7 +406,7 @@ public class TransmutableItemGenerator : EditorWindow
             tileOverlay = CreateInstance<TransmutableTileOverlay>();
             tileOverlay.ItemMaterial = material;
             tileOverlay.name = ORE_OVERLAY_NAME;
-            tileOverlay.OverlayWrapper = material.WorldShaderMaterial ? shaderOutlineWrapper : outlineWrapper;
+            tileOverlay.OverlayWrapper = material.ShaderMaterial.WorldMaterial ? shaderOutlineWrapper : outlineWrapper;
             string savePath = overlayPath + ".asset";
             AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.SaveAssets();

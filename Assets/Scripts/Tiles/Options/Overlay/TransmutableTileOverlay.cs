@@ -1,4 +1,5 @@
 using System;
+using Items;
 using Items.Transmutable;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -40,9 +41,9 @@ namespace Tiles.Options.Overlay
             switch (shaderType)
             {
                 case IShaderTileOverlay.ShaderType.World:
-                    return ItemMaterial.WorldShaderMaterial;
+                    return ItemMaterial.ShaderMaterial.WorldMaterial;
                 case IShaderTileOverlay.ShaderType.UI:
-                    return ItemMaterial.UIShaderMaterial;
+                    return ItemMaterial.ShaderMaterial.UIMaterial;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shaderType), shaderType, null);
             }
