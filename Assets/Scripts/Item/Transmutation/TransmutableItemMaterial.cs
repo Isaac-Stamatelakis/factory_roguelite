@@ -33,21 +33,21 @@ namespace Items.Transmutable {
             {
                 return new TransmutationShaderPair(ShaderMaterial.UIMaterial, ShaderMaterial.WorldMaterial);
             }
-
+            Material worldCopy = new Material(ShaderMaterial.WorldMaterial);
+            Material uiCopy = new Material(ShaderMaterial.UIMaterial);
             switch (ShaderOption)
             {
                 case TwoGradientShaderOptionObject twoGradientOption:
                 {
                     int first = Shader.PropertyToID("_First");
                     int second = Shader.PropertyToID("_Second");
-                    Material worldCopy = new Material(ShaderMaterial.WorldMaterial);
+                    
                     worldCopy.SetColor(first,twoGradientOption.FirstColor);
                     worldCopy.SetColor(second,twoGradientOption.SecondColor);
-                
-                    Material uiCopy = new Material(ShaderMaterial.UIMaterial);
+                    
                     uiCopy.SetColor(first,twoGradientOption.FirstColor);
                     uiCopy.SetColor(second,twoGradientOption.SecondColor);
-                    return new TransmutationShaderPair(uiCopy, worldCopy);
+                    break;
                 }
                 case ThreeGradientShaderOptionObject threeGradientOption:
                 {
@@ -56,24 +56,34 @@ namespace Items.Transmutable {
                     int third = Shader.PropertyToID("_Third");
                     int outDominance =  Shader.PropertyToID("_OutDominance");
                     int hueShift = Shader.PropertyToID("_HueShift");
-                    Material worldCopy = new Material(ShaderMaterial.WorldMaterial);
+                    
                     worldCopy.SetColor(first,threeGradientOption.FirstColor);
                     worldCopy.SetColor(second,threeGradientOption.SecondColor);
                     worldCopy.SetColor(third, threeGradientOption.ThirdColor);
                     worldCopy.SetFloat(outDominance,threeGradientOption.OutDominance);
                     worldCopy.SetFloat(hueShift,threeGradientOption.HueShift);
                     
-                    Material uiCopy = new Material(ShaderMaterial.UIMaterial);
+                    
                     uiCopy.SetColor(first,threeGradientOption.FirstColor);
                     uiCopy.SetColor(second,threeGradientOption.SecondColor);
                     uiCopy.SetColor(third,threeGradientOption.ThirdColor);
                     uiCopy.SetFloat(outDominance,threeGradientOption.OutDominance);
                     uiCopy.SetFloat(hueShift,threeGradientOption.HueShift);
-                    return new TransmutationShaderPair(uiCopy, worldCopy);
+                    break;
                 }
+                case HueShiftShaderOptionObject hueShiftOption:
+                {
+                    int hueShift = Shader.PropertyToID("_HueShift");
+                    worldCopy.SetFloat(hueShift,hueShiftOption.HueShift);
+                    uiCopy.SetFloat(hueShift,hueShiftOption.HueShift);
+                    Debug.Log(hueShiftOption.HueShift);
+                    break;
+                }
+                    
                 default:
                     return null;
             }
+            return new TransmutationShaderPair(uiCopy, worldCopy);
         }
     }
 
