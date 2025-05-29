@@ -15,14 +15,13 @@ namespace UI.Indicators.Placement
         public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
         public TileStateIndicatorUI tileStateIndicatorUI;
         public TileRotationIndicatorUI rotationIndicatorUI;
-        public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
+        
 
         public void Initialize(PlayerScript playerScript)
         {
             conduitPlacementModeIndicatorUI?.Initialize(playerScript);
-            tileStateIndicatorUI.Initialize(playerScript);
+            tileStateIndicatorUI.Initialize(playerScript,rotationIndicatorUI);
             rotationIndicatorUI.Initialize(playerScript);
-            tilePreviewerIndicatorUI.Display(playerScript);
             
         }
         public void DisplayTile(PlayerScript playerScript, IPlacableItem displayItem)
@@ -32,14 +31,13 @@ namespace UI.Indicators.Placement
                 indicatorContainer.GetChild(i).gameObject.SetActive(false);
             }
             
-            tilePreviewerIndicatorUI.gameObject.SetActive(true);
             if (displayItem is ConduitItem conduitItem)
             {
                 conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
                 conduitPlacementModeIndicatorUI.Display(conduitItem);
             } else if (displayItem is TileItem tileItem)
             {
-                if (tileItem.tile is IStateTile)
+                if (tileItem.tile is IStateTile and not IMousePositionStateTile)
                 {
                     tileStateIndicatorUI.gameObject.SetActive(true);
                     tileStateIndicatorUI.Display(tileItem);
@@ -50,13 +48,18 @@ namespace UI.Indicators.Placement
                     TryDisplayRotation(tileItem);
                 }
             }
-            SyncKeyCodes(true);
 
+            if (AllInactive())
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            SyncKeyCodes(true);
             return;
 
             void TryDisplayRotation(TileItem tileItem)
             {
-                if (tileItem.tile is not PlatformStateTile)
+                if (tileItem.tile is PlatformStateTile)
                 {
                     // Cannot rotate flat platforms
                     int currentState = playerScript.TilePlacementOptions.State;
@@ -65,7 +68,17 @@ namespace UI.Indicators.Placement
                 }
                 rotationIndicatorUI.gameObject.SetActive(true);
                 rotationIndicatorUI.Display(tileItem);
-            } 
+            }
+
+            bool AllInactive()
+            {
+                for (int i = 0; i < indicatorContainer.childCount; i++)
+                {
+                    if (indicatorContainer.GetChild(i).gameObject.activeInHierarchy) return false;
+                }
+
+                return true;
+            }
         }
         
     }

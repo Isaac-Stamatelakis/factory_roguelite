@@ -38,6 +38,7 @@ namespace UI.Indicators.General
         {
             PlayerTileRotation rotation = playerScript.TilePlacementOptions.Rotation;
             int rotationValue = 0;
+            
             if (rotation == PlayerTileRotation.Auto)
             {
                 // TODO Display special icon
@@ -68,18 +69,9 @@ namespace UI.Indicators.General
             }
             tileImage.color = currentItem.tileOptions.GetTileColor();
             
-            if (!stateRotatable)
-            {
-                tileImage.transform.rotation = Quaternion.Euler(0, 0, 90 * rotationValue);
-            }
+            tileImage.transform.rotation = !stateRotatable ? Quaternion.Euler(0, 0, 90 * rotationValue) : Quaternion.Euler(0, 0, 0);
 
             mRotationText.text = playerScript.TilePlacementOptions.Rotation.ToString().Replace("Degrees","");
-            return;
-
-            void AddTileOverlay()
-            {
-                // TODO
-            }
         }
         
         public void OnPointerEnter(PointerEventData eventData)

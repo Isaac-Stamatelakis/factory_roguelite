@@ -20,11 +20,12 @@ namespace UI.Indicators.General
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
-        
+        private TileRotationIndicatorUI tileRotationIndicatorUI;
         private TileItem currentItem;
         
-        public void Initialize(PlayerScript playerScript)
+        public void Initialize(PlayerScript playerScript, TileRotationIndicatorUI tileRotationIndicatorUI)
         {
+            this.tileRotationIndicatorUI = tileRotationIndicatorUI;
             this.playerScript = playerScript;
         }
 
@@ -68,9 +69,14 @@ namespace UI.Indicators.General
         public void OnPointerClick(PointerEventData eventData)
         {
             PlayerTilePlacementOptions placementOptions = playerScript.TilePlacementOptions;
-            int dir = Keyboard.current.ctrlKey.isPressed ? -1 : 1;
+            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
             UpdateState();
 
+            if (tileRotationIndicatorUI.gameObject.activeInHierarchy)
+            {
+                tileRotationIndicatorUI.Display(currentItem);
+            }
+            
             Display();
             OnPointerEnter(eventData);
 
@@ -82,7 +88,6 @@ namespace UI.Indicators.General
                     placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, dir);
                     return;
                 }
-
                 if (currentItem.tile is not IStateTile stateTile) return; 
                 
                 int maxStates = stateTile.GetStateAmount();
