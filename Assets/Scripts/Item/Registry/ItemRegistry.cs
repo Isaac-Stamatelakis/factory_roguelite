@@ -38,6 +38,7 @@ namespace Items {
             }
         }
         private static readonly Dictionary<string,ItemObject> items = new();
+        private static readonly Dictionary<TransmutableItemMaterial,TransmutationShaderPair> materialShaderDict = new();
         private static BurnableItemRegistry burnableItemRegistry;
         public static BurnableItemRegistry BurnableItemRegistry => burnableItemRegistry;
         
@@ -68,6 +69,13 @@ namespace Items {
             foreach (ItemObject asset in loadedItemAssets)
             {
                 AddItemToDict(asset);
+            }
+
+            foreach (var material in materialSet)
+            {
+                TransmutationShaderPair shaderPair = material.GetShaderPair();
+                if (shaderPair == null) continue;
+                materialShaderDict[material] = shaderPair;
             }
             
             burnableItemRegistry = new BurnableItemRegistry(burnableCollectionHandle.Result);
@@ -292,6 +300,23 @@ namespace Items {
             }
             return queried;
         }
+
+        public TransmutationShaderPair GetTransmutationMaterial(TransmutableItemMaterial material)
+        {
+            return materialShaderDict.GetValueOrDefault(material);
+        }
+        
+        public Material GetTransmutationUIMaterial(TransmutableItemMaterial material)
+        {
+            return materialShaderDict.GetValueOrDefault(material)?.UIMaterial;
+        }
+
+        
+        public Material GetTransmutationWorldMaterial(TransmutableItemMaterial material)
+        {
+            return materialShaderDict.GetValueOrDefault(material)?.WorldMaterial;
+        }
+
     }
 }
 

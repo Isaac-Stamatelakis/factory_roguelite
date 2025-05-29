@@ -81,9 +81,9 @@ namespace Item.Display
                 var material = transmutableItemObject.getMaterial();
                 if (material)
                 {
-                    if (material.ShaderMaterial.WorldMaterial)
+                    if (material.HasShaders)
                     {
-                        spriteRenderer.material = material.ShaderMaterial.WorldMaterial;
+                        spriteRenderer.material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(material);
                     }
                 }
             }

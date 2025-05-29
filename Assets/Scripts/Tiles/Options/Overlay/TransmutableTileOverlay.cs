@@ -41,9 +41,9 @@ namespace Tiles.Options.Overlay
             switch (shaderType)
             {
                 case IShaderTileOverlay.ShaderType.World:
-                    return ItemMaterial.ShaderMaterial.WorldMaterial;
+                    return ItemRegistry.GetInstance().GetTransmutationWorldMaterial(ItemMaterial);
                 case IShaderTileOverlay.ShaderType.UI:
-                    return ItemMaterial.ShaderMaterial.UIMaterial;
+                    return ItemRegistry.GetInstance().GetTransmutationUIMaterial(ItemMaterial);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shaderType), shaderType, null);
             }

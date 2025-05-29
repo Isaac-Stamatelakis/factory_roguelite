@@ -174,9 +174,9 @@ namespace Items {
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
                     }
 
-                    if (transmutableMaterial.ShaderMaterial)
+                    if (transmutableMaterial.HasShaders)
                     {
-                        ItemImage.material = transmutableMaterial.ShaderMaterial.UIMaterial;
+                        ItemImage.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterial);
                     }
                 }
             } else if (itemSlot.itemObject is TileItem tileItem)
