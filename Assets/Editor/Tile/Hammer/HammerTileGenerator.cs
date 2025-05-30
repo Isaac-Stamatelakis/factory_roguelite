@@ -9,6 +9,8 @@ using Tiles;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
 using Tiles.CustomTiles.IdTiles;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 
 namespace HammerTileEditor
 {
@@ -40,6 +42,7 @@ namespace HammerTileEditor
         private List<TextureNamePair> texturePairs = new List<TextureNamePair>();
         private Vector2 scrollPosition;
         private MultiTileType multiType;
+        private string regenerateSafeText;
         private bool multipleTextures;
 
         [MenuItem("Tools/Item Constructors/Tile/Hammer")]
@@ -110,9 +113,27 @@ namespace HammerTileEditor
                 {
                     CreateTileItem(texturePair.Texture,texturePair.TileName);
                 }
-                
             }
 
+            GUI.enabled = false;
+            GUILayout.TextArea("Regenerates all tiles for Addressable Non-Ore TileItems with nature tiles. Type 'REGENERATE' into the text field below to proceed");
+            GUI.enabled = true;
+            regenerateSafeText = EditorGUILayout.TextArea(regenerateSafeText);
+            
+            
+            bool match = String.Equals(regenerateSafeText, "REGENERATE");
+            GUI.enabled = match;
+            Color baseColor = GUI.color;
+            GUI.color = !match ? Color.red : Color.green;
+            if (GUILayout.Button("Regenerate Tile Items"))
+            {
+                Regenerate();
+            }
+
+            GUI.color = baseColor;
+
+            GUI.enabled = true;
+            
             if (multipleTextures)
             {
                 GUILayout.Label("Texture-Tile Name Pairs", EditorStyles.boldLabel);
@@ -168,7 +189,7 @@ namespace HammerTileEditor
                     FormStandard(texture, tileName, path);
                     break;
                 case HammerTileType.Nature:
-                    FormNature(texture, tileName, path);
+                    FormNature(texture, tileName, path,true);
                     break;
 
             }
@@ -178,7 +199,7 @@ namespace HammerTileEditor
         private void FormStandard(Texture2D texture, string tileName,string path)
         {
             HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
-            AssignStandardHammerTiles(texture, tileName, hammerTile, path);
+            AssignStandardHammerTiles(texture, tileName, hammerTile, path,true);
             TileItem tileItem = CreateItem(texture, tileName, hammerTile, path);
             tileItem.outline = outlineValues.HammerOutline;
         }
@@ -197,22 +218,30 @@ namespace HammerTileEditor
             return tileItem;
         }
 
-        private void AssignStandardHammerTiles(Texture2D texture, string tileName, HammerTile hammerTile, string path)
+        private void AssignStandardHammerTiles(Texture2D texture, string tileName, HammerTile hammerTile, string path, bool generateBase)
         {
-            hammerTile.baseTile = GenerateBase(texture, tileName, path);
+            if (generateBase)
+            {
+                hammerTile.baseTile = GenerateBase(texture, tileName, path);
+            }
+            
             hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
             hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
             hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs,path, tileName, "stair");
         }
 
-        private void FormNature(Texture2D texture, string tileName, string path)
+        private void FormNature(Texture2D texture, string tileName, string path, bool generateBase, TileItem tileItem = null)
         {
             NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
-            AssignStandardHammerTiles(texture, tileName, natureTile, path);
+            AssignStandardHammerTiles(texture, tileName, natureTile, path,generateBase);
             natureTile.natureSlabs = Array.Empty<Tile>(); // Disabled nature slabs FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
             natureTile.natureSlants = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
+
+            if (!tileItem)
+            {
+                tileItem = CreateItem(texture, tileName, natureTile, path);
+            }
             
-            TileItem tileItem = CreateItem(texture, tileName, natureTile, path);
             tileItem.outline = outlineValues.NatureOutline;;
         }
 
@@ -407,6 +436,103 @@ namespace HammerTileEditor
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+        }
+
+        private void Regenerate()
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            int count = 0;
+            string[] guids = AssetDatabase.FindAssets("t:" + nameof(TileItem));
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string itemFolderPath = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(itemFolderPath)) continue;
+                
+                TileItem tileItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
+                if (!tileItem || tileItem.tileType != TileType.Block) continue;
+                if (tileItem.tile is not NatureTile) continue;
+            
+                if (path.StartsWith("Assets/EditorCreations/")) continue;
+                if (path.StartsWith("Assets/Objects/TransmutableItems/")) continue;
+                if (tileItem.gameStage?.name == "ORE") continue;
+                
+                AddressableAssetEntry entry = settings.FindAssetEntry(AssetDatabase.AssetPathToGUID(path));
+                if (entry == null) continue;
+                
+                Debug.Log(tileItem.name);
+
+                string spriteFolderPath = Path.Combine(itemFolderPath, "Sprites");
+                if (!Directory.Exists(spriteFolderPath))
+                {
+                    Debug.LogWarning($"Could not regenerate '{tileItem.name}' at '{path}' as Sprite Folder does not exist");
+                    continue;
+                }
+                string[] spriteGuids = AssetDatabase.FindAssets("t:Sprite", new[] { spriteFolderPath });
+                List<Sprite> sprites = new List<Sprite>();
+               
+                const int SPRITE_SIZE = 16;
+                for (int i = 0; i < spriteGuids.Length; i++)
+                {
+                    string spritePath  = AssetDatabase.GUIDToAssetPath(spriteGuids[i]);
+                    
+                    Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+                    sprites.Add(sprite);
+                    if (sprite.texture.width != SPRITE_SIZE || sprite.texture.height != SPRITE_SIZE) continue;
+                    TextureImporter importer = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+                    if (!importer) continue;
+                    importer.isReadable = true;
+                    importer.filterMode = FilterMode.Point;
+                    importer.textureCompression = TextureImporterCompression.Uncompressed; // Optional but avoids compression artifacts
+                    importer.SaveAndReimport();
+                   
+                    Debug.Log(sprite.name);
+                }
+
+                AssetDatabase.Refresh();
+                Debug.Log(sprites.Count);
+                Texture2D texture = new Texture2D(SPRITE_SIZE, SPRITE_SIZE*sprites.Count);
+                Color[] pixels = new Color[texture.width * texture.height];
+                for (int i = 0; i < sprites.Count; i++)
+                {
+                    Texture2D spriteTex = sprites[i].texture;
+                    Rect rect = sprites[i].rect;
+                    for (int x = 0; x < SPRITE_SIZE; x++)
+                    {
+                        for (int y = 0; y < SPRITE_SIZE; y++)
+                        {
+                            Color color = spriteTex.GetPixel((int)rect.x + x, (int)rect.y + y);
+                            int idx = x;
+                            int idy = i * SPRITE_SIZE + y;
+
+                            int index = idx + SPRITE_SIZE*idy;
+                            pixels[index] = color;
+                        }
+                    }
+                }
+                
+                
+                texture.SetPixels(pixels);
+                texture.name = "TestTexture";
+                AssetDatabase.CreateAsset(texture,Path.Combine("Assets/EditorCreations",texture.name + ".asset"));
+                AssetDatabase.SaveAssetIfDirty(tileItem);
+
+                foreach (Sprite sprite in sprites)
+                {
+                    string spritePath  = AssetDatabase.GetAssetPath(sprite);
+                    TextureImporter importer = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+                    if (!importer) continue;
+                    importer.isReadable = false;
+                    importer.SaveAndReimport();
+                }
+                
+                FormNature(texture,tileItem.name,itemFolderPath,false,tileItem);
+                break;
+                
+                count++;
+            }
+            
+            Debug.Log($"Regenerated Nature Tiles of {count} Tile Items");
         }
     }
     
