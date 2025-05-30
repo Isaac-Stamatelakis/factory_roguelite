@@ -50,7 +50,7 @@ namespace PlayerModule.KeyPress {
             ControlUtils.AssignAction(miscKeys.ConduitOptions,PlayerControl.OpenConduitOptions, _ => playerScript.TileViewers.ConduitViewController.DisplayView());
             ControlUtils.AssignAction(miscKeys.ConduitPortView,PlayerControl.SwitchConduitPortView, _ => ChangePortModePress());
             ControlUtils.AssignAction(miscKeys.SwitchPlacementMode,PlayerControl.SwitchPlacementMode, SwitchPlacementMode);
-            ControlUtils.AssignAction(miscKeys.SubPlacementMode,PlayerControl.SwitchPlacementSubMode,SwitchSubPlacementMode);
+            ControlUtils.AssignAction(miscKeys.SubPlacementMode,PlayerControl.SwitchPlacementSubMode, SwitchSubPlacementMode);
             ControlUtils.AssignAction(miscKeys.TerminateConduitGroup,PlayerControl.TerminateConduitGroup,TerminateConduitGroup);
             ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
             ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview, _ => playerScript.PlayerUIContainer.IndicatorManager.tilePreviewerIndicatorUI.Toggle());

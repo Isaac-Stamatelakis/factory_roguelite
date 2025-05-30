@@ -116,7 +116,6 @@ namespace Player {
         public PlayerDamage PlayerDamage { get; private set; }
         
         // Default values
-        public float DefaultLinearDrag  { get; private set; }
         public float DefaultGravityScale { get; private set; }
         private float defaultBoxColliderWidth;
         private float defaultBoxColliderEdge;
@@ -137,7 +136,6 @@ namespace Player {
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             
             DefaultGravityScale = rb.gravityScale;
-            DefaultLinearDrag = rb.drag;
             
             gunController.Initialize(this);
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
@@ -365,7 +363,7 @@ namespace Player {
                 size.x = defaultBoxColliderWidth + defaultBoxColliderEdge - EDGE_RADIUS/2f;
                 boxCollider2d.size = size;
             }
-            if (state is CollisionState.OnSlope && currentMovement is IOnSlopeExitMovementListener slopeExitListener)
+            if (state is CollisionState.OnSlope or CollisionState.OnLeftSlopePlatform or CollisionState.OnRightSlopePlatform && currentMovement is IOnSlopeExitMovementListener slopeExitListener)
             {
                 slopeExitListener.OnSlopeExit();
             }

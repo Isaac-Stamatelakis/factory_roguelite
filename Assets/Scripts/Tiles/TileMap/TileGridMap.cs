@@ -299,7 +299,6 @@ namespace TileMaps {
         {
             if (tileBase is IStateTileSingle stateTile) {
                 tileBase = stateTile.GetTileAtState(baseTileData.state);
-                Debug.Log(tileBase?.name);
             } 
             if (!rotatable) 
             {

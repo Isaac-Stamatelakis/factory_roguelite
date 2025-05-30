@@ -59,7 +59,6 @@ namespace Player.Movement
         {
             cachedTileItem = null;
             playerRobot.RemoveCollisionState(CollisionState.OnSlope);
-            
         }
     }
 }
