@@ -81,6 +81,7 @@ namespace UI.Indicators.General
             return;
             void UpdateState()
             {
+                if (!currentItem) return;
                 if (currentItem.tile is IRestrictedIndicatorStateTile restrictedIndicatorStateTile)
                 {
                     placementOptions.State = restrictedIndicatorStateTile.ShiftState(placementOptions.State, direction);

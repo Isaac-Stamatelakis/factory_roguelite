@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -113,12 +114,14 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         ItemEditorFactory.saveTile(hammerTile,path);
         if (outlineType != OutlineTileType.NatureTile) return;
         
+        /*
         Tile[] natureSlabTiles = new Tile[hammerTileValues.NatureSlabs.Length];
         for (int i = 0; i < hammerTileValues.NatureSlabs.Length; i++)
         {
             Sprite sprite = GenerateFromTexture(hammerTileValues.NatureSlabs[i].GetDefaultReadSprite().texture,path,$"nature_slab_{i}_",tileName,scale);
             natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slab_{tileName}_{i}",path));
         }
+        */
         
         Tile[] natureSlantTiles = new Tile[hammerTileValues.NatureSlants.Length];
         for (int i = 0; i < hammerTileValues.NatureSlants.Length; i++)
@@ -128,7 +131,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         }
 
         NatureTile natureTile = (NatureTile)hammerTile;
-        natureTile.natureSlabs = natureSlabTiles;
+        natureTile.natureSlabs = Array.Empty<Tile>();
         natureTile.natureSlants = natureSlantTiles;
         natureTile.name = $"nature_{tileName}";
     }
