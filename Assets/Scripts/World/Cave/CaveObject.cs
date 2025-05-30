@@ -103,7 +103,7 @@ namespace WorldModule.Caves {
             
             caveElements.OreDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
-            AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
+            AreaGenerationHelper.SmoothNatureTiles(worldTileData,size.x,size.y);
             CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(caveObject.CaveDecorations);
             caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
 

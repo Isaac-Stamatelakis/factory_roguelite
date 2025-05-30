@@ -210,7 +210,7 @@ namespace HammerTileEditor
             NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
             AssignStandardHammerTiles(texture, tileName, natureTile, path);
             natureTile.natureSlabs = Array.Empty<Tile>(); // Disabled nature slabs FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
-            natureTile.natureSlabs = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
+            natureTile.natureSlants = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
             
             TileItem tileItem = CreateItem(texture, tileName, natureTile, path);
             tileItem.outline = outlineValues.NatureOutline;;
