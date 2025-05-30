@@ -487,6 +487,7 @@ namespace HammerTileEditor
 
                 TileBase baseTile = ((HammerTile)tileItem.tile).baseTile;
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(tileItem.tile));
+                AssetDatabase.Refresh();
                 
                 string[] spriteGuids = AssetDatabase.FindAssets("t:Sprite", new[] { spriteFolderPath });
                 List<Sprite> sprites = new List<Sprite>();
