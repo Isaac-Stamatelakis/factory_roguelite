@@ -51,12 +51,12 @@ public class AnimatedItemGenerator : EditorWindow {
             return;
         }
 
-        string savePath = Path.Combine(EditorHelper.EDITOR_SAVE_PATH, itemName);
+        string savePath = Path.Combine(EditorUtils.EDITOR_SAVE_PATH, itemName);
         if (AssetDatabase.IsValidFolder(savePath)) {
             Debug.LogWarning("Replaced existing content at " + savePath);
             Directory.Delete(savePath,true);
         }
-        AssetDatabase.CreateFolder(EditorHelper.EDITOR_SAVE_PATH, itemName);
+        AssetDatabase.CreateFolder(EditorUtils.EDITOR_SAVE_PATH, itemName);
         Texture2D texture = sprite.texture;
         string assetPath = AssetDatabase.GetAssetPath(texture);
         TextureImporter textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;

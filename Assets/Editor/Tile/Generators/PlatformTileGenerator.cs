@@ -52,13 +52,13 @@ public class PlatformTileGenerator : EditorWindow {
 
     private void CreateTileItem()
     {
-        string path = Path.Combine(EditorHelper.EDITOR_SAVE_PATH, tileName);
+        string path = Path.Combine(EditorUtils.EDITOR_SAVE_PATH, tileName);
         
         if (AssetDatabase.IsValidFolder(path)) {
             Debug.LogWarning("Replaced existing content at " + path);
             Directory.Delete(path,true);
         }
-        AssetDatabase.CreateFolder(EditorHelper.EDITOR_SAVE_PATH, tileName);
+        AssetDatabase.CreateFolder(EditorUtils.EDITOR_SAVE_PATH, tileName);
         AssetDatabase.CreateFolder(path, "Tiles");
         AssetDatabase.Refresh();
         string tilePath = Path.Combine(path, "Tiles");

@@ -170,7 +170,7 @@ public static class RecipeGeneratorUtils
             case RecipeGenerationInputMode.Object:
                 return new EditorItemSlot(input.ItemObject, amount);
             case RecipeGenerationInputMode.Material:
-                ItemObject itemObject = EditorHelper.GetTransmutableItemObject(input.Material, input.ItemState);
+                ItemObject itemObject = EditorUtils.GetTransmutableItemObject(input.Material, input.ItemState);
                 return new EditorItemSlot(itemObject, amount);
             default:
                 throw new ArgumentOutOfRangeException();

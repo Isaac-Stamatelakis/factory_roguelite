@@ -19,7 +19,7 @@ public enum AssetLabel
 {
     Item
 }
-public static class EditorHelper
+public static class EditorUtils
 {
     
     public const string EDITOR_SAVE_PATH = "Assets/EditorCreations";
@@ -39,6 +39,13 @@ public static class EditorHelper
         return path;
     }
 
+    public static void SaveAsset(UnityEngine.Object asset)
+    {
+        if (!asset) return;
+        EditorUtility.SetDirty(asset);
+        AssetDatabase.SaveAssetIfDirty(asset);
+        AssetDatabase.Refresh();
+    }
     public static TransmutableItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
     {
         string materialPath = AssetDatabase.GetAssetPath(material);
