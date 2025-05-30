@@ -25,14 +25,33 @@ public enum NatureHammerTileType
 
 public class OutlineValues
 {
-    private static readonly string FOLDER_PATH = "Assets/Objects/Tiles/Outline";
+    private static readonly string FOLDER_PATH = "Assets/Objects/Tiles/PackedTiles/Outline";
     private static readonly string SQUARE_PATH = "Square_Outline/Square_Outline.asset";
     private static readonly string HAMMER_PATH = "Hammer_Outline/Hammer_Outline.asset";
     private static readonly string NATURE_PATH = "Nature_Outline/Nature_Outline.asset";
 
-    public Tile SquareOutline = AssetDatabase.LoadAssetAtPath<Tile>(Path.Combine(FOLDER_PATH,SQUARE_PATH));
-    public HammerTile HammerOutline = AssetDatabase.LoadAssetAtPath<HammerTile>(Path.Combine(FOLDER_PATH,HAMMER_PATH));
-    public NatureTile NatureOutline = AssetDatabase.LoadAssetAtPath<NatureTile>(Path.Combine(FOLDER_PATH,NATURE_PATH));
+    public Tile SquareOutline;
+    public HammerTile HammerOutline;
+    public NatureTile NatureOutline;
+
+    public OutlineValues()
+    {
+        SquareOutline = AssetDatabase.LoadAssetAtPath<Tile>(Path.Combine(FOLDER_PATH,SQUARE_PATH));
+        HammerOutline = AssetDatabase.LoadAssetAtPath<HammerTile>(Path.Combine(FOLDER_PATH,HAMMER_PATH));
+        NatureOutline = AssetDatabase.LoadAssetAtPath<NatureTile>(Path.Combine(FOLDER_PATH,NATURE_PATH));
+        
+        Validate(SquareOutline,nameof(SquareOutline));
+        Validate(HammerOutline,nameof(HammerOutline));
+        Validate(NatureOutline,nameof(NatureOutline));
+
+        return;
+
+        void Validate(TileBase tileBase, string parameterName)
+        {
+            if (tileBase) return;
+            Debug.LogWarning($"Could not find '{parameterName}'. Did you move it?");
+        }
+    }
 
     public TileBase FromTile(TileBase tile)
     {
