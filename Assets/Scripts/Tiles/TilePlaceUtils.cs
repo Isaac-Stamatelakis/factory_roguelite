@@ -580,7 +580,6 @@ namespace TileMaps.Place {
                 tileMap = collider.GetComponentInParent<WorldTileMap>();
             }
             TileItem tile = tileMap?.GetTileItem(position);
-            Debug.Log(tile?.name);
             if (!tile) return false;
             return !tile.tileOptions.placeBreakable;
         }

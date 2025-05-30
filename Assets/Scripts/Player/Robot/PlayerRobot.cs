@@ -288,10 +288,7 @@ namespace Player {
                 wallListener.OnWallCollision();
             }
 
-            if (state is CollisionState.OnSlope && currentMovement is IOnSlopeCollisionMovementListener slopeListener)
-            {
-                slopeListener.OnSlopeCollision();
-            }
+            
 
             if (state is CollisionState.InFluid)
             {
@@ -305,6 +302,13 @@ namespace Player {
             }
         }
 
+        public void OnSlopeAddUpdate(Direction slopeDirection)
+        {
+            if (currentMovement is IOnSlopeCollisionMovementListener slopeListener)
+            {
+                slopeListener.OnSlopeCollision(slopeDirection);
+            }
+        }
         
         public void FaceMousePosition(Vector2 mousePosition)
         {
@@ -369,6 +373,13 @@ namespace Player {
             }
         }
 
+        public void OnSlopeStay(Direction slopeDirection)
+        {
+            if (currentMovement is IOnSlopeStayMovementListener slopeListener)
+            {
+                slopeListener.OnSlopeStay(slopeDirection);
+            }
+        }
         public bool IsMoving()
         {
             return rb.velocity.magnitude > 0.1f;

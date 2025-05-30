@@ -12,52 +12,62 @@ namespace Player.Movement
     public class PlayerSlopeStateTrigger : MonoBehaviour
     {
         private PlayerRobot playerRobot;
-        private TileItem cachedTileItem;
+        private Direction currentSlopeDirection;
+      
         public void Start()
         {
             playerRobot = transform.parent.GetComponentInParent<PlayerRobot>();
         }
-        
-        public void OnTriggerStay2D(Collider2D other)
-        {
-            if (!other.CompareTag("Ground")) return;
-            bool? onslope = OnSlope(other);
-            bool cached = onslope == null;
-            if (cached) return;
-            
-            if (onslope.Value)
-            {
-                playerRobot.AddCollisionState(CollisionState.OnSlope);
-            }
-            else
-            {
-                playerRobot.RemoveCollisionState(CollisionState.OnSlope);
-            }
 
+        public void OnTriggerEnter2D(Collider2D other)
+        {
+            SlopeUpdate(other);
         }
 
+        public void OnTriggerStay2D(Collider2D other)
+        {
+            SlopeUpdate(other);
+        }
+
+        private void SlopeUpdate(Collider2D other)
+        {
+            if (!other.CompareTag("Ground")) return;
+            bool onSlope = OnSlope(other);
+            
+            bool collisionStateActive = playerRobot.CollisionStateActive(CollisionState.OnSlope);
+            
+            if (onSlope && !collisionStateActive)
+            {
+                playerRobot.AddCollisionState(CollisionState.OnSlope);
+                playerRobot.OnSlopeAddUpdate(currentSlopeDirection);
+            } else if (!onSlope && collisionStateActive)
+            {
+                playerRobot.RemoveCollisionState(CollisionState.OnSlope);
+            } else if (onSlope)
+            {
+                playerRobot.OnSlopeStay(currentSlopeDirection);
+            }
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="other"></param>
         /// <returns>True if on slope, false if not on slope, null if tile item is cached</returns>
-        private bool? OnSlope(Collider2D other)
+        private bool OnSlope(Collider2D other)
         {
             Vector2Int cellPosition = Global.GetCellPositionFromWorld(other.ClosestPoint(transform.position));
             ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);
-            if (ReferenceEquals(tileItem, cachedTileItem)) return null;
-            cachedTileItem = tileItem;
             if (tileItem?.tile is not HammerTile hammerTile) return false;
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
+            currentSlopeDirection = baseTileData.rotation == 0 ? Direction.Left : Direction.Right;
             return hammerTileState is not HammerTileState.Solid and not HammerTileState.Slab;
         }
 
         public void OnTriggerExit2D(Collider2D other)
         {
-            cachedTileItem = null;
             playerRobot.RemoveCollisionState(CollisionState.OnSlope);
         }
     }
