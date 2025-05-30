@@ -196,6 +196,9 @@ public class EditorFactory
                 TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath + ".png") as TextureImporter;
                 textureImporter.textureType = TextureImporterType.Sprite;
                 textureImporter.spritePixelsPerUnit = 32;
+                textureImporter.textureCompression  = TextureImporterCompression.Uncompressed;
+                textureImporter.filterMode = FilterMode.Point;
+                
                 AssetDatabase.ImportAsset(spriteSavePath + ".png", ImportAssetOptions.ForceUpdate);
                 AssetDatabase.Refresh();
 
