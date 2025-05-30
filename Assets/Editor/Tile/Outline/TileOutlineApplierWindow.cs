@@ -42,6 +42,7 @@ public class TileOutlineApplierWindow : EditorWindow {
             TileBase outline = outlineValues.FromTile(tileItem.tile);
             if (ReferenceEquals(tileItem.tile,outline)) continue; // Skip so we can get accurate count
             tileItem.outline = outline;
+            AssetDatabase.SaveAssetIfDirty(tileItem);
             count++;
         }
         Debug.Log($"Assigned Outlines to {count} Tile Items");
