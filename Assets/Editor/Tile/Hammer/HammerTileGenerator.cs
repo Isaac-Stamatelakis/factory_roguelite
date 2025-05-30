@@ -234,8 +234,6 @@ namespace HammerTileEditor
             hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
             hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
             hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs,path, tileName, "stair");
-            
-            EditorUtility.SetDirty(hammerTile);
         }
 
         private void FormNature(Texture2D texture, string tileName, string path,TileItem tileItem = null, TileBase baseTile = null)
@@ -366,6 +364,8 @@ namespace HammerTileEditor
             
             stateTile.Tiles = tiles;
             EditorUtility.SetDirty(stateTile);
+            AssetDatabase.SaveAssetIfDirty(stateTile);
+            AssetDatabase.Refresh();
 
             return stateTile;
         }
