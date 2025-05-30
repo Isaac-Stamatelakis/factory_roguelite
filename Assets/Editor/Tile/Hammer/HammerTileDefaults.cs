@@ -33,6 +33,16 @@ public class OutlineValues
     public Tile SquareOutline = AssetDatabase.LoadAssetAtPath<Tile>(Path.Combine(FOLDER_PATH,SQUARE_PATH));
     public HammerTile HammerOutline = AssetDatabase.LoadAssetAtPath<HammerTile>(Path.Combine(FOLDER_PATH,HAMMER_PATH));
     public NatureTile NatureOutline = AssetDatabase.LoadAssetAtPath<NatureTile>(Path.Combine(FOLDER_PATH,NATURE_PATH));
+
+    public TileBase FromTile(TileBase tile)
+    {
+        return tile switch
+        {
+            NatureTile => NatureOutline,
+            HammerTile => HammerOutline,
+            _ => SquareOutline
+        };
+    }
 }
 public class HammerTileValues
 {

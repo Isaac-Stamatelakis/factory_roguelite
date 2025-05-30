@@ -42,7 +42,7 @@ namespace UI.Indicators.Placement
                 conduitLoadoutIndicatorUI.Display(LoadOutConduitTypeExtension.FromConduitType(conduitItem.GetConduitType()));
             } else if (displayItem is TileItem tileItem)
             {
-                if (tileItem.tile is IStateTile and not IMousePositionStateTile)
+                if (tileItem.tile is HammerTile)
                 {
                     tileStateIndicatorUI.gameObject.SetActive(true);
                     tileStateIndicatorUI.Display(tileItem);
