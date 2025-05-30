@@ -15,7 +15,7 @@ namespace WorldModule.Caves {
             Other,
             Slant,
         }
-        public static void smoothNatureTiles(SeralizedWorldData worldTileData, int width, int height) {
+        public static void SmoothNatureTiles(SeralizedWorldData worldTileData, int width, int height) {
 
             BlockState?[][] states = new BlockState?[width][];
             for (int index = 0; index < width; index++)

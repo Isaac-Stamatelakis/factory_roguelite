@@ -20,8 +20,7 @@ namespace EditorScripts.Tier.Generators
         public TorchGenerator(TierItemInfoObject tierItemInfoObject, TierItemGeneratorDefaults defaultValues, string generationPath) : base(tierItemInfoObject, defaultValues, generationPath)
         {
         }
-
-        public override void Generate()
+        protected override ITierGeneratedItemData GenerateItemData()
         {
             TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Torch>(TierGeneratedItemType.Torch);
             TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
@@ -49,6 +48,7 @@ namespace EditorScripts.Tier.Generators
             // TODO LIGHT INPUT
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,tileEntityItemGenerationData.ItemGenerationData);
+            return tileEntityItemGenerationData;
         }
     }
 }

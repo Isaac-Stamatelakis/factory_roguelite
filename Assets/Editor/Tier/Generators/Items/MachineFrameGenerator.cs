@@ -20,7 +20,7 @@ namespace EditorScripts.Tier.Generators
         {
         }
 
-        public override void Generate()
+        protected override ITierGeneratedItemData GenerateItemData()
         {
             var itemGenerationData = GenerateDefaultItemData(TierGeneratedItemType.MachineFrame,ItemType.TileItem,useTierName:true);
             TileItem tileItem = (TileItem)itemGenerationData.ItemObject;
@@ -33,6 +33,7 @@ namespace EditorScripts.Tier.Generators
             EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 8);
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { plateInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,itemGenerationData);
+            return itemGenerationData;
         }
     }
 }

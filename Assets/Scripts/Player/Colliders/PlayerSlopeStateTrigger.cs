@@ -52,7 +52,7 @@ namespace Player.Movement
             if (tileItem?.tile is not HammerTile hammerTile) return false;
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
-            return hammerTileState is HammerTileState.Slant or HammerTileState.Stair;
+            return hammerTileState is not HammerTileState.Solid and not HammerTileState.Slab;
         }
 
         public void OnTriggerExit2D(Collider2D other)

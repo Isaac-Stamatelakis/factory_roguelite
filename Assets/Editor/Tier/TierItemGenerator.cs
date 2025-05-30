@@ -17,6 +17,10 @@ using UnityEngine;
 
 namespace EditorScripts.Tier
 {
+    public interface ITierGeneratedItemData
+    {
+        public void SaveAssets();
+    }
     public abstract class TierItemGenerator
     {
         protected TierItemInfoObject tierItemInfoObject;
@@ -31,8 +35,15 @@ namespace EditorScripts.Tier
             this.generationPath = generationPath;
         }
 
-        public abstract void Generate();
+        protected abstract ITierGeneratedItemData GenerateItemData();
 
+        public void Generate()
+        {
+            ITierGeneratedItemData itemData = GenerateItemData();
+            itemData.SaveAssets();
+        }
+        
+        
         protected string TryCreateContentFolder(string folderName)
         {
             string contentPath = Path.Combine(generationPath, folderName);
@@ -98,7 +109,7 @@ namespace EditorScripts.Tier
                 AssetDatabase.CreateAsset(current,Path.Combine(folder,current.name + ".asset"));
                 string assetPath = AssetDatabase.GetAssetPath(current);
                 string guid = AssetDatabase.AssetPathToGUID(assetPath);
-                EditorHelper.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
+                EditorUtils.AssignAddressablesLabel(guid,new List<AssetLabel> { AssetLabel.Item },AssetGroup.Items);
             }
             TileEntity.Tier tier = TileEntity.Tier.Basic;
             if (tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage) tier = tieredGameStage.Tier;
@@ -108,6 +119,7 @@ namespace EditorScripts.Tier
             current.id = current.name.ToLower().Replace(" ", "_");
             current.SetGameStageObject(tierItemInfoObject.GameStageObject);
             EditorUtility.SetDirty(current);
+            AssetDatabase.SaveAssetIfDirty(current);
             
             GetTierItemRecipes(folder, out ItemRecipeObject workBenchRecipe, out ItemEnergyRecipeObject constructorRecipe);
             switch (recipeGenerationMode)
@@ -202,7 +214,6 @@ namespace EditorScripts.Tier
                 itemRecipeObject.Inputs = inputs;
             }
         }
-
         
 
         protected TileEntityItemGenerationData GenerateDefaultTileEntityItemData<T>(TierGeneratedItemType tierGeneratedItemType, int recipeMode = 0, bool useTierName = false) where T : TileEntityObject
@@ -247,7 +258,7 @@ namespace EditorScripts.Tier
 
         protected EditorItemSlot StateToItem(TransmutableItemState state, uint amount)
         {
-            ItemObject itemObject = EditorHelper.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, state);
+            ItemObject itemObject = EditorUtils.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, state);
             return new EditorItemSlot(itemObject, amount);
         }
         
@@ -265,7 +276,7 @@ namespace EditorScripts.Tier
             TileItem
         }
 
-        protected class ItemGenerationData
+        protected class ItemGenerationData : ITierGeneratedItemData
         {
             public ItemObject ItemObject;
             public ItemRecipeObject WorkBenchRecipeObject;
@@ -275,11 +286,23 @@ namespace EditorScripts.Tier
             {
                 return new RandomEditorItemSlot(ItemObject, amount, chance);
             }
+
+            public void SaveAssets()
+            {
+                EditorUtils.SaveAsset(ItemObject);
+                EditorUtils.SaveAsset(WorkBenchRecipeObject);
+                EditorUtils.SaveAsset(ConstructorRecipeObject);
+            }
         }
-        protected class TileEntityItemGenerationData
+        protected class TileEntityItemGenerationData : ITierGeneratedItemData
         {
             public TileEntityObject TileEntityObject;
             public ItemGenerationData ItemGenerationData;
+            public void SaveAssets()
+            {
+                ItemGenerationData.SaveAssets();
+                EditorUtils.SaveAsset(TileEntityObject);
+            }
         }
     }
 }

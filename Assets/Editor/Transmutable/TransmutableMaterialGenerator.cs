@@ -234,7 +234,7 @@ public class TransmutableItemGenerator : EditorWindow
             
             Debug.Log($"Created '{itemName}'");
             string guid = AssetDatabase.AssetPathToGUID(savePath);
-            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            EditorUtils.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[state] = transmutableItemObject;
         }
         
@@ -288,7 +288,7 @@ public class TransmutableItemGenerator : EditorWindow
             
             Debug.Log($"Created '{itemName}'");
             string guid = AssetDatabase.AssetPathToGUID(savePath);
-            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            EditorUtils.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[state] = transmutableTileItem;
         }
         
@@ -322,7 +322,7 @@ public class TransmutableItemGenerator : EditorWindow
             
             Debug.Log($"Created '{itemName}'");
             string guid = AssetDatabase.AssetPathToGUID(savePath);
-            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            EditorUtils.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[state] = fluidTileItem;
         }
         return;
@@ -472,7 +472,7 @@ public class TransmutableItemGenerator : EditorWindow
             AssetDatabase.SaveAssets();
             string guid = AssetDatabase.AssetPathToGUID(savePath);
             
-            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
+            EditorUtils.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             
         }
 

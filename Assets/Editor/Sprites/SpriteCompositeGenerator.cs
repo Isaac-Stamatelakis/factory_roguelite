@@ -65,7 +65,7 @@ public class SpriteCompositeGenerator : EditorWindow {
                 pixels[index] = overlayColor;
             }
         }
-        string savePath = Path.Combine(EditorHelper.EDITOR_SAVE_PATH,spriteName);
+        string savePath = Path.Combine(EditorUtils.EDITOR_SAVE_PATH,spriteName);
         Sprite sprite = TileSpriteShapeFactory.pixelsToSprite(pixels,savePath,baseSprite.width,baseSprite.height);
 
     }

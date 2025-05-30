@@ -9,6 +9,8 @@ using Tiles;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
 using Tiles.CustomTiles.IdTiles;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 
 namespace HammerTileEditor
 {
@@ -40,7 +42,10 @@ namespace HammerTileEditor
         private List<TextureNamePair> texturePairs = new List<TextureNamePair>();
         private Vector2 scrollPosition;
         private MultiTileType multiType;
+        private string regenerateSafeText;
         private bool multipleTextures;
+        private int foundNatureTileItems;
+        const int APPROX_RUN_TIME_IN_SECONDS = 80;
 
         [MenuItem("Tools/Item Constructors/Tile/Hammer")]
         public static void ShowWindow()
@@ -57,6 +62,7 @@ namespace HammerTileEditor
             {
                 new()
             };
+            foundNatureTileItems = GetTileItemsToRegenerate().Count;
         }
 
         void OnGUI()
@@ -110,9 +116,30 @@ namespace HammerTileEditor
                 {
                     CreateTileItem(texturePair.Texture,texturePair.TileName);
                 }
-                
             }
 
+            
+            
+            
+            GUI.enabled = false;
+            GUILayout.TextArea($"Found {foundNatureTileItems} Tile Items with Nature Tiles. Estimated Regeneration time {foundNatureTileItems * APPROX_RUN_TIME_IN_SECONDS}s");
+            GUILayout.TextArea("Regenerates all tiles for Addressable Non-Ore TileItems with nature tiles. Type 'REGENERATE' into the text field below to proceed");
+            GUI.enabled = true;
+            regenerateSafeText = EditorGUILayout.TextArea(regenerateSafeText);
+            bool match = String.Equals(regenerateSafeText, "REGENERATE");
+            GUI.enabled = match;
+            Color baseColor = GUI.color;
+            
+            GUI.color = !match ? Color.red : Color.green;
+            if (GUILayout.Button("Regenerate Tile Items"))
+            {
+                Regenerate();
+            }
+
+            GUI.color = baseColor;
+
+            GUI.enabled = true;
+            
             if (multipleTextures)
             {
                 GUILayout.Label("Texture-Tile Name Pairs", EditorStyles.boldLabel);
@@ -159,8 +186,6 @@ namespace HammerTileEditor
             }
 
             AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-            AssetDatabase.Refresh();
-
 
             switch (hammerTileType)
             {
@@ -172,13 +197,12 @@ namespace HammerTileEditor
                     break;
 
             }
-            AssetDatabase.Refresh();
         }
 
         private void FormStandard(Texture2D texture, string tileName,string path)
         {
             HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
-            AssignStandardHammerTiles(texture, tileName, hammerTile, path);
+            AssignStandardHammerTiles(texture, tileName, hammerTile, path,null);
             TileItem tileItem = CreateItem(texture, tileName, hammerTile, path);
             tileItem.outline = outlineValues.HammerOutline;
         }
@@ -187,7 +211,6 @@ namespace HammerTileEditor
         {
             string hammerTilePath = Path.Combine(path, "T~" + tileName + ".asset");
             AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
-            AssetDatabase.Refresh();
 #pragma warning disable CS0618 // Type or member is obsolete
             TileItem tileItem = ItemEditorFactory.GeneratedTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -197,23 +220,52 @@ namespace HammerTileEditor
             return tileItem;
         }
 
-        private void AssignStandardHammerTiles(Texture2D texture, string tileName, HammerTile hammerTile, string path)
+        private void AssignStandardHammerTiles(Texture2D texture, string tileName, HammerTile hammerTile, string path, TileBase tileBase)
         {
-            hammerTile.baseTile = GenerateBase(texture, tileName, path);
+            if (!tileBase)
+            {
+                hammerTile.baseTile = GenerateBase(texture, tileName, path);
+            }
+            else
+            {
+                hammerTile.baseTile = tileBase;
+            }
+            
             hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
             hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
             hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs,path, tileName, "stair");
         }
 
-        private void FormNature(Texture2D texture, string tileName, string path)
+        private void FormNature(Texture2D texture, string tileName, string path,TileItem tileItem = null, TileBase baseTile = null)
         {
             NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
-            AssignStandardHammerTiles(texture, tileName, natureTile, path);
-            natureTile.natureSlabs = Array.Empty<Tile>(); // Disabled nature slabs FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
-            natureTile.natureSlabs = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
+            if (tileItem)
+            {
+                string hammerTilePath = Path.Combine(path, "T~" + tileName + ".asset");
+                AssetDatabase.CreateAsset(natureTile, hammerTilePath);
+            }
             
-            TileItem tileItem = CreateItem(texture, tileName, natureTile, path);
-            tileItem.outline = outlineValues.NatureOutline;;
+            AssignStandardHammerTiles(texture, tileName, natureTile, path,baseTile);
+            natureTile.natureSlabs = Array.Empty<Tile>(); // Disabled nature slabs FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
+            natureTile.natureSlants = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
+            
+            EditorUtility.SetDirty(natureTile);
+            AssetDatabase.SaveAssetIfDirty(natureTile);
+            AssetDatabase.Refresh();
+            if (!tileItem)
+            {
+                tileItem = CreateItem(texture, tileName, natureTile, path);
+            }
+            else
+            {
+                tileItem.tile = natureTile;
+            }
+            
+            tileItem.outline = outlineValues.NatureOutline;
+            
+            EditorUtility.SetDirty(tileItem);
+            AssetDatabase.SaveAssetIfDirty(tileItem);
+            AssetDatabase.Refresh();
         }
 
         private Tile[] FormCollection(Texture2D texture, string tileName, string path, string prefix, SpriteRotationCollection[] spriteCollections)
@@ -243,7 +295,6 @@ namespace HammerTileEditor
 
             tile.name = "_base_" + tileName;
             AssetDatabase.CreateAsset(tile,Path.Combine(path,tile.name+".asset"));
-            AssetDatabase.Refresh();
             return tile;
         }
 
@@ -307,11 +358,16 @@ namespace HammerTileEditor
             
             StateRotatableTile stateTile = ScriptableObject.CreateInstance<StateRotatableTile>();
             stateTile.name = "_" + variationName;
-            stateTile.Tiles = tiles;
             string savePath = Path.Combine(variationPath, stateTile.name + ".asset");
+            
             AssetDatabase.CreateAsset(stateTile,savePath);
+            
+            stateTile.Tiles = tiles;
+            EditorUtility.SetDirty(stateTile);
+            AssetDatabase.SaveAssetIfDirty(stateTile);
             AssetDatabase.Refresh();
-            return AssetDatabase.LoadAssetAtPath<StateRotatableTile>(savePath);
+
+            return stateTile;
         }
 
         private static TileBase GenerateTile(Texture2D texture, MultiTileType type, Sprite shapeSprite, string path,
@@ -340,7 +396,9 @@ namespace HammerTileEditor
                     string spritePath = AssetDatabase.GetAssetPath(shapeSprite);
                     string spriteSavePath = Path.Combine(path, "_" + name + "_" + index.ToString() + ".png");
 
+                    AssetDatabase.Refresh();
                     AssetDatabase.CopyAsset(spritePath, spriteSavePath);
+                    AssetDatabase.Refresh();
                     
                     Color[] pixels = texture.GetPixels(width * x, height * y, width, height);
                     Sprite newSprite = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath);
@@ -407,6 +465,122 @@ namespace HammerTileEditor
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+        }
+
+        private void Regenerate()
+        {
+            List<TileItem> tileItems = GetTileItemsToRegenerate();
+            for (var index1 = 0; index1 < tileItems.Count; index1++)
+            {
+                var tileItem = tileItems[index1];
+                string path = AssetDatabase.GetAssetPath(tileItem);
+                string itemFolderPath = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(itemFolderPath)) continue;
+
+                string spriteFolderPath = Path.Combine(itemFolderPath, "Sprites");
+                if (!Directory.Exists(spriteFolderPath))
+                {
+                    Debug.LogWarning(
+                        $"Could not regenerate '{tileItem.name}' at '{path}' as Sprite Folder does not exist");
+                    continue;
+                }
+
+                TileBase baseTile = ((HammerTile)tileItem.tile).baseTile;
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(tileItem.tile));
+                AssetDatabase.Refresh();
+                
+                string[] spriteGuids = AssetDatabase.FindAssets("t:Sprite", new[] { spriteFolderPath });
+                List<Sprite> sprites = new List<Sprite>();
+
+                const int SPRITE_SIZE = 16;
+                for (int i = 0; i < spriteGuids.Length; i++)
+                {
+                    string spritePath = AssetDatabase.GUIDToAssetPath(spriteGuids[i]);
+
+                    Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+                    sprites.Add(sprite);
+                    if (sprite.texture.width != SPRITE_SIZE || sprite.texture.height != SPRITE_SIZE) continue;
+                    TextureImporter importer = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+                    if (!importer) continue;
+                    importer.isReadable = true;
+                    importer.filterMode = FilterMode.Point;
+                    importer.textureCompression =
+                        TextureImporterCompression.Uncompressed; // Optional but avoids compression artifacts
+                    importer.SaveAndReimport();
+                }
+                AssetDatabase.Refresh();
+
+                Texture2D texture = new Texture2D(SPRITE_SIZE, SPRITE_SIZE * sprites.Count);
+                Color[] pixels = new Color[texture.width * texture.height];
+                for (int i = 0; i < sprites.Count; i++)
+                {
+                    Texture2D spriteTex = sprites[i].texture;
+                    Rect rect = sprites[i].rect;
+                    for (int x = 0; x < SPRITE_SIZE; x++)
+                    {
+                        for (int y = 0; y < SPRITE_SIZE; y++)
+                        {
+                            Color color = spriteTex.GetPixel((int)rect.x + x, (int)rect.y + y);
+                            int idx = x;
+                            int idy = i * SPRITE_SIZE + y;
+
+                            int index = idx + SPRITE_SIZE * idy;
+                            pixels[index] = color;
+                        }
+                    }
+                }
+
+                texture.SetPixels(pixels);
+                
+                AssetDatabase.Refresh();
+                foreach (Sprite sprite in sprites)
+                {
+                    string spritePath = AssetDatabase.GetAssetPath(sprite);
+                    TextureImporter importer = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+                    if (!importer) continue;
+                    importer.isReadable = false;
+                    importer.SaveAndReimport();
+                }
+
+                string[] folders = Directory.GetDirectories(itemFolderPath);
+                foreach (string folder in folders)
+                {
+                    if (folder.EndsWith("Sprites")) continue;
+                    AssetDatabase.DeleteAsset(folder);
+                }
+
+                FormNature(texture, tileItem.name, itemFolderPath, tileItem, baseTile);
+                DestroyImmediate(texture);
+            }
+
+            Debug.Log($"Regenerated Nature Tiles of {tileItems.Count} Tile Items");
+        }
+
+        List<TileItem> GetTileItemsToRegenerate()
+        {
+            List<TileItem> tileItems = new List<TileItem>();
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            string[] guids = AssetDatabase.FindAssets("t:" + nameof(TileItem));
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string itemFolderPath = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(itemFolderPath)) continue;
+
+                TileItem tileItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
+                if (!tileItem || tileItem.tileType != TileType.Block) continue;
+                if (tileItem.tile is not NatureTile) continue;
+
+                if (path.StartsWith("Assets/EditorCreations/")) continue;
+                if (path.StartsWith("Assets/Objects/TransmutableItems/")) continue;
+                if (tileItem.gameStage?.name == "ORE") continue;
+
+                AddressableAssetEntry entry = settings.FindAssetEntry(AssetDatabase.AssetPathToGUID(path));
+                if (entry == null) continue;
+
+                tileItems.Add(tileItem);
+            }
+            return tileItems;
         }
     }
     

@@ -53,6 +53,7 @@ namespace Tiles {
             }
             state -= 4;
             if (state < natureSlants.Length) return HammerTileState.Slant;
+           
             state -= natureSlabs.Length;
             if (state < natureSlabs.Length) return HammerTileState.Slab;
             return null;

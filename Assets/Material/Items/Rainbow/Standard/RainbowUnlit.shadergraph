@@ -253,6 +253,9 @@
             "m_Id": "af517336f3e94071ab960c4d1fd0edbf"
         },
         {
+            "m_Id": "b2a60ec6e5c24c8088dee407f5f5f30f"
+        },
+        {
             "m_Id": "00d0848f393c48f1ae342798733e818c"
         },
         {
@@ -268,10 +271,12 @@
     },
     "m_SerializedSubGraph": "{\n    \"subGraph\": {\n        \"fileID\": -5475051401550479605,\n        \"guid\": \"d19f41c00138d7a4284e7b384fae745f\",\n        \"type\": 3\n    }\n}",
     "m_PropertyGuids": [
-        "f6db7f80-3d3b-4405-84e7-89b302841f35"
+        "f6db7f80-3d3b-4405-84e7-89b302841f35",
+        "38b9040d-65ca-4bfe-86f4-6a35a274cfe5"
     ],
     "m_PropertyIds": [
-        877142333
+        877142333,
+        -1545412125
     ],
     "m_Dropdowns": [],
     "m_DropdownSelectedEntries": []
@@ -556,6 +561,27 @@
         "m_Guid": ""
     },
     "m_DefaultType": 0
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
+    "m_ObjectId": "b2a60ec6e5c24c8088dee407f5f5f30f",
+    "m_Id": -1545412125,
+    "m_DisplayName": "WorldPosition",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "_WorldPosition",
+    "m_StageCapability": 2,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "m_Labels": []
 }
 
 {

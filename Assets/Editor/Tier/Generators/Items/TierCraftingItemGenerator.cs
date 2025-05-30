@@ -23,7 +23,7 @@ namespace EditorScripts.Tier.Generators
             this.itemType = itemType;
         }
 
-        public override void Generate()
+        protected override ITierGeneratedItemData GenerateItemData()
         {
             TierCraftingItemGenerationData generationData = GetData();
             
@@ -45,7 +45,7 @@ namespace EditorScripts.Tier.Generators
             
             AssignBasicItemRecipes(recipeOutput,inputs,generationData.TickCount,itemGenerationData);
 
-            return;
+            return itemGenerationData;
             void AddOverlaySprite(Sprite sprite, Color? color)
             {
                 itemObject.SpriteOverlays[index] = new SpriteOverlay
