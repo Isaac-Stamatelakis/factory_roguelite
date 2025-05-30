@@ -35,8 +35,8 @@ public class TransmutableItemGenerator : EditorWindow
     private const string ORE_PATH = "Ores";
     private const string ORE_OVERLAY_NAME = "_Overlay";
     private const string MISC_PATH = "Misc";
-    
-    Tile blockOutline;
+
+    private OutlineValues outlineValues;
     private TransmutableItemState resetState = TransmutableItemState.Block;
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
@@ -45,10 +45,11 @@ public class TransmutableItemGenerator : EditorWindow
         window.titleContent = new GUIContent("Material Item Generator");
     }
 
-    private void OnEnable()
+    public void OnEnable()
     {
-        blockOutline = AssetDatabase.LoadAssetAtPath<Tile>("Assets/Objects/Tiles/PackedTiles/Outline/Square_Outline/Square_Outline.asset");
+         outlineValues = new OutlineValues();
     }
+
 
     void OnGUI()
     {
@@ -254,10 +255,12 @@ public class TransmutableItemGenerator : EditorWindow
             transmutableTileItem.setMaterial(material);
             transmutableTileItem.setState(state);
             transmutableTileItem.gameStage = material.gameStageObject;
-            transmutableTileItem.outline = blockOutline;
             transmutableTileItem.tile = tileStateOptions.tile;
+            transmutableTileItem.outline = outlineValues.FromTile(transmutableTileItem.tile);
+            
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
+            tileOptions.rotatable = true;
 
             if (material.HasShaders)
             {

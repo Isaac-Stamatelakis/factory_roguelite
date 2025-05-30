@@ -20,21 +20,27 @@ namespace HammerTileEditor
 
     public class StandardHammerTileGenerator : EditorWindow
     {
-
-
         internal enum HammerTileType
         {
             Standard,
             Nature
         }
 
+        [System.Serializable]
+        private class TextureNamePair
+        {
+            public Texture2D Texture;
+            public string TileName;
+        }
+
         private HammerTileType hammerTileType;
         private static HammerTileValues hammerTileValues;
         private OutlineValues outlineValues;
         private TileBase natureOutline;
-        private string tileName;
-        private Texture2D texture;
+        private List<TextureNamePair> texturePairs = new List<TextureNamePair>();
+        private Vector2 scrollPosition;
         private MultiTileType multiType;
+        private bool multipleTextures;
 
         [MenuItem("Tools/Item Constructors/Tile/Hammer")]
         public static void ShowWindow()
@@ -47,22 +53,37 @@ namespace HammerTileEditor
         {
             outlineValues ??= new OutlineValues();
             hammerTileValues ??= new HammerTileValues();
+            texturePairs = new List<TextureNamePair>
+            {
+                new()
+            };
         }
 
         void OnGUI()
         {
+            if (!multipleTextures)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.BeginHorizontal();
+                texturePairs[0].Texture = EditorGUILayout.ObjectField("Texture", texturePairs[0].Texture, typeof(Texture2D), true) as Texture2D;
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Tile Name:", GUILayout.Width(100));
+                texturePairs[0].TileName = EditorGUILayout.TextField(texturePairs[0].TileName);
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
+            }
+            
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            texture = EditorGUILayout.ObjectField("Texture", texture, typeof(Texture2D), true) as Texture2D;
+            EditorGUILayout.LabelField("Multiple Textures:", GUILayout.Width(100));
+            multipleTextures = EditorGUILayout.Toggle("Enable Multiple Textures", multipleTextures);
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Tile Name:", GUILayout.Width(100));
-            tileName = EditorGUILayout.TextField(tileName);
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-
+            EditorGUILayout.Space();
+            
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Hammer Type:", GUILayout.Width(100));
@@ -71,7 +92,7 @@ namespace HammerTileEditor
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
-            if (!ReferenceEquals(texture,null) && (texture.width > 16 || texture.height > 16))
+            if (multipleTextures || (!ReferenceEquals(texturePairs[0].Texture,null) && (texturePairs[0].Texture.width > 16 || texturePairs[0].Texture.height > 16)))
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
@@ -85,11 +106,49 @@ namespace HammerTileEditor
 
             if (GUILayout.Button("Generate Tile Item"))
             {
-                createTileItem();
+                foreach (TextureNamePair texturePair in texturePairs)
+                {
+                    CreateTileItem(texturePair.Texture,texturePair.TileName);
+                }
+                
             }
+
+            if (multipleTextures)
+            {
+                GUILayout.Label("Texture-Tile Name Pairs", EditorStyles.boldLabel);
+        
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+                for (int i = 0; i < texturePairs.Count; i++)
+                {
+                    EditorGUILayout.BeginVertical(GUI.skin.box);
+                    texturePairs[i].Texture = (Texture2D)EditorGUILayout.ObjectField(
+                        "Texture", 
+                        texturePairs[i].Texture, 
+                        typeof(Texture2D), 
+                        false);
+                    texturePairs[i].TileName = EditorGUILayout.TextField(
+                        "Tile Name", 
+                        texturePairs[i].TileName);
+                    if (GUILayout.Button("Remove"))
+                    {
+                        if (texturePairs.Count == 1) return;
+                        texturePairs.RemoveAt(i);
+                        i--;
+                    }
+                    EditorGUILayout.EndVertical();
+                    EditorGUILayout.Space();
+                }
+        
+                EditorGUILayout.EndScrollView();
+                if (GUILayout.Button("Add New Pair"))
+                {
+                    texturePairs.Add(new TextureNamePair());
+                }
+            }
+            
         }
 
-        void createTileItem()
+        private void CreateTileItem(Texture2D texture, string tileName)
         {
             string path = Path.Combine("Assets/EditorCreations", tileName);
 
@@ -106,25 +165,25 @@ namespace HammerTileEditor
             switch (hammerTileType)
             {
                 case HammerTileType.Standard:
-                    formStandard(path);
+                    FormStandard(texture, tileName, path);
                     break;
                 case HammerTileType.Nature:
-                    FormNature(path);
+                    FormNature(texture, tileName, path);
                     break;
 
             }
             AssetDatabase.Refresh();
         }
 
-        private void formStandard(string path)
+        private void FormStandard(Texture2D texture, string tileName,string path)
         {
             HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
-            AssignStandardHammerTiles(hammerTile, path);
-            TileItem tileItem = CreateItem(hammerTile, path);
+            AssignStandardHammerTiles(texture, tileName, hammerTile, path);
+            TileItem tileItem = CreateItem(texture, tileName, hammerTile, path);
             tileItem.outline = outlineValues.HammerOutline;
         }
 
-        private TileItem CreateItem(HammerTile hammerTile, string path)
+        private TileItem CreateItem(Texture2D texture, string tileName, HammerTile hammerTile, string path)
         {
             string hammerTilePath = Path.Combine(path, "T~" + tileName + ".asset");
             AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
@@ -138,26 +197,26 @@ namespace HammerTileEditor
             return tileItem;
         }
 
-        private void AssignStandardHammerTiles(HammerTile hammerTile, string path)
+        private void AssignStandardHammerTiles(Texture2D texture, string tileName, HammerTile hammerTile, string path)
         {
-            hammerTile.baseTile = GenerateBase(texture, path);
+            hammerTile.baseTile = GenerateBase(texture, tileName, path);
             hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
             hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
             hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs,path, tileName, "stair");
         }
 
-        private void FormNature(string path)
+        private void FormNature(Texture2D texture, string tileName, string path)
         {
             NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
-            AssignStandardHammerTiles(natureTile, path);
-            natureTile.natureSlabs = FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
-            natureTile.natureSlants = FormCollection(path, "nature_slants", hammerTileValues.NatureSlants);
+            AssignStandardHammerTiles(texture, tileName, natureTile, path);
+            natureTile.natureSlabs = Array.Empty<Tile>(); // Disabled nature slabs FormCollection(path, "nature_slabs", hammerTileValues.NatureSlabs);
+            natureTile.natureSlabs = FormCollection(texture, tileName, path, "nature_slants", hammerTileValues.NatureSlants);
             
-            TileItem tileItem = CreateItem(natureTile, path);
+            TileItem tileItem = CreateItem(texture, tileName, natureTile, path);
             tileItem.outline = outlineValues.NatureOutline;;
         }
 
-        private Tile[] FormCollection(string path, string prefix, SpriteRotationCollection[] spriteCollections)
+        private Tile[] FormCollection(Texture2D texture, string tileName, string path, string prefix, SpriteRotationCollection[] spriteCollections)
         {
             Tile[] tiles = new Tile[hammerTileValues.NatureSlabs.Length];
             string collectionPath = Path.Combine(path, prefix);
@@ -170,7 +229,7 @@ namespace HammerTileEditor
             return tiles;
         }
 
-        private TileBase GenerateBase(Texture2D texture, string path)
+        private TileBase GenerateBase(Texture2D texture, string tileName, string path)
         {
             int width = texture.width / 16;
             int height = texture.height / 16;
@@ -180,7 +239,7 @@ namespace HammerTileEditor
             }
             
             Sprite[] sprites = EditorFactory.spritesFromTexture(texture, path, tileName, 16, 16);
-            TileBase tile = GetTileFromSprites(sprites);
+            TileBase tile = GetTileFromSprites(tileName, sprites);
 
             tile.name = "_base_" + tileName;
             AssetDatabase.CreateAsset(tile,Path.Combine(path,tile.name+".asset"));
@@ -188,7 +247,7 @@ namespace HammerTileEditor
             return tile;
         }
 
-        private TileBase GetTileFromSprites(Sprite[] sprites)
+        private TileBase GetTileFromSprites(string tileName, Sprite[] sprites)
         {
             // This function probably already exists somewhere else
             if (sprites.Length == 1)

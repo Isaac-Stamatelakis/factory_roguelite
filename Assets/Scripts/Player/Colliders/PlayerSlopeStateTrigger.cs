@@ -52,14 +52,13 @@ namespace Player.Movement
             if (tileItem?.tile is not HammerTile hammerTile) return false;
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
-            return hammerTileState is HammerTileState.Slant;
+            return hammerTileState is HammerTileState.Slant or HammerTileState.Stair;
         }
 
         public void OnTriggerExit2D(Collider2D other)
         {
             cachedTileItem = null;
             playerRobot.RemoveCollisionState(CollisionState.OnSlope);
-            
         }
     }
 }

@@ -66,14 +66,15 @@ namespace Player.Movement.Standard
     {
         public void OnSlopeExit();
     }
+    
 
     public interface IOnTeleportMovementListener
     {
         public void OnTeleport();
     }
     
-    public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener, IOnWallCollisionMovementListener, IOnSlopeCollisionMovementListener, IOnFluidCollisionMovementListener
-    , IOnSlopeExitMovementListener, IOnTeleportMovementListener
+    public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener, IOnWallCollisionMovementListener, IOnFluidCollisionMovementListener
+    , IOnSlopeExitMovementListener, IOnTeleportMovementListener, IOnSlopeCollisionMovementListener
     {
         private readonly DirectionalMovementStats movementStats;
         private readonly JumpMovementStats jumpStats;
@@ -92,11 +93,11 @@ namespace Player.Movement.Standard
         private PlayerScript playerScript;
 
         private float fallTime;
-        private int highDragFrames;
         private int coyoteFrames;
         private bool freezeY;
         private int slipperyFrames;
         private bool immuneToNextFall = false;
+        private bool highSlopeGravity;
 
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
@@ -219,13 +220,11 @@ namespace Player.Movement.Standard
         {
             coyoteFrames--;
             slipperyFrames--;
-            highDragFrames--;
 
             if (playerScript.InputActions.ConstantMovement.TryClimb.IsPressed()) // This has to be seperated from standard input movement so holding up/down and going through platforms doesn't cancel when switching between states
             {
                 if (TryStartClimbing()) return;
             }
-            if (highDragFrames == 0) rb.drag = playerRobot.DefaultLinearDrag;
                 
             playerRobot.PlatformCollider.enabled = playerRobot.IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
             bool ignoreSlopedPlatforms = HoldingDown && playerRobot.CollisionStateActive(CollisionState.OnPlatform);
@@ -524,9 +523,14 @@ namespace Player.Movement.Standard
                 }
                 else
                 {
-                    rb.gravityScale = fluidGravityModifer * playerRobot.DefaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer * GetCurrentGravity();
                 }
             }
+        }
+
+        private float GetCurrentGravity()
+        {
+            return highSlopeGravity ? 5 * playerRobot.DefaultGravityScale : playerRobot.DefaultGravityScale;
         }
 
 
@@ -596,7 +600,6 @@ namespace Player.Movement.Standard
             rb.velocity = vector2;
 
             coyoteFrames = 0;
-            rb.drag = playerRobot.DefaultLinearDrag;
             fallTime = 0;
             slipperyFrames /= 2;
             playerRobot.OnJump();
@@ -645,13 +648,7 @@ namespace Player.Movement.Standard
         {
             slipperyFrames = 0;
         }
-
-        public void OnSlopeCollision()
-        {
-            float bonusSpeed = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-            rb.drag = movementStats.defaultDragOnSlope + bonusSpeed*movementStats.speedUpgradeDragIncrease;
-            highDragFrames = int.MaxValue;
-        }
+        
 
         public void OnFluidCollision()
         {
@@ -660,7 +657,10 @@ namespace Player.Movement.Standard
 
         public void OnSlopeExit()
         {
-            highDragFrames = 3;
+            if (holdingJump) return;
+            var vector2 = rb.velocity;
+            vector2.y = 0;
+            rb.velocity = vector2;
         }
 
         public void OnTeleport()
@@ -686,6 +686,11 @@ namespace Player.Movement.Standard
                     rocketBoots = null;
                     break;
             }
+        }
+
+        public void OnSlopeCollision()
+        {
+            highSlopeGravity = true;
         }
     }
 }
