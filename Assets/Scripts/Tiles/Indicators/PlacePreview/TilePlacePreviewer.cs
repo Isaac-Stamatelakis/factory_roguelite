@@ -119,6 +119,11 @@ namespace TileMaps.Previewer {
             }
             else if (itemObject is TileItem tileItem)
             {
+                var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
+                if (transmutableMaterial && transmutableMaterial.HasShaders)
+                {
+                    tilemapRenderer.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterial);
+                }
                 if (tileItem.tile is PlatformStateTile)
                 {
                     placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, position);
@@ -268,8 +273,8 @@ namespace TileMaps.Previewer {
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
-            
-            
+
+           
             bool rotatable = tileItem.tileOptions.rotatable;
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
             SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
@@ -302,9 +307,7 @@ namespace TileMaps.Previewer {
 
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {
-            if (tileBase is IStateTileSingle stateTile) {
-                tileBase = stateTile.GetTileAtState(autoState);
-            }
+            TileBase placementTileBase = tileBase is IStateTileSingle stateTile ? stateTile.GetTileAtState(autoState) : tileBase;
             
             if (!rotatable)
             {
@@ -327,14 +330,14 @@ namespace TileMaps.Previewer {
             {
                 rotation = (int)tileRotation;   
             }
-
-            if (tileBase is IStateRotationTile stateRotationTile)
+            
+            if (placementTileBase is IStateRotationTile stateRotationTile)
             {
                 placementTilemap.SetTile(placePosition,stateRotationTile.getTile(rotation,false));
             }
             else
             {
-                TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
+                TilePlaceUtils.RotateTileInMap(placementTilemap, placementTileBase, placePosition,rotation,false);
             }
         }
         
