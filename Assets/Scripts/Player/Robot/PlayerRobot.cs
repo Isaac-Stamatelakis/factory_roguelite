@@ -261,7 +261,7 @@ namespace Player {
             if (state is CollisionState.OnGround or CollisionState.OnSlope)
             {
                 // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
-                LiveYUpdates = 2;
+                LiveYUpdates = 1;
                 var vector2 = rb.velocity;
                 vector2.y = 0.005f;
                 rb.velocity = vector2;
@@ -848,7 +848,7 @@ namespace Player {
 
         public void ResetIgnoreSlopePlatformFrames()
         {
-            IgnoreSlopePlatformFrames = 12;
+            IgnoreSlopePlatformFrames = 10;
         }
 
         public void SetLiveY(int frames)

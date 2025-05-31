@@ -46,6 +46,7 @@ namespace Items {
     public class SpriteOverlay
     {
         public Color Color = Color.white;
+        public Material Material;
         public Sprite Sprite;
     }
 }

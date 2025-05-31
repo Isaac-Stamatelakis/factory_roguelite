@@ -4,6 +4,7 @@ using Item.Transmutation;
 using Item.Transmutation.Items;
 using Tiles.Fluid;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Items.Transmutable
@@ -41,7 +42,8 @@ namespace Items.Transmutable
     public class TransmutableFluidTileOptions
     {
         public TransmutableFluidItemState state;
-        public FluidTile tile;
+        public FluidTile packedTile;
+        public FluidTile unpackedTile;
         public float opacity = 1;
         public float damage;
         public int viscosity = 5;

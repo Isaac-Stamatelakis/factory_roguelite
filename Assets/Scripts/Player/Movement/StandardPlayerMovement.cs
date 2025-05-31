@@ -511,7 +511,7 @@ namespace Player.Movement.Standard
             const float BONUS_FALL_MODIFIER = 1.25f;
             if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
 
-            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery && playerRobot.IgnoreSlopePlatformFrames < 0)
+            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery && playerRobot.IgnoreSlopePlatformFrames < 0 && !playerRobot.CollisionStateActive(CollisionState.OnPlatform))
             {
                 if (slopeState.Value == Direction.Left)
                 {

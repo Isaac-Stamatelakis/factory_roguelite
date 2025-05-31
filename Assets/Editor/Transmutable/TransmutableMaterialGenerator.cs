@@ -305,10 +305,11 @@ public class TransmutableItemGenerator : EditorWindow
             TransmutableFluidTileItemObject fluidTileItem = CreateInstance<TransmutableFluidTileItemObject>();
             fluidTileItem.name = itemName;
             fluidTileItem.id = id;
-            fluidTileItem.fluidTile = fluidStateOptions.tile;
+            fluidTileItem.fluidTile = material.HasShaders ? fluidStateOptions.unpackedTile : fluidStateOptions.packedTile;
             fluidTileItem.setMaterial(material);
             fluidTileItem.setState(state);
             fluidTileItem.GameStageObject = material.gameStageObject;
+            
             FluidOptions fluidOptions = new FluidOptions();
             fluidOptions.MaterialColorOverride = material;
             fluidOptions.viscosity = fluidStateOptions.viscosity;

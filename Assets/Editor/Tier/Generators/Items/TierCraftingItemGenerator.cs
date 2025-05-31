@@ -33,9 +33,9 @@ namespace EditorScripts.Tier.Generators
             itemObject.SpriteOverlays = new SpriteOverlay[overlayCount];
             
             int index = 0;
-            if (generationData.PrimaryMaterialSprite) AddOverlaySprite( generationData.PrimaryMaterialSprite, tierItemInfoObject.PrimaryMaterial?.color);
-            if (generationData.SecondaryMaterialSprite) AddOverlaySprite( generationData.SecondaryMaterialSprite, tierItemInfoObject.SecondaryMaterial?.color);
-            if (generationData.StaticSprite) AddOverlaySprite(generationData.StaticSprite,Color.white);
+            if (generationData.PrimaryMaterialSprite) AddOverlaySprite(generationData.PrimaryMaterialSprite, tierItemInfoObject.PrimaryMaterial);
+            if (generationData.SecondaryMaterialSprite) AddOverlaySprite( generationData.SecondaryMaterialSprite, tierItemInfoObject.SecondaryMaterial);
+            if (generationData.StaticSprite) AddOverlaySprite(generationData.StaticSprite,null);
             
             RandomEditorItemSlot recipeOutput = itemGenerationData.ToRandomEditorSlot(generationData.OutputAmount);
             TileEntity.Tier tier = tierItemInfoObject.GameStageObject is TieredGameStage tieredGameStage ? tieredGameStage.Tier : 0;
@@ -46,12 +46,14 @@ namespace EditorScripts.Tier.Generators
             AssignBasicItemRecipes(recipeOutput,inputs,generationData.TickCount,itemGenerationData);
 
             return itemGenerationData;
-            void AddOverlaySprite(Sprite sprite, Color? color)
+            void AddOverlaySprite(Sprite sprite, TransmutableItemMaterial itemMaterial)
             {
                 itemObject.SpriteOverlays[index] = new SpriteOverlay
                 {
-                    Color = color ?? Color.white,
-                    Sprite = sprite
+                    Color = itemMaterial?.color ?? Color.white,
+                    Material = itemMaterial?.GetShaderPair()?.UIMaterial,
+                    Sprite = sprite,
+                    
                 };
                 index++;
             }
