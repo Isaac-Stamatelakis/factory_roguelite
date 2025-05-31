@@ -848,7 +848,7 @@ namespace Player {
 
         public void ResetIgnoreSlopePlatformFrames()
         {
-            IgnoreSlopePlatformFrames = 12;
+            IgnoreSlopePlatformFrames = 10;
         }
 
         public void SetLiveY(int frames)
