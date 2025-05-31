@@ -76,7 +76,7 @@ namespace UI.Indicators.General
             }
             
             Display();
-            
+            playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
 
             return;
             void UpdateState()

@@ -266,7 +266,7 @@ namespace TileMaps.Previewer {
             }
 
         }
-
+        
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
@@ -391,6 +391,12 @@ namespace TileMaps.Previewer {
             }
             
             return new MultiMapPlacementRecord(itemObject.id, tilemap, unhighlightedTileMap, position, placePositions);
+        }
+
+        public void ClearPlacementRecord()
+        {
+            placementRecord?.Clear();
+            placementRecord = null;
         }
         
         
