@@ -155,7 +155,13 @@ namespace Player.Movement.Standard
             {
                 slopeState = slopeDetector.CurrentSlopeDirection;
                 CollisionState collisionState = slopeDetector.CollisionState;
+                Debug.Log(collisionState);
                 playerRobot.AddCollisionState(collisionState);
+            }
+            else
+            {
+                CollisionState collisionState = slopeDetector.CollisionState;
+                playerRobot.RemoveCollisionState(collisionState);
             }
             
             Vector2 velocity = rb.velocity;
@@ -531,8 +537,10 @@ namespace Player.Movement.Standard
                 {
                     walkingDownSlope = inputDir > 0;
                 }
+
+                float value = walkingDownSlope ? 1.05f : 1f;
                 int dir = walkingDownSlope ? -1 : 1;
-                velocity.y = dir*Mathf.Abs(velocity.x);
+                velocity.y = value*dir*Mathf.Abs(velocity.x);
             }
             return;
 
@@ -738,23 +746,46 @@ namespace Player.Movement.Standard
             public Direction CurrentSlopeDirection { get; private set; }
             public CollisionState CollisionState { get; private set; }
             private float offset;
-            private int layer;
+            private int blockLayer;
             private float yOffset;
-            private CollisionState collisionState;
+            private float xOffset;
 
             public PlayerAdjacentSlopeDetector(PlayerRobot playerRobot)
             {
                 this.playerRobot = playerRobot;
-                layer = 1 << LayerMask.NameToLayer("Block");
-                yOffset = playerRobot.GetComponent<SpriteRenderer>().bounds.extents.y;
+                blockLayer = 1 << LayerMask.NameToLayer("Block");
+                SpriteRenderer spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
+                yOffset = -spriteRenderer.bounds.extents.y*0.9f;
+                xOffset = spriteRenderer.bounds.extents.x*0.9f;
             }
 
             
             public bool CastUpdate()
             {
-                var collider = Physics2D.Raycast((Vector2)playerRobot.transform.position+ Vector2.down*yOffset, Vector2.down, 0.3f,layer).collider;
-                return collider && OnCollision(collider);
+                const float DISTANCE = 0.2f;
+                var leftCollider = Physics2D.Raycast((Vector2)playerRobot.transform.position +new Vector2(-xOffset,yOffset), Vector2.down, DISTANCE,blockLayer).collider;
+                var rightCollider = Physics2D.Raycast((Vector2)playerRobot.transform.position +new Vector2(xOffset,yOffset), Vector2.down, DISTANCE,blockLayer).collider;
+                if (leftCollider && rightCollider) return false;
+                if (leftCollider)
+                {
+                    CurrentSlopeDirection = Direction.Right;
+                    CollisionState = leftCollider.gameObject.layer == LayerMask.NameToLayer("Block")
+                        ? CollisionState.OnSlope
+                        : CollisionState.OnLeftSlopePlatform;
+                    return true;
+                }
+                
+                if (rightCollider)
+                {
+                    CurrentSlopeDirection = Direction.Left;
+                    CollisionState = rightCollider.gameObject.layer == LayerMask.NameToLayer("Block")
+                        ? CollisionState.OnSlope
+                        : CollisionState.OnRightSlopePlatform;
+                    return true;
+                }
+                return false;
             }
+            
             
             bool OnCollision(Collider2D other)
             {
@@ -765,7 +796,12 @@ namespace Player.Movement.Standard
                 if (tileItem?.tile is not HammerTile hammerTile) return false;
                 BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
                 HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
-                CurrentSlopeDirection = baseTileData.rotation == 0 ? Direction.Left : Direction.Right;
+                Direction newDirection = baseTileData.rotation == 0 ? Direction.Left : Direction.Right;
+                if (newDirection != CurrentSlopeDirection)
+                {
+                    Debug.Log("Direction change");
+                }
+                CurrentSlopeDirection = newDirection;
                 CollisionState = CollisionState.OnSlope;
                 return hammerTileState is not HammerTileState.Solid and not HammerTileState.Slab;
             }
