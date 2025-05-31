@@ -110,8 +110,6 @@ namespace Player.Movement.Standard
         private bool walkingDownSlope;
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
-        private PlayerAdjacentSlopeDetector slopeDetector;
-
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
@@ -124,7 +122,6 @@ namespace Player.Movement.Standard
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             ToggleRocketBoots(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots) > 0);
 
-            slopeDetector = new PlayerAdjacentSlopeDetector(playerRobot);
             inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
             var playerMovementInput = inputActions.StandardMovement;
             
@@ -151,18 +148,7 @@ namespace Player.Movement.Standard
             {
                 coyoteFrames = jumpStats.coyoteFrames;
             }
-            if (slopeDetector.CastUpdate())
-            {
-                slopeState = slopeDetector.CurrentSlopeDirection;
-                CollisionState collisionState = slopeDetector.CollisionState;
-                Debug.Log(collisionState);
-                playerRobot.AddCollisionState(collisionState);
-            }
-            else
-            {
-                CollisionState collisionState = slopeDetector.CollisionState;
-                playerRobot.RemoveCollisionState(collisionState);
-            }
+            
             
             Vector2 velocity = rb.velocity;
 
@@ -538,9 +524,9 @@ namespace Player.Movement.Standard
                     walkingDownSlope = inputDir > 0;
                 }
 
-                float value = walkingDownSlope ? 1.05f : 1f;
-                int dir = walkingDownSlope ? -1 : 1;
-                velocity.y = value*dir*Mathf.Abs(velocity.x);
+                float bonusDownwardsSpeed = Mathf.Abs(velocity.x) / 150;
+                float dir = walkingDownSlope ? -(1+bonusDownwardsSpeed) : (1-bonusDownwardsSpeed);
+                velocity.y = dir*Mathf.Abs(velocity.x);
             }
             return;
 
@@ -739,72 +725,6 @@ namespace Player.Movement.Standard
         {
             slopeState = slopeDirection;
         }
-
-        private class PlayerAdjacentSlopeDetector
-        {
-            private PlayerRobot playerRobot;
-            public Direction CurrentSlopeDirection { get; private set; }
-            public CollisionState CollisionState { get; private set; }
-            private float offset;
-            private int blockLayer;
-            private float yOffset;
-            private float xOffset;
-
-            public PlayerAdjacentSlopeDetector(PlayerRobot playerRobot)
-            {
-                this.playerRobot = playerRobot;
-                blockLayer = 1 << LayerMask.NameToLayer("Block");
-                SpriteRenderer spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
-                yOffset = -spriteRenderer.bounds.extents.y*0.9f;
-                xOffset = spriteRenderer.bounds.extents.x*0.9f;
-            }
-
-            
-            public bool CastUpdate()
-            {
-                const float DISTANCE = 0.2f;
-                var leftCollider = Physics2D.Raycast((Vector2)playerRobot.transform.position +new Vector2(-xOffset,yOffset), Vector2.down, DISTANCE,blockLayer).collider;
-                var rightCollider = Physics2D.Raycast((Vector2)playerRobot.transform.position +new Vector2(xOffset,yOffset), Vector2.down, DISTANCE,blockLayer).collider;
-                if (leftCollider && rightCollider) return false;
-                if (leftCollider)
-                {
-                    CurrentSlopeDirection = Direction.Right;
-                    CollisionState = leftCollider.gameObject.layer == LayerMask.NameToLayer("Block")
-                        ? CollisionState.OnSlope
-                        : CollisionState.OnLeftSlopePlatform;
-                    return true;
-                }
-                
-                if (rightCollider)
-                {
-                    CurrentSlopeDirection = Direction.Left;
-                    CollisionState = rightCollider.gameObject.layer == LayerMask.NameToLayer("Block")
-                        ? CollisionState.OnSlope
-                        : CollisionState.OnRightSlopePlatform;
-                    return true;
-                }
-                return false;
-            }
-            
-            
-            bool OnCollision(Collider2D other)
-            {
-                Vector2Int cellPosition = Global.GetCellPositionFromWorld(other.ClosestPoint(playerRobot.transform.position));
-                ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
-                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
-                TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);
-                if (tileItem?.tile is not HammerTile hammerTile) return false;
-                BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-                HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
-                Direction newDirection = baseTileData.rotation == 0 ? Direction.Left : Direction.Right;
-                if (newDirection != CurrentSlopeDirection)
-                {
-                    Debug.Log("Direction change");
-                }
-                CurrentSlopeDirection = newDirection;
-                CollisionState = CollisionState.OnSlope;
-                return hammerTileState is not HammerTileState.Solid and not HammerTileState.Slab;
-            }
-        }
+        
     }
 }

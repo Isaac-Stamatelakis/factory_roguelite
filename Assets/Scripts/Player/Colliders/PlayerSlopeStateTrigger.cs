@@ -13,20 +13,33 @@ namespace Player.Movement
     {
         private PlayerRobot playerRobot;
         private Direction currentSlopeDirection;
+        private Vector2 defaultSize;
+        private BoxCollider2D boxCollider;
+        
+        private Rigidbody2D rb;
       
         public void Start()
         {
             playerRobot = transform.parent.GetComponentInParent<PlayerRobot>();
+            rb = playerRobot.GetComponent<Rigidbody2D>();
+            boxCollider = GetComponent<BoxCollider2D>();
+            defaultSize = boxCollider.size;
+        }
+
+        public void Update()
+        {
+            Vector2 bonusSize = Mathf.Abs(rb.velocity.x) * new Vector2(0.01f, 0.05f);
+            boxCollider.size = defaultSize + bonusSize;
         }
 
         public void OnTriggerEnter2D(Collider2D other)
         {
-            //SlopeUpdate(other);
+            SlopeUpdate(other);
         }
 
         public void OnTriggerStay2D(Collider2D other)
         {
-            //SlopeUpdate(other);
+            SlopeUpdate(other);
         }
 
         private void SlopeUpdate(Collider2D other)
