@@ -35,7 +35,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             int loads = 0;
             for (int i = data.entityData.Count - 1; i >= 0; i--)
             {
-                //if (i >= data.entityData.Count) yield break;
                 SeralizedEntityData entityData = data.entityData[i];
                 Vector2 entityPosition = new Vector2(entityData.x, entityData.y);
                 switch (entityData.type)
@@ -51,7 +50,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                //if (!loaded) yield break;
                 data.entityData.RemoveAt(i);
                 loads++;
                 if (loads >= ENTITY_LOAD_PER_UPDATE)
@@ -97,7 +95,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        protected virtual bool UnloadTileEntity(int x, int y) {
+        protected bool UnloadTileEntity(int x, int y) {
             Vector2Int vector = new Vector2Int(x, y);
             if (!tileEntities.TryGetValue(vector, out ITileEntityInstance tileEntityInstance)) return false;
             if (tileEntityInstance == null) {
@@ -204,7 +202,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             return stateLayerTile.GetTileType(data.baseData.sTileOptions[x,y]?.state ?? 0);
         }
 
-        protected virtual void PlaceTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition)
+        private void PlaceTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition)
         {
             tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance softLoaded);
             if (softLoaded != null) {
@@ -214,8 +212,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 }
                 return;
             }
-            Vector2Int position = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,options);
+            Vector2Int chunkPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
+            tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,chunkPosition,parent,true,true,options);
         }
 
         public override TileItem GetTileItem(Vector2Int positionInPartition, TileMapLayer layer)
@@ -302,60 +300,5 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 ? null 
                 : new FluidCell(fluidTileItem, fillValue, bitMap, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition,displayable);
         }
-        
-        
-        /*
-
-        public override void LoadFarLoadTileEntities()
-        {
-            if (tileEntities == null || farLoaded) {
-                return;
-            }
-            Debug.Log("Far Loading");
-            farLoaded = true;
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            string[,] baseIdArray = data.baseData.ids;
-            string[,] tileEntityDataArray = data.baseData.sTileEntityOptions;
-            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
-                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
-                    Vector2Int positionInPartition = new Vector2Int(x, y);
-                    if (tileEntities.ContainsKey(positionInPartition)) {
-                        continue;
-                    }
-                    string id = baseIdArray[x,y];
-                    if (id == null) {
-                        continue;
-                    }
-                    TileItem tileItem = itemRegistry.GetTileItem(id);
-                    TileEntityObject tileEntity = tileItem?.tileEntity;
-                    if (tileEntity is not { ExtraLoadRange: true }) continue;
-                    
-                    string tileEntityData = tileEntityDataArray[x,y];
-                    Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x,y);
-                    tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,true,true,tileEntityData);
-                }
-            }
-        }
-
-        public override void UnloadFarLoadTileEntities()
-        {
-            if (tileEntities == null || !farLoaded) {
-                return;
-            }
-            farLoaded = false;
-            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
-                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
-                    if (!tileEntities.TryGetValue(new Vector2Int(x,y), out ITileEntityInstance tileEntityInstance)) continue;
-                    if (tileEntityInstance is null or ISoftLoadableTileEntity) {
-                        continue;
-                    }
-                    TileEntityObject tileEntity = tileEntityInstance.GetTileEntity();
-                    if (tileEntity.ExtraLoadRange) {
-                        UnloadTileEntity(x,y);
-                    }
-                }
-            }
-        }
-        */
     }
 }

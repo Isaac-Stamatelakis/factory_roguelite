@@ -131,7 +131,7 @@ namespace Chunks.Partitions {
                 0f, 
                 Vector2.zero, 
                 Mathf.Infinity, 
-                1 << LayerMask.NameToLayer("Entity")
+                1 << LayerMask.NameToLayer("Entity") | 1 << LayerMask.NameToLayer("ItemEntity")
             );
             data.entityData ??= new List<SeralizedEntityData>();
             foreach (RaycastHit2D hit in hits) {
