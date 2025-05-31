@@ -567,7 +567,7 @@ namespace TileMaps.Place {
 
        
         /// <summary>
-        /// raycasts a given position in a 0.5f, 0.5f box.
+        /// raycasts a given position in a 0.5f, 0.5f box. Returns true if a tile is in it
         /// </summary>
         public static bool RaycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
         {
@@ -575,8 +575,12 @@ namespace TileMaps.Place {
             if (ReferenceEquals(collider,null)) return false;
             if (ignorePlaceBreakable) return true;
             WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();
+            if (!tileMap)
+            {
+                tileMap = collider.GetComponentInParent<WorldTileMap>();
+            }
             TileItem tile = tileMap?.GetTileItem(position);
-            if (!tile) return true; // Return true here since only 16x16 tiles should ever be placebreakable. 
+            if (!tile) return false;
             return !tile.tileOptions.placeBreakable;
         }
 

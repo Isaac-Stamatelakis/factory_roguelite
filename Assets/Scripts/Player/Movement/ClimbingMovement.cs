@@ -14,7 +14,7 @@ namespace Player.Movement
     {
         private Rigidbody2D rb;
         private InputActions.LadderMovementActions movementActions;
-
+        private InputActions inputActions;
         private float movementDirection;
         // Start is called before the first frame update
         public ClimbingMovement(PlayerRobot playerRobot) : base(playerRobot)
@@ -24,11 +24,14 @@ namespace Player.Movement
             rb.gravityScale = 0;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX |  RigidbodyConstraints2D.FreezeRotation;
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
-            
-            movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.LadderMovement;
+
+            inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
+            movementActions = inputActions.LadderMovement;
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
-            movementActions.HorizontalEscape.performed += OnEscapeHorizontalPress;
+            inputActions.ConstantMovement.MoveHorizontal.performed += OnEscapeHorizontalPress;
+            inputActions.ConstantMovement.Teleport.performed += OnEscapeHorizontalPress;
+            
             movementActions.JumpEscape.performed += OnEscapeVerticalPress;
             
             movementActions.Enable();
@@ -46,7 +49,7 @@ namespace Player.Movement
 
         private void OnEscapeHorizontalPress(InputAction.CallbackContext context)
         {
-            playerRobot.SetStandardMovementWithSpeed(context.ReadValue<float>());
+            playerRobot.SetMovementState(PlayerMovementState.Standard);
             playerRobot.BlockClimbingFrames = 5;
         }
 
@@ -98,8 +101,9 @@ namespace Player.Movement
         {
             movementActions.Move.performed -= OnMovePress;
             movementActions.Move.canceled -= OnMoveRelease;
-            movementActions.HorizontalEscape.performed -= OnEscapeHorizontalPress;
+            inputActions.ConstantMovement.MoveHorizontal.performed -= OnEscapeHorizontalPress;
             movementActions.JumpEscape.performed -= OnEscapeVerticalPress;
+            inputActions.ConstantMovement.Teleport.performed -= OnEscapeHorizontalPress;
             movementActions.Disable();
         }
 

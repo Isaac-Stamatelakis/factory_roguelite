@@ -190,13 +190,6 @@ namespace Player {
             currentMovement = GetMovementHandler(movementState);
         }
 
-        public void SetStandardMovementWithSpeed(float initial)
-        {
-            SetMovementState(PlayerMovementState.Standard);
-            ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
-        }
-        
-
         private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
         {
             switch (state)
@@ -287,12 +280,7 @@ namespace Player {
             {
                 wallListener.OnWallCollision();
             }
-
-            if (state is CollisionState.OnSlope && currentMovement is IOnSlopeCollisionMovementListener slopeListener)
-            {
-                slopeListener.OnSlopeCollision();
-            }
-
+            
             if (state is CollisionState.InFluid)
             {
                 if (currentMovement is IOnFluidCollisionMovementListener fluidListener)
@@ -305,6 +293,13 @@ namespace Player {
             }
         }
 
+        public void OnSlopeAddUpdate(Direction slopeDirection)
+        {
+            if (currentMovement is IOnSlopeCollisionMovementListener slopeListener)
+            {
+                slopeListener.OnSlopeCollision(slopeDirection);
+            }
+        }
         
         public void FaceMousePosition(Vector2 mousePosition)
         {
@@ -369,6 +364,13 @@ namespace Player {
             }
         }
 
+        public void OnSlopeStay(Direction slopeDirection)
+        {
+            if (currentMovement is IOnSlopeStayMovementListener slopeListener)
+            {
+                slopeListener.OnSlopeStay(slopeDirection);
+            }
+        }
         public bool IsMoving()
         {
             return rb.velocity.magnitude > 0.1f;

@@ -97,6 +97,18 @@ namespace Player.Movement
             }
             
             playerRobot.AddCollisionState(collisionState);
+            playerRobot.OnSlopeAddUpdate(GetDirectionFromRotation(SlopeDirection));
+        }
+
+        private Direction GetDirectionFromRotation(SlopeRotation slope)
+        {
+            // Yep they are reversed for some reason
+            return slope switch
+            {
+                SlopeRotation.Left => Direction.Right,
+                SlopeRotation.Right => Direction.Left,
+                _ => throw new ArgumentOutOfRangeException(nameof(slope), slope, null)
+            };
         }
 
         public void OnTriggerExit2D(Collider2D other)

@@ -1,3 +1,4 @@
+using System;
 using Chunks;
 using Dimensions;
 using Player.Controls;
@@ -9,6 +10,7 @@ using Robot.Upgrades.LoadOut;
 using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
+using Tiles;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -59,12 +61,17 @@ namespace Player.Movement.Standard
     
     public interface IOnSlopeCollisionMovementListener
     {
-        public void OnSlopeCollision();
+        public void OnSlopeCollision(Direction slopeDirection);
     }
     
     public interface IOnSlopeExitMovementListener
     {
         public void OnSlopeExit();
+    }
+
+    public interface IOnSlopeStayMovementListener
+    {
+        public void OnSlopeStay(Direction slopeDirection);
     }
     
 
@@ -74,7 +81,7 @@ namespace Player.Movement.Standard
     }
     
     public class StandardPlayerMovement : BasePlayerMovement, IMovementGroundedListener, IOnWallCollisionMovementListener, IOnFluidCollisionMovementListener
-    , IOnSlopeExitMovementListener, IOnTeleportMovementListener, IOnSlopeCollisionMovementListener
+    , IOnSlopeExitMovementListener, IOnTeleportMovementListener, IOnSlopeCollisionMovementListener, IOnSlopeStayMovementListener
     {
         private readonly DirectionalMovementStats movementStats;
         private readonly JumpMovementStats jumpStats;
@@ -97,11 +104,12 @@ namespace Player.Movement.Standard
         private bool freezeY;
         private int slipperyFrames;
         private bool immuneToNextFall = false;
-        private bool highSlopeGravity;
+        private int slopeFrames = 0;
+        private Direction? slopeState;
 
+        private bool walkingDownSlope;
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
-
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
@@ -117,25 +125,29 @@ namespace Player.Movement.Standard
             inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
             var playerMovementInput = inputActions.StandardMovement;
             
-            playerMovementInput.Move.performed += OnMovePerformed;
-            playerMovementInput.Move.canceled += OnMoveCancelled;
-            
             playerMovementInput.Jump.performed += OnJumpPressed;
             playerMovementInput.Jump.canceled += OnJumpReleased;
-            
-            inputActions.ConstantMovement.Down.performed += OnDownPressed;
-            inputActions.ConstantMovement.Down.canceled += OnDownReleased;
-            holdingDown = inputActions.ConstantMovement.Down.IsPressed();
             playerMovementInput.Enable();
-        }
-
-        public void SetInputDir(float value)
-        {
-            inputDir = value;
+            
+            var constantMovementActions = inputActions.ConstantMovement;
+            constantMovementActions.MoveHorizontal.performed += OnMovePerformed;
+            constantMovementActions.MoveHorizontal.canceled += OnMoveCancelled;
+            
+            constantMovementActions.Down.performed += OnDownPressed;
+            constantMovementActions.Down.canceled += OnDownReleased;
+            
+            holdingDown = constantMovementActions.Down.IsPressed();
+            inputDir = constantMovementActions.MoveHorizontal.ReadValue<float>();
         }
         
         public override void MovementUpdate()
         {
+            if (playerRobot.IsGrounded())
+            {
+                coyoteFrames = jumpStats.coyoteFrames;
+            }
+            
+            
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
@@ -152,6 +164,7 @@ namespace Player.Movement.Standard
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+            
 
             void UpdateMovementAnimations()
             {
@@ -220,12 +233,17 @@ namespace Player.Movement.Standard
         {
             coyoteFrames--;
             slipperyFrames--;
+            slopeFrames--;
 
             if (playerScript.InputActions.ConstantMovement.TryClimb.IsPressed()) // This has to be seperated from standard input movement so holding up/down and going through platforms doesn't cancel when switching between states
             {
                 if (TryStartClimbing()) return;
             }
-                
+
+            if (slopeFrames < 0 && slopeState.HasValue)
+            {
+                slopeState = null;
+            }
             playerRobot.PlatformCollider.enabled = playerRobot.IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
             bool ignoreSlopedPlatforms = HoldingDown && playerRobot.CollisionStateActive(CollisionState.OnPlatform);
             playerRobot.TogglePlatformCollider();
@@ -234,16 +252,9 @@ namespace Player.Movement.Standard
          
             bool grounded = playerRobot.IsGrounded();
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,coyoteFrames < 0 && !grounded);
-            if (grounded)
+            if (!grounded && coyoteFrames < 0)
             {
-                coyoteFrames = jumpStats.coyoteFrames;
-            }
-            else
-            {
-                if (coyoteFrames < 0)
-                {
-                    playerRobot.AnimationController.PlayAnimation(PlayerAnimation.Air);
-                }
+                playerRobot.AnimationController.PlayAnimation(PlayerAnimation.Air);
             }
 
             if (!playerRobot.InFluid() && playerRobot.IsOnGround())
@@ -373,11 +384,11 @@ namespace Player.Movement.Standard
         public override void Disable()
         {
             var playerMovementInput = inputActions.StandardMovement;
-            playerMovementInput.Move.performed -= OnMovePerformed;
-            playerMovementInput.Move.canceled -= OnMoveCancelled;
-            
             playerMovementInput.Jump.performed -= OnJumpPressed;
             playerMovementInput.Jump.canceled -= OnJumpReleased;
+
+            inputActions.ConstantMovement.MoveHorizontal.performed -= OnMovePerformed;
+            inputActions.ConstantMovement.MoveHorizontal.canceled -= OnMoveCancelled;
             
             inputActions.ConstantMovement.Down.performed -= OnDownPressed;
             inputActions.ConstantMovement.Down.canceled -= OnDownReleased;
@@ -500,6 +511,21 @@ namespace Player.Movement.Standard
             const float BONUS_FALL_MODIFIER = 1.25f;
             if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
 
+            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery && playerRobot.IgnoreSlopePlatformFrames < 0)
+            {
+                if (slopeState.Value == Direction.Left)
+                {
+                    walkingDownSlope = inputDir < 0;
+                    
+                } else if (slopeState.Value == Direction.Right)
+                {
+                    walkingDownSlope = inputDir > 0;
+                }
+
+                float bonusDownwardsSpeed = 0;//Mathf.Abs(velocity.x) / 150;
+                float dir = walkingDownSlope ? -(1+bonusDownwardsSpeed) : (1-bonusDownwardsSpeed);
+                velocity.y = dir*Mathf.Abs(velocity.x);
+            }
             return;
 
             void UpdateJumpEvent()
@@ -523,16 +549,10 @@ namespace Player.Movement.Standard
                 }
                 else
                 {
-                    rb.gravityScale = fluidGravityModifer * GetCurrentGravity();
+                    rb.gravityScale = fluidGravityModifer * playerRobot.DefaultGravityScale;
                 }
             }
         }
-
-        private float GetCurrentGravity()
-        {
-            return highSlopeGravity ? 5 * playerRobot.DefaultGravityScale : playerRobot.DefaultGravityScale;
-        }
-
 
         public void OnGrounded()
         {
@@ -657,6 +677,11 @@ namespace Player.Movement.Standard
 
         public void OnSlopeExit()
         {
+            slopeFrames = walkingDownSlope ? 5 : 0; // Give one frame of matching horizontal and vertical movement so player doesn't fall of ledge when walking down
+            if (!walkingDownSlope)
+            {
+                slopeState = null;
+            }
             if (holdingJump) return;
             var vector2 = rb.velocity;
             vector2.y = 0;
@@ -688,9 +713,16 @@ namespace Player.Movement.Standard
             }
         }
 
-        public void OnSlopeCollision()
+        public void OnSlopeCollision(Direction slopeDirection)
         {
-            highSlopeGravity = true;
+            slopeFrames = int.MaxValue;
+            slopeState = slopeDirection;
         }
+        
+        public void OnSlopeStay(Direction slopeDirection)
+        {
+            slopeState = slopeDirection;
+        }
+        
     }
 }
