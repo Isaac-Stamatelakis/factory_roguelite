@@ -76,9 +76,9 @@ namespace Item.Display
             spriteRenderer.material = defaultMaterial;
             spriteRenderer.color = itemSlot.itemObject is IColorableItem colorableItem ? colorableItem.Color : Color.white;
             
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            if (itemSlot.itemObject is ITransmutableItem transmutableItem)
             {
-                var material = transmutableItemObject.getMaterial();
+                var material = transmutableItem.getMaterial();
                 if (material)
                 {
                     if (material.HasShaders)

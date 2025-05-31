@@ -164,14 +164,14 @@ namespace Items {
             
             ItemImage.color = itemSlot.itemObject is IColorableItem colorableItem ? colorableItem.Color : Color.white;
             ItemImage.material = null;
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            if (itemSlot.itemObject is ITransmutableItem transmutableItem)
             {
-                var transmutableMaterial = transmutableItemObject.getMaterial();
+                var transmutableMaterial = transmutableItem.getMaterial();
                 if (transmutableMaterial)
                 {
                     if (transmutableMaterial.OverlaySprite)
                     {
-                        AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
+                        AddOverlay(transmutableItem.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
                     }
 
                     if (transmutableMaterial.HasShaders)
