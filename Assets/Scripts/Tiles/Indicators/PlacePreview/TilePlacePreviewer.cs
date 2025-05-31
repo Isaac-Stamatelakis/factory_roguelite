@@ -11,6 +11,7 @@ using TileMaps.Place;
 using PlayerModule;
 using Tiles;
 using Items;
+using Items.Transmutable;
 using Player;
 using PlayerModule.KeyPress;
 using TileMaps.Conduit;
@@ -21,6 +22,7 @@ using Tiles.Options.Overlay;
 using Tiles.TileMap;
 using Tiles.TileMap.Platform;
 using UI;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine.InputSystem;
 
@@ -28,10 +30,11 @@ namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
     {
         private TilePlacementRecord placementRecord;
+        private TilemapRenderer tilemapRenderer;
         private Tilemap tilemap;
         private Tilemap unhighlightedTileMap;
         private Tilemap tileOverlayMap;
-        private Material defaultMaterialShader;
+        [SerializeField] private Material defaultMaterialShader;
         private DevMode devMode;
         private Color placableColor = new Color(111f/255f,180f/255f,248f/255f);
         private Color nonPlacableColor = new Color(255f/255f,153f/255f,153/255f);
@@ -48,7 +51,7 @@ namespace TileMaps.Previewer {
             mainCamera = Camera.main;
             tilemap = GetComponent<Tilemap>();
 
-            mainMaterial = GetComponent<TilemapRenderer>().material;
+            tilemapRenderer = GetComponent<TilemapRenderer>();
             GameObject unhighlightedContainer = new GameObject();
             unhighlightedContainer.transform.SetParent(transform,false);
             unhighlightedContainer.name = "UnhighlightedTilemap";
@@ -106,6 +109,7 @@ namespace TileMaps.Previewer {
             }
             lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
+            tilemapRenderer.material = defaultMaterialShader;
             
             if (tileBase is ConduitStateTile conduitStateTile)
             {
@@ -172,6 +176,11 @@ namespace TileMaps.Previewer {
         private SingleTilePlacementRecord PreviewFluidTile(FluidTileItem fluidTileItem, TileBase tileBase, Vector3Int placePosition)
         {
             tilemap.SetTile(placePosition,tileBase);
+            if (fluidTileItem.fluidOptions.MaterialColorOverride)
+            {
+                TransmutationShaderPair shaderPair = ItemRegistry.GetInstance().GetTransmutationMaterial(fluidTileItem.fluidOptions.MaterialColorOverride);
+                tilemapRenderer.material = fluidTileItem.fluidOptions.Lit ? shaderPair.UIMaterial : shaderPair.WorldMaterial;
+            }
             return new SingleTilePlacementRecord(fluidTileItem.id, placePosition, tilemap, null);
         }
 

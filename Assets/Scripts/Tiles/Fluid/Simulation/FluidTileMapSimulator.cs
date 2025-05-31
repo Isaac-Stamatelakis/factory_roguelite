@@ -85,9 +85,9 @@ namespace Tiles.Fluid.Simulation
 	    private Dictionary<Vector2Int, FluidCell[][]> chunkCellArrayDict = new();
 	    private FluidCell[] currentUpdates;
 	    
-	    // Note: These values take up this is only 160kB
+	    // Note: These values take up this is only 640kB
 	    const int MAX_UPDATES_PER_SECOND = 2048;
-	    private const int STACKS = 15;
+	    private const int STACKS = 60;
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.025f;
 	    
@@ -272,8 +272,9 @@ namespace Tiles.Fluid.Simulation
 		        return;
 	        }
 	        fluidCell.Liquid = 0;
-	        fluidCell.FluidTileItem = null;
+	        
 	        fluidTileMap.DisplayTile(fluidCell);
+	        fluidCell.FluidTileItem = null; // Set tile after filling for material access
         }
 		public void Simulate()
 		{

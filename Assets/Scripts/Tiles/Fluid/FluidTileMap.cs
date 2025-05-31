@@ -38,6 +38,10 @@ namespace Fluids {
         private ShaderTilemapManager shaderTilemapManager;
 
         private ItemRegistry itemRegistry;
+        private FluidTileMapSimulator simulator;
+        public FluidTileMapSimulator Simulator => simulator;
+        const int FLOW_ALL = 15;
+        public const float MAX_FILL = 1f;
         
         public override void Initialize(TileMapType type)
         {
@@ -68,11 +72,7 @@ namespace Fluids {
             unlitCollider2D.maximumTileChangeCount=int.MaxValue;
             shaderTilemapManager = new ShaderTilemapManager(transform, 0, true, 3);
         }
-
-        private FluidTileMapSimulator simulator;
-        public FluidTileMapSimulator Simulator => simulator;
-        const int FLOW_ALL = 15;
-        public const float MAX_FILL = 1f;
+        
         public override bool HitTile(Vector2 position, bool dropItem)
         {
             return false;
@@ -99,11 +99,11 @@ namespace Fluids {
 
         protected override void RemoveTile(int x, int y)
         {
-            FluidCell fluidCell = simulator.GetFluidCell(new Vector2Int(x, y));
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
+            FluidCell fluidCell = simulator.GetFluidCell(new Vector2Int(x, y));
             tilemap.SetTile(vector3Int,null);
             unlitTileMap.SetTile(vector3Int, null);
-            if (!fluidCell?.FluidTileItem) return; // Not sure if this is needed ?
+            if (!fluidCell?.FluidTileItem) return;
 
             TransmutableItemMaterial material = fluidCell.FluidTileItem.fluidOptions.MaterialColorOverride;
             if (!material) return;
@@ -198,9 +198,7 @@ namespace Fluids {
 
         public override void BreakTile(Vector2Int position)
         {
-            Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
-            tilemap.SetTile(vector3Int,null);
-            unlitTileMap.SetTile(vector3Int,null);
+            RemoveTile(position.x, position.y);
         }
 
         public void RemoveChunk(Vector2Int position)
@@ -255,14 +253,24 @@ namespace Fluids {
         
         public void DisplayTile(FluidCell fluidCell)
         {
-            var fluidTileItem = fluidCell.FluidTileItem;
-            if (!fluidTileItem)
+            bool empty = fluidCell.Liquid <= 0;
+            
+            if (empty)
             {
-                tilemap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
-                unlitTileMap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
+                Vector3Int vector3Int = new Vector3Int(fluidCell.Position.x,fluidCell.Position.y, 0);
+                TransmutableItemMaterial material = fluidCell.FluidTileItem?.fluidOptions.MaterialColorOverride;
+                if (!material || !material.HasShaders)
+                {
+                    tilemap.SetTile(vector3Int,null);
+                    unlitTileMap.SetTile(vector3Int,null);
+                    return;
+                }
+                TransmutationShaderPair shaderPair = itemRegistry.GetTransmutationMaterial(material);
+                Tilemap shaderMap = shaderTilemapManager.GetTileMap(fluidCell.FluidTileItem.fluidOptions.Lit ? shaderPair.UIMaterial : shaderPair.WorldMaterial);
+                shaderMap.SetTile(vector3Int,null);
                 return;
             }
-            DisplayTile(fluidCell.Position.x,fluidCell.Position.y,fluidTileItem,fluidCell.Liquid);
+            DisplayTile(fluidCell.Position.x,fluidCell.Position.y,fluidCell.FluidTileItem,fluidCell.Liquid);
         }
         
         
