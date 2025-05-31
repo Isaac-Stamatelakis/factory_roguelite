@@ -17,7 +17,7 @@ namespace Tiles.TileMap
         {
             base.Initialize(type);
             overlayTileMap = AddOverlay(OVERLAY_Z);
-            shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, false,0);
+            shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, true,TileMapType.Object,0);
         }
 
         protected override void SetTile(int x, int y, TileItem tileItem)
@@ -27,9 +27,22 @@ namespace Tiles.TileMap
             if (partition == null) return; // Might need this?
             
             TileOverlay tileOverlay = tileItem.tileOptions.Overlay;
-            Tilemap placementTilemap = GetPlacementTilemap(tileItem);
+            var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
             Vector3Int placementPositon = new Vector3Int(x, y, 0);
-            PlaceTileInTilemap(placementTilemap,tileItem,placementPositon,partition);
+            
+            // Always place a tile in the primary map. If it has a material will be covered by material overlay map
+            // But many operations rely on a tile being in the primary tilemap
+            PlaceTileInTilemap(tilemap, tileItem, placementPositon, partition); 
+            
+            if (transmutableMaterial)
+            {
+                Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
+                if (material)
+                {
+                    PlaceTileInTilemap(shaderTilemapManager.GetTileMap(material), tileItem, placementPositon, partition);
+                }
+            }
+
             if (!tileOverlay) return;
             
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
@@ -37,15 +50,7 @@ namespace Tiles.TileMap
             PlaceOverlayTile(tileItem.tileOptions.Overlay,overlayTileMap, new Vector3Int(x,y,0),tileItem,baseTileData);
         }
 
-        private Tilemap GetPlacementTilemap(TileItem tileItem)
-        {
-            var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
-            if (!transmutableMaterial) return tilemap;
-            Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
-            return material ? shaderTilemapManager.GetTileMap(material) : tilemap;
-        }
         
-
         protected override void RemoveTile(int x, int y)
         {
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
@@ -54,7 +59,9 @@ namespace Tiles.TileMap
             shaderTilemapManager.ClearAllOnTile(ref cellPosition);
         }
 
-        
-        
+        public override bool HasTile(Vector3Int vector3Int)
+        {
+            return tilemap.HasTile(vector3Int);
+        }
     }
 }

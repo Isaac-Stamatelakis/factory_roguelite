@@ -70,7 +70,7 @@ namespace Fluids {
             
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
             unlitCollider2D.maximumTileChangeCount=int.MaxValue;
-            shaderTilemapManager = new ShaderTilemapManager(transform, 0, true, 3);
+            shaderTilemapManager = new ShaderTilemapManager(transform, 0, true, TileMapType.Fluid,3);
         }
         
         public override bool HitTile(Vector2 position, bool dropItem)

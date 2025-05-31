@@ -53,6 +53,7 @@ namespace TileMaps {
     
     public abstract class BaseWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
     {
+        protected Matrix4x4 tempMatrix4x4 = new Matrix4x4();
         protected TileMapType type;
         public TileMapType Type => type;
         protected Tilemap tilemap;
@@ -157,8 +158,9 @@ namespace TileMaps {
         public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
+            Debug.Log("D");
             if (!HasTile(vect)) return false;
-
+            Debug.Log("C");
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);

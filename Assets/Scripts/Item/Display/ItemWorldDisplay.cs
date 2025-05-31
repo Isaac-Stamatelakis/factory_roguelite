@@ -162,6 +162,11 @@ namespace Item.Display
                     var material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World) : null;
                     AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor(),material);
                 }
+                var transmutableMaterialOverride = tileItem.tileOptions.TransmutableColorOverride;
+                if (transmutableMaterialOverride && transmutableMaterialOverride.HasShaders)
+                {
+                    spriteRenderer.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterialOverride);
+                }
             }
 
             if (itemSlot.itemObject.SpriteOverlays != null)

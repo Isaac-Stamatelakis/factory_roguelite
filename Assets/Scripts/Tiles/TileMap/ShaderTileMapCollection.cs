@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TileMaps.Type;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,11 +13,14 @@ namespace Tiles.TileMap
         private readonly Dictionary<Material, Tilemap> materialTileMaps = new();
         private readonly Stack<Tilemap> unusedTileMaps = new();
         private readonly List<Tilemap> usedTileMaps = new();
-        public ShaderTilemapManager(Transform parent, float zOffset, bool collider, int defaultCount = 3)
+        private TileMapType tileMapType;
+        public ShaderTilemapManager(Transform parent, float zOffset, bool collider, TileMapType tileMapType, int defaultCount = 3)
         {
             this.hasCollider = collider;
             this.zOffset = zOffset;
             this.parentTransform = parent;
+            this.hasCollider = collider;
+            this.tileMapType = tileMapType;
             int i = 0;
             while (i < defaultCount)
             {
@@ -29,6 +33,7 @@ namespace Tiles.TileMap
         {
             int count = unusedTileMaps.Count + materialTileMaps.Count;
             GameObject overlayTileMapObject = new GameObject($"ShaderOverlayTileMap_{count}");
+            overlayTileMapObject.layer = LayerMask.NameToLayer(tileMapType.ToString());
             overlayTileMapObject.transform.SetParent(parentTransform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
@@ -69,6 +74,18 @@ namespace Tiles.TileMap
                     break;
                 }
             }
+        }
+
+        public bool HasTile(Vector3Int cellPosition)
+        {
+            Debug.Log(cellPosition);
+            foreach (Tilemap tilemap in usedTileMaps)
+            {
+                Debug.Log(tilemap.name);
+                if (tilemap.HasTile(cellPosition)) return true;
+            }
+
+            return false;
         }
     }
 }

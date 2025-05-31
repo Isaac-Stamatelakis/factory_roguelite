@@ -188,6 +188,12 @@ namespace Items {
                     Material material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.UI) : null;
                     AddOverlay(tileSprite, tileOverlay.GetColor(),$"TileOverlay",material);
                 }
+
+                var transmutableMaterialOverride = tileItem.tileOptions.TransmutableColorOverride;
+                if (transmutableMaterialOverride && transmutableMaterialOverride.HasShaders)
+                {
+                    ItemImage.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterialOverride);
+                }
             }
             
             

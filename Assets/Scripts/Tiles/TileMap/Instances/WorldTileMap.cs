@@ -84,39 +84,42 @@ namespace TileMaps {
             Vector2Int hitPosition = WorldToTileMapPosition(position);
             int maxSearchWidth = 16;
             int searchWidth = 1;
+            
             while (searchWidth < maxSearchWidth) {
                 if (Global.ModInt(searchWidth,2) == 0) {
                     for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                         TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y-(searchWidth/2),0));
-                        if (isHitTile(tileBase,searchWidth)) {
+                        if (IsHitTile(tileBase,searchWidth)) {
                             return new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
                         }
                     }
                     for (int y = -searchWidth/2+1; y <= searchWidth/2-1; y ++) {
                         TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x-(searchWidth/2),hitPosition.y+y,0));
-                        if (isHitTile(tileBase,searchWidth)) {
+                        if (IsHitTile(tileBase,searchWidth)) {
                             return new Vector2Int(hitPosition.x-(searchWidth/2), hitPosition.y+y);
                         }
                     }
                 } else {
                     for (int x = -(searchWidth-1)/2; x <= (searchWidth-1)/2; x ++) {
                         TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2,0));
-                        if (isHitTile(tileBase,searchWidth)) {
+                        if (IsHitTile(tileBase,searchWidth)) {
                             return new Vector2Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
                         }
                     }
                     for (int y = (searchWidth-1)/2-1; y >= -(searchWidth-1)/2; y --) {
                         TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+(searchWidth-1)/2,hitPosition.y+y,0));
-                        if (isHitTile(tileBase,searchWidth)) {
+                        if (IsHitTile(tileBase,searchWidth)) {
                             return new Vector2Int(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
                         }
                     }
                 }
                 searchWidth ++;
             }
+            Debug.LogWarning("Could not find tile somehow");
             return new Vector2Int(-2147483647,-2147483647);
         }
-        private bool isHitTile(TileBase tileBase, int searchWidth) {
+        
+        private bool IsHitTile(TileBase tileBase, int searchWidth) {
             int spriteY = 0;
             if (tileBase is Tile) {
                 spriteY = (int) Global.GetSpriteSize(((Tile) tileBase).sprite).y;
