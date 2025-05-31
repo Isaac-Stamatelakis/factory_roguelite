@@ -65,7 +65,7 @@ namespace UI.Chat {
             DimensionManager dimensionManager = DimensionManager.Instance;
             BlockWorldTileMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<BlockWorldTileMap>();
             foreach (BlockWorldTileMap outlineTileGridMap in outlineTileGridMaps) {
-                outlineTileGridMap.setView(wireFrame,color);
+                outlineTileGridMap.SetView(wireFrame,color);
             }
         }
 

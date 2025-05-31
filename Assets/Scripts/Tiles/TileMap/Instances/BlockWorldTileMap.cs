@@ -6,6 +6,7 @@ using TileMaps.Type;
 using UnityEngine;
 using Tiles;
 using Tiles.Options.Overlay;
+using Tiles.TileMap;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps {
@@ -35,7 +36,6 @@ namespace TileMaps {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
         private ShaderTilemapManager shaderOverlayTilemapManager;
-        private ShaderTilemapManager colliderShaderTilemapManager;
         public override void Initialize(TileMapType tileMapType)
         {
             base.Initialize(tileMapType);
@@ -46,16 +46,15 @@ namespace TileMaps {
             outline.AddComponent<TilemapRenderer>();
             outlineTileMap = outline.GetComponent<Tilemap>();
             outline.transform.SetParent(transform,false);
-            setView(false,Color.black);
+            SetView(false,Color.black);
             
             shaderOverlayTilemapManager = new ShaderTilemapManager(transform,OVERLAY_Z,false);
-            colliderShaderTilemapManager = new ShaderTilemapManager(transform, 0, true);
         }
 
-        public void setView(bool? wireFrame, Color? color) {
+        public void SetView(bool? wireFrame, Color? color) {
             if (wireFrame != null)
             {
-                float z =(bool)wireFrame ? -0.1f : 0.3f;
+                float z = (bool)wireFrame ? -0.1f : 0.3f;
                 outlineTileMap.transform.localPosition = new Vector3(0,0,z);
             }
             if (color != null) {

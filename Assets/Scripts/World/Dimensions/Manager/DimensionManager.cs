@@ -460,7 +460,7 @@ namespace Dimensions {
             
             BlockWorldTileMap[] outlineTileGridMaps = FindObjectsOfType<BlockWorldTileMap>();
             foreach (BlockWorldTileMap outlineTileGridMap in outlineTileGridMaps) {
-                outlineTileGridMap.setView(false,dimensionOptions.OutlineColor);
+                outlineTileGridMap.SetView(false,dimensionOptions.OutlineColor);
             }
 
             if (dimensionOptions.DefaultSong)

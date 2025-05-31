@@ -10,38 +10,22 @@ using System.Linq;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
+using Items.Transmutable;
 using Robot.Tool.Instances.Gun;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Fluid.Simulation;
+using Tiles.TileMap;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace Fluids {
-    public class FluidTileMap : AbstractWorldTileMap<FluidTileItem>, ITileMapListener
+    public class FluidTileMap : BaseWorldTileMap<FluidTileItem>, ITileMapListener
     {
         public enum FluidParticleType
         {
             Splash,
             Standard
-        }
-        private class FluidParticles
-        {
-            public ParticleSystem Splash;
-            public ParticleSystem Standard;
-
-            public FluidParticles(ParticleSystem splashPrefab, ParticleSystem baseSystemPrefab, Transform container, Material material)
-            {
-                ParticleSystem InstanatiateSystem(ParticleSystem prefab)
-                {
-                    var system = Instantiate(prefab, container, false);
-                    var renderer = system.GetComponent<ParticleSystemRenderer>();
-                    if (material) renderer.material = material;
-                    return system;
-                }
-                Splash = InstanatiateSystem(splashPrefab);
-                Standard = InstanatiateSystem(baseSystemPrefab);
-            }
         }
         private Tilemap unlitTileMap;
         private TilemapCollider2D unlitCollider2D;
@@ -51,10 +35,14 @@ namespace Fluids {
 
         private FluidParticles litFluidParticles;
         private FluidParticles unlitFluidParticles;
+        private ShaderTilemapManager shaderTilemapManager;
+
+        private ItemRegistry itemRegistry;
         
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
+            itemRegistry = ItemRegistry.GetInstance();
             gameObject.tag = "Fluid";
             GameObject unlitContainer = new GameObject("Unlit");
             unlitContainer.tag = "Fluid";
@@ -77,7 +65,8 @@ namespace Fluids {
             simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileMap);
             
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
-            unlitCollider2D.maximumTileChangeCount=int.MaxValue; 
+            unlitCollider2D.maximumTileChangeCount=int.MaxValue;
+            shaderTilemapManager = new ShaderTilemapManager(transform, 0, true, 3);
         }
 
         private FluidTileMapSimulator simulator;
@@ -110,8 +99,18 @@ namespace Fluids {
 
         protected override void RemoveTile(int x, int y)
         {
-            base.RemoveTile(x, y);
-            unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
+            FluidCell fluidCell = simulator.GetFluidCell(new Vector2Int(x, y));
+            Vector3Int vector3Int = new Vector3Int(x, y, 0);
+            tilemap.SetTile(vector3Int,null);
+            unlitTileMap.SetTile(vector3Int, null);
+            if (!fluidCell?.FluidTileItem) return; // Not sure if this is needed ?
+
+            TransmutableItemMaterial material = fluidCell.FluidTileItem.fluidOptions.MaterialColorOverride;
+            if (!material) return;
+            bool lit = fluidCell.FluidTileItem.fluidOptions.Lit;
+            TransmutationShaderPair shaderPair = itemRegistry.GetTransmutationMaterial(material);
+            Tilemap shaderMap = shaderTilemapManager.GetTileMap(lit ? shaderPair.UIMaterial : shaderPair.WorldMaterial);
+            shaderMap.SetTile(vector3Int,null);
         }
         public FluidTileItem GetFluidItem(Vector2 worldPosition)
         {
@@ -217,8 +216,7 @@ namespace Fluids {
         protected override void SetTile(int x, int y, FluidTileItem item)
         {
             if (ReferenceEquals(item,null)) {
-                tilemap.SetTile(new Vector3Int(x,y,0),null);
-                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
+                RemoveTile(x,y);
                 return;
             }
             Vector2Int position = new Vector2Int(x,y);
@@ -231,8 +229,19 @@ namespace Fluids {
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
             if (!fluidTileItem) return;
+            Tilemap map;
             bool lit = fluidTileItem.fluidOptions.Lit;
-            Tilemap map = lit ? unlitTileMap : tilemap;
+            if (fluidTileItem.fluidOptions.MaterialColorOverride)
+            {
+                TransmutationShaderPair shaderPair = itemRegistry.GetTransmutationMaterial(fluidTileItem.fluidOptions.MaterialColorOverride);
+                Material material = lit ? shaderPair.UIMaterial : shaderPair.WorldMaterial;
+                map = shaderTilemapManager.GetTileMap(material);
+            }
+            else
+            {
+                map = lit ? unlitTileMap : tilemap;
+            }
+            
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
@@ -489,6 +498,24 @@ namespace Fluids {
             public Vector3Int CellPosition;
             public Vector2 WorldPosition;
             
+        }
+        private class FluidParticles
+        {
+            public ParticleSystem Splash;
+            public ParticleSystem Standard;
+
+            public FluidParticles(ParticleSystem splashPrefab, ParticleSystem baseSystemPrefab, Transform container, Material material)
+            {
+                ParticleSystem InstanatiateSystem(ParticleSystem prefab)
+                {
+                    var system = Instantiate(prefab, container, false);
+                    var renderer = system.GetComponent<ParticleSystemRenderer>();
+                    if (material) renderer.material = material;
+                    return system;
+                }
+                Splash = InstanatiateSystem(splashPrefab);
+                Standard = InstanatiateSystem(baseSystemPrefab);
+            }
         }
     }
 }
