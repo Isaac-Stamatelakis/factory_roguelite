@@ -513,7 +513,7 @@ namespace Player.Movement.Standard
             const float BONUS_FALL_MODIFIER = 1.25f;
             if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
 
-            if (slopeState.HasValue)
+            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery)
             {
                 if (slopeState.Value == Direction.Left)
                 {
@@ -524,7 +524,7 @@ namespace Player.Movement.Standard
                     walkingDownSlope = inputDir > 0;
                 }
 
-                float bonusDownwardsSpeed = Mathf.Abs(velocity.x) / 150;
+                float bonusDownwardsSpeed = 0;//Mathf.Abs(velocity.x) / 150;
                 float dir = walkingDownSlope ? -(1+bonusDownwardsSpeed) : (1-bonusDownwardsSpeed);
                 velocity.y = dir*Mathf.Abs(velocity.x);
             }

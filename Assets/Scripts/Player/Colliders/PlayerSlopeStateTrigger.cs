@@ -28,7 +28,7 @@ namespace Player.Movement
 
         public void Update()
         {
-            Vector2 bonusSize = Mathf.Abs(rb.velocity.x) * new Vector2(0.01f, 0.05f);
+            Vector2 bonusSize = Mathf.Abs(rb.velocity.x) * new Vector2(0.025f, 0.05f);
             boxCollider.size = defaultSize + bonusSize;
         }
 
