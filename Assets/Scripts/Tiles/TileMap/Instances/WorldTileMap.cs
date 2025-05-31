@@ -260,32 +260,38 @@ namespace TileMaps {
         
 
         protected override void SetTile(int x, int y,TileItem tileItem) {
+            PlaceTileInTilemap(tilemap,tileItem,new Vector3Int(x,y,0),null);   
+        }
+
+        protected void PlaceTileInTilemap(Tilemap placementMap, TileItem tileItem, Vector3Int placementPositon, IChunkPartition partition)
+        {
             TileBase tileBase = tileItem.tile;
             if (ReferenceEquals(tileBase,null)) return;
             
-            Vector2Int position = new Vector2Int(x, y);
-            IChunkPartition partition = GetPartitionAtPosition(position);
-            if (partition == null) return; // Might need this?
+            Vector2Int position = new Vector2Int(placementPositon.x, placementPositon.y);
+            if (partition == null)
+            {
+                partition = GetPartitionAtPosition(position);
+            }
+            
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
             TransmutableItemMaterial transmutableItemMaterial = tileItem.tileOptions.TransmutableColorOverride;
             
-            SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
+            SetTileItemTile(placementMap, tileBase, placementPositon, rotatable, baseTileData);
             
             // Don't use get tile color for performance
             if (transmutableItemMaterial)
             {
-                tilemap.SetTileFlags(vector3Int, TileFlags.None);
-                tilemap.SetColor(vector3Int,tileItem.tileOptions.TransmutableColorOverride.color);
+                placementMap.SetTileFlags(placementPositon, TileFlags.None);
+                placementMap.SetColor(placementPositon,tileItem.tileOptions.TransmutableColorOverride.color);
             } else if (tileItem.tileOptions.TileColor)
             {
-                tilemap.SetTileFlags(vector3Int, TileFlags.None);
-                tilemap.SetColor(vector3Int,tileItem.tileOptions.TileColor.GetColor());
+                placementMap.SetTileFlags(placementPositon, TileFlags.None);
+                placementMap.SetColor(placementPositon,tileItem.tileOptions.TileColor.GetColor());
             } 
         }
-
         protected Color GetTileColor(TileItem tileItem)
         {
             if (tileItem.tileOptions.TransmutableColorOverride)

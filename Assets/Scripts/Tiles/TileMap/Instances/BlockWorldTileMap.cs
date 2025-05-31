@@ -35,6 +35,7 @@ namespace TileMaps {
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
+        private Matrix4x4 tempMatrix4x4;
         private ShaderTilemapManager shaderOverlayTilemapManager;
         public override void Initialize(TileMapType tileMapType)
         {
@@ -49,6 +50,7 @@ namespace TileMaps {
             SetView(false,Color.black);
             
             shaderOverlayTilemapManager = new ShaderTilemapManager(transform,OVERLAY_Z,false);
+            tempMatrix4x4 = new Matrix4x4();
         }
 
         public void SetView(bool? wireFrame, Color? color) {
@@ -83,19 +85,19 @@ namespace TileMaps {
 
         protected override void SetTile(int x, int y, TileItem tileItem)
         {
-            base.SetTile(x, y, tileItem);
             Vector2Int tilePosition = new Vector2Int(x, y);
             IChunkPartition partition = GetPartitionAtPosition(tilePosition);
-            Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
-            if (partition == null) return;
-            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
+            Vector3Int placementPosition = new Vector3Int(x,y,0);
+            PlaceTileInTilemap(tilemap,tileItem,placementPosition,partition);
             
-            Vector3Int vec3 = new Vector3Int(x,y,0);
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
+            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             TileOverlay tileOverlay = tileItem.tileOptions.Overlay;
+            
             if (tileOverlay)
             {
                 Tilemap placementMap = GetOverlayTileMap(tileItem.tileOptions.Overlay);
-                PlaceOverlayTile(tileItem.tileOptions.Overlay,placementMap, vec3,tileItem,baseTileData);
+                PlaceOverlayTile(tileItem.tileOptions.Overlay,placementMap, placementPosition,tileItem,baseTileData);
             }
             TileBase outlineTile = tileItem.outline;
             if (!outlineTile) {
@@ -109,13 +111,12 @@ namespace TileMaps {
             int state = baseTileData.state;
 
             TileBase stateOutlineTile = stateTile.GetTileAtState(state);
-            outlineTileMap.SetTile(vec3,stateOutlineTile);
+            outlineTileMap.SetTile(placementPosition,stateOutlineTile);
 
             int rotation = baseTileData.rotation;
             bool mirror = baseTileData.mirror;
-            Matrix4x4 transformMatrix = outlineTileMap.GetTransformMatrix(vec3);
-            transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation), Vector3.one);
-            outlineTileMap.SetTransformMatrix(vec3,transformMatrix);
+            tempMatrix4x4.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation), Vector3.one);
+            outlineTileMap.SetTransformMatrix(placementPosition,tempMatrix4x4);
         }
 
        
