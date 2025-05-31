@@ -428,11 +428,12 @@ namespace Chunks.Systems {
     [System.Serializable]
     public class MiscDimAssets
     {
-        [FormerlySerializedAs("LitMaterial")] public Material UnlitMaterial;
+        public Material UnlitMaterial;
         public ParticleSystem SplashParticlePrefab;
         public ParticleSystem FluidParticlePrefab;
         public ParticleSystem EntityDeathParticlePrefab;
         public TileBase SlopeExtendColliderTile;
+        public Material HueShifterWorldMaterial;
     }
 }
 

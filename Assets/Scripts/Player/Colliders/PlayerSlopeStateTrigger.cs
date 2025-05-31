@@ -44,7 +44,6 @@ namespace Player.Movement
 
         private void SlopeUpdate(Collider2D other)
         {
-            Debug.Log(other.name);
             if (!other.CompareTag("Ground")) return;
             bool onSlope = OnSlope(other);
             

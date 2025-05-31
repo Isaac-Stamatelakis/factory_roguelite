@@ -27,15 +27,19 @@ namespace Tiles.TileMap
             base.Initialize(type);
             
             tileContainer = new TileBase[3]; // Max 3 tiles placed at once
-            var slopeColliderExtendTile = DimensionManager.Instance.MiscDimAssets.SlopeExtendColliderTile;
-
+            MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
+            var slopeColliderExtendTile = miscDimAssets.SlopeExtendColliderTile;
+            Material hueShifter = miscDimAssets.HueShifterWorldMaterial;
+            
             leftSlopeMaps = InitializeSlopeMap(SlopeRotation.Left);
             rightSlopeMaps = InitializeSlopeMap(SlopeRotation.Right);
-
+            
             return;
             PlatformSlopeTileMaps InitializeSlopeMap(SlopeRotation rotation)
             {
                 var slopeTileMap = AddOverlay(-0.1f);
+                slopeTileMap.GetComponent<TilemapRenderer>().material = hueShifter;
+                
                 slopeTileMap.gameObject.name = "Slope" + rotation;
                 slopeTileMap.gameObject.AddComponent<TilemapCollider2D>();
                 
@@ -45,6 +49,7 @@ namespace Tiles.TileMap
                 
                 var slopeDecoTileMap = AddOverlay(0f);
                 slopeDecoTileMap.gameObject.name = "SlopeDecoration"+rotation;
+                slopeDecoTileMap.GetComponent<TilemapRenderer>().material = hueShifter;
                 
                 var slopeColliderExtendTileMap = AddOverlay(0f);
                 slopeColliderExtendTileMap.gameObject.name = "SlopeColliderExtend"+rotation;
