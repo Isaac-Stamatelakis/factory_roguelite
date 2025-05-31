@@ -125,16 +125,19 @@ namespace Player.Movement.Standard
             inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
             var playerMovementInput = inputActions.StandardMovement;
             
-            playerMovementInput.Move.performed += OnMovePerformed;
-            playerMovementInput.Move.canceled += OnMoveCancelled;
-            
             playerMovementInput.Jump.performed += OnJumpPressed;
             playerMovementInput.Jump.canceled += OnJumpReleased;
-            
-            inputActions.ConstantMovement.Down.performed += OnDownPressed;
-            inputActions.ConstantMovement.Down.canceled += OnDownReleased;
-            holdingDown = inputActions.ConstantMovement.Down.IsPressed();
             playerMovementInput.Enable();
+            
+            var constantMovementActions = inputActions.ConstantMovement;
+            constantMovementActions.MoveHorizontal.performed += OnMovePerformed;
+            constantMovementActions.MoveHorizontal.canceled += OnMoveCancelled;
+            
+            constantMovementActions.Down.performed += OnDownPressed;
+            constantMovementActions.Down.canceled += OnDownReleased;
+            
+            holdingDown = constantMovementActions.Down.IsPressed();
+            inputDir = constantMovementActions.MoveHorizontal.ReadValue<float>();
         }
 
         public void SetInputDir(float value)
@@ -386,11 +389,11 @@ namespace Player.Movement.Standard
         public override void Disable()
         {
             var playerMovementInput = inputActions.StandardMovement;
-            playerMovementInput.Move.performed -= OnMovePerformed;
-            playerMovementInput.Move.canceled -= OnMoveCancelled;
-            
             playerMovementInput.Jump.performed -= OnJumpPressed;
             playerMovementInput.Jump.canceled -= OnJumpReleased;
+
+            inputActions.ConstantMovement.MoveHorizontal.performed -= OnMovePerformed;
+            inputActions.ConstantMovement.MoveHorizontal.canceled -= OnMoveCancelled;
             
             inputActions.ConstantMovement.Down.performed -= OnDownPressed;
             inputActions.ConstantMovement.Down.canceled -= OnDownReleased;

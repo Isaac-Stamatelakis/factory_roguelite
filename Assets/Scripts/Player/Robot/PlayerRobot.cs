@@ -190,13 +190,6 @@ namespace Player {
             currentMovement = GetMovementHandler(movementState);
         }
 
-        public void SetStandardMovementWithSpeed(float initial)
-        {
-            SetMovementState(PlayerMovementState.Standard);
-            ((StandardPlayerMovement)currentMovement).SetInputDir(initial);
-        }
-        
-
         private BasePlayerMovement GetMovementHandler(PlayerMovementState state)
         {
             switch (state)

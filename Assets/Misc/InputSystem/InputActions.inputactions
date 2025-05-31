@@ -6,15 +6,6 @@
             "id": "7768c5e0-8ba9-46ff-8f47-7c607b13eee0",
             "actions": [
                 {
-                    "name": "Move",
-                    "type": "Value",
-                    "id": "cfb5b6ef-cc2a-4235-a7f8-4742c513d387",
-                    "expectedControlType": "Analog",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "Jump",
                     "type": "Button",
                     "id": "fca90552-aec5-429f-9c30-ddcc638d08e3",
@@ -55,39 +46,6 @@
                     "action": "Teleport",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "1D Axis",
-                    "id": "81329860-ec99-4414-a58b-f82dff8503f6",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "5c0b8185-fec8-458a-b279-f6f85dd414c2",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "e4f273c3-db16-4fb9-95ac-fd050c638987",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         },
@@ -232,15 +190,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "HorizontalEscape",
-                    "type": "Value",
-                    "id": "4fffb34d-c1b7-494c-9c69-e6a415db2f5e",
-                    "expectedControlType": "Analog",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "JumpEscape",
                     "type": "Button",
                     "id": "16b1f10f-8e48-4069-99b7-6aa1fbb69253",
@@ -281,39 +230,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "1D Axis",
-                    "id": "ae15968e-7944-451a-9654-b1e57c3ea97f",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HorizontalEscape",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "630b3ce3-cce6-4827-8150-ca51ace7217b",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HorizontalEscape",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "ca6cc5da-5652-4212-b130-03a5a714f56d",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HorizontalEscape",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -360,6 +276,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MoveHorizontal",
+                    "type": "Value",
+                    "id": "3670347c-8855-47c6-a8e5-7c90a8abdfcd",
+                    "expectedControlType": "Analog",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -406,6 +331,39 @@
                     "action": "Down",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "1D Axis",
+                    "id": "e07f43d0-08d7-4033-b5c7-c8f83efa625f",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveHorizontal",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "d0df4548-b583-4035-83b8-d325784a98a9",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveHorizontal",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "ee279540-3eab-4111-9057-832c42fd0bf4",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveHorizontal",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },

@@ -28,15 +28,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             ""id"": ""7768c5e0-8ba9-46ff-8f47-7c607b13eee0"",
             ""actions"": [
                 {
-                    ""name"": ""Move"",
-                    ""type"": ""Value"",
-                    ""id"": ""cfb5b6ef-cc2a-4235-a7f8-4742c513d387"",
-                    ""expectedControlType"": ""Analog"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""fca90552-aec5-429f-9c30-ddcc638d08e3"",
@@ -77,39 +68,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Teleport"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""1D Axis"",
-                    ""id"": ""81329860-ec99-4414-a58b-f82dff8503f6"",
-                    ""path"": ""1DAxis"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""negative"",
-                    ""id"": ""5c0b8185-fec8-458a-b279-f6f85dd414c2"",
-                    ""path"": ""<Keyboard>/a"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""positive"",
-                    ""id"": ""e4f273c3-db16-4fb9-95ac-fd050c638987"",
-                    ""path"": ""<Keyboard>/d"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -254,15 +212,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""HorizontalEscape"",
-                    ""type"": ""Value"",
-                    ""id"": ""4fffb34d-c1b7-494c-9c69-e6a415db2f5e"",
-                    ""expectedControlType"": ""Analog"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""JumpEscape"",
                     ""type"": ""Button"",
                     ""id"": ""16b1f10f-8e48-4069-99b7-6aa1fbb69253"",
@@ -303,39 +252,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""1D Axis"",
-                    ""id"": ""ae15968e-7944-451a-9654-b1e57c3ea97f"",
-                    ""path"": ""1DAxis"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HorizontalEscape"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""negative"",
-                    ""id"": ""630b3ce3-cce6-4827-8150-ca51ace7217b"",
-                    ""path"": ""<Keyboard>/a"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HorizontalEscape"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""positive"",
-                    ""id"": ""ca6cc5da-5652-4212-b130-03a5a714f56d"",
-                    ""path"": ""<Keyboard>/d"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HorizontalEscape"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -382,6 +298,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveHorizontal"",
+                    ""type"": ""Value"",
+                    ""id"": ""3670347c-8855-47c6-a8e5-7c90a8abdfcd"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -428,6 +353,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""e07f43d0-08d7-4033-b5c7-c8f83efa625f"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveHorizontal"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""d0df4548-b583-4035-83b8-d325784a98a9"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveHorizontal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""ee279540-3eab-4111-9057-832c42fd0bf4"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveHorizontal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -1601,7 +1559,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
 }");
         // StandardMovement
         m_StandardMovement = asset.FindActionMap("StandardMovement", throwIfNotFound: true);
-        m_StandardMovement_Move = m_StandardMovement.FindAction("Move", throwIfNotFound: true);
         m_StandardMovement_Jump = m_StandardMovement.FindAction("Jump", throwIfNotFound: true);
         m_StandardMovement_Teleport = m_StandardMovement.FindAction("Teleport", throwIfNotFound: true);
         // FlightMovement
@@ -1610,13 +1567,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // LadderMovement
         m_LadderMovement = asset.FindActionMap("LadderMovement", throwIfNotFound: true);
         m_LadderMovement_Move = m_LadderMovement.FindAction("Move", throwIfNotFound: true);
-        m_LadderMovement_HorizontalEscape = m_LadderMovement.FindAction("HorizontalEscape", throwIfNotFound: true);
         m_LadderMovement_JumpEscape = m_LadderMovement.FindAction("JumpEscape", throwIfNotFound: true);
         // ConstantMovement
         m_ConstantMovement = asset.FindActionMap("ConstantMovement", throwIfNotFound: true);
         m_ConstantMovement_Teleport = m_ConstantMovement.FindAction("Teleport", throwIfNotFound: true);
         m_ConstantMovement_Down = m_ConstantMovement.FindAction("Down", throwIfNotFound: true);
         m_ConstantMovement_TryClimb = m_ConstantMovement.FindAction("TryClimb", throwIfNotFound: true);
+        m_ConstantMovement_MoveHorizontal = m_ConstantMovement.FindAction("MoveHorizontal", throwIfNotFound: true);
         // InventoryNavigation
         m_InventoryNavigation = asset.FindActionMap("InventoryNavigation", throwIfNotFound: true);
         m_InventoryNavigation_Select0 = m_InventoryNavigation.FindAction("Select0", throwIfNotFound: true);
@@ -1737,14 +1694,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     // StandardMovement
     private readonly InputActionMap m_StandardMovement;
     private List<IStandardMovementActions> m_StandardMovementActionsCallbackInterfaces = new List<IStandardMovementActions>();
-    private readonly InputAction m_StandardMovement_Move;
     private readonly InputAction m_StandardMovement_Jump;
     private readonly InputAction m_StandardMovement_Teleport;
     public struct StandardMovementActions
     {
         private @InputActions m_Wrapper;
         public StandardMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Move => m_Wrapper.m_StandardMovement_Move;
         public InputAction @Jump => m_Wrapper.m_StandardMovement_Jump;
         public InputAction @Teleport => m_Wrapper.m_StandardMovement_Teleport;
         public InputActionMap Get() { return m_Wrapper.m_StandardMovement; }
@@ -1756,9 +1711,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_StandardMovementActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_StandardMovementActionsCallbackInterfaces.Add(instance);
-            @Move.started += instance.OnMove;
-            @Move.performed += instance.OnMove;
-            @Move.canceled += instance.OnMove;
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
@@ -1769,9 +1721,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
 
         private void UnregisterCallbacks(IStandardMovementActions instance)
         {
-            @Move.started -= instance.OnMove;
-            @Move.performed -= instance.OnMove;
-            @Move.canceled -= instance.OnMove;
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
@@ -1846,14 +1795,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_LadderMovement;
     private List<ILadderMovementActions> m_LadderMovementActionsCallbackInterfaces = new List<ILadderMovementActions>();
     private readonly InputAction m_LadderMovement_Move;
-    private readonly InputAction m_LadderMovement_HorizontalEscape;
     private readonly InputAction m_LadderMovement_JumpEscape;
     public struct LadderMovementActions
     {
         private @InputActions m_Wrapper;
         public LadderMovementActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_LadderMovement_Move;
-        public InputAction @HorizontalEscape => m_Wrapper.m_LadderMovement_HorizontalEscape;
         public InputAction @JumpEscape => m_Wrapper.m_LadderMovement_JumpEscape;
         public InputActionMap Get() { return m_Wrapper.m_LadderMovement; }
         public void Enable() { Get().Enable(); }
@@ -1867,9 +1814,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @HorizontalEscape.started += instance.OnHorizontalEscape;
-            @HorizontalEscape.performed += instance.OnHorizontalEscape;
-            @HorizontalEscape.canceled += instance.OnHorizontalEscape;
             @JumpEscape.started += instance.OnJumpEscape;
             @JumpEscape.performed += instance.OnJumpEscape;
             @JumpEscape.canceled += instance.OnJumpEscape;
@@ -1880,9 +1824,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @HorizontalEscape.started -= instance.OnHorizontalEscape;
-            @HorizontalEscape.performed -= instance.OnHorizontalEscape;
-            @HorizontalEscape.canceled -= instance.OnHorizontalEscape;
             @JumpEscape.started -= instance.OnJumpEscape;
             @JumpEscape.performed -= instance.OnJumpEscape;
             @JumpEscape.canceled -= instance.OnJumpEscape;
@@ -1910,6 +1851,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_ConstantMovement_Teleport;
     private readonly InputAction m_ConstantMovement_Down;
     private readonly InputAction m_ConstantMovement_TryClimb;
+    private readonly InputAction m_ConstantMovement_MoveHorizontal;
     public struct ConstantMovementActions
     {
         private @InputActions m_Wrapper;
@@ -1917,6 +1859,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Teleport => m_Wrapper.m_ConstantMovement_Teleport;
         public InputAction @Down => m_Wrapper.m_ConstantMovement_Down;
         public InputAction @TryClimb => m_Wrapper.m_ConstantMovement_TryClimb;
+        public InputAction @MoveHorizontal => m_Wrapper.m_ConstantMovement_MoveHorizontal;
         public InputActionMap Get() { return m_Wrapper.m_ConstantMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1935,6 +1878,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @TryClimb.started += instance.OnTryClimb;
             @TryClimb.performed += instance.OnTryClimb;
             @TryClimb.canceled += instance.OnTryClimb;
+            @MoveHorizontal.started += instance.OnMoveHorizontal;
+            @MoveHorizontal.performed += instance.OnMoveHorizontal;
+            @MoveHorizontal.canceled += instance.OnMoveHorizontal;
         }
 
         private void UnregisterCallbacks(IConstantMovementActions instance)
@@ -1948,6 +1894,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @TryClimb.started -= instance.OnTryClimb;
             @TryClimb.performed -= instance.OnTryClimb;
             @TryClimb.canceled -= instance.OnTryClimb;
+            @MoveHorizontal.started -= instance.OnMoveHorizontal;
+            @MoveHorizontal.performed -= instance.OnMoveHorizontal;
+            @MoveHorizontal.canceled -= instance.OnMoveHorizontal;
         }
 
         public void RemoveCallbacks(IConstantMovementActions instance)
@@ -2593,7 +2542,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public CanvasControllerActions @CanvasController => new CanvasControllerActions(this);
     public interface IStandardMovementActions
     {
-        void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnTeleport(InputAction.CallbackContext context);
     }
@@ -2604,7 +2552,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface ILadderMovementActions
     {
         void OnMove(InputAction.CallbackContext context);
-        void OnHorizontalEscape(InputAction.CallbackContext context);
         void OnJumpEscape(InputAction.CallbackContext context);
     }
     public interface IConstantMovementActions
@@ -2612,6 +2559,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnTeleport(InputAction.CallbackContext context);
         void OnDown(InputAction.CallbackContext context);
         void OnTryClimb(InputAction.CallbackContext context);
+        void OnMoveHorizontal(InputAction.CallbackContext context);
     }
     public interface IInventoryNavigationActions
     {
