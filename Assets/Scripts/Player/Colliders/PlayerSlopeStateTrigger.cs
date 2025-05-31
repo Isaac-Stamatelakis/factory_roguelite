@@ -21,12 +21,12 @@ namespace Player.Movement
 
         public void OnTriggerEnter2D(Collider2D other)
         {
-            SlopeUpdate(other);
+            //SlopeUpdate(other);
         }
 
         public void OnTriggerStay2D(Collider2D other)
         {
-            SlopeUpdate(other);
+            //SlopeUpdate(other);
         }
 
         private void SlopeUpdate(Collider2D other)

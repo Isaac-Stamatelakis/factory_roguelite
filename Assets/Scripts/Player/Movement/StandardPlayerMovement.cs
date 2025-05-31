@@ -10,6 +10,7 @@ using Robot.Upgrades.LoadOut;
 using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
+using Tiles;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -109,6 +110,7 @@ namespace Player.Movement.Standard
         private bool walkingDownSlope;
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
+        private PlayerAdjacentSlopeDetector slopeDetector;
 
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
@@ -122,6 +124,7 @@ namespace Player.Movement.Standard
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             ToggleRocketBoots(RobotUpgradeUtils.GetDiscreteValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.RocketBoots) > 0);
 
+            slopeDetector = new PlayerAdjacentSlopeDetector(playerRobot);
             inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
             var playerMovementInput = inputActions.StandardMovement;
             
@@ -148,6 +151,13 @@ namespace Player.Movement.Standard
             {
                 coyoteFrames = jumpStats.coyoteFrames;
             }
+            if (slopeDetector.CastUpdate())
+            {
+                slopeState = slopeDetector.CurrentSlopeDirection;
+                CollisionState collisionState = slopeDetector.CollisionState;
+                playerRobot.AddCollisionState(collisionState);
+            }
+            
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
@@ -164,6 +174,7 @@ namespace Player.Movement.Standard
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+            
 
             void UpdateMovementAnimations()
             {
@@ -512,7 +523,6 @@ namespace Player.Movement.Standard
 
             if (slopeState.HasValue)
             {
-                coyoteFrames = jumpStats.coyoteFrames;
                 if (slopeState.Value == Direction.Left)
                 {
                     walkingDownSlope = inputDir < 0;
@@ -719,8 +729,46 @@ namespace Player.Movement.Standard
         
         public void OnSlopeStay(Direction slopeDirection)
         {
-            
             slopeState = slopeDirection;
+        }
+
+        private class PlayerAdjacentSlopeDetector
+        {
+            private PlayerRobot playerRobot;
+            public Direction CurrentSlopeDirection { get; private set; }
+            public CollisionState CollisionState { get; private set; }
+            private float offset;
+            private int layer;
+            private float yOffset;
+            private CollisionState collisionState;
+
+            public PlayerAdjacentSlopeDetector(PlayerRobot playerRobot)
+            {
+                this.playerRobot = playerRobot;
+                layer = 1 << LayerMask.NameToLayer("Block");
+                yOffset = playerRobot.GetComponent<SpriteRenderer>().bounds.extents.y;
+            }
+
+            
+            public bool CastUpdate()
+            {
+                var collider = Physics2D.Raycast((Vector2)playerRobot.transform.position+ Vector2.down*yOffset, Vector2.down, 0.3f,layer).collider;
+                return collider && OnCollision(collider);
+            }
+            
+            bool OnCollision(Collider2D other)
+            {
+                Vector2Int cellPosition = Global.GetCellPositionFromWorld(other.ClosestPoint(playerRobot.transform.position));
+                ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
+                TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);
+                if (tileItem?.tile is not HammerTile hammerTile) return false;
+                BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
+                CurrentSlopeDirection = baseTileData.rotation == 0 ? Direction.Left : Direction.Right;
+                CollisionState = CollisionState.OnSlope;
+                return hammerTileState is not HammerTileState.Solid and not HammerTileState.Slab;
+            }
         }
     }
 }
