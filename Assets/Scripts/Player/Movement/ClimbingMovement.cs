@@ -30,6 +30,8 @@ namespace Player.Movement
             movementActions.Move.performed += OnMovePress;
             movementActions.Move.canceled += OnMoveRelease;
             inputActions.ConstantMovement.MoveHorizontal.performed += OnEscapeHorizontalPress;
+            inputActions.ConstantMovement.Teleport.performed += OnEscapeHorizontalPress;
+            
             movementActions.JumpEscape.performed += OnEscapeVerticalPress;
             
             movementActions.Enable();
@@ -101,6 +103,7 @@ namespace Player.Movement
             movementActions.Move.canceled -= OnMoveRelease;
             inputActions.ConstantMovement.MoveHorizontal.performed -= OnEscapeHorizontalPress;
             movementActions.JumpEscape.performed -= OnEscapeVerticalPress;
+            inputActions.ConstantMovement.Teleport.performed -= OnEscapeHorizontalPress;
             movementActions.Disable();
         }
 
