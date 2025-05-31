@@ -280,9 +280,7 @@ namespace Player {
             {
                 wallListener.OnWallCollision();
             }
-
             
-
             if (state is CollisionState.InFluid)
             {
                 if (currentMovement is IOnFluidCollisionMovementListener fluidListener)

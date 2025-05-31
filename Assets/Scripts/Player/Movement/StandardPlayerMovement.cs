@@ -139,11 +139,6 @@ namespace Player.Movement.Standard
             holdingDown = constantMovementActions.Down.IsPressed();
             inputDir = constantMovementActions.MoveHorizontal.ReadValue<float>();
         }
-
-        public void SetInputDir(float value)
-        {
-            inputDir = value;
-        }
         
         public override void MovementUpdate()
         {
@@ -516,7 +511,7 @@ namespace Player.Movement.Standard
             const float BONUS_FALL_MODIFIER = 1.25f;
             if (holdingDown) rb.gravityScale *= BONUS_FALL_MODIFIER;
 
-            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery)
+            if (slopeState.HasValue && currentTileMovementType != TileMovementType.Slippery && playerRobot.IgnoreSlopePlatformFrames < 0)
             {
                 if (slopeState.Value == Direction.Left)
                 {
