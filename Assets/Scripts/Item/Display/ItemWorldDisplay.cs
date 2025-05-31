@@ -168,7 +168,7 @@ namespace Item.Display
             {
                 foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
                 {
-                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color,null);
+                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color,spriteOverlay.Material);
                 }
             }
         }

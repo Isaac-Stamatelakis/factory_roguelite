@@ -194,7 +194,7 @@ namespace Items {
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
-                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay:{index}",null);
+                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay:{index}",spriteOverlay.Material);
             }
 
             if (itemSlot.itemObject is IAnimatedOverlayItem animatedOverlayItem)
