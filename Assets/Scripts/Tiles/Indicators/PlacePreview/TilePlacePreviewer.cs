@@ -42,7 +42,6 @@ namespace TileMaps.Previewer {
         private PlayerScript playerScript;
         private Transform playerTransform;
         private TilemapRenderer overlayRenderer;
-        private Material mainMaterial;
         private int lastMousePlacement;
         public const int MULTI_TILE_PLACE_OFFSET = 7;
         
@@ -58,7 +57,7 @@ namespace TileMaps.Previewer {
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             
             TilemapRenderer unhighlightRenderer = unhighlightedContainer.AddComponent<TilemapRenderer>();
-            unhighlightRenderer.material = mainMaterial;
+            unhighlightRenderer.material = defaultMaterialShader;
             unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
             
             GameObject tileOverlayContainer = new GameObject();
@@ -66,7 +65,7 @@ namespace TileMaps.Previewer {
             tileOverlayContainer.name = "Overlay map";
             tileOverlayMap = tileOverlayContainer.AddComponent<Tilemap>();
             overlayRenderer = tileOverlayContainer.AddComponent<TilemapRenderer>();
-            overlayRenderer.material = mainMaterial;
+            overlayRenderer.material = defaultMaterialShader;
             tileOverlayContainer.transform.localPosition = new Vector3(0, 0, -1f);
 
         }
@@ -284,17 +283,17 @@ namespace TileMaps.Previewer {
                 if (tileOverlay is IShaderTileOverlay shaderTileOverlay)
                 {
                     Material material = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
-                    overlayRenderer.material = material ? material : mainMaterial;
+                    overlayRenderer.material = material ? material : defaultMaterialShader;
                 }
                 else
                 {
-                    overlayRenderer.material = mainMaterial;
+                    overlayRenderer.material = defaultMaterialShader;
                 }
             }
             else
             {
                 tileOverlayMap.color = Color.white;
-                overlayRenderer.material = mainMaterial;
+                overlayRenderer.material = defaultMaterialShader;
             }
             
             return record;
