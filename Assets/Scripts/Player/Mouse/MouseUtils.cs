@@ -63,7 +63,6 @@ namespace Player.Mouse
         private static bool RaycastHitBlock(Vector2 position, int layer, int power, bool drop, bool precise)
         {
             IHitableTileMap hitableTileMap = GetHitableTileMap(position, precise,layer);
-            Debug.Log("A");
             if (hitableTileMap == null) return false;
             
             if (hitableTileMap is WorldTileMap tileGridMap) {
@@ -76,7 +75,7 @@ namespace Player.Mouse
                     }
                 }
             }
-            Debug.Log("B");
+           
             if (DevMode.Instance.instantBreak) {
                 hitableTileMap.DeleteTile(position);
                 return true;

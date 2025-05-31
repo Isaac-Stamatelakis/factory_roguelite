@@ -17,7 +17,7 @@ namespace Tiles.TileMap
         {
             base.Initialize(type);
             overlayTileMap = AddOverlay(OVERLAY_Z);
-            shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, true,TileMapType.Object,0);
+            shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, false,TileMapType.Object,0);
         }
 
         protected override void SetTile(int x, int y, TileItem tileItem)

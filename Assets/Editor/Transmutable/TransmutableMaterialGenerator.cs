@@ -261,26 +261,7 @@ public class TransmutableItemGenerator : EditorWindow
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
             tileOptions.rotatable = true;
-
-            if (material.HasShaders)
-            {
-                TryCreateMiscFolder(materialItemsPath, material);
-                string miscPath = Path.Combine(materialItemsPath, MISC_PATH);
-                
-                TileWrapperObject tileWrapperObject = ScriptableObject.CreateInstance<TileWrapperObject>();
-                tileWrapperObject.TileBase = tileStateOptions.tile;
-                tileWrapperObject.name = itemName +"_Overlay_Tile_Wrapper";
-                string wrapperPath = Path.Combine(miscPath, tileWrapperObject.name + ".asset");
-                AssetDatabase.CreateAsset(tileWrapperObject, wrapperPath);
-                
-                TransmutableTileOverlay transmutableTileOverlay = ScriptableObject.CreateInstance<TransmutableTileOverlay>();
-                transmutableTileOverlay.ItemMaterial = material;
-                transmutableTileOverlay.name = itemName + "_Overlay";
-                tileOptions.Overlay = transmutableTileOverlay;
-                transmutableTileOverlay.OverlayWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(wrapperPath);
-                AssetDatabase.CreateAsset(transmutableTileOverlay,  Path.Combine(miscPath,transmutableTileOverlay.name + ".asset"));
-                
-            }
+            
             int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
             tileOptions.hardness = 8 * (tierInt + 1);
             transmutableTileItem.tileOptions = tileOptions;

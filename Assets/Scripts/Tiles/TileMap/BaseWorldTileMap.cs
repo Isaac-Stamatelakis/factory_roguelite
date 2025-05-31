@@ -158,9 +158,8 @@ namespace TileMaps {
         public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
-            Debug.Log("D");
             if (!HasTile(vect)) return false;
-            Debug.Log("C");
+            
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);

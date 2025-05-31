@@ -91,6 +91,16 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             TileOverlay tileOverlay = tileItem.tileOptions.Overlay;
+
+            var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
+            if (transmutableMaterial)
+            {
+                Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
+                if (material)
+                {
+                    PlaceTileInTilemap(shaderOverlayTilemapManager.GetTileMap(material), tileItem, placementPosition, partition);
+                }
+            }
             
             if (tileOverlay)
             {
