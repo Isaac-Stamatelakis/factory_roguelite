@@ -68,6 +68,11 @@ namespace UI.Indicators.General
                 tileImage.sprite = sprite;
             }
             tileImage.color = currentItem.tileOptions.GetTileColor();
+            var transmutableMaterialOverride = currentItem.tileOptions.TransmutableColorOverride;
+            if (transmutableMaterialOverride)
+            {
+                tileImage.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterialOverride);
+            }
             
             tileImage.transform.rotation = !stateRotatable ? Quaternion.Euler(0, 0, 90 * rotationValue) : Quaternion.Euler(0, 0, 0);
 
@@ -111,7 +116,7 @@ namespace UI.Indicators.General
             UpdateRotation();
 
             Display();
-            
+            playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
             
             void UpdateRotation()
             {

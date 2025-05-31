@@ -27,8 +27,6 @@ namespace Tiles {
             {
                  if (TilePlaceUtils.TileInDirection(mousePosition, direction, TileMapLayer.Base)) directionsWithTile.Add(direction);
             }
-
-            if (directionsWithTile.Count == 0) return NO_AUTO_ROTATION;
             
             int mousePlacement = GetMousePlacement(mousePosition);
             switch (placementState)
@@ -58,7 +56,15 @@ namespace Tiles {
             bool lu = directionsWithTile.Contains(Direction.Left) && directionsWithTile.Contains(Direction.Up);
             bool rd = directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Down);
             bool ru = directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Up);
-            
+
+            if (ld && lu && rd && ru)
+            {
+                if (biasLeft)
+                {
+                    return biasDown ? LD_ROT : LU_ROT;
+                }
+                return biasDown ? RD_ROT : RU_ROT;
+            }
             if (ld && rd)
             {
                 return biasLeft ? LD_ROT : RD_ROT;
@@ -117,8 +123,11 @@ namespace Tiles {
             {
                 return biasDown ? LD_ROT : LU_ROT;
             }
-            
-            return NO_AUTO_ROTATION;
+            if (biasLeft)
+            {
+                return biasDown ? LD_ROT : LU_ROT;
+            }
+            return biasDown ? RD_ROT : RU_ROT;
         }
         private static int CalculateSlabState(HashSet<Direction> directionsWithTile, int mousePlacement)
         {

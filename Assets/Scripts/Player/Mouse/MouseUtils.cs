@@ -37,7 +37,6 @@ namespace Player.Mouse
             if (tileMapLayer == TileMapLayer.Base)
             {
                 int layer = tileMapLayer.ToRaycastLayers();
-                layer |= 1 << LayerMask.NameToLayer("PlatformSlope");
                 return RaycastHitBlock(mousePosition, layer, power, drop, precise);
             }
             
@@ -76,7 +75,7 @@ namespace Player.Mouse
                     }
                 }
             }
-            
+           
             if (DevMode.Instance.instantBreak) {
                 hitableTileMap.DeleteTile(position);
                 return true;

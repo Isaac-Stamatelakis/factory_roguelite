@@ -42,7 +42,6 @@ namespace TileMaps.Previewer {
         private PlayerScript playerScript;
         private Transform playerTransform;
         private TilemapRenderer overlayRenderer;
-        private Material mainMaterial;
         private int lastMousePlacement;
         public const int MULTI_TILE_PLACE_OFFSET = 7;
         
@@ -58,7 +57,7 @@ namespace TileMaps.Previewer {
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             
             TilemapRenderer unhighlightRenderer = unhighlightedContainer.AddComponent<TilemapRenderer>();
-            unhighlightRenderer.material = mainMaterial;
+            unhighlightRenderer.material = defaultMaterialShader;
             unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
             
             GameObject tileOverlayContainer = new GameObject();
@@ -66,7 +65,7 @@ namespace TileMaps.Previewer {
             tileOverlayContainer.name = "Overlay map";
             tileOverlayMap = tileOverlayContainer.AddComponent<Tilemap>();
             overlayRenderer = tileOverlayContainer.AddComponent<TilemapRenderer>();
-            overlayRenderer.material = mainMaterial;
+            overlayRenderer.material = defaultMaterialShader;
             tileOverlayContainer.transform.localPosition = new Vector3(0, 0, -1f);
 
         }
@@ -120,6 +119,11 @@ namespace TileMaps.Previewer {
             }
             else if (itemObject is TileItem tileItem)
             {
+                var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
+                if (transmutableMaterial && transmutableMaterial.HasShaders)
+                {
+                    tilemapRenderer.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterial);
+                }
                 if (tileItem.tile is PlatformStateTile)
                 {
                     placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, position);
@@ -262,15 +266,15 @@ namespace TileMaps.Previewer {
             }
 
         }
-
+        
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
-            
-            
+
+           
             bool rotatable = tileItem.tileOptions.rotatable;
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
             SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
@@ -284,17 +288,17 @@ namespace TileMaps.Previewer {
                 if (tileOverlay is IShaderTileOverlay shaderTileOverlay)
                 {
                     Material material = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
-                    overlayRenderer.material = material ? material : mainMaterial;
+                    overlayRenderer.material = material ? material : defaultMaterialShader;
                 }
                 else
                 {
-                    overlayRenderer.material = mainMaterial;
+                    overlayRenderer.material = defaultMaterialShader;
                 }
             }
             else
             {
                 tileOverlayMap.color = Color.white;
-                overlayRenderer.material = mainMaterial;
+                overlayRenderer.material = defaultMaterialShader;
             }
             
             return record;
@@ -303,9 +307,7 @@ namespace TileMaps.Previewer {
 
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {
-            if (tileBase is IStateTileSingle stateTile) {
-                tileBase = stateTile.GetTileAtState(autoState);
-            }
+            TileBase placementTileBase = tileBase is IStateTileSingle stateTile ? stateTile.GetTileAtState(autoState) : tileBase;
             
             if (!rotatable)
             {
@@ -328,14 +330,14 @@ namespace TileMaps.Previewer {
             {
                 rotation = (int)tileRotation;   
             }
-
-            if (tileBase is IStateRotationTile stateRotationTile)
+            
+            if (placementTileBase is IStateRotationTile stateRotationTile)
             {
                 placementTilemap.SetTile(placePosition,stateRotationTile.getTile(rotation,false));
             }
             else
             {
-                TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
+                TilePlaceUtils.RotateTileInMap(placementTilemap, placementTileBase, placePosition,rotation,false);
             }
         }
         
@@ -389,6 +391,12 @@ namespace TileMaps.Previewer {
             }
             
             return new MultiMapPlacementRecord(itemObject.id, tilemap, unhighlightedTileMap, position, placePositions);
+        }
+
+        public void ClearPlacementRecord()
+        {
+            placementRecord?.Clear();
+            placementRecord = null;
         }
         
         

@@ -356,10 +356,11 @@ namespace PlayerModule.Mouse {
             }
             int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
+            
             if (ReferenceEquals(tilemapObject,null)) return false;
             Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
             Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
-            Vector2Int? tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
+            Vector2Int? tilePosition = FindTileAtLocation.Find(mouseCellPosition,tilemap);
             if (tilePosition == null) {
                 return false;
             }
