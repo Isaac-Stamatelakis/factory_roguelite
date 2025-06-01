@@ -38,6 +38,7 @@ namespace Player.Movement
         {
             Rigidbody2D rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Static;
+            playerRobot.playerColliders.SetStateFlight(true);
             
             playerTransform = playerRobot.transform;
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();

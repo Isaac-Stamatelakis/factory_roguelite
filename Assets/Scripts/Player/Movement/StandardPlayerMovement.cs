@@ -20,7 +20,7 @@ namespace Player.Movement.Standard
     {
         protected PlayerRobot playerRobot;
 
-        protected BasePlayerMovement(PlayerRobot playerRobot)
+        internal BasePlayerMovement(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
         }
@@ -110,11 +110,14 @@ namespace Player.Movement.Standard
         private bool walkingDownSlope;
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
+        private PlayerSlopeStateTrigger slopeStateTrigger;
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             playerScript = playerRobot.GetComponent<PlayerScript>();
+            playerRobot.playerColliders.SetStateStandard();
+            slopeStateTrigger = playerRobot.playerColliders.SlopeTrigger.GetComponent<PlayerSlopeStateTrigger>();
             
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
@@ -148,6 +151,7 @@ namespace Player.Movement.Standard
             }
             
             
+            
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
@@ -164,6 +168,7 @@ namespace Player.Movement.Standard
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+            slopeStateTrigger.UpdateSize(velocity.x,jumpEvent!=null);
             
 
             void UpdateMovementAnimations()

@@ -115,7 +115,6 @@ namespace TileMaps {
                 }
                 searchWidth ++;
             }
-            Debug.LogWarning("Could not find tile somehow");
             return new Vector2Int(-2147483647,-2147483647);
         }
         

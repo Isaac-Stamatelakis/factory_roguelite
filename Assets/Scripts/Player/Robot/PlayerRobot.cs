@@ -68,6 +68,7 @@ namespace Player {
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
+        [SerializeField] internal PlayerColliders playerColliders;
         [SerializeField] private Collider2D platformCollider;
         [SerializeField] private Collider2D leftSlopePlatformCollider;
         [SerializeField] private Collider2D rightSlopePlatformCollider;
@@ -894,6 +895,64 @@ namespace Player {
         public float jumpVelocity = 8f;
         public float maxGravityTime = 0.5f;
         public int coyoteFrames;
+    }
+
+    [System.Serializable]
+    internal class PlayerColliders
+    {
+        public BoxCollider2D MainCollider;
+        public BoxCollider2D GroundTrigger;
+        public BoxCollider2D SlopeTrigger;
+        public BoxCollider2D PlatformTrigger;
+        public BoxCollider2D LeftWallTrigger;
+        public BoxCollider2D RightWallTrigger;
+        public BoxCollider2D HeadTrigger;
+        public BoxCollider2D LeftPlatformSlopeTrigger;
+        public BoxCollider2D RightPlatformSlopeTrigger;
+
+        public void SetStateAll(bool state)
+        {
+            MainCollider.enabled = state;
+            GroundTrigger.enabled = state;
+            SlopeTrigger.enabled = state;
+            PlatformTrigger.enabled = state;
+            LeftWallTrigger.enabled = state;
+            RightWallTrigger.enabled = state;
+            HeadTrigger.enabled = state;
+            LeftPlatformSlopeTrigger.enabled = state;
+            RightPlatformSlopeTrigger.enabled = state;
+        }
+
+        public void SetStateFlight(bool creative)
+        {
+            MainCollider.enabled = !creative;
+            GroundTrigger.enabled = false;
+            SlopeTrigger.enabled = false;
+            PlatformTrigger.enabled = false;
+            LeftWallTrigger.enabled = !creative;
+            RightWallTrigger.enabled = !creative;
+            HeadTrigger.enabled = !creative;
+            LeftPlatformSlopeTrigger.enabled = false;
+            RightPlatformSlopeTrigger.enabled = false;
+        }
+
+        public void SetStateStandard()
+        {
+            SetStateAll(true);
+        }
+
+        public void SetStateClimbing()
+        {
+            MainCollider.enabled = true;
+            GroundTrigger.enabled = true;
+            SlopeTrigger.enabled = false;
+            PlatformTrigger.enabled = true;
+            LeftWallTrigger.enabled = false;
+            RightWallTrigger.enabled = false;
+            HeadTrigger.enabled = false;
+            LeftPlatformSlopeTrigger.enabled = true;
+            RightPlatformSlopeTrigger.enabled = true;
+        }
     }
 
 }
