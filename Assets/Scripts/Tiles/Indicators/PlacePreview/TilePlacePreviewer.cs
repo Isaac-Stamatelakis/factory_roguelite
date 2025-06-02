@@ -14,6 +14,7 @@ using Items;
 using Items.Transmutable;
 using Player;
 using PlayerModule.KeyPress;
+using PlayerModule.Mouse;
 using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
@@ -40,6 +41,7 @@ namespace TileMaps.Previewer {
         private Color nonPlacableColor = new Color(255f/255f,153f/255f,153/255f);
         private Camera mainCamera;
         private PlayerScript playerScript;
+        private PlayerMouse playerMouse;
         private Transform playerTransform;
         private TilemapRenderer overlayRenderer;
         private int lastMousePlacement;
@@ -73,6 +75,7 @@ namespace TileMaps.Previewer {
         public void Initialize(PlayerScript playerScript)
         {
             this.playerScript = playerScript;
+            playerMouse = playerScript.PlayerMouse;
         }
 
         
@@ -101,11 +104,17 @@ namespace TileMaps.Previewer {
             
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
-            Vector3Int placePosition = TilePlaceUtils.GetItemPlacePosition(itemObject,position);
+            Vector2Int mouseCellPosition = Global.GetCellPositionFromWorld(position);
+            Vector3Int mouseCellPositionVector3 = new Vector3Int(mouseCellPosition.x,mouseCellPosition.y,0);
             
-            if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
+            if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(mouseCellPositionVector3,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
             }
+            
+            Vector2 tilePlacementWorld = playerMouse.BaseTilePlacementSearcher?.FindPlacementLocation(position) ?? position;
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tilePlacementWorld);
+            Vector3Int placePosition = new Vector3Int(cellPosition.x,cellPosition.y,0);
+            
             lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
             tilemapRenderer.material = defaultMaterialShader;

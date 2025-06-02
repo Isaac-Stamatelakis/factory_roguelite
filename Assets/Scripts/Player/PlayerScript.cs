@@ -111,6 +111,7 @@ namespace Player
             playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
             
             playerMouse.InitializeToolClickHandlers();
+            playerMouse.SyncTilePlacementCooldown();
             
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);

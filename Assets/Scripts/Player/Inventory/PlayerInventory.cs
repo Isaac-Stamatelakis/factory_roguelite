@@ -106,9 +106,9 @@ namespace PlayerModule {
                     selectedSlot = slot;
                     playerInventoryGrid.HighlightSlot(slot);
                     ItemSlot itemSlot = playerInventoryGrid.GetItemSlot(selectedSlot);
+                    playerMouse.UpdateOnSelectedSlotChange();
                     
                     TilePlacementIndicatorManagerUI tilePlacementIndicatorManager = playerScript.PlayerUIContainer.TileIndicatorManagerUI;
-                    
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.itemObject is not IPlacableItem placableItem)
                     {
                         tilePlacementIndicatorManager.gameObject.SetActive(false);

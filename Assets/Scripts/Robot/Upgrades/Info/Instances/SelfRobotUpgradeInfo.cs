@@ -52,6 +52,8 @@ namespace Robot.Upgrades.Info.Instances
                     return "Increases max energy";
                 case RobotUpgrade.NanoBots:
                     return $"After not taking damage for {NANO_BOT_DELAY} seconds, nanobots heal the robot";
+                case RobotUpgrade.TilePlacementRate:
+                    return "Reducing tile placement cooldown";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -77,32 +79,12 @@ namespace Robot.Upgrades.Info.Instances
                     return new RatioUpgradeFormatter("+", string.Empty,1/PlayerRobot.BASE_MOVE_SPEED,RatioUpgradeDisplayType.Percent);
                 case RobotUpgrade.JumpHeight:
                     return new RatioUpgradeFormatter("+", string.Empty,1/playerRobot.JumpStats.jumpVelocity,RatioUpgradeDisplayType.Percent);
-                case RobotUpgrade.BonusJump:
-                    break;
-                case RobotUpgrade.RocketBoots:
-                    break;
-                case RobotUpgrade.Flight:
-                    break;
-                case RobotUpgrade.Reach:
-                    break;
-                case RobotUpgrade.Dash:
-                    break;
-                case RobotUpgrade.Hover:
-                    break;
-                case RobotUpgrade.Teleport:
-                    break;
-                case RobotUpgrade.Light:
-                    break;
-                case RobotUpgrade.NightVision:
-                    break;
                 case RobotUpgrade.Health:
                     return new RatioUpgradeFormatter("+", string.Empty,HEALTH_PER_UPGRADE,RatioUpgradeDisplayType.Integer);
                 case RobotUpgrade.Energy:
                     return new EnergyUpgradeFormatter();
                 case RobotUpgrade.NanoBots:
                     return new RatioUpgradeFormatter(string.Empty,"S", NANO_BOT_TIME_PER_UPGRADE,RatioUpgradeDisplayType.Integer);
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             return null;
@@ -121,28 +103,8 @@ namespace Robot.Upgrades.Info.Instances
                     return new EnergyCostFormatter(BONUS_JUMP_COST,false,true);
                 case RobotUpgrade.RocketBoots:
                     return new EnergyCostFormatter(ROCKET_BOOTS_COST_PER_SECOND,true,true);
-                case RobotUpgrade.Flight:
-                    break;
-                case RobotUpgrade.Reach:
-                    break;
-                case RobotUpgrade.Dash:
-                    break;
-                case RobotUpgrade.Hover:
-                    break;
                 case RobotUpgrade.Teleport:
                     return new EnergyCostFormatter(TELEPORT_COST,false,true);
-                case RobotUpgrade.Light:
-                    break;
-                case RobotUpgrade.NightVision:
-                    break;
-                case RobotUpgrade.Health:
-                    break;
-                case RobotUpgrade.Energy:
-                    break;
-                case RobotUpgrade.NanoBots:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             return null;
@@ -154,7 +116,8 @@ namespace Robot.Upgrades.Info.Instances
             {
                 (int)RobotUpgrade.Speed,
                 (int)RobotUpgrade.JumpHeight,
-                (int)RobotUpgrade.Reach
+                (int)RobotUpgrade.Reach,
+                (int)RobotUpgrade.TilePlacementRate
             };
         }
 

@@ -134,7 +134,7 @@ namespace TileMaps.Place {
             }
         }
         public static Vector3Int GetItemPlacePosition(ItemObject itemObject, Vector2 position) {
-            if (itemObject is TileItem tileItem) {
+            if (itemObject is TileItem) {
                 return (Vector3Int)GetPlacePosition(position.x,position.y);
             }
             return (Vector3Int) Global.GetCellPositionFromWorld(position);
@@ -400,7 +400,6 @@ namespace TileMaps.Place {
             PlatformTileState state = (PlatformTileState)tilePlacementData.State;
             switch (state)
             {
-                case PlatformTileState.FlatConnectNone:
                 case PlatformTileState.FlatConnectOne:
                     bool left = flatTilemap.HasTile(cellPosition + Vector3Int.left)
                                 || leftTileMap.HasTile(cellPosition + Vector3Int.left + Vector3Int.up) ||
@@ -408,8 +407,9 @@ namespace TileMaps.Place {
                                 || rightTilemap.HasTile(cellPosition + Vector3Int.left + Vector3Int.up) ||
                                 rightTilemap.HasTile(cellPosition + Vector3Int.left);
                     return left ? 0 : 1;
+                case PlatformTileState.FlatConnectNone:
                 case PlatformTileState.FlatConnectAll:
-                    return 0;
+                    return UnityEngine.Random.Range(0,2);
                 case PlatformTileState.Slope:
                 case PlatformTileState.SlopeDeco:
                 case PlatformTileState.FlatSlopeConnectAllDeco:

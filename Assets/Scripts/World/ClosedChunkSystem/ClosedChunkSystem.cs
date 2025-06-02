@@ -64,6 +64,7 @@ namespace Chunks.Systems {
         List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>(128);
         private Transform entityContainer;
         private Random random = new Random();
+        private int lastShaderMapIndex;
         public Transform EntityContainer => entityContainer;
         public virtual void Awake () {
             mainCamera = Camera.main;
@@ -164,6 +165,11 @@ namespace Chunks.Systems {
                 {
                     tileGridMapShaderMaps.Add(worldShaderTilemap.GetManager());
                 }
+
+                if (worldTileMap is IMultiShaderTilemap multiShaderTilemap)
+                {
+                    multiShaderTilemap.FillShaderList(tileGridMapShaderMaps);
+                }
             }
             
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + $" Initialized with {tileGridMaps.Count} WorldTileMaps & {tileGridMapShaderMaps.Count} TileMapShaders");
@@ -223,15 +229,17 @@ namespace Chunks.Systems {
             }
             partitionLoader.addToQueue(partitionsToLoad);
             partitionUnloader.addToQueue(partitionsToUnload);
+            CullShaderMaps();
 
+        }
+
+        private void CullShaderMaps()
+        {
             double r = random.NextDouble();
-            if (r < 0.02f)
-            {
-                foreach (ShaderTilemapManager shaderTilemap in tileGridMapShaderMaps)
-                {
-                    shaderTilemap.PushUnusedMaps();
-                }
-            }
+            if (r >= 0.1f) return;
+            tileGridMapShaderMaps[lastShaderMapIndex].PushUnusedMaps();
+            lastShaderMapIndex++;
+            lastShaderMapIndex %= tileGridMapShaderMaps.Count;
 
         }
 

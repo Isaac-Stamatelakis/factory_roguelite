@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chunks.Partitions;
 using Chunks.Systems;
 using Dimensions;
@@ -17,7 +18,11 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.TileMap
 {
-    public class PlatformTileMap : WorldTileMap
+    public interface IMultiShaderTilemap
+    {
+        public void FillShaderList(List<ShaderTilemapManager> managers);
+    }
+    public class PlatformTileMap : WorldTileMap, IMultiShaderTilemap
     {
         private TileBase[] tileContainer;
         private PlatformSlopeTileMaps leftSlopeMaps;
@@ -300,7 +305,13 @@ namespace Tiles.TileMap
         {
             return (Vector2Int)tilemap.WorldToCell(position);
         }
-        
+
+        public void FillShaderList(List<ShaderTilemapManager> managers)
+        {
+            managers.Add(shaderTilemapManager);
+            leftSlopeMaps.AddShaperMapsToList(managers);
+            rightSlopeMaps.AddShaperMapsToList(managers);
+        }
     }
     
     public enum PlatformPlacementMode

@@ -7,6 +7,7 @@ using UnityEngine;
 using Tiles;
 using Tiles.Options.Overlay;
 using Tiles.TileMap;
+using UnityEngine.Tilemaps;
 
 namespace TileMaps {
     public class BackgroundWorldTileMap : WorldTileMap, IWorldShaderTilemap
@@ -40,7 +41,8 @@ namespace TileMaps {
             Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
             if (material)
             {
-                PlaceTileInTilemap(shaderTilemapManager.GetTileMap(material), tileItem, placementPositon, partition);
+                Tilemap shaderTilemap = shaderTilemapManager.GetTileMap(material);
+                PlaceTileInTilemap(shaderTilemap, tileItem, placementPositon, partition);
             }
         }
 

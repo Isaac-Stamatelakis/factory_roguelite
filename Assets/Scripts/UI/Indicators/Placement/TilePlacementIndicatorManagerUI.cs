@@ -36,13 +36,14 @@ namespace UI.Indicators.Placement
             
             if (displayItem is ConduitItem conduitItem)
             {
+                if (conduitItem.GetConduitType() == ConduitType.Matrix) return;
                 conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
                 conduitPlacementModeIndicatorUI.Display(conduitItem);
                 conduitLoadoutIndicatorUI.gameObject.SetActive(true);
                 conduitLoadoutIndicatorUI.Display(LoadOutConduitTypeExtension.FromConduitType(conduitItem.GetConduitType()));
             } else if (displayItem is TileItem tileItem)
             {
-                if (tileItem.tile is HammerTile)
+                if (tileItem.tile is HammerTile or PlatformStateTile)
                 {
                     tileStateIndicatorUI.gameObject.SetActive(true);
                     tileStateIndicatorUI.Display(tileItem);

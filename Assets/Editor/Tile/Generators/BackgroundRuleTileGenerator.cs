@@ -9,6 +9,7 @@ using Tiles.CustomTiles;
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
     private string tileName;
+    private EditorTileItemRebuilder itemRebuilder = new EditorTileItemRebuilder();
     [MenuItem("Tools/Item Constructors/Tile/Background")]
     public static void ShowWindow()
     {
@@ -34,12 +35,33 @@ public class BackgroundGeneratorWindow : EditorWindow {
         EditorGUILayout.Space();
         if (GUILayout.Button("Generate Background Item"))
         {
-            createTileItem();
+            CreateTileItem();
         }
+        
+        if (GUILayout.Button("Search For Item"))
+        {
+            itemRebuilder.SearchByTileName(tileName);
+        }
+
+        bool found = itemRebuilder.Found();
+        GUI.enabled = found;
+        Color defaultColor = GUI.color;
+        if (found)
+        {
+            GUI.color = Color.green;
+        }
+        if (GUILayout.Button("Rebuild"))
+        {
+            Rebuild();
+        }
+
+        GUI.color = defaultColor;
+        
+        GUI.enabled = true;
     }
 
     // ReSharper disable Unity.PerformanceAnalysis
-    void createTileItem()
+    private void CreateTileItem()
     {
         string path = "Assets/EditorCreations/" + tileName + "/";
         
@@ -59,5 +81,18 @@ public class BackgroundGeneratorWindow : EditorWindow {
             createFolder: false
         );
 #pragma warning restore CS0618 // Type or member is obsolete
+    }
+
+    private void Rebuild()
+    {
+        itemRebuilder.DeleteOldTileAssets();
+        string itemPath = itemRebuilder.GetItemPath();
+        string itemFolderPath = Path.GetDirectoryName(itemPath);
+        BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,itemFolderPath + "/", tileName);
+        tile.name = "T~" + tileName;
+        Debug.Log(tile.name);
+        AssetDatabase.CreateAsset(tile,Path.Combine(itemFolderPath,tile.name + ".asset"));
+        itemRebuilder.ReplaceTile(tile);
+        Debug.Log($"Rebuilt {tileName} at {itemPath}");
     }
 }
