@@ -423,6 +423,8 @@ namespace PlayerModule.Mouse {
             if (placed) {
                 playerScript.PlaceUpdate();
             }
+            playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
+            
             return placed;
         }
 
@@ -477,7 +479,7 @@ namespace PlayerModule.Mouse {
             ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot?.itemObject is TileItem tileItem)
             {
-                BaseTilePlacementSearcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, tileItem.tileType);
+                BaseTilePlacementSearcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tileType);
                 return;
             }
             BaseTilePlacementSearcher = null;
