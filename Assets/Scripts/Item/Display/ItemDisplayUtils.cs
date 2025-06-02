@@ -61,19 +61,21 @@ namespace Items {
             return fAmount.ToString("0.00" + suffix + FLUID_SUFFIX);
         }
         public static Vector3 GetItemScale(Sprite sprite) {
-            Vector2 size = GetItemSize(sprite);
-            if (size == Vector2.zero) {
+            Vector2 pixelSize = GetItemSize(sprite);
+            if (pixelSize == Vector2.zero) {
                 return Vector3.one;
             }
-            Vector3 vector = size.x >= size.y ? new Vector3(1,size.y/size.x,1) : new Vector3(size.x/size.y,1,1);
-            bool smallX = (int)size.x == 32;
-            bool smallY = (int)size.y == 32;
-            
-            if (smallX) {
-                vector.x = 0.5f;
+            Vector3 vector;
+            if (pixelSize.x > pixelSize.y)
+            {
+                vector = new Vector3(1, pixelSize.y / pixelSize.x, 1);
+            } else if (pixelSize.x < pixelSize.y)
+            {
+                vector = new Vector3(pixelSize.x/pixelSize.y,1,1);
             }
-            if (smallY) {
-                vector.y = 0.5f;
+            else
+            {
+                vector = pixelSize.x >= 32 ? Vector3.one : new Vector3(pixelSize.x/32,pixelSize.y/32,1);
             }
             return vector;
             
@@ -99,18 +101,15 @@ namespace Items {
             if (!sprite) {
                 return Vector2.zero;
             }
-            Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
-            if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
-                return new Vector2(32,32);
-            }
-            if (adjustedSpriteSize.x == adjustedSpriteSize.y) {
-                return new Vector2(64,64);
+            Vector2 adjustedSpriteSize = sprite.bounds.size;
+            if (Mathf.Approximately(adjustedSpriteSize.x, adjustedSpriteSize.y)) {
+                return new Vector2(adjustedSpriteSize.x*32,adjustedSpriteSize.x*32);
             }
             if (adjustedSpriteSize.x > adjustedSpriteSize.y) {
-                return new Vector2(64,adjustedSpriteSize.y/adjustedSpriteSize.x*64);
+                return new Vector2(32,adjustedSpriteSize.y/adjustedSpriteSize.x*32);
             }
             if (adjustedSpriteSize.y > adjustedSpriteSize.x) {
-                return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
+                return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*32,32);
             }
             return Vector2.zero;
         }
