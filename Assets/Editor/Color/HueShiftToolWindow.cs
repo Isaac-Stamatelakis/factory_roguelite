@@ -45,13 +45,13 @@ public class HueShiftToolWindow : EditorWindow {
             switch (i)
             {
                 case < 0:
-                    colorName = $"Light{Mathf.Abs(i)}";
+                    colorName = $"Dark{Mathf.Abs(i)}";
                     break;
                 case 0:
                     colorName = "Identity";
                     break;
                 case > 0:
-                    colorName = $"Dark{Mathf.Abs(i)}";
+                    colorName = $"Light{Mathf.Abs(i)}";
                     break;
             }
             using (new EditorGUILayout.HorizontalScope())
