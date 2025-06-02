@@ -150,7 +150,7 @@ namespace Chunks.Systems {
             MobEntityParticleController mobEntityParticleController = entityContainerObject.AddComponent<MobEntityParticleController>();
             mobEntityParticleController.Initialize(DimensionManager.Instance.MiscDimAssets.EntityDeathParticlePrefab);
             entityContainer = entityContainerObject.transform;
-            entityContainer.transform.localPosition = new Vector3(0, 0, 2);
+            entityContainer.transform.localPosition = new Vector3(0, 0, -3f);
             
             player = PlayerManager.Instance.GetPlayer();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();

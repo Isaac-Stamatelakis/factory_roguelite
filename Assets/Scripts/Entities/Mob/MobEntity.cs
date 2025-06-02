@@ -47,6 +47,12 @@ namespace Entities.Mobs {
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
 
+        private enum LayerPosition
+        {
+            InFrontTiles = 0,
+            BehindTiles = 1
+        }
+
         public enum MobDeathParticles
         {
             Standard = 0,
@@ -61,6 +67,7 @@ namespace Entities.Mobs {
         public float Health = 10;
         public LootTable LootTable;
         public MobDeathParticles DeathParticles = MobDeathParticles.None;
+        [SerializeField] private LayerPosition layerPosition = LayerPosition.InFrontTiles;
         
         private string id;
         public void Deserialize(SerializedMobEntityData entityData) {
@@ -201,7 +208,13 @@ namespace Entities.Mobs {
 
         public override void Initialize()
         {
-            
+            return;
+            if (layerPosition == LayerPosition.BehindTiles)
+            {
+                var vector3 = transform.localPosition;
+                vector3.z = 2;
+                transform.localPosition = vector3;
+            }
         }
 
         public static float GetRandomSize()
