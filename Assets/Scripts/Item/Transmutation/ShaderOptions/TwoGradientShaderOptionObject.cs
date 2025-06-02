@@ -8,5 +8,13 @@ namespace Item.Transmutation.ShaderOptions
         public float HueShift;
         public Color FirstColor;
         public Color SecondColor;
+        public override void Apply(Material material)
+        {
+            int first = Shader.PropertyToID("_First");
+            int second = Shader.PropertyToID("_Second");
+                    
+            material.SetColor(first,FirstColor);
+            material.SetColor(second,SecondColor);
+        }
     }
 }

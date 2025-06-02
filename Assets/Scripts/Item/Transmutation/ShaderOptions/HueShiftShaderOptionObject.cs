@@ -7,5 +7,10 @@ namespace Item.Transmutation.ShaderOptions
     public class HueShiftShaderOptionObject : TransmutationShaderOptionObject
     {
         public float HueShift = -0.1f;
+        public override void Apply(Material material)
+        {
+            int hueShift = Shader.PropertyToID("_HueShift");
+            material.SetFloat(hueShift,HueShift);
+        }
     }
 }
