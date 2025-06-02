@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chunks.Systems;
 using TileMaps;
 using TileMaps.Type;
@@ -47,10 +48,17 @@ namespace Player.Mouse.TilePlaceSearcher
 
     public class BackgroundBaseTilePlacementSearcher : BaseTilePlacementSearcher
     {
+        private List<IWorldTileMap> collidableMaps;
         private BackgroundWorldTileMap backgroundTilemap;
         public BackgroundBaseTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem,playerScript)
         {
-            backgroundTilemap = (BackgroundWorldTileMap)closedChunkSystem.GetTileMap(TileMapType.Background);
+            collidableMaps = new List<IWorldTileMap>
+            {
+                closedChunkSystem.GetTileMap(TileMapType.Background),
+                closedChunkSystem.GetTileMap(TileMapType.Block),
+                closedChunkSystem.GetTileMap(TileMapType.Object),
+                closedChunkSystem.GetTileMap(TileMapType.Platform),
+            };
         }
 
         public override Vector2 FindPlacementLocation(Vector2 mousePosition)
@@ -61,26 +69,16 @@ namespace Player.Mouse.TilePlaceSearcher
             Vector2? foundTile = CheckCellsWithBresenham(PlayerScript.transform.position, mouseDirection);
             
             if (!foundTile.HasValue) return mousePosition;
-            Vector2Int offset = new Vector2Int(GetOffset(mouseDirection.x), GetOffset(mouseDirection.y));
-            const float OFFSET_BOUNDS = 0.2f;
-
+           
             return foundTile.Value;
-
-            int GetOffset(float direction)
-            {
-                return direction switch
-                {
-                    > -OFFSET_BOUNDS => 1,
-                    < -OFFSET_BOUNDS => -1,
-                    _ => 0
-                };
-            }
+            
             Vector2? CheckCellsWithBresenham(Vector2 origin, Vector2 direction)
             {
                 Vector2? lastEmptyTile = null;
                 Vector2? foundTile = null;
                 float distance = Mathf.Min((origin - mousePosition).magnitude, 5);
-                Tilemap tilemap = backgroundTilemap.GetTilemap();
+                
+                Tilemap tilemap = collidableMaps[0].GetTilemap(); // Doesn't matter what map it is all are the same for getting cell
                 Vector3Int startCell = tilemap.WorldToCell(origin);
                 Vector2 endPos = origin + direction * distance;
                 Vector3Int endCell = tilemap.WorldToCell(endPos);
@@ -98,13 +96,20 @@ namespace Player.Mouse.TilePlaceSearcher
                 
                 while (true)
                 {
-                    Vector3Int currentCell = new Vector3Int(x0, y0, 0);
-        
-                    if (tilemap.HasTile(currentCell))
+                    Vector2Int currentCell = new Vector2Int(x0, y0);
+
+                    bool found = false;
+                    foreach (IWorldTileMap worldTileMap in collidableMaps)
                     {
-                        foundTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);
+                        if (worldTileMap.HasTile(currentCell))
+                        {
+                            foundTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);
+                            found = true;
+                            break;
+                        }
                     }
-                    else
+
+                    if (!found)
                     {
                         lastEmptyTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);
                         if (foundTile.HasValue)
@@ -112,7 +117,7 @@ namespace Player.Mouse.TilePlaceSearcher
                             return lastEmptyTile;
                         }
                     }
-        
+                    
                     if (x0 == x1 && y0 == y1) break;
         
                     int e2 = 2 * err;
