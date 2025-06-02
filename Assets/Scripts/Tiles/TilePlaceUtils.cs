@@ -151,7 +151,6 @@ namespace TileMaps.Place {
             }
             
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
-            
             if (exclusion == null)
             {
                 if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;
@@ -580,7 +579,14 @@ namespace TileMaps.Place {
                 tileMap = collider.GetComponentInParent<WorldTileMap>();
             }
             TileItem tile = tileMap?.GetTileItem(position);
-            if (!tile) return false;
+            
+            /*
+             * This section is kind of confusing. If a tile is place breakable, we have to return false to allow tiles to
+             * be placed on top of it. Since only 16x16 tiles can be place breakable, if the collider hits, but there is not a tile
+             * at the position (cause its larger than 16x16) then return true. Otherwise, return false if the tile is place breakable.
+            */
+            
+            if (!tile) return true;
             return !tile.tileOptions.placeBreakable;
         }
 
@@ -793,12 +799,4 @@ public enum Direction {
     Down,
     Up,
     Center
-}
-
-public enum DirectionState
-{
-    Left = 1,
-    Right = 2,
-    Down = 4,
-    Up = 8,
 }

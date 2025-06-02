@@ -82,6 +82,9 @@ namespace Items.Transmutable {
                 default:
                     return null;
             }
+
+            uiCopy.name = ShaderMaterial.UIMaterial.name + ShaderOption.name;
+            worldCopy.name = ShaderMaterial.UIMaterial.name + ShaderOption.name;
             return new TransmutationShaderPair(uiCopy, worldCopy);
         }
     }

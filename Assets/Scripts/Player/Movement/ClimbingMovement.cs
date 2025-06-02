@@ -24,7 +24,8 @@ namespace Player.Movement
             rb.gravityScale = 0;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX |  RigidbodyConstraints2D.FreezeRotation;
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
-
+            playerRobot.playerColliders.SetStateClimbing();
+            
             inputActions = playerRobot.GetComponent<PlayerScript>().InputActions;
             movementActions = inputActions.LadderMovement;
             movementActions.Move.performed += OnMovePress;
@@ -35,6 +36,8 @@ namespace Player.Movement
             movementActions.JumpEscape.performed += OnEscapeVerticalPress;
             
             movementActions.Enable();
+            
+            
         }
 
         private void OnMovePress(InputAction.CallbackContext context)

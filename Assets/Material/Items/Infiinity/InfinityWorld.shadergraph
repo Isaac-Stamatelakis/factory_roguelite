@@ -14,6 +14,9 @@
         },
         {
             "m_Id": "c28d1c2693e442b88f8b3baf1b22a516"
+        },
+        {
+            "m_Id": "3ead9b12c6734b17a890289236ad5e9a"
         }
     ],
     "m_Keywords": [],
@@ -59,6 +62,9 @@
         },
         {
             "m_Id": "adf58af9d7bc4117a26d3463f08a354f"
+        },
+        {
+            "m_Id": "eea44ee83dd84846b95317b3be8d9ea7"
         }
     ],
     "m_GroupDatas": [],
@@ -147,6 +153,20 @@
                 },
                 "m_SlotId": 0
             }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "eea44ee83dd84846b95317b3be8d9ea7"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "adf58af9d7bc4117a26d3463f08a354f"
+                },
+                "m_SlotId": -1067412383
+            }
         }
     ],
     "m_VertexContext": {
@@ -210,6 +230,18 @@
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.Rendering.Universal.ShaderGraph.UniversalSpriteLitSubTarget",
     "m_ObjectId": "033f941f0bd14700943c9091c49a8ccd"
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.GradientMaterialSlot",
+    "m_ObjectId": "1224eaf9f7164cffb3417b092400a0be",
+    "m_Id": 0,
+    "m_DisplayName": "_Gradient",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3
 }
 
 {
@@ -357,6 +389,97 @@
     },
     "m_Property": {
         "m_Id": "30830b05697849499f2d9f98c546f52a"
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.GradientShaderProperty",
+    "m_ObjectId": "3ead9b12c6734b17a890289236ad5e9a",
+    "m_Guid": {
+        "m_GuidSerialized": "58b7422c-240f-4547-aad2-a7a83c65be10"
+    },
+    "m_Name": "_Gradient",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "_Gradient",
+    "m_DefaultReferenceName": "_Gradient",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": false,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "serializedVersion": "2",
+        "key0": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "key1": {
+            "r": 1.0,
+            "g": 0.9094449877738953,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "key2": {
+            "r": 0.0,
+            "g": 1.0,
+            "b": 0.0027883052825927736,
+            "a": 0.0
+        },
+        "key3": {
+            "r": 0.0,
+            "g": 0.23184776306152345,
+            "b": 1.0,
+            "a": 0.0
+        },
+        "key4": {
+            "r": 0.19228963553905488,
+            "g": 0.0,
+            "b": 0.8588235378265381,
+            "a": 0.0
+        },
+        "key5": {
+            "r": 0.8196078538894653,
+            "g": 0.0,
+            "b": 0.2590038776397705,
+            "a": 0.0
+        },
+        "key6": {
+            "r": 1.0,
+            "g": 0.010668467730283738,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key7": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 0.0
+        },
+        "ctime0": 3662,
+        "ctime1": 10601,
+        "ctime2": 19082,
+        "ctime3": 27371,
+        "ctime4": 37779,
+        "ctime5": 45489,
+        "ctime6": 54163,
+        "ctime7": 62644,
+        "atime0": 0,
+        "atime1": 65535,
+        "atime2": 0,
+        "atime3": 0,
+        "atime4": 0,
+        "atime5": 0,
+        "atime6": 0,
+        "atime7": 0,
+        "m_Mode": 0,
+        "m_NumColorKeys": 8,
+        "m_NumAlphaKeys": 2
     }
 }
 
@@ -757,6 +880,9 @@
             "m_Id": "3671b5eb24d9443788b7baece7085637"
         },
         {
+            "m_Id": "f40efbe580ce4e34b60a7bd51123b867"
+        },
+        {
             "m_Id": "b03c2c0a219241a398a07b07b6ac1528"
         },
         {
@@ -775,13 +901,15 @@
         "9bad38ab-415b-4167-b55c-59ccb84abbcc",
         "ec7aad29-0c9d-44a0-9cde-41c15a5953ea",
         "d0c7c5ab-c81a-41e0-99d5-70027eeadaed",
-        "2d4e6eb1-f55e-4f81-a524-abc4470ab530"
+        "2d4e6eb1-f55e-4f81-a524-abc4470ab530",
+        "697237c2-55b7-44b8-9e1c-39d98aea9334"
     ],
     "m_PropertyIds": [
         -634884099,
         -2084034958,
         2123182678,
-        -1764641523
+        -1764641523,
+        -1067412383
     ],
     "m_Dropdowns": [],
     "m_DropdownSelectedEntries": []
@@ -1014,6 +1142,41 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "eea44ee83dd84846b95317b3be8d9ea7",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Property",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -384.65899658203127,
+            "y": 456.86041259765627,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "1224eaf9f7164cffb3417b092400a0be"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Property": {
+        "m_Id": "3ead9b12c6734b17a890289236ad5e9a"
+    }
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "f277e05bd5fb4350b9ebbfff6d84b7cc",
     "m_Group": {
@@ -1043,6 +1206,158 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "SurfaceDescription.BaseColor"
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.GradientInputMaterialSlot",
+    "m_ObjectId": "f40efbe580ce4e34b60a7bd51123b867",
+    "m_Id": -1067412383,
+    "m_DisplayName": "_Gradient",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "_Gradient",
+    "m_StageCapability": 2,
+    "m_Value": {
+        "serializedVersion": "2",
+        "key0": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "key1": {
+            "r": 1.0,
+            "g": 0.9094449877738953,
+            "b": 0.0,
+            "a": 1.0
+        },
+        "key2": {
+            "r": 0.0,
+            "g": 1.0,
+            "b": 0.0027883052825927736,
+            "a": 0.0
+        },
+        "key3": {
+            "r": 0.0,
+            "g": 0.23184776306152345,
+            "b": 1.0,
+            "a": 0.0
+        },
+        "key4": {
+            "r": 0.19228963553905488,
+            "g": 0.0,
+            "b": 0.8588235378265381,
+            "a": 0.0
+        },
+        "key5": {
+            "r": 0.8196078538894653,
+            "g": 0.0,
+            "b": 0.2590038776397705,
+            "a": 0.0
+        },
+        "key6": {
+            "r": 1.0,
+            "g": 0.010668467730283738,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key7": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 0.0
+        },
+        "ctime0": 3662,
+        "ctime1": 10601,
+        "ctime2": 19082,
+        "ctime3": 27371,
+        "ctime4": 37779,
+        "ctime5": 45489,
+        "ctime6": 54163,
+        "ctime7": 62644,
+        "atime0": 0,
+        "atime1": 65535,
+        "atime2": 0,
+        "atime3": 0,
+        "atime4": 0,
+        "atime5": 0,
+        "atime6": 0,
+        "atime7": 0,
+        "m_Mode": 0,
+        "m_NumColorKeys": 8,
+        "m_NumAlphaKeys": 2
+    },
+    "m_DefaultValue": {
+        "serializedVersion": "2",
+        "key0": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "key1": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "key2": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key3": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key4": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key5": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key6": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "key7": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0,
+            "a": 0.0
+        },
+        "ctime0": 0,
+        "ctime1": 65535,
+        "ctime2": 0,
+        "ctime3": 0,
+        "ctime4": 0,
+        "ctime5": 0,
+        "ctime6": 0,
+        "ctime7": 0,
+        "atime0": 0,
+        "atime1": 65535,
+        "atime2": 0,
+        "atime3": 0,
+        "atime4": 0,
+        "atime5": 0,
+        "atime6": 0,
+        "atime7": 0,
+        "m_Mode": 0,
+        "m_NumColorKeys": 2,
+        "m_NumAlphaKeys": 2
+    }
 }
 
 {
@@ -1119,6 +1434,9 @@
         },
         {
             "m_Id": "4f890bc56b114846acb2958ebff541e2"
+        },
+        {
+            "m_Id": "3ead9b12c6734b17a890289236ad5e9a"
         }
     ]
 }

@@ -25,6 +25,7 @@ namespace Player.Movement
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             playerRobot.AnimationController.ToggleBool(PlayerAnimationState.Air,true);
             fixedUpdateHandler = new FlightMovementFixedUpdateHandler(playerRobot);
+            playerRobot.playerColliders.SetStateFlight(false);
             
             movementActions = playerRobot.GetComponent<PlayerScript>().InputActions.FlightMovement;
             movementActions.Move.performed += OnMovePress;

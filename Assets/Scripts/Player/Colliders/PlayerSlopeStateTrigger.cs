@@ -26,10 +26,16 @@ namespace Player.Movement
             defaultSize = boxCollider.size;
         }
 
-        public void Update()
+        public void UpdateSize(float velocity, bool jumping)
         {
+            Vector2 size = defaultSize;
+            if (jumping)
+            {
+                boxCollider.size = size;
+                return;
+            }
             Vector2 bonusSize = Mathf.Abs(rb.velocity.x) * new Vector2(0.025f, 0.05f);
-            boxCollider.size = defaultSize + bonusSize;
+            boxCollider.size = size + bonusSize;
         }
 
         public void OnTriggerEnter2D(Collider2D other)

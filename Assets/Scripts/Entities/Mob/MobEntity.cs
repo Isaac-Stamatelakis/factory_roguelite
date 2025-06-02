@@ -46,7 +46,7 @@ namespace Entities.Mobs {
     }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
-
+        
         public enum MobDeathParticles
         {
             Standard = 0,

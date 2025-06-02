@@ -1,16 +1,22 @@
 using System.Collections.Generic;
+using System.Linq;
 using TileMaps.Type;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Tiles.TileMap
 {
+    public interface IWorldShaderTilemap
+    {
+        public ShaderTilemapManager GetManager();
+    }
     public class ShaderTilemapManager
     {
+        private const string UNUSED_NAME = "UnusedTileMap";
         private readonly bool hasCollider;
         private readonly float zOffset;
         private readonly Transform parentTransform;
-        private readonly Dictionary<Material, Tilemap> materialTileMaps = new();
+        private readonly Dictionary<int, Tilemap> materialTileMaps = new();
         private readonly Stack<Tilemap> unusedTileMaps = new();
         private readonly List<Tilemap> usedTileMaps = new();
         private TileMapType tileMapType;
@@ -32,7 +38,7 @@ namespace Tiles.TileMap
         private void PushNewTilemap()
         {
             int count = unusedTileMaps.Count + materialTileMaps.Count;
-            GameObject overlayTileMapObject = new GameObject($"ShaderOverlayTileMap_{count}");
+            GameObject overlayTileMapObject = new GameObject(UNUSED_NAME);
             overlayTileMapObject.layer = LayerMask.NameToLayer(tileMapType.ToString());
             overlayTileMapObject.transform.SetParent(parentTransform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
@@ -50,7 +56,7 @@ namespace Tiles.TileMap
         
         public Tilemap GetTileMap(Material material)
         {
-            if (materialTileMaps.TryGetValue(material, out Tilemap tilemap)) return tilemap;
+            if (materialTileMaps.TryGetValue(material.GetInstanceID(), out Tilemap tilemap)) return tilemap;
             if (unusedTileMaps.Count == 0)
             {
                 PushNewTilemap();
@@ -58,7 +64,8 @@ namespace Tiles.TileMap
             tilemap = unusedTileMaps.Pop();
             tilemap.gameObject.SetActive(true);
             tilemap.GetComponent<TilemapRenderer>().material = material;
-            materialTileMaps[material] = tilemap;
+            tilemap.name = $"{material.name}_tilemap";
+            materialTileMaps[material.GetInstanceID()] = tilemap;
             usedTileMaps.Add(tilemap);
             
             return tilemap;
@@ -75,17 +82,36 @@ namespace Tiles.TileMap
                 }
             }
         }
+        
 
-        public bool HasTile(Vector3Int cellPosition)
+        public void PushUnusedMaps()
         {
-            Debug.Log(cellPosition);
-            foreach (Tilemap tilemap in usedTileMaps)
+            List<Tilemap> removedTilemaps = new List<Tilemap>();
+            for (var index = usedTileMaps.Count-1; index >= 0 ; index--)
             {
-                Debug.Log(tilemap.name);
-                if (tilemap.HasTile(cellPosition)) return true;
+                var tilemap = usedTileMaps[index];
+                tilemap.CompressBounds();
+                if (tilemap.cellBounds.size.x > 0 || tilemap.cellBounds.size.y > 0)
+                {
+                    continue; 
+                }
+                tilemap.gameObject.SetActive(false);
+                unusedTileMaps.Push(tilemap);
+                usedTileMaps.RemoveAt(index);
+                removedTilemaps.Add(tilemap);
+                
+                tilemap.gameObject.name = UNUSED_NAME;
             }
 
-            return false;
+            // Removing by material is not consistent due to Instance copying. Just search for the key with the tilemap
+            foreach (Tilemap tilemap in removedTilemaps)
+            {
+                var pair = materialTileMaps.FirstOrDefault(x => x.Value == tilemap);
+                if (pair.Value)
+                {
+                    materialTileMaps.Remove(pair.Key);
+                }
+            }
         }
     }
 }

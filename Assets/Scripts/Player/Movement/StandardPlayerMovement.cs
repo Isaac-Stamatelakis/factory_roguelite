@@ -20,7 +20,7 @@ namespace Player.Movement.Standard
     {
         protected PlayerRobot playerRobot;
 
-        protected BasePlayerMovement(PlayerRobot playerRobot)
+        internal BasePlayerMovement(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
         }
@@ -110,11 +110,14 @@ namespace Player.Movement.Standard
         private bool walkingDownSlope;
         private TileMovementType currentTileMovementType;
         private int baseCollidableLayer;
+        private PlayerSlopeStateTrigger slopeStateTrigger;
         public StandardPlayerMovement(PlayerRobot playerRobot) : base(playerRobot)
         {
             rb = playerRobot.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             playerScript = playerRobot.GetComponent<PlayerScript>();
+            playerRobot.playerColliders.SetStateStandard();
+            slopeStateTrigger = playerRobot.playerColliders.SlopeTrigger.GetComponent<PlayerSlopeStateTrigger>();
             
             spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             movementStats = playerRobot.MovementStats;
@@ -148,6 +151,7 @@ namespace Player.Movement.Standard
             }
             
             
+            
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
@@ -164,6 +168,7 @@ namespace Player.Movement.Standard
             UpdateHorizontalMovement(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+            slopeStateTrigger.UpdateSize(velocity.x,jumpEvent!=null);
             
 
             void UpdateMovementAnimations()
@@ -329,9 +334,8 @@ namespace Player.Movement.Standard
             TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
             TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
             
-            if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
-            if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
-            return TileMovementType.None;
+            // Enums are ordered by priority
+            return left > right ? left : right; 
         }
 
         private TileItem GetTileItemBelow(Vector2 position)
@@ -479,7 +483,19 @@ namespace Player.Movement.Standard
                 case TileMovementType.Slow:
                     speed *= movementStats.slowSpeedReduction;
                     break;
+                case TileMovementType.Fast:
+                    speed *= 1.25f;
+                    break;
+                case TileMovementType.SuperFast:
+                    speed *= 1.5f;
+                    break;
+                case TileMovementType.LightningFast:
+                    speed *= 2;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+            Debug.Log(currentTileMovementType);
            
             if (!playerRobot.IsOnGround()) speed *= movementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0, speed, wishdir);

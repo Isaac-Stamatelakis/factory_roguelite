@@ -349,15 +349,8 @@ namespace PlayerModule {
 
         public void InventoryUpdate(int n)
         {
-            
-        }
-
-        public void hideUI() {
-            playerInventoryGrid.gameObject.SetActive(false);
-        }
-
-        public void showUI() {
-            playerInventoryGrid.gameObject.SetActive(true);
+            if (n != selectedSlot) return;
+            ChangeSelectedSlot(n); // If selected slot changes call ChangeSelectedSlot on index to refresh indicators
         }
     }
 

@@ -20,9 +20,11 @@ using Entities.Mob;
 using Player;
 using TileEntity;
 using TileEntity.AssetManagement;
+using Tiles.TileMap;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 using World.Cave.Registry;
+using Random = System.Random;
 
 namespace Chunks.Systems {
     
@@ -32,8 +34,9 @@ namespace Chunks.Systems {
     /// </summary>
     public abstract class ClosedChunkSystem : MonoBehaviour, ILoadedChunkSystem
     {
-        protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
-        protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
+        protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new();
+        private List<ShaderTilemapManager> tileGridMapShaderMaps = new();
+        protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new();
         protected PlayerScript player;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
@@ -60,6 +63,7 @@ namespace Chunks.Systems {
         List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>(128);
         List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>(128);
         private Transform entityContainer;
+        private Random random = new Random();
         public Transform EntityContainer => entityContainer;
         public virtual void Awake () {
             mainCamera = Camera.main;
@@ -123,6 +127,13 @@ namespace Chunks.Systems {
             this.breakIndicator = Instantiate(dimensionObjects.tileBreakIndicator, transform, false);
         }
         
+        /// <summary>
+        /// Initializes system objects. This should be called after all tile grid maps are initialized
+        /// </summary>
+        /// <param name="dimController"></param>
+        /// <param name="coveredArea"></param>
+        /// <param name="dim"></param>
+        
         public void InitializeObject(DimController dimController, IntervalVector coveredArea, int dim) {
             transform.position = Vector3.zero;
 
@@ -139,7 +150,7 @@ namespace Chunks.Systems {
             MobEntityParticleController mobEntityParticleController = entityContainerObject.AddComponent<MobEntityParticleController>();
             mobEntityParticleController.Initialize(DimensionManager.Instance.MiscDimAssets.EntityDeathParticlePrefab);
             entityContainer = entityContainerObject.transform;
-            entityContainer.transform.localPosition = new Vector3(0, 0, 2);
+            entityContainer.transform.localPosition = new Vector3(0, 0, -3f);
             
             player = PlayerManager.Instance.GetPlayer();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
@@ -147,12 +158,22 @@ namespace Chunks.Systems {
             this.coveredArea = coveredArea;
             InitLoaders();
             
-            Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
+            foreach (var worldTileMap in tileGridMaps.Values)
+            {
+                if (worldTileMap is IWorldShaderTilemap worldShaderTilemap)
+                {
+                    tileGridMapShaderMaps.Add(worldShaderTilemap.GetManager());
+                }
+            }
+            
+            Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + $" Initialized with {tileGridMaps.Count} WorldTileMaps & {tileGridMapShaderMaps.Count} TileMapShaders");
 
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
             cameraBounds.SetSystem(this,dimController.BoundCamera);
             
             fluidTileMap = tileGridMaps[TileMapType.Fluid] as FluidTileMap;
+
+            
         }
 
         public virtual void InitLoaders() {
@@ -178,7 +199,7 @@ namespace Chunks.Systems {
             );
         }
         
-        public virtual void PlayerPartitionUpdate() {
+        public void PlayerPartitionUpdate() {
             Vector2Int playerChunkPosition = GetPlayerChunk();
             
             Vector2Int last = currentPlayerPartition;
@@ -202,7 +223,16 @@ namespace Chunks.Systems {
             }
             partitionLoader.addToQueue(partitionsToLoad);
             partitionUnloader.addToQueue(partitionsToUnload);
-            
+
+            double r = random.NextDouble();
+            if (r < 0.02f)
+            {
+                foreach (ShaderTilemapManager shaderTilemap in tileGridMapShaderMaps)
+                {
+                    shaderTilemap.PushUnusedMaps();
+                }
+            }
+
         }
 
         public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {
@@ -434,6 +464,7 @@ namespace Chunks.Systems {
         public ParticleSystem EntityDeathParticlePrefab;
         public TileBase SlopeExtendColliderTile;
         public Material HueShifterWorldMaterial;
+        public TileBase EmptyTile;
     }
 }
 
