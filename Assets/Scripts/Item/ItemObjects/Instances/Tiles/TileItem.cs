@@ -19,7 +19,10 @@ public enum TileMovementType
 {
     None,
     Slippery,
-    Slow
+    Slow,
+    Fast,
+    SuperFast,
+    LightningFast
 }
 public enum TileType {
     Block,

@@ -334,9 +334,8 @@ namespace Player.Movement.Standard
             TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
             TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
             
-            if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
-            if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
-            return TileMovementType.None;
+            // Enums are ordered by priority
+            return left > right ? left : right; 
         }
 
         private TileItem GetTileItemBelow(Vector2 position)
@@ -484,7 +483,19 @@ namespace Player.Movement.Standard
                 case TileMovementType.Slow:
                     speed *= movementStats.slowSpeedReduction;
                     break;
+                case TileMovementType.Fast:
+                    speed *= 1.25f;
+                    break;
+                case TileMovementType.SuperFast:
+                    speed *= 1.5f;
+                    break;
+                case TileMovementType.LightningFast:
+                    speed *= 2;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+            Debug.Log(currentTileMovementType);
            
             if (!playerRobot.IsOnGround()) speed *= movementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0, speed, wishdir);

@@ -464,6 +464,7 @@ namespace Chunks.Systems {
         public ParticleSystem EntityDeathParticlePrefab;
         public TileBase SlopeExtendColliderTile;
         public Material HueShifterWorldMaterial;
+        public TileBase EmptyTile;
     }
 }
 

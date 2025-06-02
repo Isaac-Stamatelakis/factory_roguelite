@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TileMaps.Type;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -29,7 +30,6 @@ namespace Tiles.TileMap.Platform
 
             slopeShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, true, TileMapType.Platform);
             decoShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
-            
         }
 
         public Tilemap GetSlopeTileMap()
@@ -69,6 +69,12 @@ namespace Tiles.TileMap.Platform
                 decoPlacementMap.SetTileFlags(cellPosition+Vector3Int.down, TileFlags.None);
                 decoPlacementMap.SetColor(cellPosition+Vector3Int.down,color);
             }
+        }
+
+        public void AddShaperMapsToList(List<ShaderTilemapManager> managers)
+        {
+            managers.Add(slopeShaderTilemapManager);
+            managers.Add(decoShaderTilemapManager);
         }
     }
 }

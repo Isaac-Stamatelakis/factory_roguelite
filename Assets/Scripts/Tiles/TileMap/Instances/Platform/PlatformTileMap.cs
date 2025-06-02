@@ -34,7 +34,7 @@ namespace Tiles.TileMap
             MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
             var slopeColliderExtendTile = miscDimAssets.SlopeExtendColliderTile;
             Material hueShifter = miscDimAssets.HueShifterWorldMaterial;
-            emptyTile = miscDimAssets.SlopeExtendColliderTile;
+            emptyTile = miscDimAssets.EmptyTile;
             
             leftSlopeMaps = InitializeSlopeMap(SlopeRotation.Left);
             rightSlopeMaps = InitializeSlopeMap(SlopeRotation.Right);
