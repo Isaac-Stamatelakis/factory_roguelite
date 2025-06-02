@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Dimensions;
 using Player;
+using TileMaps;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using WorldModule.Caves;
@@ -17,11 +18,13 @@ namespace TileEntity.Instances.Caves.Teleporter
             {
                 public Tilemap Tilemap;
                 public Color InitialColor;
+                public float FadeRate;
 
-                public TilemapColorValue(Tilemap tilemap, Color initialColor)
+                public TilemapColorValue(Tilemap tilemap, Color initialColor, float fadeRate)
                 {
                     Tilemap = tilemap;
                     InitialColor = initialColor;
+                    FadeRate = fadeRate;
                 }
             }
             private List<TilemapColorValue> tilemapColorValues;
@@ -39,11 +42,13 @@ namespace TileEntity.Instances.Caves.Teleporter
                     if (tilemap.gameObject.tag == "Outline")
                     {
                         tilemap.gameObject.SetActive(false);
+                        continue;
                     }
-                    else
-                    {
-                        tilemapColorValues.Add(new TilemapColorValue(tilemap,tilemap.color));
-                    }
+
+                    IWorldTileMap worldTilemap = tilemap.gameObject.GetComponent<IWorldTileMap>();
+                    bool shaderOverlayMap = worldTilemap == null;
+                    float fadeRate = shaderOverlayMap ? 1 : 1.5f;
+                    tilemapColorValues.Add(new TilemapColorValue(tilemap,tilemap.color,fadeRate));
                 }
                 
             }
@@ -56,7 +61,7 @@ namespace TileEntity.Instances.Caves.Teleporter
                 {
                     Tilemap tilemap = tilemapColorValue.Tilemap;
                     if (!tilemap) continue;
-                    tilemapColorValue.Tilemap.color = Color.Lerp(tilemapColorValue.InitialColor,fadeColor,progress);
+                    tilemapColorValue.Tilemap.color = Color.Lerp(tilemapColorValue.InitialColor,fadeColor,tilemapColorValue.FadeRate*progress);
                 }
             }
             

@@ -5,6 +5,7 @@ using TileMaps;
 using TileMaps.Type;
 using Tiles;
 using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using Tiles.TileMap;
 using Tiles.TileMap.Platform;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -130,7 +131,7 @@ namespace Player.Mouse.TilePlaceSearcher
 
             return searchMode switch
             {
-                LineSearchMode.FirstEmpty => lastEmptyTile,
+                LineSearchMode.FirstEmpty => lastHitTile,
                 LineSearchMode.FirstHit or LineSearchMode.LastHit => lastHitTile,
                 _ => throw new ArgumentOutOfRangeException(nameof(searchMode), searchMode, null)
             };
@@ -155,24 +156,41 @@ namespace Player.Mouse.TilePlaceSearcher
         public override Vector2 FindPlacementLocation(Vector2 mousePosition)
         {
             float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
-            Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
+          
+            float max = 5;
+            Vector2? foundTile = Search(theta);
+            if (foundTile.HasValue) return foundTile.Value;
+            int r = 1;
+            while (r < 3)
+            {
+                foundTile = Search(theta - Mathf.PI / 12 * r);
+                if (foundTile.HasValue) return foundTile.Value;
+                foundTile = Search(theta + Mathf.PI / 12 * r);
+                if (foundTile.HasValue) return foundTile.Value;
+                r++;
+            }
+            return mousePosition;
             
-            Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.FirstEmpty, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,true);
-            
-            return foundTile ?? mousePosition;
+            Vector2? Search(float currentTheta)
+            {
+                return TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.FirstEmpty, PlayerScript.transform.position, new Vector2(Mathf.Cos(currentTheta),Mathf.Sin(currentTheta)),mousePosition,collidableMaps,max,true);
+            }
         }
     }
 
     public class PlatformTilePlacementSearcher : BaseTilePlacementSearcher
     {
-        private List<IWorldTileMap> collidableMaps;
+        private readonly List<IWorldTileMap> collidableMaps;
+        private readonly PlatformTileMap platformTileMap;
         public PlatformTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
         {
+            platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
             collidableMaps = new List<IWorldTileMap>
             {
                 closedChunkSystem.GetTileMap(TileMapType.Block),
-                closedChunkSystem.GetTileMap(TileMapType.Platform),
+                platformTileMap
             };
+            
         }
 
         public override Vector2 FindPlacementLocation(Vector2 mousePosition)
@@ -180,18 +198,21 @@ namespace Player.Mouse.TilePlaceSearcher
             float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
             Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
             BaseTileData autoTileData = PlayerScript.TilePlacementOptions.AutoBaseTileData;
+            Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
+            if (!foundTile.HasValue) return mousePosition;
             
-            if (mouseDirection.y <= 0)
+            if (mouseDirection.y <= -0.2f)
             {
                 autoTileData.state = (int)PlatformTileState.FlatConnectNone;
-                Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
-                if (!foundTile.HasValue) return mousePosition;
+                
                 return foundTile.Value + Vector2.right * (mouseDirection.x > 0 ? Global.TILE_SIZE : -Global.TILE_SIZE);
             }
             
             autoTileData.rotation = mouseDirection.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
             autoTileData.state = (int)PlatformTileState.SlopeDeco;
-            return mousePosition;
+            return foundTile.Value + Vector2.up * Global.TILE_SIZE;
+            
+            
         }
     }
 }

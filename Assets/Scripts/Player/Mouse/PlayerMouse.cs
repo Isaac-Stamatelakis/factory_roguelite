@@ -114,6 +114,8 @@ namespace PlayerModule.Mouse {
                 closedChunkSystem.GetTileMap(TileMapType.Object),
             };
             currentSystem = closedChunkSystem;
+            GenerateTileSearcher();
+            
         }
         
         void Update()
@@ -481,7 +483,7 @@ namespace PlayerModule.Mouse {
             return true;
         }
 
-        public void UpdateOnSelectedSlotChange()
+        public void GenerateTileSearcher()
         {
             ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot?.itemObject is TileItem tileItem)
