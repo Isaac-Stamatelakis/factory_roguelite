@@ -9,19 +9,23 @@ public class EditorTileItemRebuilder
 {
     private string tileName;
     private TileItem tileItem;
+    
 
-    public void Locate()
+    public void SearchByTileName(string name)
     {
+        tileName = name;
         string tileId = tileName.ToLower().Replace(" ", "_");
         string[] guids = AssetDatabase.FindAssets("t:" + nameof(TileItem));
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             TileItem searchItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
-            if (!string.Equals(tileItem?.id, tileId)) continue;
+            if (!string.Equals(searchItem?.id, tileId)) continue;
             tileItem = searchItem;
             break;
         }
+
+        tileItem = null;
     }
 
     public bool Found()
