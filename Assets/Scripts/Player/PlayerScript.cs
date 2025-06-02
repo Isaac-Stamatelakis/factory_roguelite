@@ -360,9 +360,10 @@ namespace Player
     {
         
         public bool Indiciator = true;
+        public bool AutoPlace = true;
         public PlayerTileRotation Rotation;
         public int State;
-        public int PlacementMode;
+        public BaseTileData AutoBaseTileData = new BaseTileData(0,0,false);
     }
 
     public static class PlayerTileRotationExtension

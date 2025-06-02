@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Chunks.Systems;
 using TileMaps;
 using TileMaps.Type;
+using Tiles;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using Tiles.TileMap.Platform;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -176,14 +179,18 @@ namespace Player.Mouse.TilePlaceSearcher
         {
             float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
             Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
-            if (mouseDirection.y < 0.3f)
+            BaseTileData autoTileData = PlayerScript.TilePlacementOptions.AutoBaseTileData;
+            
+            if (mouseDirection.y <= 0)
             {
-                Debug.Log("A");
+                autoTileData.state = (int)PlatformTileState.FlatConnectNone;
                 Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
                 if (!foundTile.HasValue) return mousePosition;
                 return foundTile.Value + Vector2.right * (mouseDirection.x > 0 ? Global.TILE_SIZE : -Global.TILE_SIZE);
             }
-            Debug.Log("B");
+            
+            autoTileData.rotation = mouseDirection.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
+            autoTileData.state = (int)PlatformTileState.SlopeDeco;
             return mousePosition;
         }
     }
