@@ -495,8 +495,7 @@ namespace Player.Movement.Standard
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Debug.Log(currentTileMovementType);
-           
+            
             if (!playerRobot.IsOnGround()) speed *= movementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0, speed, wishdir);
         }

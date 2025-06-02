@@ -33,6 +33,7 @@ namespace Items.Transmutable {
             {
                 return new TransmutationShaderPair(ShaderMaterial.UIMaterial, ShaderMaterial.WorldMaterial);
             }
+            if (ReferenceEquals(ShaderMaterial.WorldMaterial,ShaderMaterial.UIMaterial))
             Material worldCopy = new Material(ShaderMaterial.WorldMaterial);
             Material uiCopy = new Material(ShaderMaterial.UIMaterial);
             switch (ShaderOption)
