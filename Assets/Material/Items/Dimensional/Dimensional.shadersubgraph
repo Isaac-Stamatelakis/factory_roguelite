@@ -4,9 +4,6 @@
     "m_ObjectId": "45fa558c59c14e7fbf34de847cd7d88e",
     "m_Properties": [
         {
-            "m_Id": "603c4dfea00d4a9eb44bbfc08c0ab997"
-        },
-        {
             "m_Id": "b1826d8aa6704ed09a07e2fe400c0743"
         },
         {
@@ -1408,9 +1405,6 @@
             "m_Id": "795a1e5e938c480ba78cb7c03525b193"
         },
         {
-            "m_Id": "603c4dfea00d4a9eb44bbfc08c0ab997"
-        },
-        {
             "m_Id": "b1826d8aa6704ed09a07e2fe400c0743"
         },
         {
@@ -2089,33 +2083,6 @@
         "e31": 0.0,
         "e32": 0.0,
         "e33": 1.0
-    }
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "603c4dfea00d4a9eb44bbfc08c0ab997",
-    "m_Guid": {
-        "m_GuidSerialized": "ec7aad29-0c9d-44a0-9cde-41c15a5953ea"
-    },
-    "m_Name": "_HueShift",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "_HueShift",
-    "m_DefaultReferenceName": "_HueShift",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_Value": 0.0,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
     }
 }
 
