@@ -31,7 +31,7 @@ namespace TileMaps {
     {
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
     }
-    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap
+    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap, IWorldShaderTilemap
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
@@ -132,6 +132,11 @@ namespace TileMaps {
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
             return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),tilemap.GetTransformMatrix(position).rotation,outlineTileMap.GetTransformMatrix(position).rotation,tilemap.GetColor(position));
+        }
+
+        public ShaderTilemapManager GetManager()
+        {
+            return shaderOverlayTilemapManager;
         }
     }
 }

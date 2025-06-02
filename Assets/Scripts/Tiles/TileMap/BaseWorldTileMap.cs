@@ -95,7 +95,6 @@ namespace TileMaps {
                     RemoveTile(partitionX+x,partitionY+y);
                 }
             }
-            yield return null;
         }
 
         public void AddListener(ITileMapListener listener) {

@@ -20,7 +20,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace Fluids {
-    public class FluidTileMap : BaseWorldTileMap<FluidTileItem>, ITileMapListener
+    public class FluidTileMap : BaseWorldTileMap<FluidTileItem>, ITileMapListener, IWorldShaderTilemap
     {
         public enum FluidParticleType
         {
@@ -524,6 +524,11 @@ namespace Fluids {
                 Splash = InstanatiateSystem(splashPrefab);
                 Standard = InstanatiateSystem(baseSystemPrefab);
             }
+        }
+
+        public ShaderTilemapManager GetManager()
+        {
+            return shaderTilemapManager;
         }
     }
 }

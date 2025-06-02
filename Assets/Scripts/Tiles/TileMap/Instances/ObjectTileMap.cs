@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.TileMap
 {
-    public class ObjectTileMap : WorldTileMap
+    public class ObjectTileMap : WorldTileMap, IWorldShaderTilemap
     {
         private Tilemap overlayTileMap;
         private ShaderTilemapManager shaderTilemapManager;
@@ -62,6 +62,11 @@ namespace Tiles.TileMap
         public override bool HasTile(Vector3Int vector3Int)
         {
             return tilemap.HasTile(vector3Int);
+        }
+
+        public ShaderTilemapManager GetManager()
+        {
+            return shaderTilemapManager;
         }
     }
 }
