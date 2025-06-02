@@ -107,15 +107,8 @@ namespace Tiles.TileMap
                 case PlatformTileState.FlatConnectAll:
                 {
                     TileBase flatTile = tileContainer[0];
-                    tilemap.SetTile(vector3Int, flatTile);
-                    if (color != Color.white)
-                    {
-                        tilemap.SetTileFlags(vector3Int, TileFlags.None);
-                        tilemap.SetColor(vector3Int,color);
-                    }
-                    
                     cachedMatrix.SetTRS(Vector3.zero,Quaternion.Euler(0f, 180*rotation, 0f), Vector3.one);
-                    tilemap.SetTransformMatrix(vector3Int,cachedMatrix);
+                    PlaceFlatTile(flatTile);
                     break;
                 }
                 case PlatformTileState.SlopeDeco:
@@ -133,14 +126,33 @@ namespace Tiles.TileMap
                 case PlatformTileState.FlatSlopeConnectAll:
                 {
                     PlatformSlopeTileMaps slopeTileMaps = GetSlopeTileMaps(rotation);
-                    
                     TileBase flatTile = tileContainer[0];
                     TileBase slopeTile = tileContainer[1];
                     TileBase slopeDecoTile = tileContainer[2];
-                    tilemap.SetTile(vector3Int, flatTile);
+                    PlaceFlatTile(flatTile);
                     slopeTileMaps.SetTile(ref vector3Int, slopeTile, slopeDecoTile, ref cachedMatrix, ref color, material);
                     break;
                 }
+            }
+
+            void PlaceFlatTile(TileBase tile)
+            {
+                tilemap.SetTile(vector3Int, tile);
+                tilemap.SetTransformMatrix(vector3Int,cachedMatrix);
+                if (!material)
+                {
+                    if (color == Color.white) return;
+                    tilemap.SetTileFlags(vector3Int, TileFlags.None);
+                    tilemap.SetColor(vector3Int,color);
+                    return;
+                }
+                Tilemap shaderMap = shaderTilemapManager.GetTileMap(material);
+                shaderMap.SetTile(vector3Int, tile);
+                shaderMap.SetTransformMatrix(vector3Int,cachedMatrix);
+                if (color == Color.white) return;
+                shaderMap.SetTileFlags(vector3Int, TileFlags.None);
+                shaderMap.SetColor(vector3Int, color);
+                
             }
         }
 
@@ -171,9 +183,14 @@ namespace Tiles.TileMap
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition,TileMapLayer.Base);
             
-            tilemap.SetTile(cellPosition,null);
             var transmutableItem = tileItem.tileOptions.TransmutableColorOverride;
             Material material = !transmutableItem ? null : itemRegistry.GetTransmutationWorldMaterial(transmutableItem);
+            tilemap.SetTile(cellPosition,null);
+            if (material)
+            {
+                shaderTilemapManager.GetTileMap(material).SetTile(cellPosition,null);
+            }
+            
             int state = baseTileData.state;
             bool sloped = state >= (int)PlatformTileState.SlopeDeco;
             

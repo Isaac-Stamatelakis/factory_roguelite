@@ -27,7 +27,7 @@ namespace Tiles.TileMap.Platform
             this.extraColliderTile = extraColliderTile;
             extendTileDirection = slopeRotation == SlopeRotation.Left ? Vector3Int.right : Vector3Int.left;
 
-            slopeShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
+            slopeShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, true, TileMapType.Platform);
             decoShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
             
         }
