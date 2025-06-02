@@ -10,6 +10,7 @@ namespace Tiles.TileMap.Platform
         Left,
         Right
     }
+    
     public class PlatformSlopeTileMaps
     {
         private ShaderTilemapManager slopeShaderTilemapManager;
