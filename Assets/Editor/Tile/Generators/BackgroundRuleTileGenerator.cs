@@ -52,7 +52,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
         }
         if (GUILayout.Button("Rebuild"))
         {
-            itemRebuilder.SearchByTileName(tileName);
+            Rebuild();
         }
 
         GUI.color = defaultColor;
@@ -88,7 +88,10 @@ public class BackgroundGeneratorWindow : EditorWindow {
         itemRebuilder.DeleteOldTileAssets();
         string itemPath = itemRebuilder.GetItemPath();
         string itemFolderPath = Path.GetDirectoryName(itemPath);
-        BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,itemFolderPath, tileName);
+        BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,itemFolderPath + "/", tileName);
+        tile.name = "T~" + tileName;
+        Debug.Log(tile.name);
+        AssetDatabase.CreateAsset(tile,Path.Combine(itemFolderPath,tile.name + ".asset"));
         itemRebuilder.ReplaceTile(tile);
         Debug.Log($"Rebuilt {tileName} at {itemPath}");
     }

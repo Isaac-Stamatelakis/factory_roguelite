@@ -22,7 +22,7 @@ public class EditorTileItemRebuilder
             TileItem searchItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
             if (!string.Equals(searchItem?.id, tileId)) continue;
             tileItem = searchItem;
-            break;
+            return;
         }
 
         tileItem = null;
@@ -64,6 +64,7 @@ public class EditorTileItemRebuilder
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             AssetDatabase.DeleteAsset(assetPath);
         }
+        AssetDatabase.Refresh();
     }
 
     public void ReplaceTile(TileBase tileBase)
