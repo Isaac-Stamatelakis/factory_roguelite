@@ -34,6 +34,7 @@ namespace Robot.Upgrades {
         Health = 11,
         Energy = 12,
         NanoBots = 13,
+        TilePlacementRate = 14,
     }
     
     internal enum RobotDrillUpgrade

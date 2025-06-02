@@ -75,6 +75,8 @@ namespace PlayerModule.Mouse {
         private bool holdingShift;
         private Vector2? highlightPosition;
         public BaseTilePlacementSearcher BaseTilePlacementSearcher { get; private set; }
+        private float timeSinceLastTilePlace;
+        private float placeCooldown;
         
         void Start()
         {
@@ -116,6 +118,8 @@ namespace PlayerModule.Mouse {
         
         void Update()
         {
+            timeSinceLastTilePlace += Time.deltaTime;
+            
             bool leftClick = UnityEngine.InputSystem.Mouse.current.leftButton.isPressed;
             bool rightClick = UnityEngine.InputSystem.Mouse.current.rightButton.isPressed;
             
@@ -412,10 +416,13 @@ namespace PlayerModule.Mouse {
         } 
 
         private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
+            if (!UnityEngine.InputSystem.Mouse.current.rightButton.wasPressedThisFrame && timeSinceLastTilePlace < placeCooldown) return false;
+            timeSinceLastTilePlace = 0;
+            
             if (!closedChunkSystem || !closedChunkSystem.Interactable) {
                 return false;
             }
-
+            
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
             Vector2 placePosition = BaseTilePlacementSearcher?.FindPlacementLocation(mousePosition) ?? mousePosition;
@@ -484,7 +491,15 @@ namespace PlayerModule.Mouse {
             }
             BaseTilePlacementSearcher = null;
         }
-        
+
+        public void SyncTilePlacementCooldown()
+        {
+            float tilePlacementUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.TilePlacementRate);
+            const float MIN_PLACEMENT_RATE = 0.25f;
+            const float MAX_PLACEMENT_RATE = 0.05f;
+            const int MAX_UPGRADES = 10;
+            placeCooldown = Mathf.Lerp(MIN_PLACEMENT_RATE,MAX_PLACEMENT_RATE,tilePlacementUpgrades/MAX_UPGRADES);
+        }
         
 
         public void UpdateOnToolChange()

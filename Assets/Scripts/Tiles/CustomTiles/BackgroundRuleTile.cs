@@ -15,6 +15,7 @@ namespace Tiles.CustomTiles
                 case TilingRuleOutput.Neighbor.This: return other != null;
                 case TilingRuleOutput.Neighbor.NotThis: return other == null;
             }
+
             return true;
         }
     }

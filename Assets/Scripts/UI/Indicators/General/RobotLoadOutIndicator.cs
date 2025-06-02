@@ -59,7 +59,8 @@ namespace UI.Indicators.General
             {
                 [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange,
                 [(int)RobotUpgrade.Flight] = playerRobot.OnFlightUpgradeChange,
-                [(int)RobotUpgrade.RocketBoots] = playerRobot.OnRocketBootUpgradeChange
+                [(int)RobotUpgrade.RocketBoots] = playerRobot.OnRocketBootUpgradeChange,
+                [(int)RobotUpgrade.TilePlacementRate] = playerScript.PlayerMouse.SyncTilePlacementCooldown
             };
             RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
                 upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks,"Robot Upgrades");
