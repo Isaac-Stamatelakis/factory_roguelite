@@ -27,6 +27,7 @@ using Item.Slot;
 using Player;
 using Player.Controls;
 using Player.Mouse;
+using Player.Mouse.TilePlaceSearcher;
 using Player.Robot;
 using Player.Tool;
 using PlayerModule.IO;
@@ -73,6 +74,7 @@ namespace PlayerModule.Mouse {
         private CanvasController canvasController;
         private bool holdingShift;
         private Vector2? highlightPosition;
+        public BaseTilePlacementSearcher BaseTilePlacementSearcher { get; private set; }
         
         void Start()
         {
@@ -416,8 +418,8 @@ namespace PlayerModule.Mouse {
 
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
-            
-            bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,mousePosition,closedChunkSystem);
+            Vector2 placePosition = BaseTilePlacementSearcher?.FindPlacementLocation(mousePosition) ?? mousePosition;
+            bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,placePosition,closedChunkSystem);
             if (placed) {
                 playerScript.PlaceUpdate();
             }
@@ -468,6 +470,17 @@ namespace PlayerModule.Mouse {
             );
             grabbedItemProperties.SetItemSlot(null);
             return true;
+        }
+
+        public void UpdateOnSelectedSlotChange()
+        {
+            ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
+            if (itemSlot?.itemObject is TileItem tileItem)
+            {
+                BaseTilePlacementSearcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, tileItem.tileType);
+                return;
+            }
+            BaseTilePlacementSearcher = null;
         }
         
         

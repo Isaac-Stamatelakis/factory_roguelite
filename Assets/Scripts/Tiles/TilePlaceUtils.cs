@@ -134,7 +134,7 @@ namespace TileMaps.Place {
             }
         }
         public static Vector3Int GetItemPlacePosition(ItemObject itemObject, Vector2 position) {
-            if (itemObject is TileItem tileItem) {
+            if (itemObject is TileItem) {
                 return (Vector3Int)GetPlacePosition(position.x,position.y);
             }
             return (Vector3Int) Global.GetCellPositionFromWorld(position);
