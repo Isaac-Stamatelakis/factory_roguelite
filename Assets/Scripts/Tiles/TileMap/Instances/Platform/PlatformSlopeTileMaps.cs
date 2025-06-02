@@ -1,3 +1,4 @@
+using TileMaps.Type;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,6 +11,8 @@ namespace Tiles.TileMap.Platform
     }
     public class PlatformSlopeTileMaps
     {
+        private ShaderTilemapManager slopeShaderTilemapManager;
+        private ShaderTilemapManager decoShaderTilemapManager;
         private readonly Tilemap slopeTileMap;
         private readonly Tilemap decoTileMap;
         private readonly Tilemap extraColliderTilemap;
@@ -23,6 +26,10 @@ namespace Tiles.TileMap.Platform
             this.extraColliderTilemap = extraColliderTilemap;
             this.extraColliderTile = extraColliderTile;
             extendTileDirection = slopeRotation == SlopeRotation.Left ? Vector3Int.right : Vector3Int.left;
+
+            slopeShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
+            decoShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
+            
         }
 
         public Tilemap GetSlopeTileMap()
@@ -30,36 +37,38 @@ namespace Tiles.TileMap.Platform
             return slopeTileMap;
         }
 
-        public void Clear(Vector3Int cellPosition)
+        public void Clear(Vector3Int cellPosition, Material material)
         {
-            if (!slopeTileMap.GetTile(cellPosition)) return;
-            slopeTileMap.SetTile(cellPosition, null);
-            decoTileMap.SetTile(cellPosition+Vector3Int.down, null);
+            Tilemap slopePlacementMap = !material ? slopeTileMap : slopeShaderTilemapManager.GetTileMap(material);
+            Tilemap decoPlacementMap = !material ? decoTileMap : decoShaderTilemapManager.GetTileMap(material);
+            
+            slopePlacementMap.SetTile(cellPosition, null);
+            decoPlacementMap.SetTile(cellPosition+Vector3Int.down, null);
             
             extraColliderTilemap.SetTile(cellPosition+extendTileDirection, null); 
         }
 
-        public void SetTile(ref Vector3Int cellPosition, TileBase slopeTile, TileBase decoTile)
+        public void SetTile(ref Vector3Int cellPosition, TileBase slopeTile, TileBase decoTile, ref Matrix4x4 transformMatrix, ref Color color, Material material)
         {
-            slopeTileMap.SetTile(cellPosition, slopeTile);
-            decoTileMap.SetTile(cellPosition + Vector3Int.down, decoTile);
-            extraColliderTilemap.SetTile(cellPosition+extendTileDirection, extraColliderTile);
+            Tilemap slopePlacementMap = !material ? slopeTileMap : slopeShaderTilemapManager.GetTileMap(material);
+            Tilemap decoPlacementMap = !material ? decoTileMap : decoShaderTilemapManager.GetTileMap(material);
             
-        }
-
-        public void SetTransformMatrix(ref Vector3Int cellPosition, ref Matrix4x4 transformMatrix)
-        {
-            slopeTileMap.SetTransformMatrix(cellPosition,transformMatrix);
-            decoTileMap.SetTransformMatrix(cellPosition+Vector3Int.down,transformMatrix);
+            slopePlacementMap.SetTile(cellPosition, slopeTile);
+            slopePlacementMap.SetTransformMatrix(cellPosition,transformMatrix);
+            
+            decoPlacementMap.SetTile(cellPosition + Vector3Int.down, decoTile);
+            decoPlacementMap.SetTransformMatrix(cellPosition+Vector3Int.down,transformMatrix);
+            
+            extraColliderTilemap.SetTile(cellPosition+extendTileDirection, extraColliderTile);
             extraColliderTilemap.SetTransformMatrix(cellPosition+extendTileDirection,transformMatrix);
-        }
-
-        public void SetColor(ref Vector3Int cellPosition, ref Color color)
-        {
-            slopeTileMap.SetTileFlags(cellPosition, TileFlags.None);
-            slopeTileMap.SetColor(cellPosition,color);
-            decoTileMap.SetTileFlags(cellPosition+Vector3Int.down, TileFlags.None);
-            decoTileMap.SetColor(cellPosition+Vector3Int.down,color);
+            
+            if (color != Color.white)
+            {
+                slopePlacementMap.SetTileFlags(cellPosition, TileFlags.None);
+                slopePlacementMap.SetColor(cellPosition,color);
+                decoPlacementMap.SetTileFlags(cellPosition+Vector3Int.down, TileFlags.None);
+                decoPlacementMap.SetColor(cellPosition+Vector3Int.down,color);
+            }
         }
     }
 }
