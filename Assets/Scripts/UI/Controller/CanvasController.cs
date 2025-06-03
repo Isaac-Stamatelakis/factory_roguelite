@@ -56,12 +56,6 @@ namespace UI
             inputActions.Dispose();
         }
 
-        public void Update()
-        {
-            Debug.Log(inputActions.CanvasController.enabled);
-            Debug.Log(exitAction.IsPressed());
-        }
-
         public void PlayAudioClip(UIAudioClipType audioClipType)
         {
             AudioClip clip = uiAudioElements.GetClip(audioClipType);

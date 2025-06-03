@@ -89,7 +89,6 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
             var shader = material.shader;
             string shaderPath = AssetDatabase.GetAssetPath(shader);
             if (!shaderPath.EndsWith(".shadergraph")) continue;
-            if (shaderPath != "Assets/Material/Items/HueShift/TestEditGraph.shadergraph") continue;
             
             string json = File.ReadAllText(shaderPath);
             List<string> splitJson = SplitJsonObjects(json);
@@ -122,6 +121,7 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 "_StencilReadMask"
             };
 
+            int changes = 0;
             foreach (string requiredProperty in requiredProperties)
             {
                 if (currentProperties.Contains(requiredProperty)) continue;
@@ -136,7 +136,10 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 templateJson = templateJson.Replace("$TEMPLATE_ID", id).Replace("$TEMPLATE_NAME", requiredProperty);
                 splitJson.Insert(splitJson.Count - 1, templateJson);
                 Debug.Log($"Added property {requiredProperty} to {shader.name} with guid {guid}");
+                changes++;
             }
+            
+            if (changes == 0) continue;
             
             splitJson[0] = shaderGraph.ToString(Formatting.Indented);
             splitJson[^1] = last.ToString(Formatting.Indented);
@@ -152,9 +155,12 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 }
             }
             File.WriteAllText(shaderPath, result);
-            break;
-            Debug.Log(shader.name);
+            AssetDatabase.Refresh();
+            count++;
         }
+
+        Debug.Log($"Added Required UI Properties to {count} shader graphs");
+        return;
 
         bool IsSpriteLitShader(Material material)
         {
