@@ -46,7 +46,9 @@ namespace Entities.Mob.Display
             partTransforms[0] = CreatePart(headSprite,"Head",HeadDamage);
             AssemblePart();
             playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            transform.localPosition = new Vector3(0, 0, 2);
+            var vector3 = transform.localPosition;
+            vector3.z = 5;
+            transform.localPosition = vector3;
         }
         
         public void FixedUpdate()
