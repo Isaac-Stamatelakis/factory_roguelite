@@ -208,7 +208,7 @@ namespace Fluids {
 
         public override Vector2Int GetHitTilePosition(Vector2 position)
         {
-            return Global.GetCellPositionFromWorld(position);
+            return Global.WorldToCell(position);
         }
 
         protected override void SetTile(int x, int y, FluidTileItem item)

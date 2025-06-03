@@ -94,7 +94,7 @@ namespace Robot.Tool.Instances
                 int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMine);
                 ConduitTileMap conduitTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(target.ToTileMapType()) as ConduitTileMap;
                 if (!conduitTileMap) continue;
-                Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
+                Vector2Int cellPosition = Global.WorldToCell(mousePosition);
                 IConduit conduit = conduitTileMap.ConduitSystemManager.GetConduitAtCellPosition(cellPosition);
                 if (conduit == null) continue;
                 bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.Item_Magnet) == 0;

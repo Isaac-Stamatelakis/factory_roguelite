@@ -162,8 +162,8 @@ namespace WorldModule {
         public static IntervalVector GetDim0Bounds()
         {
             return new IntervalVector(
-                new Interval<int>(-4, 4),
-                new Interval<int>(-3, 3)
+                new Interval<int>(-2, 2),
+                new Interval<int>(-2, 2)
             );
         }
         public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds)

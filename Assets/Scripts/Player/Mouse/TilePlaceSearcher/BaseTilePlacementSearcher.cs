@@ -30,6 +30,36 @@ namespace Player.Mouse.TilePlaceSearcher
 
     }
 
+    public class TileSearchResultCacher
+    {
+        private BaseTilePlacementSearcher tileSearcher;
+        private Vector2Int lastTile = Vector2Int.one * int.MaxValue;
+        private Vector2? lastSearchResult;
+
+        public Vector2? GetResult()
+        {
+            return lastSearchResult;
+        }
+        public void CallSearcher(Vector2 mousePosition)
+        {
+            Vector2Int tile = Global.WorldToCell(mousePosition);
+            if (tile == lastTile) return;
+            lastSearchResult = tileSearcher?.FindPlacementLocation(mousePosition);
+            lastTile = tile;
+            Debug.Log("Search");
+        }
+
+        public void SetSearcher(BaseTilePlacementSearcher searcher)
+        {
+            ClearSearchResult();
+            tileSearcher = searcher;
+        }
+
+        public void ClearSearchResult()
+        {
+            lastTile = Vector2Int.one * int.MaxValue;
+        }
+    }
     public static class TilePlacementSearcherFactory
     {
         public static BaseTilePlacementSearcher GetSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript, TileType tileType)
@@ -144,6 +174,7 @@ namespace Player.Mouse.TilePlaceSearcher
     {
         private HashSet<Vector2Int> visited = new HashSet<Vector2Int>(128);
         private Queue<Vector2Int> queued = new Queue<Vector2Int>(128);
+        private HashSet<Vector2Int> checkedCandiates = new HashSet<Vector2Int>(128);
 
         private List<Vector2Int> directions = new List<Vector2Int>
         {
@@ -170,6 +201,7 @@ namespace Player.Mouse.TilePlaceSearcher
             ILoadedChunkSystem chunkSystem = ClosedChunkSystem;
             visited.Clear();
             queued.Clear();
+            checkedCandiates.Clear();
             
             Vector2 playerPosition = PlayerScript.transform.position;
             const int SEARCH_RANGE = 8;
@@ -183,7 +215,7 @@ namespace Player.Mouse.TilePlaceSearcher
             float clampedY = Mathf.Clamp(mousePosition.y,minY,maxY);
            
             mousePosition = new Vector2(clampedX, clampedY);
-            Vector2Int origin = Global.GetCellPositionFromWorld(mousePosition);
+            Vector2Int origin = Global.WorldToCell(mousePosition);
             queued.Enqueue(origin);
             int blockLayer = 1 << LayerMask.NameToLayer("Block");
             while (queued.Count > 0)
@@ -229,6 +261,7 @@ namespace Player.Mouse.TilePlaceSearcher
                 {
                     Vector2Int candidate = cellPosition + direction;
                     TileItem tileItem = GetTileItemAt(candidate);
+                    if (!checkedCandiates.Add(candidate)) continue;
                     if (tileItem?.tileType is TileType.Background) continue;
                     if (tileItem?.tileType is TileType.Block)
                     {

@@ -24,8 +24,8 @@ public class FloatIntervalVector
     }
     public static IntervalVector ToCellIntervalVector(FloatIntervalVector floatIntervalVector)
     {
-        Vector2Int lower = Global.GetCellPositionFromWorld(new Vector2(floatIntervalVector.X.LowerBound,floatIntervalVector.y.UpperBound));
-        Vector2Int upper = Global.GetCellPositionFromWorld(new Vector2(floatIntervalVector.X.UpperBound, floatIntervalVector.y.UpperBound));
+        Vector2Int lower = Global.WorldToCell(new Vector2(floatIntervalVector.X.LowerBound,floatIntervalVector.y.UpperBound));
+        Vector2Int upper = Global.WorldToCell(new Vector2(floatIntervalVector.X.UpperBound, floatIntervalVector.y.UpperBound));
         return new IntervalVector(new Interval<int>(lower.x,upper.x), new Interval<int>(lower.y, upper.y));
     }
 }

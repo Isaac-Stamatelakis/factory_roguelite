@@ -74,9 +74,9 @@ namespace PlayerModule.Mouse {
         private CanvasController canvasController;
         private bool holdingShift;
         private Vector2? highlightPosition;
-        public BaseTilePlacementSearcher BaseTilePlacementSearcher { get; private set; }
         private float timeSinceLastTilePlace;
         private float placeCooldown;
+        public TileSearchResultCacher TileSearchResultCacher { get; private set; } = new();
         
         void Start()
         {
@@ -140,6 +140,7 @@ namespace PlayerModule.Mouse {
             if (!canvasController.IsActive) PreviewHighlight(mousePosition);
             
             if (eventSystem.IsPointerOverGameObject()) return;
+            TileSearchResultCacher.CallSearcher(mousePosition);
             
             if (!leftClick)
             {
@@ -178,7 +179,7 @@ namespace PlayerModule.Mouse {
             Vector2Int cellPosition;
             if (hitMap is IOutlineTileGridMap outlineTileGridMap)
             {
-                cellPosition = Global.GetCellPositionFromWorld(toolHitPosition);
+                cellPosition = Global.WorldToCell(toolHitPosition);
                 Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
                 outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
             }
@@ -337,7 +338,7 @@ namespace PlayerModule.Mouse {
             
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType.Value);
             if (conduitSystemManager is not PortConduitSystemManagerManager portConduitSystemManager) return false;
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
+            Vector2Int cellPosition = Global.WorldToCell(mousePosition);
             IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
             if (conduit == null) {
                 return false;
@@ -427,10 +428,11 @@ namespace PlayerModule.Mouse {
             
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
-            Vector2 placePosition = BaseTilePlacementSearcher?.FindPlacementLocation(mousePosition) ?? mousePosition;
+            Vector2 placePosition = TileSearchResultCacher.GetResult() ?? mousePosition;
             bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,placePosition,closedChunkSystem);
             if (placed) {
                 playerScript.PlaceUpdate();
+                TileSearchResultCacher.ClearSearchResult();
             }
             playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
             
@@ -488,10 +490,11 @@ namespace PlayerModule.Mouse {
             ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot?.itemObject is TileItem tileItem)
             {
-                BaseTilePlacementSearcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tileType);
+                var searcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tileType);
+                TileSearchResultCacher.SetSearcher(searcher);
                 return;
             }
-            BaseTilePlacementSearcher = null;
+            TileSearchResultCacher.SetSearcher(null);
         }
 
         public void SyncTilePlacementCooldown()
@@ -621,7 +624,7 @@ namespace PlayerModule.Mouse {
             if (robotToolInstance == null) return;
        
             if (mousePosition == lastMousePosition) return;
-            Vector2Int tilePosition = Global.GetCellPositionFromWorld(mousePosition);
+            Vector2Int tilePosition = Global.WorldToCell(mousePosition);
             if (lastTilePosition == tilePosition) return;
             
             lastMousePosition = mousePosition;

@@ -66,7 +66,7 @@ namespace Player.Mouse
             if (hitableTileMap == null) return false;
             
             if (hitableTileMap is WorldTileMap tileGridMap) {
-                Vector2Int cellPosition = Global.GetCellPositionFromWorld(position);
+                Vector2Int cellPosition = Global.WorldToCell(position);
                 ITileEntityInstance tileEntity = tileGridMap.GetTileEntityAtPosition(cellPosition);
                 if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
                     leftClickableTileEntity.OnLeftClick();

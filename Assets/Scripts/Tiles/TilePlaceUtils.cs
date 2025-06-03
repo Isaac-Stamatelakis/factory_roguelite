@@ -137,7 +137,7 @@ namespace TileMaps.Place {
             if (itemObject is TileItem) {
                 return (Vector3Int)GetPlacePosition(position.x,position.y);
             }
-            return (Vector3Int) Global.GetCellPositionFromWorld(position);
+            return (Vector3Int) Global.WorldToCell(position);
            
         }
         public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
@@ -435,7 +435,7 @@ namespace TileMaps.Place {
                     Vector2 centered = TileHelper.getRealTileCenter(new Vector2(x, y));
                     var collider = Physics2D.BoxCast(centered, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
                     if (ReferenceEquals(collider,null)) continue;
-                    Vector2Int cellPosition = Global.GetCellPositionFromWorld(centered);
+                    Vector2Int cellPosition = Global.WorldToCell(centered);
                     WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();
                     TileItem tile = tileMap?.getTileItem(cellPosition);
                     if (!tile || !tile.tileOptions.placeBreakable) continue;
@@ -456,7 +456,7 @@ namespace TileMaps.Place {
 
         public static void PlaceTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,IWorldTileMap iWorldTileMap, Vector2 offsetPosition, ITileEntityInstance presetTileEntity = null, string initialData = null) {
             Vector2Int chunkPosition = Global.GetChunkFromWorld(offsetPosition);
-            Vector2Int tileMapPosition = Global.GetCellPositionFromWorld(offsetPosition);
+            Vector2Int tileMapPosition = Global.WorldToCell(offsetPosition);
             Vector2Int partitionPosition = Global.GetPartitionFromWorld(offsetPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
             Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.CHUNK_SIZE;
             Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.CHUNK_PARTITION_SIZE;
@@ -510,7 +510,7 @@ namespace TileMaps.Place {
             if (iWorldTileMap is not FluidTileMap) {
                 return false;
             }
-            Vector2Int placePosition = Global.GetCellPositionFromWorld(worldPosition);
+            Vector2Int placePosition = Global.WorldToCell(worldPosition);
             iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,fluidTileItem);
             return true;
         }

@@ -628,10 +628,10 @@ namespace Player {
             if (ReferenceEquals(worldTileMap, null)) return null;
        
             const float OFFSET = 0.1f;
-            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position+Vector2.up*OFFSET));
+            TileItem tileItem = worldTileMap.getTileItem(Global.WorldToCell(position+Vector2.up*OFFSET));
             if (!tileItem)
             {
-                tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position+Vector2.down*OFFSET));
+                tileItem = worldTileMap.getTileItem(Global.WorldToCell(position+Vector2.down*OFFSET));
             }
             return tileItem?.tileEntity as IClimableTileEntity;
         }
