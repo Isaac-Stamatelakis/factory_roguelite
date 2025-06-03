@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 namespace TileEntity.Instances.Signs {
     public class SignUIController : MonoBehaviour, ITileEntityUI
@@ -16,7 +17,7 @@ namespace TileEntity.Instances.Signs {
         {
             inputField.onValueChanged.AddListener((string value) =>
             {
-                if (Input.GetKey(KeyCode.Escape))
+                if (Keyboard.current.escapeKey.wasPressedThisFrame)
                 {
                     return;
                 }
