@@ -101,6 +101,7 @@ namespace PlayerModule.Mouse {
             {
                 tileBreakHighlighter.Clear();
                 tileHighlighter.Hide();
+                ToolTipController.Instance.HideToolTip(ToolTipType.World);
                 highlightPosition = null;
             }
             return enableAutoSelect;
