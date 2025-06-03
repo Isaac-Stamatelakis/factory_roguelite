@@ -81,7 +81,7 @@ namespace TileMaps.Previewer {
         
         void Update()
         {
-            if (CanvasController.Instance.IsActive || (Mouse.current.leftButton.isPressed && !playerScript.TilePlacementOptions.AutoPlace))
+            if (CanvasController.Instance.IsActive || (Mouse.current.leftButton.isPressed && !(playerScript?.TilePlacementOptions?.AutoPlace ?? false)))
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();
