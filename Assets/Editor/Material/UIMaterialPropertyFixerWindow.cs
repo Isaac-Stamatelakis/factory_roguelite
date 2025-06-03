@@ -21,12 +21,27 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
         window.titleContent = new GUIContent("UI Material Property Assigner");
     }
     private const string SPRITE_LIT_KEYWORD = "USE_SHAPE_LIGHT_TYPE_0";
+    private string safeText;
     void OnGUI()
     {
+        GUI.enabled = false;
+        GUILayout.TextArea($"This is most likely the most dangerous tool in this project (and that's saying something). Before running push all changes to git and make sure you can restore if needed. This tool modifies the json of .shadergraph files with is unsupported by Unity. ");
+        GUILayout.TextArea($"Type. 'Changes Pushed' below to proceed");
+        GUI.enabled = true;
+        
+        safeText = EditorGUILayout.TextArea(safeText);
+        bool match = String.Equals(safeText, "Changes Pushed");
+        GUI.enabled = match;
+        Color baseColor = GUI.color;
+            
+        GUI.color = !match ? Color.red : Color.green;
         if (GUILayout.Button("Apply Properties"))
         {
             ApplyProperties();
         }
+        GUI.color = baseColor;
+        
+        GUI.enabled = true;
     }
 
     List<string> SplitJsonObjects(string content)
@@ -125,11 +140,18 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
             
             splitJson[0] = shaderGraph.ToString(Formatting.Indented);
             splitJson[^1] = last.ToString(Formatting.Indented);
-            foreach (string split in splitJson)
+
+            string result = "";
+            for (var index = 0; index < splitJson.Count; index++)
             {
-                Debug.Log(split);
+                var split = splitJson[index];
+                result += split;
+                if (index < splitJson.Count - 1)
+                {
+                    result += "\n\n";
+                }
             }
-            //File.WriteAllText(shaderPath, formattedJson);
+            File.WriteAllText(shaderPath, result);
             break;
             Debug.Log(shader.name);
         }
