@@ -22,6 +22,7 @@ using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
 using Tiles.Indicators;
+using Tiles.TileMap.Interval;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;

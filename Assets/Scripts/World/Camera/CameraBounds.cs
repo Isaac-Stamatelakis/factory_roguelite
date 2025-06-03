@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks.Systems;
 using Player;
+using Tiles.TileMap.Interval;
 
 
 public class CameraBounds : MonoBehaviour

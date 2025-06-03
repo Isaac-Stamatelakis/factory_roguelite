@@ -78,7 +78,7 @@ namespace DevTools.CraftingTrees.TreeEditor
             inputActions.InventoryNavigation.Select1.performed -= select1Handler;
             inputActions.InventoryNavigation.Select2.performed -= select2Handler;
             inputActions.InventoryNavigation.Select3.performed -= select3Handler;
-            inputActions.Disable();
+            inputActions.InventoryNavigation.Disable();
         }
         
         private void SwitchCraftingType(Button button, CraftingTreeNodeType type)

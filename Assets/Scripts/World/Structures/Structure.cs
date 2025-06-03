@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Misc.RandomFrequency;
+using Tiles.TileMap.Interval;
 
 namespace WorldModule.Caves {
     public class Structure

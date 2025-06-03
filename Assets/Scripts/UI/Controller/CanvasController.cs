@@ -56,6 +56,12 @@ namespace UI
             inputActions.Dispose();
         }
 
+        public void Update()
+        {
+            Debug.Log(inputActions.CanvasController.enabled);
+            Debug.Log(exitAction.IsPressed());
+        }
+
         public void PlayAudioClip(UIAudioClipType audioClipType)
         {
             AudioClip clip = uiAudioElements.GetClip(audioClipType);
@@ -91,7 +97,6 @@ namespace UI
         public void OnEscapePress(InputAction.CallbackContext context)
         {
             if (typing) return;
-            
             if (uiObjectStack.Count == 0)
             {
                 OnInactiveEscapePress();
@@ -230,7 +235,6 @@ namespace UI
                 {
                     exitAction.ApplyBindingOverride(1,playerControlData.KeyData);
                 }
-                
             }
             
             var contextWrapper = uiInfo.TerminateContextPathBinding;
@@ -245,7 +249,7 @@ namespace UI
         public void ResetExitAction()
         {
             exitAction.RemoveAllBindingOverrides();
-            //exitAction.ApplyBindingOverride("<Keyboard>/Escape");
+            exitAction.ApplyBindingOverride("<Keyboard>/Escape");
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)

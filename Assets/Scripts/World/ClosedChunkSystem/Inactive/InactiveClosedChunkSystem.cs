@@ -13,6 +13,7 @@ using Chunks.IO;
 using Dimensions;
 using TileMaps.Layer;
 using Tiles;
+using Tiles.TileMap.Interval;
 using World.Cave.Registry;
 
 namespace Chunks.Systems {

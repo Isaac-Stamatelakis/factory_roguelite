@@ -8,6 +8,7 @@ using Chunks.IO;
 using Chunks.Partitions;
 using Player;
 using TileEntity;
+using Tiles.TileMap.Interval;
 
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController

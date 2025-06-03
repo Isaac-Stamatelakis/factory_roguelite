@@ -6,6 +6,7 @@ using Items;
 using UnityEngine;
 using Misc.Audio;
 using TileEntity;
+using Tiles.TileMap.Interval;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
 using World.Cave.DecorationDistributor;

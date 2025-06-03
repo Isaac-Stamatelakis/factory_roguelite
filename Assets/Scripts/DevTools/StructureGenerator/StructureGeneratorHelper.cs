@@ -14,6 +14,7 @@ using System.Linq;
 using Item.Slot;
 using Items;
 using Newtonsoft.Json;
+using Tiles.TileMap.Interval;
 using UI.Statistics;
 using UnityEngine.AddressableAssets;
 
@@ -70,7 +71,7 @@ namespace DevTools.Structures {
             Debug.Log("Dimension Folder Created at " + dimensionPath);
             string structureDimPath = WorldLoadUtils.GetDimPath(0);
             Directory.CreateDirectory(structureDimPath);
-            Vector2Int caveSize = bounds.getSize();
+            Vector2Int caveSize = bounds.GetSize();
             WorldTileConduitData dimData = WorldCreation.CreateEmptyWorldData(bounds);
             if (generationOption != null) {
                 generationOption.apply(dimData);
@@ -114,11 +115,11 @@ namespace DevTools.Structures {
                     Debug.LogError($"Chunk dict already contains a chunk at position {chunk.Position}");
                     continue;
                 }
-                coveredArea.add(chunk.Position);
+                coveredArea.Add(chunk.Position);
                 chunkDict[chunk.Position] = chunk;
             }   
             
-            Vector2Int size = coveredArea.getSize()*Global.CHUNK_SIZE;
+            Vector2Int size = coveredArea.GetSize()*Global.CHUNK_SIZE;
             Vector2Int offset = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             bool enforceEnclosure = false;
             bool[,] perimeter = new bool[size.x,size.y];
@@ -165,11 +166,11 @@ namespace DevTools.Structures {
                 Vector2Int first = area[0];
                 IntervalVector boundingBox = new IntervalVector(new Interval<int>(first.x,first.x),new Interval<int>(first.y,first.y));
                 for (int i = 1; i < area.Count; i++) {
-                    boundingBox.add(area[i]);
+                    boundingBox.Add(area[i]);
                 }
 
                 Vector2Int areaOffset = new Vector2Int(boundingBox.X.LowerBound,boundingBox.Y.LowerBound);
-                Vector2Int areaSize = boundingBox.getSize();
+                Vector2Int areaSize = boundingBox.GetSize();
                 WorldTileConduitData areaData = WorldGenerationFactory.CreateEmpty(areaSize);
                 for (int x = 0; x < areaSize.x; x++) {
                     for (int y = 0; y < areaSize.y; y++) {

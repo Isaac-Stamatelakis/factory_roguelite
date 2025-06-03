@@ -9,6 +9,7 @@ using System.Linq;
 using Dimensions;
 using Entities.Mobs;
 using Player;
+using Tiles.TileMap.Interval;
 using UI.Chat;
 using UI.Statistics;
 using Unity.VisualScripting;

@@ -21,6 +21,7 @@ using Player;
 using TileEntity;
 using TileEntity.AssetManagement;
 using Tiles.TileMap;
+using Tiles.TileMap.Interval;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 using World.Cave.Registry;

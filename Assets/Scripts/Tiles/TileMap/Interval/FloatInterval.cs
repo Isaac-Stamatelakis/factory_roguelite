@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Tiles.TileMap.Interval;
 using UnityEngine;
 
 public class FloatIntervalVector

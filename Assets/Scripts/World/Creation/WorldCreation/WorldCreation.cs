@@ -21,6 +21,7 @@ using TileEntity;
 using TileEntity.Instances.CompactMachines;
 using Tiles;
 using Tiles.CustomTiles.IdTiles;
+using Tiles.TileMap.Interval;
 using UI.QuestBook;
 using UI.Statistics;
 using World.Serialization;
@@ -155,11 +156,11 @@ namespace WorldModule {
             Structure structure = StructureGeneratorHelper.LoadStructure(structureName);
 
             IntervalVector coveredArea = structure.FirstVariantCoveredArea;
-            WorldGenerationFactory.SaveToJson(structure.variants[0].Data, coveredArea.getSize(), 0, WorldLoadUtils.GetDimPath(0));
+            WorldGenerationFactory.SaveToJson(structure.variants[0].Data, coveredArea.GetSize(), 0, WorldLoadUtils.GetDimPath(0));
         }
         public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds)
         {
-            Vector2Int size = bounds.getSize() * Global.CHUNK_SIZE;
+            Vector2Int size = bounds.GetSize() * Global.CHUNK_SIZE;
             int width = size.x;
             int height = size.y;
             SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width, height);
