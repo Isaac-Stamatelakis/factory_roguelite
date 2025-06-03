@@ -305,11 +305,11 @@ namespace Robot.Tool.Instances
             return toolData?.Mode.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition)
+        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
-            if (multiHits == 0)
+            if (multiHits == 0 && !autoSelectOn)
             {
                 tileBreakHighlighter.Clear();
                 return;
@@ -326,7 +326,6 @@ namespace Robot.Tool.Instances
                 worldTileGridMaps.Add(system.GetTileMap(TileMapType.Object) as WorldTileMap);
             }
             
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
             for (int x = -multiHits; x <= multiHits; x++)
             {

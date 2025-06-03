@@ -200,8 +200,9 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
+            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, enableAutoSelect);
+            
             if (!enableAutoSelect) return;
-            previewController.Preview(playerInventory.CurrentTool,toolHitPosition);
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 5);
@@ -619,7 +620,7 @@ namespace PlayerModule.Mouse {
         private Vector2 lastMousePosition;
         private Vector2Int lastTilePosition;
         
-        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
+        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition, bool autoSelectOn)
         {
             if (robotToolInstance == null) return;
        
@@ -629,7 +630,7 @@ namespace PlayerModule.Mouse {
             
             lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
-            robotToolInstance.Preview(tilePosition);
+            robotToolInstance.Preview(tilePosition, autoSelectOn);
         }
         
 

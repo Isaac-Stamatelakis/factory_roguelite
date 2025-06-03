@@ -350,12 +350,12 @@ namespace Robot.Tool.Instances
             return toolData?.Layer.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition)
+        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             switch (toolData.Layer)
             {
                 case TileMapLayer.Base:
-                    PreviewBaseLayer(cellPosition);
+                    PreviewBaseLayer(cellPosition,autoSelectOn);
                     break;
                 case TileMapLayer.Background: // TODO
                     break;
@@ -372,15 +372,20 @@ namespace Robot.Tool.Instances
             return (int)toolData.Layer;
         }
 
-        private void PreviewBaseLayer(Vector2Int cellPosition)
+        private void PreviewBaseLayer(Vector2Int cellPosition, bool autoSelectOn)
         {
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
             
-            
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            
+            if (multiBreak == 0 && !autoSelectOn)
+            {
+                tileBreakHighlighter.Clear();
+                return;
+            }
             Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
             if (outlineDict == null)
             {

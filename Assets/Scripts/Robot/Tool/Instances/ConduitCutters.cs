@@ -160,7 +160,7 @@ namespace Robot.Tool.Instances
             return toolData?.Type.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition)
+        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             
         }
