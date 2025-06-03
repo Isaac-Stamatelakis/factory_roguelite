@@ -28,11 +28,11 @@ namespace Dimensions {
             if (dim0System is SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem)
             {
                 GameObject closedChunkSystemObject = new GameObject();
-                IntervalVector bounds = WorldCreation.GetDim0Bounds();
                 closedChunkSystemObject.name="Dim0System";
                 ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
                 string path = WorldLoadUtils.GetDimPath(0);
                 ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(cachedChunks,path,0);
+                IntervalVector bounds = closedChunkSystemAssembler.GetBounds();
                 closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities(),false);
                 mainArea.Initialize(
                     this,

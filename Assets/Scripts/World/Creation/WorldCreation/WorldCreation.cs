@@ -153,18 +153,9 @@ namespace WorldModule {
             WorldLoadUtils.createDimFolder(0);
 
             Structure structure = StructureGeneratorHelper.LoadStructure(structureName);
-            IntervalVector dim0Bounds = GetDim0Bounds();
 
-            WorldGenerationFactory.SaveToJson(structure.variants[0].Data, dim0Bounds.getSize(), 0,
-                WorldLoadUtils.GetDimPath(0));
-        }
-
-        public static IntervalVector GetDim0Bounds()
-        {
-            return new IntervalVector(
-                new Interval<int>(-2, 2),
-                new Interval<int>(-2, 2)
-            );
+            IntervalVector coveredArea = structure.FirstVariantCoveredArea;
+            WorldGenerationFactory.SaveToJson(structure.variants[0].Data, coveredArea.getSize(), 0, WorldLoadUtils.GetDimPath(0));
         }
         public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds)
         {

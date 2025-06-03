@@ -128,7 +128,7 @@ namespace DevTools.Structures {
                     for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                         for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             string baseId = data.baseData.ids[x,y];
-                            if (baseId == StructureGeneratorHelper.PAREMETER_ID) {
+                            if (baseId == PAREMETER_ID) {
                                 Vector2Int normalizedPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE+new Vector2Int(x,y)-offset;
                                 perimeter[normalizedPosition.x,normalizedPosition.y] = true;
                                 enforceEnclosure = true; // If even a single perimeter tile is in the map, enforce enclosure is on
@@ -192,7 +192,7 @@ namespace DevTools.Structures {
                     areaSize
                 ));
             }
-            return new Structure(variants);
+            return new Structure(variants,coveredArea);
         }
 
         
