@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -78,26 +79,56 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
             string json = File.ReadAllText(shaderPath);
             List<string> splitJson = SplitJsonObjects(json);
             const string PROPERTY_KEY = "m_Properties";
-
             const string CHILD_KEY = "m_ChildObjectList";
+            
             JObject shaderGraph = JObject.Parse(splitJson[0]);
             JArray properties = (JArray)shaderGraph[PROPERTY_KEY];
-            JObject newProperty = new JObject
-            {
-                ["m_Id"] = "Test",
-            };
-            
-            properties.Add(newProperty);
-
-            // Write back formatted JSON
-            string formattedJson = shaderGraph.ToString(Formatting.Indented);
-            Debug.Log(formattedJson);
             
             JObject last = JObject.Parse(splitJson[^1]);
             JArray childrenObjectList = (JArray)last[CHILD_KEY];
-            childrenObjectList.Add(newProperty);
-            string formattedJson1 = childrenObjectList.ToString(Formatting.Indented);
-            Debug.Log(formattedJson1);
+            
+            HashSet<string> currentProperties = new HashSet<string>();
+            for (int i = 1; i < splitJson.Count - 1; i++)
+            {
+                const string NAME_PROPERTY_KEY = "m_Name";
+                JObject jsonObject = JObject.Parse(splitJson[i]);
+                JToken propertyName = jsonObject[NAME_PROPERTY_KEY];
+                JToken propertyType = jsonObject["m_Type"];
+                if (propertyName == null || propertyType?.ToString() != "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty") continue;
+                currentProperties.Add(propertyName.ToString());
+            }
+
+            List<string> requiredProperties = new List<string>
+            {
+                "_StencilComp",
+                "_Stencil",
+                "_StencilOp",
+                "_StencilWriteMask",
+                "_StencilReadMask"
+            };
+
+            foreach (string requiredProperty in requiredProperties)
+            {
+                if (currentProperties.Contains(requiredProperty)) continue;
+
+                string id = Guid.NewGuid().ToString("N");
+                JObject newProperty = new JObject
+                {
+                    ["m_Id"] = id,
+                };
+                properties.Add(newProperty);
+                childrenObjectList.Add(newProperty);string templateJson = File.ReadAllText("Assets/Editor/Material/TEMPLATE_FLOAT.txt");
+                templateJson = templateJson.Replace("$TEMPLATE_ID", id).Replace("$TEMPLATE_NAME", requiredProperty);
+                splitJson.Insert(splitJson.Count - 1, templateJson);
+                Debug.Log($"Added property {requiredProperty} to {shader.name} with guid {guid}");
+            }
+            
+            splitJson[0] = shaderGraph.ToString(Formatting.Indented);
+            splitJson[^1] = last.ToString(Formatting.Indented);
+            foreach (string split in splitJson)
+            {
+                Debug.Log(split);
+            }
             //File.WriteAllText(shaderPath, formattedJson);
             break;
             Debug.Log(shader.name);
