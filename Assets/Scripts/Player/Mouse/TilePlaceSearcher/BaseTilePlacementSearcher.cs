@@ -46,7 +46,6 @@ namespace Player.Mouse.TilePlaceSearcher
             if (tile == lastTile) return;
             lastSearchResult = tileSearcher?.FindPlacementLocation(mousePosition);
             lastTile = tile;
-            Debug.Log("Search");
         }
 
         public void SetSearcher(BaseTilePlacementSearcher searcher)
@@ -172,19 +171,19 @@ namespace Player.Mouse.TilePlaceSearcher
 
     public class BackgroundTilePlacementSearcher : BaseTilePlacementSearcher
     {
-        private HashSet<Vector2Int> visited = new HashSet<Vector2Int>(128);
-        private Queue<Vector2Int> queued = new Queue<Vector2Int>(128);
-        private HashSet<Vector2Int> checkedCandiates = new HashSet<Vector2Int>(128);
+        private readonly HashSet<Vector2Int> visited = new HashSet<Vector2Int>(128);
+        private readonly Queue<Vector2Int> queued = new Queue<Vector2Int>(128);
+        private readonly HashSet<Vector2Int> checkedCandiates = new HashSet<Vector2Int>(128);
+        private readonly int blockLayer;
 
-        private List<Vector2Int> directions = new List<Vector2Int>
+        private readonly List<Vector2Int> directions = new List<Vector2Int>
         {
             Vector2Int.left,
             Vector2Int.right,
             Vector2Int.up,
             Vector2Int.down,
         };
-        private List<IWorldTileMap> collidableMaps;
-        private BackgroundWorldTileMap backgroundTilemap;
+        private readonly List<IWorldTileMap> collidableMaps;
         public BackgroundTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem,playerScript)
         {
             collidableMaps = new List<IWorldTileMap>
@@ -194,6 +193,7 @@ namespace Player.Mouse.TilePlaceSearcher
                 closedChunkSystem.GetTileMap(TileMapType.Object),
                 closedChunkSystem.GetTileMap(TileMapType.Platform),
             };
+            blockLayer = 1 << LayerMask.NameToLayer("Block");
         }
 
         public override Vector2? FindPlacementLocation(Vector2 mousePosition)
@@ -217,7 +217,7 @@ namespace Player.Mouse.TilePlaceSearcher
             mousePosition = new Vector2(clampedX, clampedY);
             Vector2Int origin = Global.WorldToCell(mousePosition);
             queued.Enqueue(origin);
-            int blockLayer = 1 << LayerMask.NameToLayer("Block");
+            
             while (queued.Count > 0)
             {
                 Vector2Int current = queued.Dequeue();
@@ -227,12 +227,6 @@ namespace Player.Mouse.TilePlaceSearcher
                 TileItem tileItem = GetTileItemAt(current);
                 if (tileItem)
                 {
-                    // Check theres not a block in the way
-                    Vector2 worldCurrent = CellToVector2(current);
-                    Vector2 direction = (playerPosition-worldCurrent).normalized;
-                    var hit = Physics2D.Raycast(playerPosition,direction,(playerPosition-worldCurrent).magnitude,blockLayer);
-                    if (hit.collider) continue;
-                    
                     Vector2Int? candidate = FindBestCandiate(current);
                     if (candidate.HasValue) return CellToVector2(candidate.Value);
                     if (tileItem.tileType == TileType.Block) continue;
@@ -254,7 +248,6 @@ namespace Player.Mouse.TilePlaceSearcher
             }
             Vector2Int? FindBestCandiate(Vector2Int cellPosition)
             {
-                // Can definetly optimize this
                 Vector2Int? best = null;
                 float minCandidateDistance = float.MaxValue;
                 foreach (Vector2Int direction in directions)
@@ -269,6 +262,9 @@ namespace Player.Mouse.TilePlaceSearcher
                         if (partition.GetBaseData(positionInPartition).state == 0) continue;
                     }
                     Vector2 candiateWorld = CellToVector2(candidate);
+                    Vector2 directionVector2 = -(playerPosition-candiateWorld).normalized;
+                    var hit = Physics2D.Raycast(playerPosition,directionVector2,(playerPosition-candiateWorld).magnitude,blockLayer);
+                    if (hit.collider) continue;
                     float distance = Vector2.Distance(candiateWorld, mousePosition);
                     if (distance < minCandidateDistance)
                     {
