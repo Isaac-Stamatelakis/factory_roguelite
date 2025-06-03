@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Tiles.TileMap.Interval;
 
 namespace UI {
     public delegate void ReloadCallBack();

@@ -70,7 +70,7 @@ public static class Global
     public static Vector2Int GetPartitionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.CHUNK_PARTITION_SIZE/2)), Mathf.FloorToInt(position.y/(Global.CHUNK_PARTITION_SIZE/2)));
     }
-    public static Vector2Int GetCellPositionFromWorld(Vector2 position) {
+    public static Vector2Int WorldToCell(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
     }
 }

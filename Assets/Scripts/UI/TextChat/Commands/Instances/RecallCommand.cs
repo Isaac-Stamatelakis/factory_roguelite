@@ -17,12 +17,12 @@ namespace UI.Chat {
         public override void execute()
         {
             PlayerScript player = PlayerManager.Instance.GetPlayer();
-            DimensionManager.Instance.SetPlayerSystem(player,0,new Vector2(0,0));
+            DimensionManager.Instance.SetPlayerSystem(player,0,new Vector2(6,6));
         }
 
         public override string getDescription()
         {
-            return "/recall \nTeleports player to hub at 0 0";
+            return "/recall \nTeleports player to hub portal";
         }
     }
 }

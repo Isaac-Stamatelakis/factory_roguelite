@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Misc.RandomFrequency;
+using Tiles.TileMap.Interval;
 
 namespace WorldModule.Caves {
     public class Structure
     {
+        public IntervalVector FirstVariantCoveredArea;
         public List<StructureVariant> variants;
 
-        public Structure(List<StructureVariant> variants)
+        public Structure(List<StructureVariant> variants, IntervalVector firstVariantCoveredArea)
         {
             this.variants = variants;
+            this.FirstVariantCoveredArea = firstVariantCoveredArea;
         }
     }
 

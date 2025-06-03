@@ -21,6 +21,7 @@ using PlayerModule;
 using Recipe;
 using TileEntity;
 using TileMaps;
+using Tiles.TileMap.Interval;
 using UI;
 using UI.GraphicSettings;
 using UI.Indicators;

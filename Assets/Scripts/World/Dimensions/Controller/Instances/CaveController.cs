@@ -6,6 +6,7 @@ using UnityEngine;
 using Chunks.Systems;
 using Player;
 using TileEntity;
+using Tiles.TileMap.Interval;
 using UI.Indicators;
 using WorldModule.Caves;
 

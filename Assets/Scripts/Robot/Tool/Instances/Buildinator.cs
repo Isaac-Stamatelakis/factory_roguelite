@@ -22,6 +22,7 @@ using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
 using Tiles.Indicators;
+using Tiles.TileMap.Interval;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
@@ -78,7 +79,7 @@ namespace Robot.Tool.Instances
             
             if (!TilePlaceUtils.RaycastTileInBox(origin, layers,true)) return;
             
-            Vector2Int vector2Int = Global.GetCellPositionFromWorld(mousePosition);
+            Vector2Int vector2Int = Global.WorldToCell(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
             int direction = Keyboard.current.ctrlKey.isPressed ? -1 : 1;
             switch (toolData.Mode)

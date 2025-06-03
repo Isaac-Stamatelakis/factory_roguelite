@@ -13,6 +13,7 @@ using Tiles;
 using Items;
 using Items.Transmutable;
 using Player;
+using Player.Mouse.TilePlaceSearcher;
 using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using TileMaps.Conduit;
@@ -104,15 +105,15 @@ namespace TileMaps.Previewer {
             
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
-            Vector2Int mouseCellPosition = Global.GetCellPositionFromWorld(position);
+            Vector2Int mouseCellPosition = Global.WorldToCell(position);
             Vector3Int mouseCellPositionVector3 = new Vector3Int(mouseCellPosition.x,mouseCellPosition.y,0);
             
             if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(mouseCellPositionVector3,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
             }
             
-            Vector2 tilePlacementWorld = playerMouse.BaseTilePlacementSearcher?.FindPlacementLocation(position) ?? position;
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tilePlacementWorld);
+            Vector2 tilePlacementWorld = playerMouse.TileSearchResultCacher?.GetResult() ?? position;
+            Vector2Int cellPosition = Global.WorldToCell(tilePlacementWorld);
             Vector3Int placePosition = new Vector3Int(cellPosition.x,cellPosition.y,0);
             
             lastMousePlacement = mousePlacement;
@@ -135,16 +136,16 @@ namespace TileMaps.Previewer {
                 }
                 if (tileItem.tile is PlatformStateTile)
                 {
-                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, position);
+                    placementRecord = PreviewPlatformTile(playerScript.TilePlacementOptions, tileItem, placePosition, tilePlacementWorld);
                 }
                 else
                 {
-                    placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, position);
+                    placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, tileItem, tileBase, placePosition, tilePlacementWorld);
                 }
                 
             }
 
-            bool canPlace = CanPlace(position, itemObject);
+            bool canPlace = CanPlace(tilePlacementWorld, itemObject);
             if (itemObject is IColorableItem colorableItem && colorableItem.Color != Color.white)
             {
                 Color baseColor = colorableItem.Color;

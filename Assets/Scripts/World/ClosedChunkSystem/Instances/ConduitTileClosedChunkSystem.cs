@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using Player;
 using Player.Controls;
 using TileEntity.AssetManagement;
+using Tiles.TileMap.Interval;
 using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {

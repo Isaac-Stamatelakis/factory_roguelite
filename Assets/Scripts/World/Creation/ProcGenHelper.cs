@@ -10,6 +10,7 @@ using DevTools.Structures;
 using Newtonsoft.Json;
 using TileEntity.Instances.Creative.CreativeChest;
 using Tiles;
+using Tiles.TileMap.Interval;
 using WorldModule.Caves;
 
 namespace WorldModule {

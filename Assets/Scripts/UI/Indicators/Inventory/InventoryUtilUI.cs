@@ -182,7 +182,7 @@ namespace Player.UI.Inventory
         {
             ILoadedChunkSystem chunkSystem = playerScript.CurrentSystem;
             List<ItemSlot> playerItemSlots = playerInventory.Inventory;
-            Vector2Int playerPosition = Global.GetCellPositionFromWorld(playerScript.transform.position);
+            Vector2Int playerPosition = Global.WorldToCell(playerScript.transform.position);
             const int Range = 4;
             for (int r = 0; r <= Range; r++)
             {

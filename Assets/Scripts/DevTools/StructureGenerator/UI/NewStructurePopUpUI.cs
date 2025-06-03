@@ -10,6 +10,7 @@ using System;
 using Item.Inventory.ClickHandlers.Instances;
 using Item.Slot;
 using Items.Inventory;
+using Tiles.TileMap.Interval;
 
 namespace DevTools.Structures {
     public class NewStructurePopUpUI : MonoBehaviour

@@ -346,7 +346,7 @@ namespace Player.Movement.Standard
             Vector2 tileCenter = TileHelper.getRealTileCenter(position);
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
             if (ReferenceEquals(objHit.collider, null)) return null;
-            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tileCenter);
+            Vector2Int cellPosition = Global.WorldToCell(tileCenter);
             ILoadedChunkSystem system = playerScript.CurrentSystem;
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             

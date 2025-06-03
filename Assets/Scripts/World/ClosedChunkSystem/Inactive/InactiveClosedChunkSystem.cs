@@ -13,6 +13,7 @@ using Chunks.IO;
 using Dimensions;
 using TileMaps.Layer;
 using Tiles;
+using Tiles.TileMap.Interval;
 using World.Cave.Registry;
 
 namespace Chunks.Systems {
@@ -210,7 +211,7 @@ namespace Chunks.Systems {
                 return;
             }
             for (int i = 0; i < unloadedChunks.Count; i++) {
-                updateCoveredArea(unloadedChunks[i]);
+                UpdateCoveredArea(unloadedChunks[i]);
                 Chunks[i].SystemAssembler = this;
             } 
         }
@@ -219,7 +220,7 @@ namespace Chunks.Systems {
         public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
         
-        private void updateCoveredArea(SoftLoadedConduitTileChunk chunk) {
+        private void UpdateCoveredArea(SoftLoadedConduitTileChunk chunk) {
             if (coveredArea == null) {
                 int x = chunk.GetPosition().x;
                 int y = chunk.GetPosition().y;
@@ -311,39 +312,7 @@ namespace Chunks.Systems {
             conduitSystemManagersDict[conduitMapType] = manager;
         }
         
-
-        public TileItem getTileItem(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache, TileMapLayer layer) {
-            Vector2Int chunkPosition = Global.GetChunkFromCell(currentCellPosition);
-            Vector2Int partitionPosition = Global.GetPartitionFromCell(currentCellPosition);
-            if (!chunkCache.ContainsKey(chunkPosition)) {
-                chunkCache[chunkPosition] = getChunk(chunkPosition);
-            }
-            IChunk chunk = chunkCache[chunkPosition];
-            if (chunk == null) {
-                return null;
-            }
-            if (!partitionCache.ContainsKey(partitionPosition)) {
-                Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PARTITIONS_PER_CHUNK;
-                partitionCache[partitionPosition] = chunk.GetPartition(adjustedPartitionPosition);
-            }
-            IChunkPartition partition = partitionCache[partitionPosition];
-            Vector2Int cellPositionInPartition = Global.GetPositionInPartition(currentCellPosition);
-            TileItem tileItem = partition.GetTileItem(cellPositionInPartition,layer);
-            return tileItem;
-        }
-
-        public ITileEntityInstance GetTileEntity(Vector2Int currentCellPosition) {
-            Vector2Int chunkPosition = Global.GetChunkFromCell(currentCellPosition);
-            Vector2Int partitionPosition = Global.GetPartitionFromCell(currentCellPosition);
-            IChunk chunk = getChunk(chunkPosition);
-            if (chunk == null) {
-                return null;
-            }
-            Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = chunk.GetPartition(adjustedPartitionPosition);
-            Vector2Int cellPositionInPartition = Global.GetPositionInPartition(currentCellPosition);
-            return partition.GetTileEntity(cellPositionInPartition);
-        }
+        
 
         public SoftLoadedConduitTileChunk getChunk(Vector2Int cellPosition) {
             foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
@@ -371,6 +340,11 @@ namespace Chunks.Systems {
             int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
             return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
+        }
+
+        public IntervalVector GetBounds()
+        {
+            return coveredArea;
         }
         
         private void SoftLoadTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> preloadedTileEntities, bool softLoaded) {
