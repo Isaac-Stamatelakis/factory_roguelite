@@ -343,11 +343,7 @@ namespace Robot.Tool.Instances
                         }
                         else
                         {
-                            Tilemap tilemap = tileGridMap.GetTilemap();
-                            Quaternion quaternion = tilemap.GetTransformMatrix(vector3Int).rotation;
-                            TileItem tileItem = (TileItem)tileGridMap.GetItemObject(breakPosition);
-                            Material worldMaterial = itemRegistry.GetTransmutationWorldMaterial(tileItem.tileOptions.TransmutableColorOverride);
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion,tilemap.GetColor(vector3Int),worldMaterial);
+                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
                         }
                         
                     }

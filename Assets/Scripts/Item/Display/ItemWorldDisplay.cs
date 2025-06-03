@@ -156,7 +156,7 @@ namespace Item.Display
             }
             if (itemSlot.itemObject is TileItem tileItem)
             {
-                var tileOverlay = tileItem.tileOptions.Overlay;
+                var tileOverlay = tileItem.tileOptions.overlayData;
                 if (tileOverlay)
                 {
                     var material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World) : null;

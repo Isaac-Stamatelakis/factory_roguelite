@@ -215,7 +215,7 @@ namespace Robot.Tool.Instances
             float ran = UnityEngine.Random.Range(0f, 1f);
             Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
             minMaxColor.colorMax = color;
-            minMaxColor.colorMin = tileItem.tileOptions.Overlay?.GetColor() ?? color;
+            minMaxColor.colorMin = tileItem.tileOptions.overlayData?.GetColor() ?? color;
             particleSystemMain.startColor = minMaxColor;
         }
 

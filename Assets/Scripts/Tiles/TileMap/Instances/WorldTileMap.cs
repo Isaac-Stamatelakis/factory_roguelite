@@ -53,7 +53,7 @@ namespace TileMaps {
             return overlayTileMap;
         }
 
-        public const float OVERLAY_Z = -3f;
+        public const float OVERLAY_Z = -0.1f;
 
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             SpawnItemEntity(new ItemSlot(itemObject,amount,null), hitTilePosition);
@@ -321,12 +321,12 @@ namespace TileMaps {
             TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
 
-        protected void PlaceOverlayTile(TileOverlay tileOverlay, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
+        protected void PlaceOverlayTile(TileOverlayData tileOverlayData, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
         {
-            var overlayTile = tileOverlay.GetTile();
+            var overlayTile = tileOverlayData.GetTile();
             SetTileItemTile(overlayTileMap,overlayTile, vector3Int, tileItem.tileOptions.rotatable, baseTileData);
             overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
+            overlayTileMap.SetColor(vector3Int,tileOverlayData.GetColor());
         } 
         
         

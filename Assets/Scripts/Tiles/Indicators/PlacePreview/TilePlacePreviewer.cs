@@ -298,7 +298,7 @@ namespace TileMaps.Previewer {
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
             SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
             
-            var tileOverlay = tileItem.tileOptions.Overlay;
+            var tileOverlay = tileItem.tileOptions.overlayData;
             if (tileOverlay)
             {
                 DisplayTilePreview(tileOverlayMap,tileOverlay.GetTile(),state,placePosition,position,rotatable,tilePlacementOptions);

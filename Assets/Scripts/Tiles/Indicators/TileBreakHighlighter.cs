@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TileMaps;
 using TileMaps.Type;
+using Tiles.Options.Overlay;
 using Tiles.TileMap;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -12,6 +13,7 @@ namespace Tiles.Indicators
     {
         [SerializeField] private Tilemap mOutlineTilemap;
         [SerializeField] private Tilemap mTilemap;
+        [SerializeField] private Tilemap mOverlayTilemap;
         [SerializeField] private Color color;
         
         private ShaderTilemapManager shaderTilemapManager;
@@ -74,6 +76,18 @@ namespace Tiles.Indicators
             matrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,outlineScale * Vector3.one);
             mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
             
+            var overlay = outlineData.OverlayData;
+            if (overlay)
+            {
+                Material overlayMaterial = overlay is IShaderTileOverlay shaderTileOverlay
+                    ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World)
+                    : null;
+                Tilemap overlayPlacementMap = !overlayMaterial ? mOverlayTilemap : shaderTilemapManager.GetTileMap(overlayMaterial);
+                overlayPlacementMap.SetTile(tilePosition,outlineData.OverlayTile);
+                overlayPlacementMap.SetTransformMatrix(tilePosition,matrix4X4);
+                overlayPlacementMap.SetTileFlags(tilePosition,TileFlags.None);
+                overlayPlacementMap.SetColor(tilePosition,overlay.GetColor());
+            }
         }
 
         public void ResetHistory()
@@ -86,6 +100,7 @@ namespace Tiles.Indicators
             mTilemap.ClearAllTiles();
             mOutlineTilemap.ClearAllTiles();
             shaderTilemapManager.ClearAllTiles();
+            mOverlayTilemap.ClearAllTiles();
             highlighting = false;
         }
     }
