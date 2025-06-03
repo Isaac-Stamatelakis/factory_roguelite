@@ -235,7 +235,12 @@ namespace Player.Mouse.TilePlaceSearcher
 
     public class PlatformTilePlacementSearcher : BaseBfsTilePlacementSearcher
     {
-      
+        private enum SearchMode
+        {
+            Flat,
+            Slope
+        }
+        private SearchMode searchMode;
         private readonly PlatformTileMap platformTileMap;
         public PlatformTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
         {
@@ -258,14 +263,20 @@ namespace Player.Mouse.TilePlaceSearcher
 
         public override Vector2? FindPlacementLocation(Vector2 mousePosition)
         {
+            
             BaseTileData autoTileData = PlayerScript.TilePlacementOptions.AutoBaseTileData;
             Vector2 playerPosition =  PlayerScript.transform.position;
             float theta = Mathf.Atan2(mousePosition.y-playerPosition.y, mousePosition.x-playerPosition.x);
-            float sin = Mathf.Sin(theta);
-            if (Mathf.Abs(theta) < Mathf.PI/4)
+            
+            if (Mathf.Abs(Mathf.Cos(theta)) > 0.717f)
             {
-                // Flat
+                searchMode = SearchMode.Flat;
                 Directions = new List<Vector2Int>{Vector2Int.left,Vector2Int.right};
+                CollidableMaps = new List<IWorldTileMap>
+                {
+                    ClosedChunkSystem.GetTileMap(TileMapType.Block),
+                    platformTileMap
+                };
                 float playerY = PlayerScript.transform.position.y;
                 mousePosition.y = playerY - Global.TILE_SIZE;
                 autoTileData.state = (int)PlatformTileState.FlatConnectNone;;
@@ -274,7 +285,7 @@ namespace Player.Mouse.TilePlaceSearcher
                 if (!flatResult.HasValue) return mousePosition;
                 return flatResult;
             }
-            // Slopes
+            searchMode = SearchMode.Slope;
             Directions = new List<Vector2Int>
             {
                 Vector2Int.left,
@@ -282,7 +293,10 @@ namespace Player.Mouse.TilePlaceSearcher
                 Vector2Int.up,
                 Vector2Int.down,
             };
-            
+            CollidableMaps = new List<IWorldTileMap>
+            {
+                platformTileMap
+            };
             autoTileData.rotation = mousePosition.x - PlayerScript.transform.position.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
             autoTileData.state = (int)PlatformTileState.SlopeDeco;
             Vector2? result = base.FindPlacementLocation(mousePosition);

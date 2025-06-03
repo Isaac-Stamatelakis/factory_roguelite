@@ -22,7 +22,7 @@ namespace TileEntity.Instances.Caves.ReturnPortal
 
         public void OnRightClick()
         {
-            DimensionManager.Instance.SetPlayerSystem(PlayerManager.Instance.GetPlayer(), Dimension.OverWorld, Vector2.zero);
+            DimensionManager.Instance.SetPlayerSystem(PlayerManager.Instance.GetPlayer(), Dimension.OverWorld, new Vector2(6,6));
         }
 
         public void Load()
