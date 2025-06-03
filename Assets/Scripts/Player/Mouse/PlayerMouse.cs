@@ -88,7 +88,7 @@ namespace PlayerModule.Mouse {
             eventSystem = EventSystem.current;
             autoTileFinder = new AutoTileFinder(transform);
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
-            tileBreakHighlighter = playerScript.TileViewers.MainBreakHighlighter;
+            tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
             enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
             canvasController = CanvasController.Instance;
         }

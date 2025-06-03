@@ -223,12 +223,11 @@ namespace Player
     [System.Serializable]
     public class TileViewerCollection
     {
-        public TileBreakIndicator TileBreakIndicator;
         public TilePlacePreviewer TilePlacePreviewer;
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
         public TileBreakHighlighter TileBreakHighlighter;
-        public TileBreakHighlighter MainBreakHighlighter;
+        //public TileBreakHighlighter MainBreakHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
         public void SetPlacePreviewerState(bool state)
         {

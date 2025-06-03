@@ -400,9 +400,8 @@ namespace Robot.Tool.Instances
         {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             
-            if (multiBreak == 0)
+            if (veinMinePower > 1)
             {
-                if (veinMinePower < 2) return null;
                 WorldTileMap worldTileMap = GetWorldTileGridMap(closedChunkSystem);
                 IOutlineTileGridMap outlineTileGridMap = worldTileMap as IOutlineTileGridMap;
                 if (outlineTileGridMap == null) return null;
