@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Chunks;
+using Chunks.Partitions;
 using Chunks.Systems;
 using TileMaps;
 using TileMaps.Type;
+using Tiles;
+using Tiles.CustomTiles.StateTiles.Instances.Platform;
+using Tiles.TileMap;
+using Tiles.TileMap.Platform;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -19,7 +25,7 @@ namespace Player.Mouse.TilePlaceSearcher
             PlayerScript = playerScript;
         }
 
-        public abstract Vector2 FindPlacementLocation(Vector2 mousePosition);
+        public abstract Vector2? FindPlacementLocation(Vector2 mousePosition);
         
 
     }
@@ -127,7 +133,7 @@ namespace Player.Mouse.TilePlaceSearcher
 
             return searchMode switch
             {
-                LineSearchMode.FirstEmpty => lastEmptyTile,
+                LineSearchMode.FirstEmpty => lastHitTile,
                 LineSearchMode.FirstHit or LineSearchMode.LastHit => lastHitTile,
                 _ => throw new ArgumentOutOfRangeException(nameof(searchMode), searchMode, null)
             };
@@ -136,6 +142,16 @@ namespace Player.Mouse.TilePlaceSearcher
 
     public class BackgroundTilePlacementSearcher : BaseTilePlacementSearcher
     {
+        private HashSet<Vector2Int> visited = new HashSet<Vector2Int>(128);
+        private Queue<Vector2Int> queued = new Queue<Vector2Int>(128);
+
+        private List<Vector2Int> directions = new List<Vector2Int>
+        {
+            Vector2Int.left,
+            Vector2Int.right,
+            Vector2Int.up,
+            Vector2Int.down,
+        };
         private List<IWorldTileMap> collidableMaps;
         private BackgroundWorldTileMap backgroundTilemap;
         public BackgroundTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem,playerScript)
@@ -149,42 +165,139 @@ namespace Player.Mouse.TilePlaceSearcher
             };
         }
 
-        public override Vector2 FindPlacementLocation(Vector2 mousePosition)
+        public override Vector2? FindPlacementLocation(Vector2 mousePosition)
         {
-            float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
-            Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
+            ILoadedChunkSystem chunkSystem = ClosedChunkSystem;
+            visited.Clear();
+            queued.Clear();
             
-            Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.FirstEmpty, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,true);
+            Vector2 playerPosition = PlayerScript.transform.position;
+            const int SEARCH_RANGE = 8;
+            const float WORLD_SEARCH_RANGE = SEARCH_RANGE * Global.TILE_SIZE;
+            float minX = playerPosition.x - WORLD_SEARCH_RANGE;
+            float maxX = playerPosition.x + WORLD_SEARCH_RANGE;
+            float minY = playerPosition.y - WORLD_SEARCH_RANGE;
+            float maxY = playerPosition.y + WORLD_SEARCH_RANGE;
             
-            return foundTile ?? mousePosition;
+            float clampedX = Mathf.Clamp(mousePosition.x,minX,maxX);
+            float clampedY = Mathf.Clamp(mousePosition.y,minY,maxY);
+           
+            mousePosition = new Vector2(clampedX, clampedY);
+            Vector2Int origin = Global.GetCellPositionFromWorld(mousePosition);
+            queued.Enqueue(origin);
+            int blockLayer = 1 << LayerMask.NameToLayer("Block");
+            while (queued.Count > 0)
+            {
+                Vector2Int current = queued.Dequeue();
+                
+                if (!visited.Add(current)) continue;
+                
+                TileItem tileItem = GetTileItemAt(current);
+                if (tileItem)
+                {
+                    // Check theres not a block in the way
+                    Vector2 worldCurrent = CellToVector2(current);
+                    Vector2 direction = (playerPosition-worldCurrent).normalized;
+                    var hit = Physics2D.Raycast(playerPosition,direction,(playerPosition-worldCurrent).magnitude,blockLayer);
+                    if (hit.collider) continue;
+                    
+                    Vector2Int? candidate = FindBestCandiate(current);
+                    if (candidate.HasValue) return CellToVector2(candidate.Value);
+                    if (tileItem.tileType == TileType.Block) continue;
+                }
+                foreach (Vector2Int direction in directions)
+                {
+                    Vector2Int nextPosition = direction + current;
+                    Vector2 nextWorldPosition = CellToVector2(nextPosition);
+                    if (!InRange(nextWorldPosition)) continue;
+                    queued.Enqueue(nextPosition);
+                }
+            }
+
+            return null;
+            
+            bool InRange(Vector2 worldPosition)
+            {
+                return worldPosition.x >= minX && worldPosition.x <= maxX && worldPosition.y >= minY && worldPosition.y <= maxY;
+            }
+            Vector2Int? FindBestCandiate(Vector2Int cellPosition)
+            {
+                // Can definetly optimize this
+                Vector2Int? best = null;
+                float minCandidateDistance = float.MaxValue;
+                foreach (Vector2Int direction in directions)
+                {
+                    Vector2Int candidate = cellPosition + direction;
+                    TileItem tileItem = GetTileItemAt(candidate);
+                    if (tileItem?.tileType is TileType.Background) continue;
+                    if (tileItem?.tileType is TileType.Block)
+                    {
+                        var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(candidate);
+                        if (partition.GetBaseData(positionInPartition).state == 0) continue;
+                    }
+                    Vector2 candiateWorld = CellToVector2(candidate);
+                    float distance = Vector2.Distance(candiateWorld, mousePosition);
+                    if (distance < minCandidateDistance)
+                    {
+                        minCandidateDistance = distance;
+                        best = candidate;
+                    }
+                }
+                return best;
+            }
+
+            Vector2 CellToVector2(Vector2Int cell)
+            {
+                return Global.TILE_SIZE * new Vector2(cell.x + 1 / 2f, cell.y + 1 / 2f);
+            }
+            
+            TileItem GetTileItemAt(Vector2Int cellPosition)
+            {
+                foreach (IWorldTileMap tileMap in collidableMaps)
+                {
+                    if (!tileMap.HasTile(cellPosition)) continue;
+                    return (TileItem)tileMap.GetItemObject(cellPosition);
+                }
+                return null;
+            }
         }
     }
 
     public class PlatformTilePlacementSearcher : BaseTilePlacementSearcher
     {
-        private List<IWorldTileMap> collidableMaps;
+        private readonly List<IWorldTileMap> collidableMaps;
+        private readonly PlatformTileMap platformTileMap;
         public PlatformTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
         {
+            platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
             collidableMaps = new List<IWorldTileMap>
             {
                 closedChunkSystem.GetTileMap(TileMapType.Block),
-                closedChunkSystem.GetTileMap(TileMapType.Platform),
+                platformTileMap
             };
+            
         }
 
-        public override Vector2 FindPlacementLocation(Vector2 mousePosition)
+        public override Vector2? FindPlacementLocation(Vector2 mousePosition)
         {
             float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
             Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
-            if (mouseDirection.y < 0.3f)
+            BaseTileData autoTileData = PlayerScript.TilePlacementOptions.AutoBaseTileData;
+            Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
+            if (!foundTile.HasValue) return mousePosition;
+            
+            if (mouseDirection.y <= -0.2f)
             {
-                Debug.Log("A");
-                Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
-                if (!foundTile.HasValue) return mousePosition;
+                autoTileData.state = (int)PlatformTileState.FlatConnectNone;
+                
                 return foundTile.Value + Vector2.right * (mouseDirection.x > 0 ? Global.TILE_SIZE : -Global.TILE_SIZE);
             }
-            Debug.Log("B");
-            return mousePosition;
+            
+            autoTileData.rotation = mouseDirection.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
+            autoTileData.state = (int)PlatformTileState.SlopeDeco;
+            return foundTile.Value + Vector2.up * Global.TILE_SIZE;
+            
+            
         }
     }
 }

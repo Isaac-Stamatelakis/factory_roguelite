@@ -38,9 +38,9 @@ namespace Items.Transmutable {
             {
                 name = ShaderMaterial.UIMaterial.name + ShaderOption.name
             };
-            bool sameMaterial = ReferenceEquals(ShaderMaterial.WorldMaterial, ShaderMaterial.UIMaterial);
-            ShaderOption.Apply(uiCopy);
             
+            ShaderOption.Apply(uiCopy);
+            bool sameMaterial = ReferenceEquals(ShaderMaterial.WorldMaterial, ShaderMaterial.UIMaterial);
             if (sameMaterial)
             {
                 return new TransmutationShaderPair(uiCopy, uiCopy);
@@ -48,10 +48,10 @@ namespace Items.Transmutable {
             
             Material worldCopy = new Material(ShaderMaterial.WorldMaterial)
             {
-                name = ShaderMaterial.UIMaterial.name + ShaderOption.name
+                name = ShaderMaterial.WorldMaterial.name + ShaderOption.name
             };
             ShaderOption.Apply(worldCopy);
-            return new  TransmutationShaderPair(worldCopy, worldCopy);
+            return new TransmutationShaderPair(uiCopy, worldCopy);
         }
     }
 

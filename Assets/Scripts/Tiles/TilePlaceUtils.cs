@@ -294,7 +294,11 @@ namespace TileMaps.Place {
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
 
-            ClearTilesOnPlace(tileItem, worldPosition, baseTileData.rotation);
+            if (tileItem.tileType != TileType.Background)
+            {
+                ClearTilesOnPlace(tileItem, worldPosition, baseTileData.rotation);
+            }
+            
             if (!ReferenceEquals(tileItem.tileEntity, null))
             {
                 string initialData = GetPlacementData(tileItem.tileEntity, itemTagCollection);

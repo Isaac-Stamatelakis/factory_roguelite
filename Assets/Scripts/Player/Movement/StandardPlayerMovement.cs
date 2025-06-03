@@ -150,8 +150,6 @@ namespace Player.Movement.Standard
                 coyoteFrames = jumpStats.coyoteFrames;
             }
             
-            
-            
             Vector2 velocity = rb.velocity;
 
             bool movedLeft = !playerRobot.CollisionStateActive(CollisionState.OnWallLeft) &&
@@ -250,7 +248,11 @@ namespace Player.Movement.Standard
                 slopeState = null;
             }
             playerRobot.PlatformCollider.enabled = playerRobot.IgnorePlatformFrames < 0 && rb.velocity.y < 0.01f;
-            bool ignoreSlopedPlatforms = HoldingDown && playerRobot.CollisionStateActive(CollisionState.OnPlatform);
+            bool ignoreSlopedPlatforms = HoldingDown && (playerRobot.CollisionStateActive(CollisionState.OnGround) || playerRobot.CollisionStateActive(CollisionState.OnPlatform));
+            if (ignoreSlopedPlatforms)
+            {
+                playerRobot.ResetIgnoreSlopePlatformFrames();
+            }
             playerRobot.TogglePlatformCollider();
             playerRobot.ToggleSlopePlatformCollider(PlayerRobot.SlopePlatformCollisionState.Left, ignoreSlopedPlatforms);
             playerRobot.ToggleSlopePlatformCollider(PlayerRobot.SlopePlatformCollisionState.Right, ignoreSlopedPlatforms);

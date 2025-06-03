@@ -81,7 +81,7 @@ namespace TileMaps.Previewer {
         
         void Update()
         {
-            if (CanvasController.Instance.IsActive || Mouse.current.leftButton.isPressed)
+            if (CanvasController.Instance.IsActive || (Mouse.current.leftButton.isPressed && !(playerScript?.TilePlacementOptions?.AutoPlace ?? false)))
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();
@@ -237,16 +237,25 @@ namespace TileMaps.Previewer {
             {
                 int rotation;
                 int state = placementOptions.State;
-                if (placementOptions.State == (int)PlatformTileState.SlopeDeco && cellPosition == placePosition)
+                if (placementOptions.AutoPlace)
                 {
-                    rotation = (int)placementOptions.Rotation;
-                    if (placementOptions.Rotation == PlayerTileRotation.Auto)
-                    {
-                        int mousePosition = MousePositionUtils.GetMousePlacement(position);
-                        rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
-                    }
-                    placementOptions.Rotation = (PlayerTileRotation)rotation;
+                    placementOptions.Rotation = (PlayerTileRotation)placementOptions.AutoBaseTileData.rotation;
+                    placementOptions.State = placementOptions.AutoBaseTileData.state;
                 }
+                else
+                {
+                    if (placementOptions.State == (int)PlatformTileState.SlopeDeco && cellPosition == placePosition)
+                    {
+                        rotation = (int)placementOptions.Rotation;
+                        if (placementOptions.Rotation == PlayerTileRotation.Auto)
+                        {
+                            int mousePosition = MousePositionUtils.GetMousePlacement(position);
+                            rotation = MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
+                        }
+                        placementOptions.Rotation = (PlayerTileRotation)rotation;
+                    }
+                }
+                
                 TilePlacementData tilePlacementData = new(placementOptions.Rotation, placementOptions.State);
                 state = (int)TilePlaceUtils.GetPlacementPlatformState(cellPosition,tilePlacementData,flatMap,leftSlopeMap,rightSlopeMap);
                 tilePlacementData.State = state;
