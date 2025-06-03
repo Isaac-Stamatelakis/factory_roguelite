@@ -1,6 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using Packages.Rider.Editor.Util;
+using Unity.Plastic.Newtonsoft.Json;
+using Unity.Plastic.Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,6 +28,35 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
         }
     }
 
+    List<string> SplitJsonObjects(string content)
+    {
+        List<string> jsonObjects = new List<string>();
+        StringBuilder currentJson = new StringBuilder();
+        int braceLevel = 0;
+        bool inString = false;
+
+        foreach (char c in content)
+        {
+            if (c == '"' && (currentJson.Length == 0 || currentJson[currentJson.Length - 1] != '\\'))
+                inString = !inString;
+
+            if (!inString)
+            {
+                if (c == '{') braceLevel++;
+                if (c == '}') braceLevel--;
+            }
+
+            currentJson.Append(c);
+
+            if (braceLevel == 0 && currentJson.Length > 0)
+            {
+                jsonObjects.Add(currentJson.ToString());
+                currentJson.Clear();
+            }
+        }
+
+        return jsonObjects.Where(j => j.Trim().StartsWith("{")).ToList();
+    }
     void ApplyProperties()
     {
         string[] guids = AssetDatabase.FindAssets("t:" + nameof(Material));
@@ -39,8 +73,32 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
             var shader = material.shader;
             string shaderPath = AssetDatabase.GetAssetPath(shader);
             if (!shaderPath.EndsWith(".shadergraph")) continue;
+            if (shaderPath != "Assets/Material/Items/HueShift/TestEditGraph.shadergraph") continue;
+            
             string json = File.ReadAllText(shaderPath);
-            Debug.Log(json);
+            List<string> splitJson = SplitJsonObjects(json);
+            const string PROPERTY_KEY = "m_Properties";
+
+            const string CHILD_KEY = "m_ChildObjectList";
+            JObject shaderGraph = JObject.Parse(splitJson[0]);
+            JArray properties = (JArray)shaderGraph[PROPERTY_KEY];
+            JObject newProperty = new JObject
+            {
+                ["m_Id"] = "Test",
+            };
+            
+            properties.Add(newProperty);
+
+            // Write back formatted JSON
+            string formattedJson = shaderGraph.ToString(Formatting.Indented);
+            Debug.Log(formattedJson);
+            
+            JObject last = JObject.Parse(splitJson[^1]);
+            JArray childrenObjectList = (JArray)last[CHILD_KEY];
+            childrenObjectList.Add(newProperty);
+            string formattedJson1 = childrenObjectList.ToString(Formatting.Indented);
+            Debug.Log(formattedJson1);
+            //File.WriteAllText(shaderPath, formattedJson);
             break;
             Debug.Log(shader.name);
         }
