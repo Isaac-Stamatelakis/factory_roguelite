@@ -80,128 +80,34 @@ namespace Player.Mouse.TilePlaceSearcher
             return null;
         }
     }
-
-    public static class TileSearchUtils
-    {
-        public enum LineSearchMode
-        {
-            FirstEmpty,
-            FirstHit,
-            LastHit
-        }
-        public static Vector2? BresenhamLine(LineSearchMode searchMode, Vector2 origin, Vector2 direction, Vector2 mousePosition, List<IWorldTileMap> interactableTilemaps, float maxDistance, bool placeableInPlatforms)
-        {
-            if (interactableTilemaps.Count == 0) return null;
-            
-            Vector2? lastEmptyTile = null;
-            Vector2? lastHitTile = null;
-            float distance = Mathf.Min((origin - mousePosition).magnitude, maxDistance);
-            
-            Tilemap tilemap = interactableTilemaps[0].GetTilemap(); // Doesn't matter what map it is all are the same for getting cell
-            Vector3Int startCell = tilemap.WorldToCell(origin);
-            Vector2 endPos = origin + direction * distance;
-            Vector3Int endCell = tilemap.WorldToCell(endPos);
-            
-            int x0 = startCell.x;
-            int y0 = startCell.y;
-            int x1 = endCell.x;
-            int y1 = endCell.y;
-            
-            int dx = Mathf.Abs(x1 - x0);
-            int dy = Mathf.Abs(y1 - y0);
-            int sx = x0 < x1 ? 1 : -1;
-            int sy = y0 < y1 ? 1 : -1;
-            int err = dx - dy;
-            
-            while (true)
-            {
-                Vector2Int currentCell = new Vector2Int(x0, y0);
-
-                bool found = false;
-                foreach (IWorldTileMap worldTileMap in interactableTilemaps)
-                {
-                    if (worldTileMap.HasTile(currentCell))
-                    {
-                        lastHitTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);  
-                        if (searchMode == LineSearchMode.FirstHit)
-                        {
-                            return lastEmptyTile;
-                        }
-                        found = true;
-                        if (placeableInPlatforms && worldTileMap.GetTileMapType() == TileMapType.Platform)
-                        {
-                            lastEmptyTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);
-                        }
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    lastEmptyTile = new Vector2(currentCell.x * Global.TILE_SIZE, currentCell.y * Global.TILE_SIZE);
-                    if (lastHitTile.HasValue && searchMode == LineSearchMode.FirstEmpty)
-                    {
-                        return lastEmptyTile;
-                    }
-                }
-                
-                if (x0 == x1 && y0 == y1) break;
     
-                int e2 = 2 * err;
-                if (e2 > -dy)
-                {
-                    err -= dy;
-                    x0 += sx;
-                }
-                if (e2 < dx)
-                {
-                    err += dx;
-                    y0 += sy;
-                }
-            }
-
-            return searchMode switch
-            {
-                LineSearchMode.FirstEmpty => lastHitTile,
-                LineSearchMode.FirstHit or LineSearchMode.LastHit => lastHitTile,
-                _ => throw new ArgumentOutOfRangeException(nameof(searchMode), searchMode, null)
-            };
-        }
-    }
-
-    public class BackgroundTilePlacementSearcher : BaseTilePlacementSearcher
+    public abstract class BaseBfsTilePlacementSearcher : BaseTilePlacementSearcher
     {
-        private readonly HashSet<Vector2Int> visited = new HashSet<Vector2Int>(128);
-        private readonly Queue<Vector2Int> queued = new Queue<Vector2Int>(128);
-        private readonly HashSet<Vector2Int> checkedCandiates = new HashSet<Vector2Int>(128);
-        private readonly int blockLayer;
+        protected readonly HashSet<Vector2Int> Visited = new HashSet<Vector2Int>(128);
+        protected readonly Queue<Vector2Int> Queued = new Queue<Vector2Int>(128);
+        protected readonly HashSet<Vector2Int> CheckedCandiates = new HashSet<Vector2Int>(128);
+        protected List<IWorldTileMap> CollidableMaps;
+        protected List<Vector2Int> Directions;
+        protected TileType SearchTileType;
 
-        private readonly List<Vector2Int> directions = new List<Vector2Int>
+        protected BaseBfsTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
         {
-            Vector2Int.left,
-            Vector2Int.right,
-            Vector2Int.up,
-            Vector2Int.down,
-        };
-        private readonly List<IWorldTileMap> collidableMaps;
-        public BackgroundTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem,playerScript)
-        {
-            collidableMaps = new List<IWorldTileMap>
-            {
-                closedChunkSystem.GetTileMap(TileMapType.Background),
-                closedChunkSystem.GetTileMap(TileMapType.Block),
-                closedChunkSystem.GetTileMap(TileMapType.Object),
-                closedChunkSystem.GetTileMap(TileMapType.Platform),
-            };
-            blockLayer = 1 << LayerMask.NameToLayer("Block");
+            
         }
+
+        
 
         public override Vector2? FindPlacementLocation(Vector2 mousePosition)
         {
+            
+#if UNITY_EDITOR
+            if (CollidableMaps == null) Debug.LogWarning($"Collidable maps must be assigned by child of {nameof(BaseBfsTilePlacementSearcher)}");
+            if (Directions == null) Debug.LogWarning($"Directions must be assigned by child of {nameof(BaseBfsTilePlacementSearcher)}");
+#endif
             ILoadedChunkSystem chunkSystem = ClosedChunkSystem;
-            visited.Clear();
-            queued.Clear();
-            checkedCandiates.Clear();
+            Visited.Clear();
+            Queued.Clear();
+            CheckedCandiates.Clear();
             
             Vector2 playerPosition = PlayerScript.transform.position;
             const int SEARCH_RANGE = 8;
@@ -216,13 +122,13 @@ namespace Player.Mouse.TilePlaceSearcher
            
             mousePosition = new Vector2(clampedX, clampedY);
             Vector2Int origin = Global.WorldToCell(mousePosition);
-            queued.Enqueue(origin);
+            Queued.Enqueue(origin);
             
-            while (queued.Count > 0)
+            while (Queued.Count > 0)
             {
-                Vector2Int current = queued.Dequeue();
+                Vector2Int current = Queued.Dequeue();
                 
-                if (!visited.Add(current)) continue;
+                if (!Visited.Add(current)) continue;
                 
                 TileItem tileItem = GetTileItemAt(current);
                 if (tileItem)
@@ -231,12 +137,12 @@ namespace Player.Mouse.TilePlaceSearcher
                     if (candidate.HasValue) return CellToVector2(candidate.Value);
                     if (tileItem.tileType == TileType.Block) continue;
                 }
-                foreach (Vector2Int direction in directions)
+                foreach (Vector2Int direction in Directions)
                 {
                     Vector2Int nextPosition = direction + current;
                     Vector2 nextWorldPosition = CellToVector2(nextPosition);
                     if (!InRange(nextWorldPosition)) continue;
-                    queued.Enqueue(nextPosition);
+                    Queued.Enqueue(nextPosition);
                 }
             }
 
@@ -250,21 +156,21 @@ namespace Player.Mouse.TilePlaceSearcher
             {
                 Vector2Int? best = null;
                 float minCandidateDistance = float.MaxValue;
-                foreach (Vector2Int direction in directions)
+                foreach (Vector2Int direction in Directions)
                 {
                     Vector2Int candidate = cellPosition + direction;
                     TileItem tileItem = GetTileItemAt(candidate);
-                    if (!checkedCandiates.Add(candidate)) continue;
-                    if (tileItem?.tileType is TileType.Background) continue;
+                    if (!CheckedCandiates.Add(candidate)) continue;
+                    if (tileItem?.tileType == SearchTileType) continue;
                     if (tileItem?.tileType is TileType.Block)
                     {
                         var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(candidate);
                         if (partition.GetBaseData(positionInPartition).state == 0) continue;
                     }
                     Vector2 candiateWorld = CellToVector2(candidate);
-                    Vector2 directionVector2 = -(playerPosition-candiateWorld).normalized;
-                    var hit = Physics2D.Raycast(playerPosition,directionVector2,(playerPosition-candiateWorld).magnitude,blockLayer);
-                    if (hit.collider) continue;
+                    
+                    if (!ValidCandidate(candiateWorld,tileItem)) continue;
+                    
                     float distance = Vector2.Distance(candiateWorld, mousePosition);
                     if (distance < minCandidateDistance)
                     {
@@ -282,7 +188,7 @@ namespace Player.Mouse.TilePlaceSearcher
             
             TileItem GetTileItemAt(Vector2Int cellPosition)
             {
-                foreach (IWorldTileMap tileMap in collidableMaps)
+                foreach (IWorldTileMap tileMap in CollidableMaps)
                 {
                     if (!tileMap.HasTile(cellPosition)) continue;
                     return (TileItem)tileMap.GetItemObject(cellPosition);
@@ -290,43 +196,132 @@ namespace Player.Mouse.TilePlaceSearcher
                 return null;
             }
         }
+
+        protected abstract bool ValidCandidate(Vector2 candidateWorldPosition, TileItem candidateItem);
     }
 
-    public class PlatformTilePlacementSearcher : BaseTilePlacementSearcher
+    public class BackgroundTilePlacementSearcher : BaseBfsTilePlacementSearcher
     {
-        private readonly List<IWorldTileMap> collidableMaps;
+        private readonly int blockLayer;
+        
+        public BackgroundTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem,playerScript)
+        {
+            CollidableMaps = new List<IWorldTileMap>
+            {
+                closedChunkSystem.GetTileMap(TileMapType.Background),
+                closedChunkSystem.GetTileMap(TileMapType.Block),
+                closedChunkSystem.GetTileMap(TileMapType.Object),
+                closedChunkSystem.GetTileMap(TileMapType.Platform),
+            };
+            Directions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            blockLayer = 1 << LayerMask.NameToLayer("Block");
+            SearchTileType = TileType.Background;
+        }
+        
+        protected override bool ValidCandidate(Vector2 candidateWorldPosition, TileItem candidateItem)
+        {
+            Vector2 playerPosition = PlayerScript.transform.position;
+            Vector2 directionVector2 = -(playerPosition-candidateWorldPosition).normalized;
+            var hit = Physics2D.Raycast(playerPosition,directionVector2,(playerPosition-candidateWorldPosition).magnitude,blockLayer);
+            return !hit.collider;
+        }
+    }
+
+    public class PlatformTilePlacementSearcher : BaseBfsTilePlacementSearcher
+    {
+      
         private readonly PlatformTileMap platformTileMap;
         public PlatformTilePlacementSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
         {
             platformTileMap = (PlatformTileMap)closedChunkSystem.GetTileMap(TileMapType.Platform);
-            collidableMaps = new List<IWorldTileMap>
+            CollidableMaps = new List<IWorldTileMap>
             {
                 closedChunkSystem.GetTileMap(TileMapType.Block),
                 platformTileMap
             };
-            
+            Directions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            SearchTileType = TileType.Platform;
+
         }
 
         public override Vector2? FindPlacementLocation(Vector2 mousePosition)
         {
-            float theta = Mathf.Atan2(mousePosition.y-PlayerScript.transform.position.y, mousePosition.x-PlayerScript.transform.position.x);
-            Vector2 mouseDirection = new Vector2(Mathf.Cos(theta),Mathf.Sin(theta));
             BaseTileData autoTileData = PlayerScript.TilePlacementOptions.AutoBaseTileData;
-            Vector2? foundTile = TileSearchUtils.BresenhamLine(TileSearchUtils.LineSearchMode.LastHit, PlayerScript.transform.position, mouseDirection,mousePosition,collidableMaps,5f,false);
-            if (!foundTile.HasValue) return mousePosition;
-            
-            if (mouseDirection.y <= -0.2f)
+            Vector2 playerPosition =  PlayerScript.transform.position;
+            float theta = Mathf.Atan2(mousePosition.y-playerPosition.y, mousePosition.x-playerPosition.x);
+            float sin = Mathf.Sin(theta);
+            if (Mathf.Abs(theta) < Mathf.PI/4)
             {
-                autoTileData.state = (int)PlatformTileState.FlatConnectNone;
-                
-                return foundTile.Value + Vector2.right * (mouseDirection.x > 0 ? Global.TILE_SIZE : -Global.TILE_SIZE);
+                // Flat
+                Directions = new List<Vector2Int>{Vector2Int.left,Vector2Int.right};
+                float playerY = PlayerScript.transform.position.y;
+                mousePosition.y = playerY - Global.TILE_SIZE;
+                autoTileData.state = (int)PlatformTileState.FlatConnectNone;;
+                autoTileData.rotation = 0;
+                Vector2? flatResult = base.FindPlacementLocation(mousePosition);
+                if (!flatResult.HasValue) return mousePosition;
+                return flatResult;
             }
+            // Slopes
+            Directions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
             
-            autoTileData.rotation = mouseDirection.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
+            autoTileData.rotation = mousePosition.x - PlayerScript.transform.position.x < 0 ? (int)SlopeRotation.Left : (int)SlopeRotation.Right;
             autoTileData.state = (int)PlatformTileState.SlopeDeco;
-            return foundTile.Value + Vector2.up * Global.TILE_SIZE;
-            
-            
+            Vector2? result = base.FindPlacementLocation(mousePosition);
+            if (!result.HasValue) return mousePosition;
+            Vector2Int cellPosition = Global.WorldToCell(result.Value);
+            if (platformTileMap.HasTile(cellPosition + Vector2Int.left))
+            {
+                Debug.Log("A");
+                autoTileData.rotation = (int)SlopeRotation.Right;
+                return result.Value + new Vector2(0,1) * Global.TILE_SIZE;
+            }
+            if (platformTileMap.HasTile(cellPosition + Vector2Int.right))
+            {
+                Debug.Log("B");
+                autoTileData.rotation = (int)SlopeRotation.Left;
+                return result.Value + new Vector2(0,1) * Global.TILE_SIZE;
+            }
+            if (platformTileMap.HasTile(cellPosition + Vector2Int.down))
+            {
+                int rotation = (playerPosition-result.Value).x > 0 ? 0 : 1;
+                int direction = (2 * rotation) - 1;
+                Debug.Log("C");
+                autoTileData.rotation = rotation;
+                return result.Value + new Vector2(direction,0) * Global.TILE_SIZE;
+            }
+            if (platformTileMap.HasTile(cellPosition + Vector2Int.up))
+            {
+                int rotation = (playerPosition-result.Value).x > 0 ? 0 : 1;
+                int direction = (2 * rotation) - 1;
+                Debug.Log("D");
+                autoTileData.rotation = rotation;
+                return result.Value + new Vector2(direction,0) * Global.TILE_SIZE;
+            }
+            return result.Value + Vector2.up * Global.TILE_SIZE;
+        }
+
+        protected override bool ValidCandidate(Vector2 candidateWorldPosition, TileItem candidateItem)
+        {
+            return true;
         }
     }
 }
