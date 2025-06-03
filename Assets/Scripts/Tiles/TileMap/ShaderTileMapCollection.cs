@@ -82,7 +82,14 @@ namespace Tiles.TileMap
                 }
             }
         }
-        
+
+        public void ClearAllTiles()
+        {
+            foreach (Tilemap tilemap in usedTileMaps)
+            {
+                tilemap.ClearAllTiles();
+            }
+        }
 
         public void PushUnusedMaps()
         {

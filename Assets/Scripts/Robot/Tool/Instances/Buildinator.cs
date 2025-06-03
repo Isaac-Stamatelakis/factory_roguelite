@@ -5,6 +5,7 @@ using Chunks.Partitions;
 using Chunks.Systems;
 using Dimensions;
 using Item.ItemObjects.Instances.Tile.Chisel;
+using Items;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
@@ -325,6 +326,7 @@ namespace Robot.Tool.Instances
                 worldTileGridMaps.Add(system.GetTileMap(TileMapType.Object) as WorldTileMap);
             }
             
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
             for (int x = -multiHits; x <= multiHits; x++)
             {
@@ -343,7 +345,9 @@ namespace Robot.Tool.Instances
                         {
                             Tilemap tilemap = tileGridMap.GetTilemap();
                             Quaternion quaternion = tilemap.GetTransformMatrix(vector3Int).rotation;
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion,tilemap.GetColor(vector3Int));
+                            TileItem tileItem = (TileItem)tileGridMap.GetItemObject(breakPosition);
+                            Material worldMaterial = itemRegistry.GetTransmutationWorldMaterial(tileItem.tileOptions.TransmutableColorOverride);
+                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion,tilemap.GetColor(vector3Int),worldMaterial);
                         }
                         
                     }

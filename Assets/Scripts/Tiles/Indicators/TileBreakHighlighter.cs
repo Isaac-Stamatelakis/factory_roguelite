@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using TileMaps;
+using TileMaps.Type;
+using Tiles.TileMap;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -11,11 +13,14 @@ namespace Tiles.Indicators
         [SerializeField] private Tilemap mOutlineTilemap;
         [SerializeField] private Tilemap mTilemap;
         [SerializeField] private Color color;
+        
+        private ShaderTilemapManager shaderTilemapManager;
         private bool highlighting = false;
         private Vector2Int lastTilePosition;
         
         public void Start()
-        { 
+        {
+            shaderTilemapManager = new ShaderTilemapManager(mTilemap.transform, -3, false, TileMapType.Block);
             SetOutlineColor(color);
         }
 
@@ -50,14 +55,16 @@ namespace Tiles.Indicators
             if (!tile) return;
                 
             Vector3Int tilePosition = new Vector3Int(position.x, position.y, 0);
-            mTilemap.SetTile(tilePosition,tile);
-            Matrix4x4 mainMatrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
+
+            Tilemap placementMap = outlineData.Material ? shaderTilemapManager.GetTileMap(outlineData.Material) : mTilemap;
+            placementMap.SetTile(tilePosition,tile);
+            Matrix4x4 mainMatrix4X4 = placementMap.GetTransformMatrix(tilePosition);
             mainMatrix4X4.SetTRS(mainMatrix4X4.GetPosition(),outlineData.TileRotation,Vector3.one);
-            mTilemap.SetTransformMatrix(tilePosition,mainMatrix4X4);
+            placementMap.SetTransformMatrix(tilePosition,mainMatrix4X4);
             if (outlineData.TileColor != Color.white)
             {
-                mTilemap.SetTileFlags(tilePosition,TileFlags.None);
-                mTilemap.SetColor(tilePosition,outlineData.TileColor);
+                placementMap.SetTileFlags(tilePosition,TileFlags.None);
+                placementMap.SetColor(tilePosition,outlineData.TileColor);
             }
             
             float outlineScale = outline ? 1f : 1.1f;
@@ -78,6 +85,7 @@ namespace Tiles.Indicators
             if (!highlighting) return;
             mTilemap.ClearAllTiles();
             mOutlineTilemap.ClearAllTiles();
+            shaderTilemapManager.ClearAllTiles();
             highlighting = false;
         }
     }

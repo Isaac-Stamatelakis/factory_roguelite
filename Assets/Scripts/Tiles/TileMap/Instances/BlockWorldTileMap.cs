@@ -17,14 +17,16 @@ namespace TileMaps {
         public TileBase OutlineTile;
         public Quaternion OutlineRotation;
         public Quaternion TileRotation;
+        public Material Material;
 
-        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor)
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor, Material material)
         {
             Tile = tile;
             OutlineTile = outlineTile;
             OutlineRotation = outlineRotation;
             TileRotation = tileRotation;
             TileColor = tileColor;
+            Material = material;
         }
     }
     public interface IOutlineTileGridMap : IWorldTileMap
@@ -131,7 +133,15 @@ namespace TileMaps {
 
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),tilemap.GetTransformMatrix(position).rotation,outlineTileMap.GetTransformMatrix(position).rotation,tilemap.GetColor(position));
+            TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(position.x, position.y));
+            return new OutlineTileMapCellData(
+                tilemap.GetTile(position),
+                outlineTileMap.GetTile(position),
+                tilemap.GetTransformMatrix(position).rotation,
+                outlineTileMap.GetTransformMatrix(position).rotation,
+                tilemap.GetColor(position),
+                ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride)
+            );
         }
 
         public ShaderTilemapManager GetManager()

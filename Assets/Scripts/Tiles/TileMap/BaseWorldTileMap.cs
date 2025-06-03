@@ -223,7 +223,15 @@ namespace TileMaps {
         public abstract ItemObject GetItemObject(Vector2Int position);
         public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition)
         {
-            return new OutlineTileMapCellData(tilemap.GetTile(cellPosition), null,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetColor(cellPosition));
+            TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(cellPosition.x, cellPosition.y));
+            return new OutlineTileMapCellData(
+                tilemap.GetTile(cellPosition), 
+                null,
+                tilemap.GetTransformMatrix(cellPosition).rotation,
+                tilemap.GetTransformMatrix(cellPosition).rotation,
+                tilemap.GetColor(cellPosition),
+                ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride)
+            );
         }
 
         public abstract bool BreakAndDropTile(Vector2Int position, bool dropItem);
