@@ -25,6 +25,8 @@ namespace Item.Transmutation
         Poor_Gem = 19,
         Ore = 20,
         Brick = 21,
+        Brick_Wall = 22,
+        Wall = 23
     }
     
 

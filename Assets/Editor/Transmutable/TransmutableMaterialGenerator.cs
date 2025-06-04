@@ -13,6 +13,7 @@ using Item.Transmutation;
 using Item.Transmutation.Items;
 using NUnit.Framework;
 using Tiles;
+using Tiles.CustomTiles;
 using Tiles.Options.Overlay;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -241,7 +242,8 @@ public class TransmutableItemGenerator : EditorWindow
             TransmutableTileItem transmutableTileItem = CreateInstance<TransmutableTileItem>();
             transmutableTileItem.name = itemName;
             transmutableTileItem.id = id;
-            transmutableTileItem.tileType = TileType.Block;
+            TileType tileType = tileStateOptions.tile is BackgroundRuleTile ? TileType.Background : TileType.Block;
+            transmutableTileItem.tileType = tileType;
             transmutableTileItem.setMaterial(material);
             transmutableTileItem.setState(state);
             transmutableTileItem.gameStage = material.gameStageObject;
@@ -250,7 +252,7 @@ public class TransmutableItemGenerator : EditorWindow
             
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
-            tileOptions.rotatable = true;
+            tileOptions.rotatable = tileType==TileType.Block;
             
             int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
             tileOptions.hardness = 8 * (tierInt + 1);
