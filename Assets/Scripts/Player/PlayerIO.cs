@@ -22,6 +22,7 @@ namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
+        
         private bool validStartup;
         public PlayerData Deserialize() {
             string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);

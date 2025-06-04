@@ -110,12 +110,17 @@ namespace Player
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
             playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
             
-            playerMouse.InitializeToolClickHandlers();
+            
+            playerMouse.Initialize();
             playerMouse.SyncTilePlacementCooldown();
             
             playerInventory.InitializeToolDisplay();
+            
             conduitPlacementOptions = new ConduitPlacementOptions(playerData.miscPlayerData.ConduitPortPlacementLoadOuts);
+            
             tilePlacementOptions = new PlayerTilePlacementOptions();
+            tilePlacementOptions.Initilaize();
+            
             questBookCache = new QuestBookCache();
             
             playerUIContainer.IndicatorManager.Initialize(this);
@@ -133,7 +138,7 @@ namespace Player
             playerInventory.ChangeSelectedSlot(0);
             return playerData;
         }
-
+        
         public void CallInitializeListeners()
         {
             IPlayerStartupListener[] playerStartupListeners = GetComponents<IPlayerStartupListener>();
@@ -227,8 +232,13 @@ namespace Player
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
         public TileBreakHighlighter TileBreakHighlighter;
-        //public TileBreakHighlighter MainBreakHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
+        
+        public void Initialize(PlayerScript playerScript)
+        {
+            TilePlacePreviewer.Initialize(playerScript);
+        }
+        
         public void SetPlacePreviewerState(bool state)
         {
             TilePlacePreviewer.gameObject.SetActive(state);
@@ -243,10 +253,7 @@ namespace Player
             ConduitPortViewer.gameObject.SetActive(state);
         }
 
-        public void Initialize(PlayerScript playerScript)
-        {
-            TilePlacePreviewer.Initialize(playerScript);
-        }
+        
 
         public void DisableConduitViewers()
         {
@@ -357,12 +364,26 @@ namespace Player
     [System.Serializable]
     public class PlayerTilePlacementOptions
     {
+        public const string AUTO_PLACEMENT_KEY = "_option_auto_placement";
+        public const string TILE_HIGHLIGHT_KEY = "_option_auto_placement";
         
         public bool Indiciator = true;
         public bool AutoPlace = true;
         public PlayerTileRotation Rotation;
         public int State;
         public BaseTileData AutoBaseTileData = new BaseTileData(0,0,false);
+
+        public void Initilaize()
+        {
+            Indiciator = PlayerPrefs.GetInt(TILE_HIGHLIGHT_KEY) == 1;
+            AutoPlace = PlayerPrefs.GetInt(AUTO_PLACEMENT_KEY) == 1;
+        }
+
+        public void Serialize()
+        {
+            PlayerPrefs.SetInt(TILE_HIGHLIGHT_KEY, Indiciator ? 1 : 0);
+            PlayerPrefs.SetInt(AUTO_PLACEMENT_KEY, AutoPlace ? 1 : 0);
+        }
     }
 
     public static class PlayerTileRotationExtension
