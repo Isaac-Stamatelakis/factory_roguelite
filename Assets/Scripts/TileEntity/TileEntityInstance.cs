@@ -54,7 +54,7 @@ namespace TileEntity {
         {
             return tileItem.tile;
         }
-        public string getId() {
+        public string GetId() {
             return tileItem.id;
         }
 
@@ -86,6 +86,11 @@ namespace TileEntity {
         public TileEntityObject GetTileEntity()
         {
             return TileEntityObject;
+        }
+
+        public TileItem GetTileItem()
+        {
+            return tileItem;
         }
     }
 

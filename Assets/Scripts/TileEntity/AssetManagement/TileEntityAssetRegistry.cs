@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Items;
 using PlayerModule;
 using TileEntity.Instances.Machine.UI;
 using UI;
@@ -72,14 +73,33 @@ namespace TileEntity.AssetManagement
                 Debug.LogWarning($"Ui element of tile entity '{tileEntityInstance.GetTileEntity().name}' does not implement ITileEntityUI");
                 return;
             }
+            
             tileEntityUI.DisplayTileEntityInstance(tileEntityInstance);
+            TileItem tileItem = tileEntityInstance.GetTileItem();
+            Material material = null;
+            Color? color = null;
+            var transmutableItemMaterial = tileItem.tileOptions.TransmutableColorOverride;
+            if (transmutableItemMaterial)
+            {
+                if (transmutableItemMaterial.HasShaders)
+                {
+                    material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableItemMaterial);
+                }
+                color = transmutableItemMaterial.color;
+            }
+           
+            DisplayedUIInfo displayedUIInfo = new DisplayedUIInfo
+            {
+                UIMaterial = material,
+                Color = color,
+            };
             if (tileEntityUI is IInventoryUITileEntityUI or IInventoryUIAggregator)
             {
-                mainCanvasController.DisplayUIWithPlayerInventory(uiElement);
+                mainCanvasController.DisplayUIWithPlayerInventory(uiElement,displayedUIInfo);
             }
             else
             {
-                mainCanvasController.DisplayObject(uiElement);
+                mainCanvasController.DisplayObject(uiElement,displayedUIInfo);
             }
             
         }

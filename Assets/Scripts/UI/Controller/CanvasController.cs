@@ -10,6 +10,8 @@ using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.UI;
+using UnityEngine.UI;
 
 namespace UI
 {
@@ -159,7 +161,12 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, PlayerControl? keyCodes = null, ContextPathWrapper terminatorContextPath = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
+        public void DisplayObject(GameObject uiObject, 
+            PlayerControl? keyCodes = null, ContextPathWrapper terminatorContextPath = null, bool hideOnStack = true, 
+            bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true,
+            Material material = null, Color? color = null
+            
+            )
         {
             DisplayObject(new DisplayedUIInfo
             {
@@ -172,7 +179,15 @@ namespace UI
                 blockMovement = blockMovement,
                 blocker = blocker,
                 TerminateContextPathBinding = terminatorContextPath,
+                UIMaterial = material,
+                Color = color
             });
+        }
+
+        public void DisplayObject(GameObject uiObject, DisplayedUIInfo displayedUIInfo)
+        {
+            displayedUIInfo.gameObject = uiObject;
+            DisplayObject(displayedUIInfo);
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -192,6 +207,18 @@ namespace UI
                     Debug.LogWarning($"MainCanvasController tried to access already destroyed ui object\n{e.Message}");
                     uiObjectStack.Pop();
                 }
+            }
+            
+            Image image = uiInfo.gameObject.GetComponent<Image>();
+            
+            if (uiInfo.UIMaterial)
+            {
+                image.material = uiInfo.UIMaterial;
+            }
+
+            if (uiInfo.Color.HasValue)
+            {
+                image.color = uiInfo.Color.Value;
             }
 
             mBlocker?.gameObject.SetActive(uiInfo.blocker);
@@ -281,6 +308,8 @@ namespace UI
         public bool blockMovement;
         public bool blocker;
         public ContextPathWrapper TerminateContextPathBinding;
+        public Material UIMaterial;
+        public Color? Color;
     }
 
     public class ContextPathWrapper

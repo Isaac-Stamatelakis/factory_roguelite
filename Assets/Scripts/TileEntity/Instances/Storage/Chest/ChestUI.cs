@@ -15,7 +15,7 @@ namespace TileEntity.Instances.Storage.Chest
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
             if (tileEntityInstance is not ChestInstance chestInstance) return;
-            mTitle.text = tileEntityInstance.GetName();
+            mTitle.text = tileEntityInstance.GetTileItem().name;
             GridLayoutGroup gridLayoutGroup = mInventoryUI.GetComponent<GridLayoutGroup>();
             gridLayoutGroup.constraintCount = (int)chestInstance.TileEntityObject.Columns;
             mInventoryUI.DisplayInventory(chestInstance.Inventory.Items);

@@ -10,6 +10,7 @@ using UI.PlayerInvUI;
 using UI.QuestBook;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI
 {
@@ -54,15 +55,30 @@ namespace UI
             return element;
         }
 
-        public void DisplayUIWithPlayerInventory(GameObject uiObject, Color? color = null)
+        public void DisplayUIWithPlayerInventory(GameObject uiObject)
         {
             var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
             
             stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
-                                         DisplayObject(stackedPlayerUI.gameObject);
-            if (color != null)
+            DisplayObject(stackedPlayerUI.gameObject);
+        }
+        
+        public void DisplayUIWithPlayerInventory(GameObject uiObject, DisplayedUIInfo displayedUIInfo)
+        {
+            var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
+            
+            stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
+            DisplayObject(stackedPlayerUI.gameObject);
+            Image image = stackedPlayerUI.GetComponent<Image>();
+            
+            if (displayedUIInfo.Color.HasValue)
             {
-                stackedPlayerUI.SetBackgroundColor((Color)color);
+                image.color = displayedUIInfo.Color.Value;
+            }
+
+            if (displayedUIInfo.UIMaterial)
+            {
+                image.material = displayedUIInfo.UIMaterial;
             }
         }
 

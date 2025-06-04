@@ -24,6 +24,7 @@ namespace TileEntity {
         public void SetChunk(IChunk chunk);
         public string GetName();
         public TileEntityUIMode GetUIMode();
+        public TileItem GetTileItem();
     }
 
     public interface ITieredTileEntity
