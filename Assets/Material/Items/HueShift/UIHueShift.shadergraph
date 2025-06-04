@@ -23,6 +23,9 @@
         },
         {
             "m_Id": "74f18da34f6848f89f9e5ad3104fa62d"
+        },
+        {
+            "m_Id": "8e978b5b05e44460a8b145a6c5e75be6"
         }
     ],
     "m_Keywords": [],
@@ -955,6 +958,35 @@
 }
 
 {
+    "m_SGVersion": 3,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
+    "m_ObjectId": "8e978b5b05e44460a8b145a6c5e75be6",
+    "m_Guid": {
+        "m_GuidSerialized": "1246ab3b-d828-459a-8317-7fdf86cbf4f6"
+    },
+    "m_Name": "_ColorMask",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "_ColorMask",
+    "m_DefaultReferenceName": "_ColorMask",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 0.0
+    },
+    "isMainColor": false,
+    "m_ColorMode": 0
+}
+
+{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.SubGraphNode",
     "m_ObjectId": "96bbb6a852314b6dbb872ccee24d2c43",
@@ -1445,6 +1477,9 @@
         },
         {
             "m_Id": "74f18da34f6848f89f9e5ad3104fa62d"
+        },
+        {
+            "m_Id": "8e978b5b05e44460a8b145a6c5e75be6"
         }
     ]
 }

@@ -12,6 +12,12 @@ using UnityEngine;
 
 public class UIMaterialPropertyFixerWindow : EditorWindow
 {
+
+    private enum ShaderGraphPropertyType
+    {
+        Float,
+        Color
+    }
     [MenuItem("Tools/Misc/UIMaterial Properties")]
     
     
@@ -112,19 +118,21 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 currentProperties.Add(propertyName.ToString());
             }
 
-            List<string> requiredProperties = new List<string>
+            List<ShaderGraphPropertyValue> requiredProperties = new List<ShaderGraphPropertyValue>
             {
-                "_StencilComp",
-                "_Stencil",
-                "_StencilOp",
-                "_StencilWriteMask",
-                "_StencilReadMask"
+                new ("_StencilComp", ShaderGraphPropertyType.Float),
+                new ("_Stencil", ShaderGraphPropertyType.Float),
+                new ("_StencilOp", ShaderGraphPropertyType.Float),
+                new ("_StencilWriteMask", ShaderGraphPropertyType.Float),
+                new ("_StencilReadMask", ShaderGraphPropertyType.Float),
+                new ("_ColorMask", ShaderGraphPropertyType.Color), 
             };
-
+            
+            
             int changes = 0;
-            foreach (string requiredProperty in requiredProperties)
+            foreach (var propertyTemplate in requiredProperties)
             {
-                if (currentProperties.Contains(requiredProperty)) continue;
+                if (currentProperties.Contains(propertyTemplate.PropertyName)) continue;
 
                 string id = Guid.NewGuid().ToString("N");
                 JObject newProperty = new JObject
@@ -133,9 +141,13 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 };
                 properties.Add(newProperty);
                 childrenObjectList.Add(newProperty);string templateJson = File.ReadAllText("Assets/Editor/Material/TEMPLATE_FLOAT.txt");
-                templateJson = templateJson.Replace("$TEMPLATE_ID", id).Replace("$TEMPLATE_NAME", requiredProperty);
+                templateJson = templateJson
+                    .Replace("$TEMPLATE_ID", id)
+                    .Replace("$TEMPLATE_NAME", propertyTemplate.PropertyName).
+                    Replace("$TYPE",GetShaderPropertyTypeString(propertyTemplate.Type));
+                
                 splitJson.Insert(splitJson.Count - 1, templateJson);
-                Debug.Log($"Added property {requiredProperty} to {shader.name} with guid {guid}");
+                Debug.Log($"Added property {propertyTemplate.PropertyName} to {shader.name} with guid {guid}");
                 changes++;
             }
             
@@ -174,6 +186,28 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
             }
 
             return false;
+        }
+    }
+
+    private string GetShaderPropertyTypeString(ShaderGraphPropertyType type)
+    {
+        return type switch
+        {
+            ShaderGraphPropertyType.Float => "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+            ShaderGraphPropertyType.Color => "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    private struct ShaderGraphPropertyValue
+    {
+        public string PropertyName;
+        public ShaderGraphPropertyType Type;
+
+        public ShaderGraphPropertyValue(string propertyName, ShaderGraphPropertyType type)
+        {
+            PropertyName = propertyName;
+            Type = type;
         }
     }
 }

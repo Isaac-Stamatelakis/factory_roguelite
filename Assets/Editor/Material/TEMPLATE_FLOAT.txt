@@ -1,6 +1,6 @@
 {
     "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_Type": "$TYPE",
     "m_ObjectId": "$TEMPLATE_ID",
     "m_Guid": {
         "m_GuidSerialized": "fe497c25-6acb-4b3a-8286-d7cb8013b868"
