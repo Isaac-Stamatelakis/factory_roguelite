@@ -24,6 +24,10 @@ namespace Tiles.TileMap
     }
     public class PlatformTileMap : WorldTileMap, IMultiShaderTilemap
     {
+        private Tilemap slopeExtendTilemap;
+        private Tilemap slopeDecoTilemap;
+        private ShaderTilemapManager slopeShaderTilemaps;
+        private ShaderTilemapManager decoShaderTilemaps;
         private TileBase[] tileContainer;
         private PlatformSlopeTileMaps leftSlopeMaps;
         private PlatformSlopeTileMaps rightSlopeMaps;
@@ -40,6 +44,16 @@ namespace Tiles.TileMap
             var slopeColliderExtendTile = miscDimAssets.SlopeExtendColliderTile;
             Material hueShifter = miscDimAssets.HueShifterWorldMaterial;
             emptyTile = miscDimAssets.EmptyTile;
+
+            GameObject slopeShaderContainer = new GameObject("SlopeShaders");
+            slopeShaderContainer.transform.SetParent(transform);
+            slopeShaderTilemaps = new ShaderTilemapManager(slopeShaderContainer.transform, -0.1f, false, TileMapType.Platform, 3);
+            
+            slopeDecoTilemap = AddOverlay(0f);
+            slopeDecoTilemap.gameObject.name = "SlopeDecoration";
+            decoShaderTilemaps = new ShaderTilemapManager(slopeDecoTilemap.transform, -0.1f, false, TileMapType.Platform, 3);
+            
+            
             
             leftSlopeMaps = InitializeSlopeMap(SlopeRotation.Left);
             rightSlopeMaps = InitializeSlopeMap(SlopeRotation.Right);
@@ -58,17 +72,13 @@ namespace Tiles.TileMap
                 slopeTileMap.gameObject.layer = LayerMask.NameToLayer(layerName);
                 TileMapBundleFactory.AddCompositeCollider(slopeTileMap.gameObject,TileMapType.Platform);
                 
-                var slopeDecoTileMap = AddOverlay(0f);
-                slopeDecoTileMap.gameObject.name = "SlopeDecoration"+rotation;
-                slopeDecoTileMap.GetComponent<TilemapRenderer>().material = hueShifter;
-                
-                var slopeColliderExtendTileMap = AddOverlay(0f);
-                slopeColliderExtendTileMap.gameObject.name = "SlopeColliderExtend"+rotation;
+                GameObject overlayTileMapObject = new GameObject("SlopeColliderExtend");
+                Tilemap slopeColliderExtendTileMap = overlayTileMapObject.AddComponent<Tilemap>();
                 TilemapCollider2D slopeExtendCollider = slopeColliderExtendTileMap.gameObject.AddComponent<TilemapCollider2D>();
                 slopeExtendCollider.usedByComposite = true;
                 slopeColliderExtendTileMap.transform.SetParent(slopeTileMap.transform);
                 
-                return new PlatformSlopeTileMaps(slopeTileMap, slopeDecoTileMap, slopeColliderExtendTileMap,slopeColliderExtendTile,rotation);
+                return new PlatformSlopeTileMaps(slopeTileMap, slopeDecoTilemap, slopeColliderExtendTileMap,slopeColliderExtendTile,rotation,slopeShaderTilemaps,decoShaderTilemaps);
             }
         }
 

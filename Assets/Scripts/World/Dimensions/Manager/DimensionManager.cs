@@ -108,7 +108,7 @@ namespace Dimensions {
             
             if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
             yield return SetPlayerSystem(playerScript, playerData.dimensionData);
-            playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.miscPlayerData?.GrabbedItemData));
+            
             
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
@@ -116,6 +116,9 @@ namespace Dimensions {
             GraphicSettingsUtils.ApplyWorldGraphicSettings();
             
             playerScript.CallInitializeListeners();
+            playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.miscPlayerData?.GrabbedItemData));
+            playerScript.PlayerInventory.ChangeSelectedSlot(0);
+            
             playerScript.GetComponent<PlayerIO>().OnValidated();
             loadBeautifier.Show();
         }

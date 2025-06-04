@@ -135,7 +135,6 @@ namespace Player
             
             OnReachUpgradeChange();
             
-            playerInventory.ChangeSelectedSlot(0);
             return playerData;
         }
         
