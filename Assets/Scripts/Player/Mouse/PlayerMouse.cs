@@ -452,7 +452,9 @@ namespace PlayerModule.Mouse {
             
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
-            Vector2 placePosition = TileSearchResultCacher.GetResult() ?? mousePosition;
+            
+            Vector2 placePosition = GetPlacePosition();
+            
             bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,placePosition,closedChunkSystem);
             if (placed) {
                 playerScript.PlaceUpdate();
@@ -461,6 +463,12 @@ namespace PlayerModule.Mouse {
             playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
             
             return placed;
+
+            Vector2 GetPlacePosition()
+            {
+                if (!playerScript.TilePlacementOptions.AutoPlace) return mousePosition;
+                return TileSearchResultCacher.GetResult() ?? mousePosition;
+            }
         }
 
         public Vector2 CalculateItemVelocity(Vector3 mouseposition)

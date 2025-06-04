@@ -36,6 +36,7 @@ namespace Player.Mouse.TilePlaceSearcher
         private Vector2Int lastTile = Vector2Int.one * int.MaxValue;
         private Vector2? lastSearchResult;
 
+        public bool HasSearcher => tileSearcher != null;
         public Vector2? GetResult()
         {
             return lastSearchResult;

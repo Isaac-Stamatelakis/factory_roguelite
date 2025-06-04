@@ -112,7 +112,8 @@ namespace TileMaps.Previewer {
                 return;
             }
             
-            Vector2 tilePlacementWorld = playerMouse.TileSearchResultCacher?.GetResult() ?? position;
+            
+            Vector2 tilePlacementWorld = playerScript.TilePlacementOptions.AutoPlace ? playerMouse.TileSearchResultCacher?.GetResult() ?? position : position;
             Vector2Int cellPosition = Global.WorldToCell(tilePlacementWorld);
             Vector3Int placePosition = new Vector3Int(cellPosition.x,cellPosition.y,0);
             

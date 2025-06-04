@@ -9,6 +9,7 @@ using Recipe.Objects;
 using Tier.Generators.Defaults;
 using TileEntity;
 using TileEntity.Instances;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,6 +28,7 @@ namespace EditorScripts.Tier.Generators
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
             tileItem.tile = defaultValues.Tiles.Platform;
             tileItem.tileType = TileType.Platform;
+            tileItem.tileOptions.rotatable = true;
             
             RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(itemGenerationData.ItemObject, 16, 1f);
             

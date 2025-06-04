@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators.General
 {
-    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
+    public class TileSearchIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
@@ -19,13 +19,13 @@ namespace UI.Indicators.General
 
         private void Refresh()
         {
-            tileImage.color = playerScript.TilePlacementOptions.Indiciator ? Color.blue : Color.gray;
+            tileImage.color = playerScript.TilePlacementOptions.AutoPlace ? Color.yellow : Color.gray;
         }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            string text = playerScript?.TilePlacementOptions?.Indiciator.ToString() ?? string.Empty;
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview: {text}");
+            string text = playerScript?.TilePlacementOptions?.AutoPlace.ToString() ?? string.Empty;
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Smart Placement: {text}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -41,8 +41,8 @@ namespace UI.Indicators.General
         
         public void Toggle()
         {
-            playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
-            playerScript.TileViewers.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
+            playerScript.TilePlacementOptions.AutoPlace = !playerScript.TilePlacementOptions.AutoPlace;
+            playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
             Refresh();
         }
 
