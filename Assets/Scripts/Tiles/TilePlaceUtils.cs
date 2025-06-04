@@ -274,7 +274,12 @@ namespace TileMaps.Place {
             }
             
             Vector2Int placePosition = GetPlacePosition(worldPosition.x, worldPosition.y);
-
+            if (tileItem.tileType == TileType.Background) // Background tiles don't need any of the checks below
+            {
+                iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
+                return;
+            }
+            
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             PlayerTileRotation? tileRotation = placementData?.Rotation;
             int rotation = 0;
@@ -291,6 +296,7 @@ namespace TileMaps.Place {
             {
                 SetPlatformStateAndRotation();
             }
+            
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
