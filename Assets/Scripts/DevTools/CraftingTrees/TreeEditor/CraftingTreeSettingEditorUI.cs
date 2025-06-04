@@ -38,11 +38,9 @@ namespace DevTools.CraftingTrees.TreeEditor
         [SerializeField] private Button mProcessorButton;
         [SerializeField] private Color highlightColor;
         [SerializeField] private TMP_Dropdown mTransmutationEfficiencyDropDown;
-        [SerializeField] private TextMeshProUGUI mEnergyBalanceText;
         [SerializeField] private Button mGenerateButton;
         [SerializeField] private Button mDeleteButton;
         [SerializeField] private Image mStatusIcon;
-        [SerializeField] private TextMeshProUGUI mTierText;
         
         private CraftingTreeNodeType generateNodeType;
         private Button currentHighlightButton;
@@ -122,11 +120,11 @@ namespace DevTools.CraftingTrees.TreeEditor
             mTransmutationEfficiencyDropDown.options = GlobalHelper.EnumToDropDown<TransmutationEfficency>();
             mTransmutationEfficiencyDropDown.value = (int)craftingTreeNodeNetwork.TransmutationEfficency;
             mTransmutationEfficiencyDropDown.onValueChanged.AddListener(UpdateEffiency);
+            
             mGenerateButton.onClick.AddListener(GenerateRecipes);
             mDeleteButton.onClick.AddListener(DeleteRecipes);
             InitializeStatusIcon();
             SetInteractablity();
-            CalculateEnergyBalance();
 
             return;
             void InitializeStatusIcon()
@@ -150,99 +148,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                 generatorUI.Rebuild();
             }
         }
-
-        public void CalculateEnergyBalance()
-        {
-            long balance = 0;
-            ulong mostExpensiveEnergyCost = 0;
-            ulong highEnergyGeneration = 0;
-            bool calculateTransmutationNodes = network.TransmutationEfficency == TransmutationEfficency.Max;
-            foreach (var node in network.Nodes)
-            {
-                if (node.NodeType == CraftingTreeNodeType.Item) continue;
-                if (node.NodeType == CraftingTreeNodeType.Transmutation)
-                {
-                    if (!calculateTransmutationNodes) continue;
-                    TransmutationNodeData transmutationNodeData = (TransmutationNodeData)node.NodeData;
-                    ItemSlot itemSlot = transmutationNodeData.GetItemSlot(network.TransmutationEfficency);
-                    if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
-                    if (itemSlot.itemObject is not TransmutableItemObject transmutableItemObject) continue;
-                    TransmutableItemMaterial material = transmutableItemObject.getMaterial();
-                    if (!material) continue;
-                    GameStageObject gameStageObject = material.gameStageObject;
-                    if (gameStageObject is not TieredGameStage tieredGameStage) continue;
-                    Tier tier = tieredGameStage.Tier;
-                    ulong energyUsage = tier.GetMaxEnergyUsage();
-                    if (energyUsage > mostExpensiveEnergyCost) mostExpensiveEnergyCost = energyUsage;
-                    //float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState,transmutableItemObject.getState(),TransmutationEfficency.Max.Value());
-                    uint baseTicks = TransmutableItemUtils.TRANSMUTATION_TICKS; // Want this to scale more
-                    balance += baseTicks * (long)energyUsage;
-                    continue;
-                }
-
-                if (node.NodeType == CraftingTreeNodeType.Processor)
-                {
-                    ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
-                    RecipeMetaData recipeMetaData = processorNodeData.RecipeData;
-                    if (recipeMetaData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
-                    {
-                        balance -= (long)itemEnergyRecipeMetaData.TotalInputEnergy;
-                        if (itemEnergyRecipeMetaData.MinimumEnergyPerTick > mostExpensiveEnergyCost) mostExpensiveEnergyCost = itemEnergyRecipeMetaData.MinimumEnergyPerTick;
-                    } else if (recipeMetaData is GeneratorItemRecipeMetaData generatorItemRecipeMetaData)
-                    {
-                        balance += (long)generatorItemRecipeMetaData.EnergyPerTick * generatorItemRecipeMetaData.Ticks;
-                        if (generatorItemRecipeMetaData.EnergyPerTick > highEnergyGeneration) highEnergyGeneration = generatorItemRecipeMetaData.EnergyPerTick;
-                    }
-                }
-            }
-            mEnergyBalanceText.text = balance.ToString() + "J/t";
-            ulong highestValue = highEnergyGeneration > mostExpensiveEnergyCost ? highEnergyGeneration : mostExpensiveEnergyCost;
-            Tier highestTier = Tier.Infinity;
-            Tier[] tiers = System.Enum.GetValues(typeof(Tier)).Cast<Tier>().ToArray();
-            foreach (Tier tier in tiers)
-            {
-                if (highestValue >= tier.GetMaxEnergyUsage()) continue;
-                highestTier = tier;
-                break;
-            }
-            mTierText.text = highestTier.ToString();
-
-            Dictionary<int, CraftingTreeGeneratorNode> nodeDict = new Dictionary<int, CraftingTreeGeneratorNode>();
-            foreach (var node in network.Nodes)
-            {
-                nodeDict[node.GetId()] = node;
-            }
-            
-            foreach (var node in network.Nodes)
-            {
-                if (node.NodeType != CraftingTreeNodeType.Processor || node.NetworkData.InputIds.Count != 0) continue;
-                
-                
-            }
-            
-        }
-
-        private uint TraverseTicks(Dictionary<int, CraftingTreeGeneratorNode> nodes, CraftingTreeGeneratorNode current, uint value)
-        {
-            if (current.NodeType == CraftingTreeNodeType.Processor)
-            {
-                ProcessorNodeData processorNodeData = (ProcessorNodeData)current.NodeData;
-                if (processorNodeData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
-                {
-                    value = (uint)passiveRecipeMetaData.Ticks;
-                } else if (processorNodeData.RecipeData is ItemEnergyRecipeMetaData itemEnergyRecipeMetaData)
-                {
-                    
-                }
-            }
-
-            foreach (int id in current.NetworkData.InputIds)
-            {
-                
-            }
-
-            return value;
-        }
+        
         private void SetInteractablity()
         {
             bool generated = network.HasGeneratedRecipes();
@@ -251,6 +157,8 @@ namespace DevTools.CraftingTrees.TreeEditor
             {
                 listener.OnStatusChange(generated);
             }
+            mDeleteButton.interactable = generated;
+            mGenerateButton.interactable = !generated;
         }
 
         private void SetStatusIconColor()
@@ -277,7 +185,8 @@ namespace DevTools.CraftingTrees.TreeEditor
                 ProcessorNodeData processorNodeData = (ProcessorNodeData)node.NodeData;
                 string assetPath = AssetDatabase.GUIDToAssetPath(processorNodeData.ProcessorGuid);
                 RecipeProcessor recipeProcessor = AssetDatabase.LoadAssetAtPath<RecipeProcessor>(assetPath);
-                if (recipeProcessor == null) continue;
+                if (!recipeProcessor) continue;
+                
                 int mode = processorNodeData.Mode;
                 if (mode >= recipeProcessor.RecipeCollections.Count)
                 {
@@ -316,7 +225,6 @@ namespace DevTools.CraftingTrees.TreeEditor
 
                 if (newRecipe)
                 {
-                    recipes.Add(recipeObject);
                     var recipeModeCollection = recipeProcessor.RecipeCollections[mode].RecipeCollection;
                     string collectionPath = AssetDatabase.GetAssetPath(recipeModeCollection);
                     string folder = Path.GetDirectoryName(collectionPath);
