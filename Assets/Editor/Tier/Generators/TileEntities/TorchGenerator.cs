@@ -46,9 +46,10 @@ namespace EditorScripts.Tier.Generators
             RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 8, 1f);
             
             EditorItemSlot rodInput = StateToItem(TransmutableItemState.Rod, 3);
-            
-            // TODO LIGHT INPUT
-            List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput };
+            ItemObject lightItem = EditorUtils.GetTransmutableItemObject(defaultValues.RecipeInputs.DefaultLightMaterial, TransmutableItemState.Shard);
+            EditorItemSlot lightInput = new EditorItemSlot(lightItem, 1);
+         
+            List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput,lightInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,tileEntityItemGenerationData.ItemGenerationData);
             return tileEntityItemGenerationData;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Conduits.Ports;
 using EditorScripts.Tier.Generators;
 using Items;
+using Items.Transmutable;
 using Recipe.Processor;
 using Tiles.Options.Overlay;
 using UnityEngine;
@@ -46,7 +47,7 @@ namespace Tier.Generators.Defaults
     [System.Serializable]
     public class RecipeInputs
     {
-        public ItemObject DefaultLightItem;
+        public TransmutableItemMaterial DefaultLightMaterial;
     }
 
     [System.Serializable]

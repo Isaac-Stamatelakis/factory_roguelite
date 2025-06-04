@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Item.Transmutation;
+using Items;
 using Items.Transmutable;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
@@ -23,6 +24,7 @@ public static class EditorUtils
 {
     
     public const string EDITOR_SAVE_PATH = "Assets/EditorCreations";
+    public const string TRANSMUTABLE_MATERIAL_PATH = "Assets\\Objects\\TransmutableItems";
 
     public static string CreateFolder(string folderName)
     {
@@ -46,15 +48,12 @@ public static class EditorUtils
         AssetDatabase.SaveAssetIfDirty(asset);
         AssetDatabase.Refresh();
     }
-    public static TransmutableItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
+    public static ItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
     {
-        string materialPath = AssetDatabase.GetAssetPath(material);
-        string materialsFolder = Path.GetDirectoryName(materialPath);
-        string transmutationFolderPath = Path.GetDirectoryName(materialsFolder);
-        string itemFolder = Path.Combine(transmutationFolderPath, TransmutableItemGenerator.GEN_FOLDER);
+        string itemFolder = Path.Combine(TRANSMUTABLE_MATERIAL_PATH, TransmutableItemGenerator.GEN_FOLDER);
         string contentFolder = Path.Combine(itemFolder, material.name);
         string itemPath = Path.Combine(contentFolder, $"{material.name} {state}.asset");
-        return AssetDatabase.LoadAssetAtPath<TransmutableItemObject>(itemPath);
+        return AssetDatabase.LoadAssetAtPath<ItemObject>(itemPath);
     }
 
     public static void AssignAddressablesLabel(string guid, List<AssetLabel> labels, AssetGroup group)

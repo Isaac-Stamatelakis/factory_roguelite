@@ -28,7 +28,7 @@ using Object = UnityEngine.Object;
 public class TransmutableItemGenerator : EditorWindow
 {
     private const string MATERIAL_PATH = "Assets/Objects/TransmutableItems/Materials";
-    private const string TRANSMUTABLE_MATERIAL_PATH = "Assets\\Objects\\TransmutableItems";
+    
     private const string OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/OutlineWrapper.asset";
     private const string SHADER_OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/ShaderOutlineWrapper.asset";
     private const string STONE_COLLECTION_PATH = "Assets/Objects/TransmutableItems/OreSource/StoneCollection.asset";
@@ -187,10 +187,10 @@ public class TransmutableItemGenerator : EditorWindow
 
     string TryCreateMaterialFolder(TransmutableItemMaterial material)
     {
-        string instancePath = Path.Combine(TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
+        string instancePath = Path.Combine(EditorUtils.TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
         if (!Directory.Exists(instancePath))
         {
-            AssetDatabase.CreateFolder(TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
+            AssetDatabase.CreateFolder(EditorUtils.TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
         }
         string materialItemsPath = Path.Combine(instancePath, material.name);
         if (!Directory.Exists(materialItemsPath))
@@ -355,7 +355,7 @@ public class TransmutableItemGenerator : EditorWindow
     private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
     {
         TransmutationShaderPair shaderPair = material.GetShaderPair();
-        string instancePath = Path.Combine(TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
+        string instancePath = Path.Combine(EditorUtils.TRANSMUTABLE_MATERIAL_PATH, GEN_FOLDER);
         if (!Directory.Exists(instancePath)) return;
         string materialItemsPath = Path.Combine(instancePath, material.name);
         if (!Directory.Exists(materialItemsPath)) return;
