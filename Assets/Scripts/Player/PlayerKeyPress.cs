@@ -53,7 +53,8 @@ namespace PlayerModule.KeyPress {
             ControlUtils.AssignAction(miscKeys.SubPlacementMode,PlayerControl.SwitchPlacementSubMode, SwitchSubPlacementMode);
             ControlUtils.AssignAction(miscKeys.TerminateConduitGroup,PlayerControl.TerminateConduitGroup,TerminateConduitGroup);
             ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
-            ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview, _ => playerScript.PlayerUIContainer.IndicatorManager.tilePreviewerIndicatorUI.Toggle());
+            ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview, _ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.tileHighligherIndicatorUI.Toggle());
+            ControlUtils.AssignAction(miscKeys.SmartPlacement,PlayerControl.SmartPlace, _ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.tileSearchIndicatorUI.Toggle());
             
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
@@ -174,8 +175,7 @@ namespace PlayerModule.KeyPress {
 
         void AutoSelect(InputAction.CallbackContext context)
         {
-            bool autoSelect = playerScript.PlayerMouse.ToggleAutoSelect();
-            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Display(autoSelect);
+            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Iterate(1);
         }
 
         void OpenRobotLoadOut(InputAction.CallbackContext context)

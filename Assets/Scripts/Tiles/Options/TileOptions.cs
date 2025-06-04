@@ -57,7 +57,7 @@ namespace Tiles {
         public TilePlacementOptions placementRequirements;
         public TransmutableItemMaterial TransmutableColorOverride;
         public TileColorOptionObject TileColor;
-        public TileOverlay Overlay;
+        [FormerlySerializedAs("Overlay")] public TileOverlayData overlayData;
         public TileParticleOptions ParticleGradient;
 
         public Color GetTileColor()

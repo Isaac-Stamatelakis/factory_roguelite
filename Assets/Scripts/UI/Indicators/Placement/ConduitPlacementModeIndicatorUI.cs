@@ -88,6 +88,7 @@ namespace UI.Indicators.General
 
         public void DisplayLoadOutEditor()
         {
+            if (!current) return;
             LoadOutConduitType? loadOutConduitType = GetLoadOutType(current.GetConduitType());
             if (!loadOutConduitType.HasValue) return;
                     

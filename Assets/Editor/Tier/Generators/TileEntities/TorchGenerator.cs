@@ -25,9 +25,11 @@ namespace EditorScripts.Tier.Generators
             TileEntityItemGenerationData tileEntityItemGenerationData = GenerateDefaultTileEntityItemData<Torch>(TierGeneratedItemType.Torch);
             TileItem tileItem = (TileItem)tileEntityItemGenerationData.ItemGenerationData.ItemObject;
             tileItem.tileOptions.TransmutableColorOverride = tierItemInfoObject.PrimaryMaterial;
+            tileItem.tileOptions.rotatable = true;
             tileItem.tile = defaultValues.Tiles.TorchRod;
-            tileItem.tileOptions.Overlay = defaultValues.Tiles.TorchSource;
+            tileItem.tileOptions.overlayData = defaultValues.Tiles.TorchSource;
             tileItem.tileType = TileType.Object;
+            
             TilePlacementOptions placementOptions = tileItem.tileOptions.placementRequirements;
             placementOptions.Below = true;
             placementOptions.BackGround = true;

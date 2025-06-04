@@ -51,6 +51,12 @@ namespace PlayerModule.Mouse {
     /// </summary>
     public class PlayerMouse : MonoBehaviour
     {
+        public enum AutoSelectMode
+        {
+            None,
+            Tool,
+            TileEntity
+        }
         private PlayerInventory playerInventory;
         public PortViewMode ConduitPortViewMode;
         private PlayerRobot playerRobot;
@@ -64,8 +70,8 @@ namespace PlayerModule.Mouse {
         private TileHighlighter tileHighlighter;
         private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
-        private bool enableAutoSelect = true;
-        public bool AutoSelectEnabled => enableAutoSelect;
+        private AutoSelectMode autoSelectMode;
+        //public AutoSelectMode AutoSelectMode => autoSelectMode;
         public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
         private List<IWorldTileMap> systemTileMaps = new();
         private ClosedChunkSystem currentSystem;
@@ -88,22 +94,39 @@ namespace PlayerModule.Mouse {
             eventSystem = EventSystem.current;
             autoTileFinder = new AutoTileFinder(transform);
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
-            tileBreakHighlighter = playerScript.TileViewers.MainBreakHighlighter;
-            enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
+            tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            autoSelectMode = (AutoSelectMode)PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY);
             canvasController = CanvasController.Instance;
         }
 
-        public bool ToggleAutoSelect()
+        public void SetAutoSelect(AutoSelectMode newMode)
         {
-            enableAutoSelect = !enableAutoSelect;
-            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
-            if (!enableAutoSelect)
+            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, (int)newMode);
+            autoSelectMode = newMode;
+            switch (autoSelectMode)
             {
-                tileBreakHighlighter.Clear();
-                tileHighlighter.Hide();
-                highlightPosition = null;
+                case AutoSelectMode.None:
+                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Hide();
+                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
+                    highlightPosition = null;
+                    break;
+                case AutoSelectMode.Tool:
+                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
+                    highlightPosition = null;
+                    break;
+                case AutoSelectMode.TileEntity:
+                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Hide();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            return enableAutoSelect;
+        }
+
+        public AutoSelectMode GetAutoSelectMode()
+        {
+            return autoSelectMode;
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
@@ -133,14 +156,14 @@ namespace PlayerModule.Mouse {
                 return;
             }
             
-            toolHitPosition = autoSelectableTool && enableAutoSelect ? AutoSelectTile(mousePosition) : mousePosition;
+            toolHitPosition = autoSelectableTool && autoSelectMode == AutoSelectMode.Tool ? AutoSelectTile(mousePosition) : mousePosition;
 
             if (!currentSystem) return;
             
             if (!canvasController.IsActive) PreviewHighlight(mousePosition);
             
             if (eventSystem.IsPointerOverGameObject()) return;
-            TileSearchResultCacher.CallSearcher(mousePosition);
+            if (playerScript.TilePlacementOptions.AutoPlace) TileSearchResultCacher.CallSearcher(mousePosition);
             
             if (!leftClick)
             {
@@ -200,8 +223,9 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
-            if (!enableAutoSelect) return;
-            previewController.Preview(playerInventory.CurrentTool,toolHitPosition);
+            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, autoSelectMode==AutoSelectMode.Tool);
+            
+            if (autoSelectMode != AutoSelectMode.TileEntity) return;
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 5);
@@ -428,7 +452,9 @@ namespace PlayerModule.Mouse {
             
             ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
             if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
-            Vector2 placePosition = TileSearchResultCacher.GetResult() ?? mousePosition;
+            
+            Vector2 placePosition = GetPlacePosition();
+            
             bool placed = TilePlaceUtils.PlaceFromWorldPosition(playerScript,selectedSlot,placePosition,closedChunkSystem);
             if (placed) {
                 playerScript.PlaceUpdate();
@@ -437,6 +463,12 @@ namespace PlayerModule.Mouse {
             playerScript.TileViewers.TilePlacePreviewer.ClearPlacementRecord();
             
             return placed;
+
+            Vector2 GetPlacePosition()
+            {
+                if (!playerScript.TilePlacementOptions.AutoPlace) return mousePosition;
+                return TileSearchResultCacher.GetResult() ?? mousePosition;
+            }
         }
 
         public Vector2 CalculateItemVelocity(Vector3 mouseposition)
@@ -490,7 +522,7 @@ namespace PlayerModule.Mouse {
             ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot?.itemObject is TileItem tileItem)
             {
-                var searcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tileType);
+                var searcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tile, tileItem.tileType);
                 TileSearchResultCacher.SetSearcher(searcher);
                 return;
             }
@@ -619,7 +651,7 @@ namespace PlayerModule.Mouse {
         private Vector2 lastMousePosition;
         private Vector2Int lastTilePosition;
         
-        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
+        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition, bool autoSelectOn)
         {
             if (robotToolInstance == null) return;
        
@@ -629,7 +661,7 @@ namespace PlayerModule.Mouse {
             
             lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
-            robotToolInstance.Preview(tilePosition);
+            robotToolInstance.Preview(tilePosition, autoSelectOn);
         }
         
 

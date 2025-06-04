@@ -229,6 +229,7 @@ namespace Player.Controls
                 case PlayerControl.ShowItemRecipes:
                 case PlayerControl.ShowItemUses:
                 case PlayerControl.EditItemTag:
+                case PlayerControl.SmartPlace:
                     return PlayerControlGroup.Utils;
                 case PlayerControl.OpenQuestBook:
                 case PlayerControl.OpenInventory:
@@ -253,6 +254,8 @@ namespace Player.Controls
                     return ModifierKeyCode.Shift;
                 case PlayerControl.SwitchPlacementSubMode:
                     return ModifierKeyCode.Ctrl;
+                case PlayerControl.SmartPlace:
+                    return ModifierKeyCode.Shift;
                 default:
                     return null;
             }
@@ -401,6 +404,11 @@ namespace Player.Controls
                     return new InputActionBinding[]
                     {
                         new(inputActions.InventoryUtils.EditTag, 0),
+                    };
+                case PlayerControl.SmartPlace:
+                    return new InputActionBinding[]
+                    {
+                        new(inputActions.MiscKeys.SmartPlacement, 0),
                     };
             }
             Debug.LogWarning($"{playerControl} is not synced to any bindings");

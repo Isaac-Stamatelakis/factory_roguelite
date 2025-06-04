@@ -181,7 +181,7 @@ namespace Items {
                 }
             } else if (itemSlot.itemObject is TileItem tileItem)
             {
-                var tileOverlay = tileItem.tileOptions?.Overlay;
+                var tileOverlay = tileItem.tileOptions?.overlayData;
                 if (tileOverlay)
                 {
                     Sprite tileSprite = TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile());

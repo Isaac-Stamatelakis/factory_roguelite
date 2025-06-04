@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.Options.Overlay
 {
     [CreateAssetMenu(fileName ="I~New RobotObject Item",menuName="Tile/Overlay/Standard")]
-    public class StandardTileOverlay : TileOverlay
+    public class StandardTileOverlayData : TileOverlayData
     {
         public TileBase TileBase;
         public Color Color;

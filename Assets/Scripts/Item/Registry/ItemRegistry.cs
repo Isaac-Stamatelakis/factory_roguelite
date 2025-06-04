@@ -21,6 +21,7 @@ using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Registry;
 using Item.Slot;
 using Item.Transmutation;
+using JetBrains.Annotations;
 using Player;
 using Recipe.Collection;
 using Recipe.Objects;
@@ -312,11 +313,17 @@ namespace Items {
         }
 
         
-        public Material GetTransmutationWorldMaterial(TransmutableItemMaterial material)
+        public Material GetTransmutationWorldMaterial([NotNull] TransmutableItemMaterial material)
         {
             return materialShaderDict.GetValueOrDefault(material)?.WorldMaterial;
         }
-
+        
+        public Material GetTransmutationWorldMaterialNullSafe(TransmutableItemMaterial material)
+        {
+            if (!material) return null;
+            return materialShaderDict.GetValueOrDefault(material)?.WorldMaterial;
+        }
+        
     }
 }
 

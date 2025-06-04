@@ -11,7 +11,7 @@ namespace UI.Indicators.General
     {
         [SerializeField] private Image tileImage;
         private PlayerScript playerScript;
-        public void Display(PlayerScript playerScript)
+        public void Initialize(PlayerScript playerScript)
         {
             this.playerScript = playerScript;
             Refresh();

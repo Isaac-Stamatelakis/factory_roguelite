@@ -112,7 +112,8 @@ namespace TileMaps.Previewer {
                 return;
             }
             
-            Vector2 tilePlacementWorld = playerMouse.TileSearchResultCacher?.GetResult() ?? position;
+            
+            Vector2 tilePlacementWorld = playerScript.TilePlacementOptions.AutoPlace ? playerMouse.TileSearchResultCacher?.GetResult() ?? position : position;
             Vector2Int cellPosition = Global.WorldToCell(tilePlacementWorld);
             Vector3Int placePosition = new Vector3Int(cellPosition.x,cellPosition.y,0);
             
@@ -288,17 +289,18 @@ namespace TileMaps.Previewer {
         
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
+            
             int state = tilePlacementOptions.State;
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
-
-           
+            
             bool rotatable = tileItem.tileOptions.rotatable;
+            
             DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
             SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
             
-            var tileOverlay = tileItem.tileOptions.Overlay;
+            var tileOverlay = tileItem.tileOptions.overlayData;
             if (tileOverlay)
             {
                 DisplayTilePreview(tileOverlayMap,tileOverlay.GetTile(),state,placePosition,position,rotatable,tilePlacementOptions);
@@ -327,7 +329,6 @@ namespace TileMaps.Previewer {
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {
             TileBase placementTileBase = tileBase is IStateTileSingle stateTile ? stateTile.GetTileAtState(autoState) : tileBase;
-            
             if (!rotatable)
             {
                 placementTilemap.SetTile(placePosition,tileBase);

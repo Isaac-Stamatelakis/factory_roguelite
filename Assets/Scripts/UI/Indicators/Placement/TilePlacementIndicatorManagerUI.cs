@@ -17,6 +17,8 @@ namespace UI.Indicators.Placement
         public TileStateIndicatorUI tileStateIndicatorUI;
         public TileRotationIndicatorUI rotationIndicatorUI;
         public ConduitLoadoutIndicatorUI conduitLoadoutIndicatorUI;
+        public TileHighligherIndicatorUI tileHighligherIndicatorUI;
+        public TileSearchIndicatorUI tileSearchIndicatorUI;
         
 
         public void Initialize(PlayerScript playerScript)
@@ -25,6 +27,8 @@ namespace UI.Indicators.Placement
             tileStateIndicatorUI.Initialize(playerScript,rotationIndicatorUI);
             rotationIndicatorUI.Initialize(playerScript);
             conduitLoadoutIndicatorUI.Initialize(playerScript);
+            tileHighligherIndicatorUI.Initialize(playerScript);
+            tileSearchIndicatorUI.Initialize(playerScript);
             
         }
         public void DisplayTile(PlayerScript playerScript, IPlacableItem displayItem)
@@ -33,6 +37,7 @@ namespace UI.Indicators.Placement
             {
                 indicatorContainer.GetChild(i).gameObject.SetActive(false);
             }
+            tileHighligherIndicatorUI.gameObject.SetActive(true);
             
             if (displayItem is ConduitItem conduitItem)
             {
@@ -49,10 +54,15 @@ namespace UI.Indicators.Placement
                     tileStateIndicatorUI.Display(tileItem);
                 }
 
-                if (tileItem.tileOptions.rotatable)
+                if (tileItem.tileOptions.rotatable && tileItem.tile is not IMousePositionStateTile)
                 {
                     TryDisplayRotation(tileItem);
                 }
+            }
+
+            if (playerScript.PlayerMouse.TileSearchResultCacher.HasSearcher)
+            {
+                tileSearchIndicatorUI.gameObject.SetActive(true);
             }
 
             if (AllInactive())
@@ -65,6 +75,7 @@ namespace UI.Indicators.Placement
 
             void TryDisplayRotation(TileItem tileItem)
             {
+                /*
                 if (tileItem.tile is PlatformStateTile)
                 {
                     // Cannot rotate flat platforms
@@ -72,6 +83,7 @@ namespace UI.Indicators.Placement
                     bool sloped = currentState >= (int)PlatformTileState.SlopeDeco;
                     if (!sloped) return;
                 }
+                */
                 rotationIndicatorUI.gameObject.SetActive(true);
                 rotationIndicatorUI.Display(tileItem);
             }

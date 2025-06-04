@@ -1,3 +1,4 @@
+using System;
 using Player.Controls;
 using PlayerModule.Mouse;
 using UI.ToolTip;
@@ -9,25 +10,45 @@ namespace UI.Indicators.General
 {
     public class TileAutoSelectIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
+        [System.Serializable]
+        private class AutoSelectSprites
+        {
+            public Sprite NoAutoSelect;
+            public Sprite ToolAutoSelect;
+            public Sprite TileEntityAutoSelect;
+            public Sprite GetSprite(PlayerMouse.AutoSelectMode autoSelectMode)
+            {
+                switch (autoSelectMode)
+                {
+                    case PlayerMouse.AutoSelectMode.None:
+                        return NoAutoSelect;
+                    case PlayerMouse.AutoSelectMode.Tool:
+                        return ToolAutoSelect;
+                    case PlayerMouse.AutoSelectMode.TileEntity:
+                        return TileEntityAutoSelect;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(autoSelectMode), autoSelectMode, null);
+                }
+            }
+        }
         [SerializeField] private Image image;
-        private bool autoSelectActive;
+        [SerializeField] private AutoSelectSprites autoSelectSprites;
+        private PlayerMouse.AutoSelectMode autoSelectMode;
         private PlayerMouse playerMouse;
 
         public void Initialize(PlayerMouse playerMouse)
         {
             this.playerMouse = playerMouse;
-            Display(playerMouse.AutoSelectEnabled);
+            Display();
         }
-        public void Display(bool autoSelectActive)
+        public void Display()
         {
-            this.autoSelectActive = autoSelectActive;
-            image.color = autoSelectActive ? Color.white : Color.gray;
+            image.sprite = autoSelectSprites.GetSprite(autoSelectMode);
         }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            string stateText = autoSelectActive ? "On" : "Off";
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Auto Select: {stateText}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Auto Select: {autoSelectMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -37,9 +58,15 @@ namespace UI.Indicators.General
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            playerMouse.ToggleAutoSelect();
-            autoSelectActive = !autoSelectActive;
-            Display(autoSelectActive);
+            int dir = eventData.button == PointerEventData.InputButton.Left ? 1 : -1;
+            Iterate(dir);
+        }
+
+        public void Iterate(int dir)
+        {
+            autoSelectMode = GlobalHelper.ShiftEnum(dir, autoSelectMode);
+            playerMouse.SetAutoSelect(autoSelectMode);
+            Display();
         }
 
         public PlayerControl GetPlayerControl()

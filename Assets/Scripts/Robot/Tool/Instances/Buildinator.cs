@@ -5,6 +5,7 @@ using Chunks.Partitions;
 using Chunks.Systems;
 using Dimensions;
 using Item.ItemObjects.Instances.Tile.Chisel;
+using Items;
 using Newtonsoft.Json;
 using Player;
 using Player.Mouse;
@@ -304,11 +305,11 @@ namespace Robot.Tool.Instances
             return toolData?.Mode.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition)
+        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
-            if (multiHits == 0)
+            if (multiHits == 0 && !autoSelectOn)
             {
                 tileBreakHighlighter.Clear();
                 return;
@@ -341,9 +342,7 @@ namespace Robot.Tool.Instances
                         }
                         else
                         {
-                            Tilemap tilemap = tileGridMap.GetTilemap();
-                            Quaternion quaternion = tilemap.GetTransformMatrix(vector3Int).rotation;
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion,tilemap.GetColor(vector3Int));
+                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
                         }
                         
                     }

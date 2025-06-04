@@ -18,14 +18,12 @@ namespace UI.Indicators.General
     {
         public ConduitPortIndicatorUI conduitPortIndicatorUI;
         public ConduitViewIndicatorUI conduitViewIndicatorUI;
-       
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
         public RobotLoadOutIndicator loadOutIndicator;
         public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
         public TileAutoSelectIndicatorUI autoSelectIndicator;
-        public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
         public void Start()
         {
             
@@ -64,7 +62,6 @@ namespace UI.Indicators.General
             
             loadOutIndicator.Initialize(playerScript);
             autoSelectIndicator.Initialize(playerScript.PlayerMouse);
-            tilePreviewerIndicatorUI.Display(playerScript);
         }
 
         
@@ -74,7 +71,6 @@ namespace UI.Indicators.General
             inventoryIndicator.gameObject.SetActive(true);
             loadOutIndicator.gameObject.SetActive(true);
             searchIndicator.gameObject.SetActive(true);
-            tilePreviewerIndicatorUI.gameObject.SetActive(true);
             
             bool caveSystem = playerScript.CurrentSystem.Dim == (int)Dimension.Cave;
             caveIndicatorUI.gameObject.SetActive(caveSystem);
