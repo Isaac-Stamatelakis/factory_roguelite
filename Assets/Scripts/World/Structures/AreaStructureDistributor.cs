@@ -18,7 +18,7 @@ namespace WorldModule.Caves {
     public class AreaStructureDistributor : CaveTileGenerator
     {
         public List<PresetStructure> constantStructures;
-        [FormerlySerializedAs("structures")] public List<StructureFrequency> randomStructures;
+        public List<StructureFrequency> randomStructures;
         public override void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
 
@@ -53,7 +53,7 @@ namespace WorldModule.Caves {
         {
             int placementAttempts = 10;
             while (placementAttempts > 0) {
-                Vector2Int? randomPosition = AreaStructureDistributorUtils.getRandomPlacementPosition(
+                Vector2Int? randomPosition = AreaStructureDistributorUtils.GetRandomPlacementPosition(
                     width,
                     height,
                     variant.Size,
@@ -73,16 +73,8 @@ namespace WorldModule.Caves {
 
         private bool Overlap(Dictionary<Vector2Int,StructureVariant> placedStructures, StructureVariant variant, Vector2Int randomPosition)
         {
-            foreach (KeyValuePair<Vector2Int,StructureVariant> kvp in placedStructures) {
-                if (AreaStructureDistributorUtils.structureVariantsOverLap(
-                        variant,
-                        kvp.Value,
-                        randomPosition,
-                        kvp.Key
-                    ))
-                {
-                    return true;
-                }
+            foreach (var (position, structureVariant) in placedStructures) {
+                if (AreaStructureDistributorUtils.StructureVariantsOverLap(variant, structureVariant, randomPosition, position)) return true;
             }
 
             return false;
@@ -90,7 +82,7 @@ namespace WorldModule.Caves {
     }
 
     public static class AreaStructureDistributorUtils {
-        public static bool structureVariantsOverLap(StructureVariant a, StructureVariant b, Vector2Int aPosition, Vector2Int bPosition) {
+        public static bool StructureVariantsOverLap(StructureVariant a, StructureVariant b, Vector2Int aPosition, Vector2Int bPosition) {
             Vector2Int aBottomLeft = aPosition;
             Vector2Int aTopRight = aPosition + a.Size;
 
@@ -99,40 +91,10 @@ namespace WorldModule.Caves {
                 
             bool overlapHorizontally = aBottomLeft.x < bTopRight.x && bBottomLeft.x < aTopRight.x;
             bool overlapVertically = aBottomLeft.y < bTopRight.y && bBottomLeft.y < aTopRight.y;
-            if (!overlapHorizontally || !overlapVertically) {
-                return false;
-            }
-            int areaA = a.Size.x * a.Size.y;
-            int areaB = b.Size.x * b.Size.y;
-            StructureVariant smallest, largest;
-            Vector2Int smallestPosition, largestPosition;
-            (smallest, largest) = areaA < areaB ? (a,b) : (b,a); 
-            (smallestPosition,largestPosition) = areaA < areaB ? (aPosition,bPosition) : (bPosition,aPosition);
-            SeralizedWorldData smallestData = smallest.Data;
-            SeralizedWorldData largestData = largest.Data;
-
-            for (int x = 0; x < smallest.Size.x; x ++) {
-                for (int y = 0; y < smallest.Size.y; y++) {
-                    Vector2Int cellPosition = new Vector2Int(x,y);
-                    string smallestBaseId = smallestData.baseData.ids[cellPosition.x,cellPosition.y];
-                    if (smallestBaseId == StructureGeneratorHelper.FILL_ID) {
-                        continue;
-                    }
-                    Vector2Int largestRelativePosition = largestPosition - smallestPosition + cellPosition;
-                    if (largestRelativePosition.x < 0  || largestRelativePosition.y < 0 || 
-                        largestRelativePosition.x >= largest.Size.x || largestRelativePosition.y >= largest.Size.y) {
-                        continue;
-                    }
-                    string largestBaseId = largestData.baseData.ids[largestRelativePosition.x,largestRelativePosition.y];
-                    if (largestBaseId != StructureGeneratorHelper.FILL_ID) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return overlapHorizontally && overlapVertically;
         }
 
-        public static Vector2Int? getRandomPlacementPosition(int width, int height, Vector2Int structureSize, int variantIndex) {
+        public static Vector2Int? GetRandomPlacementPosition(int width, int height, Vector2Int structureSize, int variantIndex) {
             if (structureSize.x > width || structureSize.y > height) {
                 Debug.LogWarning($"Tried to place structure variant {variantIndex} inside too small of cave");
                 return null;
@@ -254,9 +216,19 @@ namespace WorldModule.Caves {
             }
         }
     }
+
+    public enum StructureRestriction
+    {
+        None,
+        OnGround,
+        InAir,
+        Hanging,
+        InFluid
+    }
     [System.Serializable]
     public class StructureFrequency {
         public string structureName;
+        public StructureRestriction restriction;
         public int mean;
         public int standardDeviation;
     }

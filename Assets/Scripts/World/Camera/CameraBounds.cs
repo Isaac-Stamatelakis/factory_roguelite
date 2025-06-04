@@ -26,6 +26,12 @@ public class CameraBounds : MonoBehaviour
             return;
         }
         IntervalVector intervalVector = closedChunkSystem.GetBounds();
+        Vector2Int boundSize = intervalVector.GetSize();
+        if (boundSize.x <= 1 || boundSize.y <= 1)
+        {
+            bounds = null;
+            return;
+        }
         int worldChunkSize = Global.CHUNK_SIZE/2; // Chunks size is in tile size which is 1/2 world size
         this.bounds = new FloatIntervalVector(
             new Interval<float>(
@@ -36,7 +42,6 @@ public class CameraBounds : MonoBehaviour
                 intervalVector.Y.LowerBound,
                 intervalVector.Y.UpperBound+worldChunkSize
             )
-            
         );
     }
     private float height;
