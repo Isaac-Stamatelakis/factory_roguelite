@@ -40,7 +40,7 @@ namespace WorldModule.Caves {
                 {
                     int index = UnityEngine.Random.Range(0, variants.Count);
                     StructureVariant variant = variants[index];
-                    TryPlaceStructure(worldData,placedStructures,variant,width,height,index);
+                    TryPlaceStructure(worldData,placedStructures,variant,structureFrequency.positionRestriction,structureFrequency.restriction,width,height,index);
                     
                     amount--;
                 }
@@ -49,16 +49,14 @@ namespace WorldModule.Caves {
 
         }
 
-        private void TryPlaceStructure(SeralizedWorldData worldTileData, Dictionary<Vector2Int,StructureVariant> placedStructures, StructureVariant variant, int width, int height, int index)
+        private void TryPlaceStructure(SeralizedWorldData worldTileData, Dictionary<Vector2Int,StructureVariant> placedStructures, 
+            StructureVariant variant, StructurePositionRestriction positionRestriction, StructureRestriction restriction,  int width, int height, int index)
         {
             int placementAttempts = 10;
             while (placementAttempts > 0) {
-                Vector2Int? randomPosition = AreaStructureDistributorUtils.GetRandomPlacementPosition(
-                    width,
-                    height,
-                    variant.Size,
-                    index
-                );
+                Vector2Int? randomPosition = AreaStructureDistributorUtils.GetRandomRestrictedPlacementPosition(
+                    worldTileData, positionRestriction, restriction, width, height, variant.Size, index);
+                
                 if (randomPosition == null || Overlap(placedStructures,variant,(Vector2Int)randomPosition))
                 {
                     placementAttempts--;
@@ -94,14 +92,54 @@ namespace WorldModule.Caves {
             return overlapHorizontally && overlapVertically;
         }
 
-        public static Vector2Int? GetRandomPlacementPosition(int width, int height, Vector2Int structureSize, int variantIndex) {
+        public static Vector2Int? GetRandomRestrictedPlacementPosition(SeralizedWorldData worldData, StructurePositionRestriction positionRestriction, StructureRestriction restriction, int width, int height, Vector2Int structureSize, int variantIndex) {
             if (structureSize.x > width || structureSize.y > height) {
                 Debug.LogWarning($"Tried to place structure variant {variantIndex} inside too small of cave");
                 return null;
-            } 
-            int ranX = UnityEngine.Random.Range(0,width-structureSize.x);
-            int ranY = UnityEngine.Random.Range(0,height-structureSize.y);
-            return new Vector2Int(ranX,ranY);
+            }
+
+            Vector2Int randomPosition = GetRandomPosition(positionRestriction, structureSize, width, height);
+            return randomPosition;
+        }
+
+        private static Vector2Int GetRandomPosition(StructurePositionRestriction positionRestriction, Vector2Int structureSize, int width, int height)
+        {
+            if (positionRestriction == StructurePositionRestriction.None)
+            {
+                return new Vector2Int(UnityEngine.Random.Range(0, width - structureSize.x), UnityEngine.Random.Range(0, height - structureSize.y));
+            }
+            float areaRatio = positionRestriction switch
+            {
+                StructurePositionRestriction.NotInnerQuarter => 0.25f,
+                StructurePositionRestriction.NotInnerHalf => 0.5f,
+                StructurePositionRestriction.OuterQuarter => 0.75f,
+                _ => throw new ArgumentOutOfRangeException(nameof(positionRestriction), positionRestriction, null)
+            };
+            
+            bool restrictX = UnityEngine.Random.value < 0.5f;
+            if (restrictX)
+            {
+                int xRestriction = (int)(width * areaRatio/2f);
+                int ranX = GetRandomInBounds(xRestriction,width,structureSize.x);
+                return new Vector2Int(ranX, UnityEngine.Random.Range(0, height - structureSize.y));
+            }
+            int yRestriction =  (int)(height * areaRatio/2f);
+            int ranY = GetRandomInBounds(yRestriction,height,structureSize.y);
+            return new Vector2Int(UnityEngine.Random.Range(0, width - structureSize.x),ranY);
+
+
+            int GetRandomInBounds(int restricted, int areaSize, int size)
+            {
+                if (restricted == 0)
+                {
+                    return UnityEngine.Random.Range(0,areaSize-size);
+                }
+                bool pickUpper = UnityEngine.Random.value < 0.5f;
+                return pickUpper 
+                    ? UnityEngine.Random.Range(areaSize/2+restricted,areaSize-size) 
+                    : UnityEngine.Random.Range(0,areaSize/2-size-restricted);
+            }
+            
         }
 
         public static void PlaceStructure(SeralizedWorldData caveData, Vector2Int position, WorldTileConduitData variantData, Vector2Int structureSize) {
@@ -225,10 +263,20 @@ namespace WorldModule.Caves {
         Hanging,
         InFluid
     }
+
+    public enum StructurePositionRestriction
+    {
+        None,
+        NotInnerQuarter,
+        NotInnerHalf,
+        OuterQuarter
+    }
+    
     [System.Serializable]
     public class StructureFrequency {
         public string structureName;
         public StructureRestriction restriction;
+        public StructurePositionRestriction positionRestriction;
         public int mean;
         public int standardDeviation;
     }
