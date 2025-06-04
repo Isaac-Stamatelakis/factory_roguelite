@@ -51,6 +51,12 @@ namespace PlayerModule.Mouse {
     /// </summary>
     public class PlayerMouse : MonoBehaviour
     {
+        public enum AutoSelectMode
+        {
+            None,
+            Tool,
+            TileEntity
+        }
         private PlayerInventory playerInventory;
         public PortViewMode ConduitPortViewMode;
         private PlayerRobot playerRobot;
@@ -64,8 +70,8 @@ namespace PlayerModule.Mouse {
         private TileHighlighter tileHighlighter;
         private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
-        private bool enableAutoSelect = true;
-        public bool AutoSelectEnabled => enableAutoSelect;
+        private AutoSelectMode autoSelectMode;
+        //public AutoSelectMode AutoSelectMode => autoSelectMode;
         public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
         private List<IWorldTileMap> systemTileMaps = new();
         private ClosedChunkSystem currentSystem;
@@ -89,22 +95,38 @@ namespace PlayerModule.Mouse {
             autoTileFinder = new AutoTileFinder(transform);
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
             tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
-            enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
+            autoSelectMode = (AutoSelectMode)PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY);
             canvasController = CanvasController.Instance;
         }
 
-        public bool ToggleAutoSelect()
+        public void SetAutoSelect(AutoSelectMode newMode)
         {
-            enableAutoSelect = !enableAutoSelect;
-            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
-            if (!enableAutoSelect)
+            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, (int)newMode);
+            autoSelectMode = newMode;
+            switch (autoSelectMode)
             {
-                tileBreakHighlighter.Clear();
-                tileHighlighter.Hide();
-                ToolTipController.Instance.HideToolTip(ToolTipType.World);
-                highlightPosition = null;
+                case AutoSelectMode.None:
+                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Hide();
+                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
+                    highlightPosition = null;
+                    break;
+                case AutoSelectMode.Tool:
+                    ToolTipController.Instance.HideToolTip(ToolTipType.World);
+                    highlightPosition = null;
+                    break;
+                case AutoSelectMode.TileEntity:
+                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Hide();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            return enableAutoSelect;
+        }
+
+        public AutoSelectMode GetAutoSelectMode()
+        {
+            return autoSelectMode;
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
@@ -134,7 +156,7 @@ namespace PlayerModule.Mouse {
                 return;
             }
             
-            toolHitPosition = autoSelectableTool && enableAutoSelect ? AutoSelectTile(mousePosition) : mousePosition;
+            toolHitPosition = autoSelectableTool && autoSelectMode == AutoSelectMode.Tool ? AutoSelectTile(mousePosition) : mousePosition;
 
             if (!currentSystem) return;
             
@@ -201,9 +223,9 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
-            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, enableAutoSelect);
+            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, autoSelectMode==AutoSelectMode.Tool);
             
-            if (!enableAutoSelect) return;
+            if (autoSelectMode != AutoSelectMode.TileEntity) return;
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 5);

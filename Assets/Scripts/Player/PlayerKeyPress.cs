@@ -174,8 +174,7 @@ namespace PlayerModule.KeyPress {
 
         void AutoSelect(InputAction.CallbackContext context)
         {
-            bool autoSelect = playerScript.PlayerMouse.ToggleAutoSelect();
-            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Display(autoSelect);
+            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Iterate(1);
         }
 
         void OpenRobotLoadOut(InputAction.CallbackContext context)
