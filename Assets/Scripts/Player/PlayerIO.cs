@@ -22,6 +22,7 @@ namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
+        
         private bool validStartup;
         public PlayerData Deserialize() {
             string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
@@ -61,6 +62,9 @@ namespace PlayerModule.IO {
             PlayerInventory playerInventory = GetComponent<PlayerInventory>();
             PlayerRobot playerRobot = GetComponent<PlayerRobot>();
             PlayerScript playerScript = GetComponent<PlayerScript>();
+            
+            playerScript.TilePlacementOptions.Serialize();
+            
             PlayerDimensionData playerDimensionData = new PlayerDimensionData(playerScript.DimensionData,transform.position.x,transform.position.y);
 
             MiscPlayerData miscPlayerData = new MiscPlayerData
@@ -78,6 +82,7 @@ namespace PlayerModule.IO {
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
+            
         }
         void OnDestroy()
         {

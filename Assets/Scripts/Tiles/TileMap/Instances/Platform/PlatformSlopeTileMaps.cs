@@ -13,24 +13,23 @@ namespace Tiles.TileMap.Platform
     
     public class PlatformSlopeTileMaps
     {
-        private ShaderTilemapManager slopeShaderTilemapManager;
-        private ShaderTilemapManager decoShaderTilemapManager;
+        private readonly ShaderTilemapManager slopeShaderTilemapManager;
+        private readonly ShaderTilemapManager decoShaderTilemapManager;
         private readonly Tilemap slopeTileMap;
         private readonly Tilemap decoTileMap;
         private readonly Tilemap extraColliderTilemap;
         private readonly TileBase extraColliderTile;
         private readonly Vector3Int extendTileDirection;
 
-        public PlatformSlopeTileMaps(Tilemap slopeTilemap, Tilemap decoTileMap, Tilemap extraColliderTilemap,  TileBase extraColliderTile, SlopeRotation slopeRotation)
+        public PlatformSlopeTileMaps(Tilemap slopeTilemap, Tilemap decoTileMap, Tilemap extraColliderTilemap,  TileBase extraColliderTile, SlopeRotation slopeRotation, ShaderTilemapManager slopeShaders, ShaderTilemapManager decoShaders)
         {
             this.slopeTileMap = slopeTilemap;
             this.decoTileMap = decoTileMap;
             this.extraColliderTilemap = extraColliderTilemap;
             this.extraColliderTile = extraColliderTile;
             extendTileDirection = slopeRotation == SlopeRotation.Left ? Vector3Int.right : Vector3Int.left;
-
-            slopeShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, true, TileMapType.Platform);
-            decoShaderTilemapManager = new ShaderTilemapManager(slopeTilemap.transform, -0.1f, false, TileMapType.Platform);
+            slopeShaderTilemapManager = slopeShaders;
+            decoShaderTilemapManager = decoShaders;
         }
 
         public Tilemap GetSlopeTileMap()

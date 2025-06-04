@@ -25,6 +25,7 @@ namespace Items.Transmutable {
         Mediocre_Gem = TransmutableItemState.Mediocre_Gem,
         Poor_Gem = TransmutableItemState.Poor_Gem,
         Ore = TransmutableItemState.Ore,
+        Shard = TransmutableItemState.Shard
     }
     public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem, IColorableItem
     {

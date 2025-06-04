@@ -21,6 +21,7 @@ using Robot.Tool.Instances;
 using Robot.Upgrades;
 using TileEntity.MultiBlock;
 using Tiles.Options.Overlay;
+using Tiles.TileMap;
 
 namespace TileMaps {
     public interface ITileGridMap {
@@ -43,6 +44,7 @@ namespace TileMaps {
     }
     public class WorldTileMap : BaseWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
+        protected PrimaryShaderTilemap primaryShaderTilemap;
         protected Tilemap AddOverlay(float z)
         {
             GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
@@ -142,6 +144,8 @@ namespace TileMaps {
                 DeleteTileEntityFromConduit(position);
             }
             Vector3Int vector = new Vector3Int(position.x,position.y,0);
+            
+            primaryShaderTilemap?.RemoveTile(position);
             RemoveTile(vector.x,vector.y);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition, TileMapLayer.Base);
             

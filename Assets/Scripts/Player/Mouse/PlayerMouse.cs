@@ -71,8 +71,6 @@ namespace PlayerModule.Mouse {
         private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
         private AutoSelectMode autoSelectMode;
-        //public AutoSelectMode AutoSelectMode => autoSelectMode;
-        public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
         private List<IWorldTileMap> systemTileMaps = new();
         private ClosedChunkSystem currentSystem;
         private float range;
@@ -83,6 +81,7 @@ namespace PlayerModule.Mouse {
         private float timeSinceLastTilePlace;
         private float placeCooldown;
         public TileSearchResultCacher TileSearchResultCacher { get; private set; } = new();
+        public const string AUTO_SELECT_KEY = "_option_auto_select";
         
         void Start()
         {
@@ -95,13 +94,11 @@ namespace PlayerModule.Mouse {
             autoTileFinder = new AutoTileFinder(transform);
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
             tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
-            autoSelectMode = (AutoSelectMode)PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY);
             canvasController = CanvasController.Instance;
         }
 
         public void SetAutoSelect(AutoSelectMode newMode)
         {
-            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, (int)newMode);
             autoSelectMode = newMode;
             switch (autoSelectMode)
             {
@@ -565,9 +562,15 @@ namespace PlayerModule.Mouse {
             previewController.ResetRecord();
         }
 
-        public void InitializeToolClickHandlers()
+        public void Initialize()
         {
             toolClickHandlerCollection = new ToolClickHandlerCollection(playerRobot);
+            SetAutoSelect((AutoSelectMode)PlayerPrefs.GetInt(AUTO_SELECT_KEY));
+        }
+
+        public void OnDestroy()
+        {
+            PlayerPrefs.SetInt(AUTO_SELECT_KEY,(int)autoSelectMode);
         }
     }
 

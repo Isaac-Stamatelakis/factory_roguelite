@@ -83,7 +83,7 @@ namespace TileEntity.Instances.CompactMachine.UI
             CompactMachineUtils.SaveMetaDataJson(this.metaData,hashPath);
             string newHash = CompactMachineUtils.GenerateHash();
             compactMachine.SetHash(newHash);
-            CompactMachineUtils.InitializeHashFolder(newHash, compactMachine.getId());
+            CompactMachineUtils.InitializeHashFolder(newHash, compactMachine.GetId());
             onHashChange.Invoke();
 
         }

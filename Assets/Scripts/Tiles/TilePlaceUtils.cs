@@ -274,7 +274,12 @@ namespace TileMaps.Place {
             }
             
             Vector2Int placePosition = GetPlacePosition(worldPosition.x, worldPosition.y);
-
+            if (tileItem.tileType == TileType.Background) // Background tiles don't need any of the checks below
+            {
+                iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
+                return;
+            }
+            
             var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             PlayerTileRotation? tileRotation = placementData?.Rotation;
             int rotation = 0;
@@ -291,6 +296,7 @@ namespace TileMaps.Place {
             {
                 SetPlatformStateAndRotation();
             }
+            
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
@@ -590,13 +596,16 @@ namespace TileMaps.Place {
             if (!tileMap) return false;
 
             TileMapType hitMapType = tileMap.Type;
-            TileItem tile = tileMap?.GetTileItem(position);
+            TileItem tile = tileMap.GetTileItem(position);
             /*
              * This section is kind of confusing. If a tile is place breakable, we have to return false to allow tiles to
              * be placed on top of it. Since only 16x16 tiles can be place breakable, if the collider hits, but there is not a tile
              * at the position (cause its larger than 16x16) then return true. Otherwise, return false if the tile is place breakable.
             */
-            if (hitMapType != TileMapType.Object) return false; // Only objects may be place breakable (atleast for now)
+            if (hitMapType != TileMapType.Object)
+            {
+                return tile;
+            }
             if (!tile) return false;
             return !tile.tileOptions.placeBreakable;
         }

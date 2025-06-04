@@ -90,7 +90,7 @@ namespace TileMaps.Previewer {
                 return;
             }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            PreviewTile(playerScript?.PlayerInventory.GetSelectedId(), mousePosition);
+            PreviewTile(playerScript?.PlayerInventory?.GetSelectedId(), mousePosition);
             
         }   
         public void PreviewTile(string id, Vector2 position) {
@@ -331,7 +331,7 @@ namespace TileMaps.Previewer {
             TileBase placementTileBase = tileBase is IStateTileSingle stateTile ? stateTile.GetTileAtState(autoState) : tileBase;
             if (!rotatable)
             {
-                placementTilemap.SetTile(placePosition,tileBase);
+                placementTilemap.SetTile(placePosition,placementTileBase);
                 return;
             }
             

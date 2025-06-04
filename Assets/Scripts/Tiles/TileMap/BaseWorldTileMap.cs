@@ -12,6 +12,7 @@ using Chunks.Partitions;
 using Entities;
 using Item.Slot;
 using Items;
+using Tiles.TileMap;
 
 namespace TileMaps {
     public interface IHitableTileMap : IWorldTileMap{
@@ -58,7 +59,6 @@ namespace TileMaps {
         public TileMapType Type => type;
         protected Tilemap tilemap;
         public Tilemap mTileMap {get{return tilemap;}}
-        
         protected TilemapCollider2D tilemapCollider;
         protected HashSet<Vector2Int> partitions = new HashSet<Vector2Int>();
         protected ClosedChunkSystem closedChunkSystem;

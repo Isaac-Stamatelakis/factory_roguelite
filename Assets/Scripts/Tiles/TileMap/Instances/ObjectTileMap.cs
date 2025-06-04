@@ -9,15 +9,14 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.TileMap
 {
-    public class ObjectTileMap : WorldTileMap, IWorldShaderTilemap
+    public class ObjectTileMap : WorldTileMap
     {
         private Tilemap overlayTileMap;
-        private ShaderTilemapManager shaderTilemapManager;
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
+            primaryShaderTilemap = closedChunkSystem.PrimaryShaderTilemap;
             overlayTileMap = AddOverlay(OVERLAY_Z);
-            shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, false,TileMapType.Object,0);
         }
 
         protected override void SetTile(int x, int y, TileItem tileItem)
@@ -39,7 +38,8 @@ namespace Tiles.TileMap
                 Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
                 if (material)
                 {
-                    PlaceTileInTilemap(shaderTilemapManager.GetTileMap(material), tileItem, placementPositon, partition);
+                    Tilemap shaderTilemap = primaryShaderTilemap.GetTilemapForPlacement(position,material);
+                    PlaceTileInTilemap(shaderTilemap, tileItem, placementPositon, partition);
                 }
             }
 
@@ -56,17 +56,11 @@ namespace Tiles.TileMap
             Vector3Int cellPosition = new Vector3Int(x, y, 0);
             tilemap.SetTile(cellPosition,null);
             overlayTileMap.SetTile(cellPosition, null);
-            shaderTilemapManager.ClearAllOnTile(ref cellPosition);
         }
 
         public override bool HasTile(Vector3Int vector3Int)
         {
             return tilemap.HasTile(vector3Int);
-        }
-
-        public ShaderTilemapManager GetManager()
-        {
-            return shaderTilemapManager;
         }
     }
 }

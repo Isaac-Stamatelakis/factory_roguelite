@@ -43,21 +43,28 @@ namespace Chunks.Systems {
             };
         }
 
-        public static void LoadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+        
+        public static void LoadTileSystemMaps(ClosedChunkSystem closedChunkSystem, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.name = "Tiles";
-            container.transform.SetParent(systemTransform);
+            container.transform.SetParent(closedChunkSystem.transform);
+            
+            GameObject primaryShaderMap = new GameObject("MainShaderOverlay");
+            primaryShaderMap.transform.parent = container.transform;
+            PrimaryShaderTilemap primaryShaderTilemap = primaryShaderMap.AddComponent<PrimaryShaderTilemap>();
+            closedChunkSystem.SetShaderTilemap(primaryShaderTilemap);
+            
             List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();
             foreach (TileMapType tileMapType in standardMaps) {
                 InitTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
-            InitTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
+            InitTileMapContainer(TileMapType.Fluid,closedChunkSystem.transform,tileGridMaps);
             tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
             tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
             tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Block]);
             tileGridMaps[TileMapType.Object].AddListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
             tileGridMaps[TileMapType.Object].AddListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
-
+            
         }
 
         public static void LoadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {

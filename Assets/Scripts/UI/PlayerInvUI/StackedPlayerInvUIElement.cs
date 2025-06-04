@@ -82,10 +82,6 @@ namespace UI.PlayerInvUI
                 inventoryUI?.SetConnection(playerInventoryUI);
             }
         }
-        public void SetBackgroundColor(Color color)
-        {
-            GetComponent<Image>().color = color;
-        }
 
         
     }
