@@ -119,6 +119,7 @@ namespace Dimensions {
             playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.miscPlayerData?.GrabbedItemData));
             playerScript.PlayerInventory.ChangeSelectedSlot(0);
             
+            playerScript.TileViewers.Initialize(playerScript);
             playerScript.GetComponent<PlayerIO>().OnValidated();
             loadBeautifier.Show();
         }

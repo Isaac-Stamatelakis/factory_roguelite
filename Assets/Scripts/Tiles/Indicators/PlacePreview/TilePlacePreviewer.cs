@@ -90,7 +90,7 @@ namespace TileMaps.Previewer {
                 return;
             }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            PreviewTile(playerScript?.PlayerInventory.GetSelectedId(), mousePosition);
+            PreviewTile(playerScript?.PlayerInventory?.GetSelectedId(), mousePosition);
             
         }   
         public void PreviewTile(string id, Vector2 position) {

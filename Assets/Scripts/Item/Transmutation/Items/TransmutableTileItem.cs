@@ -9,6 +9,7 @@ namespace Item.Transmutation
         Brick = TransmutableItemState.Brick,
         Brick_Wall = TransmutableItemState.Brick_Wall,
         Wall = TransmutableItemState.Wall,
+        Crystal = TransmutableItemState.Crystal
     }
     public class TransmutableTileItem : TileItem, ITransmutableItem
     {

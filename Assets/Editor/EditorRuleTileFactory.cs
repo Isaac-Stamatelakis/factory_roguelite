@@ -169,7 +169,7 @@ public class EditorFactory
         return ruleTile;
     }
 
-    public static Sprite[] spritesFromTexture(Texture2D texture, string spritePath, string name, int width, int height) {
+    public static Sprite[] SpritesFromTexture(Texture2D texture, string spritePath, string name, int width, int height) {
         if (texture.width % width != 0 || texture.height % height != 0) {
             Debug.Log("Invalid dimensions for texture");
             return null;

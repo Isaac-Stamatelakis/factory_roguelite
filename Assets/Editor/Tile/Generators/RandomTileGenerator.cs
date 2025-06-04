@@ -63,7 +63,8 @@ public class RandomTileGenerator : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         string collectionPath = "Assets/EditorCreations/" + tileName;
         AssetDatabase.Refresh();
-        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName,width*16,height*16);
+        Sprite[] sprites = EditorFactory.SpritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName,16,16);
+        Debug.Log(sprites.Length);
         AssetDatabase.Refresh();
         RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
         randomTile.m_Sprites = sprites;

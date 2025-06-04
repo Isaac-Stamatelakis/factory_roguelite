@@ -97,6 +97,7 @@ namespace Tiles.TileMap
             for (var index = usedTileMaps.Count-1; index >= 0 ; index--)
             {
                 var tilemap = usedTileMaps[index];
+                if (!tilemap) continue;
                 tilemap.CompressBounds();
                 if (tilemap.cellBounds.size.x > 0 || tilemap.cellBounds.size.y > 0)
                 {

@@ -126,8 +126,6 @@ namespace Player
             playerUIContainer.IndicatorManager.Initialize(this);
             playerUIContainer.TileIndicatorManagerUI.Initialize(this);
             
-            tileViewers.Initialize(this);
-            
             ControlUtils.LoadRequiredAndBlocked();
             ControlUtils.InitializeKeyBindings(inputActions);
             

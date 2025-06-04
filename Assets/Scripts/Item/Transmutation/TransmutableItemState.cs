@@ -26,7 +26,8 @@ namespace Item.Transmutation
         Ore = 20,
         Brick = 21,
         Brick_Wall = 22,
-        Wall = 23
+        Wall = 23,
+        Crystal = 24
     }
     
 
