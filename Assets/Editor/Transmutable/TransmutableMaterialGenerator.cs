@@ -242,17 +242,17 @@ public class TransmutableItemGenerator : EditorWindow
             TransmutableTileItem transmutableTileItem = CreateInstance<TransmutableTileItem>();
             transmutableTileItem.name = itemName;
             transmutableTileItem.id = id;
-            TileType tileType = tileStateOptions.tile is BackgroundRuleTile ? TileType.Background : TileType.Block;
+            TileType tileType = tileStateOptions.state.GetTileType();
             transmutableTileItem.tileType = tileType;
             transmutableTileItem.setMaterial(material);
             transmutableTileItem.setState(state);
             transmutableTileItem.gameStage = material.gameStageObject;
             transmutableTileItem.tile = tileStateOptions.tile;
-            transmutableTileItem.outline = outlineValues.FromTile(transmutableTileItem.tile);
+            transmutableTileItem.outline = tileType == TileType.Block ? outlineValues.FromTile(transmutableTileItem.tile) : null;
             
             TileOptions tileOptions = new TileOptions();
             tileOptions.TransmutableColorOverride = material;
-            tileOptions.rotatable = tileType==TileType.Block;
+            tileOptions.rotatable = tileType!=TileType.Background;
             
             int tierInt = (int)(material.gameStageObject?.Tier ?? TileEntity.Tier.Basic);
             tileOptions.hardness = 8 * (tierInt + 1);
