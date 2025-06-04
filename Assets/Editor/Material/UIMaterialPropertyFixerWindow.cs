@@ -125,7 +125,8 @@ public class UIMaterialPropertyFixerWindow : EditorWindow
                 new ("_StencilOp", ShaderGraphPropertyType.Float),
                 new ("_StencilWriteMask", ShaderGraphPropertyType.Float),
                 new ("_StencilReadMask", ShaderGraphPropertyType.Float),
-                new ("_ColorMask", ShaderGraphPropertyType.Color), 
+                new ("_ColorMask", ShaderGraphPropertyType.Float),
+                new ("_UseUIAlphaClip",ShaderGraphPropertyType.Float)
             };
             
             
