@@ -163,7 +163,7 @@ namespace PlayerModule.Mouse {
             if (!canvasController.IsActive) PreviewHighlight(mousePosition);
             
             if (eventSystem.IsPointerOverGameObject()) return;
-            TileSearchResultCacher.CallSearcher(mousePosition);
+            if (playerScript.TilePlacementOptions.AutoPlace) TileSearchResultCacher.CallSearcher(mousePosition);
             
             if (!leftClick)
             {

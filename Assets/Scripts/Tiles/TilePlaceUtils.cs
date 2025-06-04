@@ -28,6 +28,7 @@ using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.TileMap;
 using Tiles.TileMap.Platform;
 using UnityEngine.Tilemaps;
+using Object = UnityEngine.Object;
 
 namespace TileMaps.Place {
     public static class TilePlaceUtils
@@ -149,7 +150,7 @@ namespace TileMaps.Place {
                 Vector2 centeredWorld = TileHelper.getRealTileCenter(worldPlaceLocation);
                 if (RaycastTileInBox(centeredWorld, playerLayer)) return false;
             }
-            
+           
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.GetSpriteSize(tileItem.GetSprite()),rotation);
             if (exclusion == null)
             {
@@ -575,22 +576,28 @@ namespace TileMaps.Place {
         public static bool RaycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
         {
             var collider = Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
-            if (ReferenceEquals(collider,null)) return false;
+            if (ReferenceEquals(collider, null))
+            {
+                return false;
+            }
             if (ignorePlaceBreakable) return true;
             WorldTileMap tileMap = collider.GetComponent<WorldTileMap>();
             if (!tileMap)
             {
                 tileMap = collider.GetComponentInParent<WorldTileMap>();
             }
+
+            if (!tileMap) return false;
+
+            TileMapType hitMapType = tileMap.Type;
             TileItem tile = tileMap?.GetTileItem(position);
-            
             /*
              * This section is kind of confusing. If a tile is place breakable, we have to return false to allow tiles to
              * be placed on top of it. Since only 16x16 tiles can be place breakable, if the collider hits, but there is not a tile
              * at the position (cause its larger than 16x16) then return true. Otherwise, return false if the tile is place breakable.
             */
-            
-            if (!tile) return true;
+            if (hitMapType != TileMapType.Object) return false; // Only objects may be place breakable (atleast for now)
+            if (!tile) return false;
             return !tile.tileOptions.placeBreakable;
         }
 
