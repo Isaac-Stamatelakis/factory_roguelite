@@ -818,6 +818,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SmartPlacement"",
+                    ""type"": ""Button"",
+                    ""id"": ""c97aa4d0-25b4-4b99-89c6-f50362deb0fc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -950,6 +959,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PlacePreview"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""22ee3de3-3fe3-4b97-8fce-a35cedf1eb82"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SmartPlacement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1606,6 +1626,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MiscKeys_SubPlacementMode = m_MiscKeys.FindAction("SubPlacementMode", throwIfNotFound: true);
         m_MiscKeys_TerminateConduitGroup = m_MiscKeys.FindAction("TerminateConduitGroup", throwIfNotFound: true);
         m_MiscKeys_PlacePreview = m_MiscKeys.FindAction("PlacePreview", throwIfNotFound: true);
+        m_MiscKeys_SmartPlacement = m_MiscKeys.FindAction("SmartPlacement", throwIfNotFound: true);
         // ToolBindings
         m_ToolBindings = asset.FindActionMap("ToolBindings", throwIfNotFound: true);
         m_ToolBindings_SwitchToolMode = m_ToolBindings.FindAction("SwitchToolMode", throwIfNotFound: true);
@@ -2118,6 +2139,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_MiscKeys_SubPlacementMode;
     private readonly InputAction m_MiscKeys_TerminateConduitGroup;
     private readonly InputAction m_MiscKeys_PlacePreview;
+    private readonly InputAction m_MiscKeys_SmartPlacement;
     public struct MiscKeysActions
     {
         private @InputActions m_Wrapper;
@@ -2134,6 +2156,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @SubPlacementMode => m_Wrapper.m_MiscKeys_SubPlacementMode;
         public InputAction @TerminateConduitGroup => m_Wrapper.m_MiscKeys_TerminateConduitGroup;
         public InputAction @PlacePreview => m_Wrapper.m_MiscKeys_PlacePreview;
+        public InputAction @SmartPlacement => m_Wrapper.m_MiscKeys_SmartPlacement;
         public InputActionMap Get() { return m_Wrapper.m_MiscKeys; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -2179,6 +2202,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @PlacePreview.started += instance.OnPlacePreview;
             @PlacePreview.performed += instance.OnPlacePreview;
             @PlacePreview.canceled += instance.OnPlacePreview;
+            @SmartPlacement.started += instance.OnSmartPlacement;
+            @SmartPlacement.performed += instance.OnSmartPlacement;
+            @SmartPlacement.canceled += instance.OnSmartPlacement;
         }
 
         private void UnregisterCallbacks(IMiscKeysActions instance)
@@ -2219,6 +2245,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @PlacePreview.started -= instance.OnPlacePreview;
             @PlacePreview.performed -= instance.OnPlacePreview;
             @PlacePreview.canceled -= instance.OnPlacePreview;
+            @SmartPlacement.started -= instance.OnSmartPlacement;
+            @SmartPlacement.performed -= instance.OnSmartPlacement;
+            @SmartPlacement.canceled -= instance.OnSmartPlacement;
         }
 
         public void RemoveCallbacks(IMiscKeysActions instance)
@@ -2595,6 +2624,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnSubPlacementMode(InputAction.CallbackContext context);
         void OnTerminateConduitGroup(InputAction.CallbackContext context);
         void OnPlacePreview(InputAction.CallbackContext context);
+        void OnSmartPlacement(InputAction.CallbackContext context);
     }
     public interface IToolBindingsActions
     {

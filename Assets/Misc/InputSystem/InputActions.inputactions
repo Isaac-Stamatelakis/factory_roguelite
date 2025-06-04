@@ -796,6 +796,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SmartPlacement",
+                    "type": "Button",
+                    "id": "c97aa4d0-25b4-4b99-89c6-f50362deb0fc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -928,6 +937,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PlacePreview",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "22ee3de3-3fe3-4b97-8fce-a35cedf1eb82",
+                    "path": "<Keyboard>/o",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SmartPlacement",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -48,7 +48,7 @@ namespace UI.Indicators.General
 
         public PlayerControl GetPlayerControl()
         {
-            return PlayerControl.PlacePreview;
+            return PlayerControl.SmartPlace;
         }
     }
 }

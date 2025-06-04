@@ -28,6 +28,7 @@ namespace Player.Controls
         ShowItemRecipes = 27,
         ShowItemUses = 28,
         EditItemTag = 29,
+        SmartPlace = 30,
     }
 
     public enum ModifierKeyCode

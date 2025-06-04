@@ -54,6 +54,7 @@ namespace PlayerModule.KeyPress {
             ControlUtils.AssignAction(miscKeys.TerminateConduitGroup,PlayerControl.TerminateConduitGroup,TerminateConduitGroup);
             ControlUtils.AssignAction(miscKeys.ConduitView,PlayerControl.ChangeConduitViewMode,_ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.conduitPlacementModeIndicatorUI.DisplayLoadOutEditor());
             ControlUtils.AssignAction(miscKeys.PlacePreview,PlayerControl.PlacePreview, _ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.tileHighligherIndicatorUI.Toggle());
+            ControlUtils.AssignAction(miscKeys.SmartPlacement,PlayerControl.SmartPlace, _ => playerScript.PlayerUIContainer.TileIndicatorManagerUI.tileSearchIndicatorUI.Toggle());
             
             miscKeys.InteractTools.performed += _ => playerInventory.SetInteractMode(InteractMode.Tools);
             miscKeys.InteractTools.canceled += _ => playerInventory.SetInteractMode(InteractMode.Inventory);
