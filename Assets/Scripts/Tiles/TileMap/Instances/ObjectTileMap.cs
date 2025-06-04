@@ -16,6 +16,7 @@ namespace Tiles.TileMap
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
+            primaryShaderTilemap = closedChunkSystem.PrimaryShaderTilemap;
             overlayTileMap = AddOverlay(OVERLAY_Z);
             shaderTilemapManager = new ShaderTilemapManager(transform, OVERLAY_Z, false,TileMapType.Object,0);
         }

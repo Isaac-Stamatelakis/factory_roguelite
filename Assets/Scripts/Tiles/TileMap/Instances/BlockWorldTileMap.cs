@@ -37,11 +37,10 @@ namespace TileMaps {
     {
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
     }
-    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap, IWorldShaderTilemap
+    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
-        private ShaderTilemapManager shaderOverlayTilemapManager;
         public override void Initialize(TileMapType tileMapType)
         {
             base.Initialize(tileMapType);
@@ -53,8 +52,7 @@ namespace TileMaps {
             outlineTileMap = outline.GetComponent<Tilemap>();
             outline.transform.SetParent(transform,false);
             SetView(false,Color.black);
-            
-            shaderOverlayTilemapManager = new ShaderTilemapManager(transform,OVERLAY_Z,false,TileMapType.Block);
+            primaryShaderTilemap = closedChunkSystem.PrimaryShaderTilemap;
         }
 
         public void SetView(bool? wireFrame, Color? color) {
@@ -76,17 +74,9 @@ namespace TileMaps {
             if (!tilemap.GetTile(vector)) return;
             outlineTileMap.SetTile(new Vector3Int(x,y,0), null);
             overlayTileMap.SetTile(vector, null);
-            shaderOverlayTilemapManager.ClearAllOnTile(ref vector);
             base.RemoveTile(x, y);
         }
-
-        private Tilemap GetOverlayTileMap(TileOverlayData tileOverlayData)
-        {
-            if (tileOverlayData is not IShaderTileOverlay shaderTileOverlay) return overlayTileMap;
-            Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
-            return !shaderMaterial ? overlayTileMap : shaderOverlayTilemapManager.GetTileMap(shaderMaterial);
-        }
-
+        
         protected override void SetTile(int x, int y, TileItem tileItem)
         {
             Vector2Int tilePosition = new Vector2Int(x, y);
@@ -104,14 +94,24 @@ namespace TileMaps {
                 Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterial(transmutableMaterial);
                 if (material)
                 {
-                    PlaceTileInTilemap(shaderOverlayTilemapManager.GetTileMap(material), tileItem, placementPosition, partition);
+                    Tilemap shaderMap = primaryShaderTilemap.GetTilemapForPlacement(tilePosition, material);
+                    PlaceTileInTilemap(shaderMap, tileItem, placementPosition, partition);
                 }
             }
             
             if (tileOverlayData)
             {
-                Tilemap placementMap = GetOverlayTileMap(tileItem.tileOptions.overlayData);
-                PlaceOverlayTile(tileItem.tileOptions.overlayData,placementMap, placementPosition,tileItem,baseTileData);
+                Tilemap overlayPlacementMap;
+                if (tileOverlayData is not IShaderTileOverlay shaderTileOverlay)
+                {
+                    overlayPlacementMap = overlayTileMap;
+                }
+                else
+                {
+                    Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
+                    overlayPlacementMap = shaderMaterial ? primaryShaderTilemap.GetTilemapForPlacement(tilePosition, shaderMaterial) : overlayTileMap;
+                }
+                PlaceOverlayTile(tileItem.tileOptions.overlayData,overlayPlacementMap, placementPosition,tileItem,baseTileData);
             }
             TileBase outlineTile = tileItem.outline;
             if (!outlineTile) {
@@ -146,7 +146,8 @@ namespace TileMaps {
             {
                 if (overlay is IShaderTileOverlay shaderTileOverlay)
                 {
-                    overlayTile = shaderOverlayTilemapManager.GetTileMap(shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World)).GetTile(position);
+                    Tilemap shaderMap = primaryShaderTilemap.GetTilemap(shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World));
+                    overlayTile = shaderMap.GetTile(position);
                 }
                 else
                 {
@@ -168,11 +169,6 @@ namespace TileMaps {
                 overlayTile,
                 tileItem?.tileOptions.overlayData
             );
-        }
-
-        public ShaderTilemapManager GetManager()
-        {
-            return shaderOverlayTilemapManager;
         }
     }
 }

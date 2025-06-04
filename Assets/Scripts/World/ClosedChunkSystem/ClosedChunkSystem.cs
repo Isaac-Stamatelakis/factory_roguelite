@@ -37,6 +37,8 @@ namespace Chunks.Systems {
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new();
         private List<ShaderTilemapManager> tileGridMapShaderMaps = new();
+        protected PrimaryShaderTilemap ShaderTilemap;
+        public PrimaryShaderTilemap PrimaryShaderTilemap => ShaderTilemap;
         protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new();
         protected PlayerScript player;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
@@ -350,15 +352,17 @@ namespace Chunks.Systems {
             }
         }
         
-        public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
+        public IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
             
             chunkPartition.UnloadEntities();
-            fluidTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
-            loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
+            Vector2Int partitionPosition = chunkPartition.GetRealPosition();
+            fluidTileMap?.Simulator.SetPartitionDisplayStatus(partitionPosition,false);
+            loadedPartitionBoundary.PartitionUnloaded(partitionPosition);
             
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
           
-            breakIndicator.UnloadPartition(chunkPartition.GetRealPosition());
+            breakIndicator.UnloadPartition(partitionPosition);
+            ShaderTilemap.UnloadPartition(partitionPosition);
         }
         
         public void OnDisable()
@@ -449,6 +453,11 @@ namespace Chunks.Systems {
         {
             cachedChunks.TryGetValue(chunkPosition, out var chunk);
             return chunk;
+        }
+
+        public void SetShaderTilemap(PrimaryShaderTilemap primaryShaderTilemap)
+        {
+            this.ShaderTilemap = primaryShaderTilemap;
         }
     }
 

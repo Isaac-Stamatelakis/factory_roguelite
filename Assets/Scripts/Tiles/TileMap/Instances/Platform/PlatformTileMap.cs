@@ -35,6 +35,7 @@ namespace Tiles.TileMap
         {
             base.Initialize(type);
             
+            primaryShaderTilemap = closedChunkSystem.PrimaryShaderTilemap;
             tileContainer = new TileBase[3]; // Max 3 tiles placed at once
             MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
             var slopeColliderExtendTile = miscDimAssets.SlopeExtendColliderTile;
