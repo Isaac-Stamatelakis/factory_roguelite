@@ -61,7 +61,7 @@ namespace Player.Mouse.TilePlaceSearcher
     }
     public static class TilePlacementSearcherFactory
     {
-        public static BaseTilePlacementSearcher GetSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript, TileType tileType)
+        public static BaseTilePlacementSearcher GetSearcher(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript, TileBase tileBase, TileType tileType)
         {
             switch (tileType)
             {
@@ -70,6 +70,10 @@ namespace Player.Mouse.TilePlaceSearcher
                 case TileType.Background:
                     return new BackgroundTilePlacementSearcher(closedChunkSystem,playerScript);
                 case TileType.Object:
+                    if (tileBase is IMousePositionStateTorchTile)
+                    {
+                        return new TorchTilePositionFinder(closedChunkSystem, playerScript);
+                    }
                     break;
                 case TileType.Platform:
                     return new PlatformTilePlacementSearcher(closedChunkSystem,playerScript);
@@ -372,6 +376,29 @@ namespace Player.Mouse.TilePlaceSearcher
             {
                 return true;
             }
+        }
+    }
+
+    public class TorchTilePositionFinder : BaseBfsTilePlacementSearcher
+    {
+        public TorchTilePositionFinder(ClosedChunkSystem closedChunkSystem, PlayerScript playerScript) : base(closedChunkSystem, playerScript)
+        {
+            Directions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            CollidableMaps = new List<IWorldTileMap>
+            {
+                closedChunkSystem.GetTileMap(TileMapType.Block)
+            };
+        }
+
+        protected override bool ValidCandidate(Vector2 candidateWorldPosition, TileItem candidateItem)
+        {
+            return true;
         }
     }
 }

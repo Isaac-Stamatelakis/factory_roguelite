@@ -492,7 +492,7 @@ namespace PlayerModule.Mouse {
             ItemSlot itemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot?.itemObject is TileItem tileItem)
             {
-                var searcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tileType);
+                var searcher = TilePlacementSearcherFactory.GetSearcher(currentSystem, playerScript, tileItem.tile, tileItem.tileType);
                 TileSearchResultCacher.SetSearcher(searcher);
                 return;
             }
