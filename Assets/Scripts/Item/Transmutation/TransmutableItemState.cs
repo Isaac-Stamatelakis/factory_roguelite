@@ -27,7 +27,8 @@ namespace Item.Transmutation
         Brick = 21,
         Brick_Wall = 22,
         Wall = 23,
-        Crystal = 24
+        Crystal = 24,
+        Shard = 25
     }
     
 
