@@ -240,9 +240,10 @@ namespace Chunks.Systems {
         private void CullShaderMaps()
         {
             double r = random.NextDouble();
-            if (r >= 0.03f) return;
+            if (r >= 0.5f) return;
             tileGridMapShaderMaps[lastShaderMapIndex].PushUnusedMaps();
             lastShaderMapIndex++;
+            
             lastShaderMapIndex %= tileGridMapShaderMaps.Count;
 
         }
