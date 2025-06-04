@@ -12,6 +12,7 @@ namespace Tiles.TileMap
     {
         private readonly HashSet<Vector2Int> tiles = new HashSet<Vector2Int>(1024);
         private ShaderTilemapManager shaderTilemapManager;
+        public ShaderTilemapManager Manager => shaderTilemapManager;
 
         public void Start()
         {
