@@ -596,13 +596,16 @@ namespace TileMaps.Place {
             if (!tileMap) return false;
 
             TileMapType hitMapType = tileMap.Type;
-            TileItem tile = tileMap?.GetTileItem(position);
+            TileItem tile = tileMap.GetTileItem(position);
             /*
              * This section is kind of confusing. If a tile is place breakable, we have to return false to allow tiles to
              * be placed on top of it. Since only 16x16 tiles can be place breakable, if the collider hits, but there is not a tile
              * at the position (cause its larger than 16x16) then return true. Otherwise, return false if the tile is place breakable.
             */
-            if (hitMapType != TileMapType.Object) return false; // Only objects may be place breakable (atleast for now)
+            if (hitMapType != TileMapType.Object)
+            {
+                return tile;
+            }
             if (!tile) return false;
             return !tile.tileOptions.placeBreakable;
         }

@@ -187,7 +187,7 @@ namespace Tiles.TileMap
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(vector2Int);
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition,TileMapLayer.Base);
-            
+            if (!tileItem) return;
             var transmutableItem = tileItem.tileOptions.TransmutableColorOverride;
             Material material = !transmutableItem ? null : itemRegistry.GetTransmutationWorldMaterial(transmutableItem);
             tilemap.SetTile(cellPosition,null);

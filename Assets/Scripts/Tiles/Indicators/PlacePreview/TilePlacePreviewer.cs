@@ -331,7 +331,7 @@ namespace TileMaps.Previewer {
             TileBase placementTileBase = tileBase is IStateTileSingle stateTile ? stateTile.GetTileAtState(autoState) : tileBase;
             if (!rotatable)
             {
-                placementTilemap.SetTile(placePosition,tileBase);
+                placementTilemap.SetTile(placePosition,placementTileBase);
                 return;
             }
             
