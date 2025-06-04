@@ -10,6 +10,7 @@ using Misc;
 using DevTools.Structures;
 using TileEntity.Instances.Creative.CreativeChest;
 using UnityEngine.Serialization;
+using World.Structures.Restriction;
 using Random = System.Random;
 
 
@@ -62,7 +63,7 @@ namespace WorldModule.Caves {
                     placementAttempts--;
                     continue;
                 }
-                
+                Debug.Log(randomPosition.Value);
                 placedStructures[(Vector2Int)randomPosition] = variant;
                 AreaStructureDistributorUtils.PlaceStructure(worldTileData,(Vector2Int)randomPosition, variant.Data, variant.Size);
                 return;
@@ -98,8 +99,44 @@ namespace WorldModule.Caves {
                 return null;
             }
 
-            Vector2Int randomPosition = GetRandomPosition(positionRestriction, structureSize, width, height);
-            return randomPosition;
+            BaseStructureRestriction structureRestriction = GetStructureRestriction(restriction,worldData,structureSize, new Vector2Int(width,height));
+            
+            if (restriction == StructureRestriction.None) return GetPosition();
+            
+            const int ATTEMPTS = 100;
+            int i = ATTEMPTS;
+            while (i > 0)
+            {
+                Vector2Int randomPosition = GetPosition();
+                if (structureRestriction.ValidateRestriction(randomPosition))
+                {
+                    return randomPosition;
+                }
+                i--;
+            }
+
+            return null;
+            Vector2Int GetPosition()
+            {
+                return GetRandomPosition(positionRestriction, structureSize, width, height);
+            }
+        }
+
+        public static BaseStructureRestriction GetStructureRestriction(StructureRestriction structureRestriction, SeralizedWorldData worldData, Vector2Int structureSize, Vector2Int areaSize)
+        {
+            return structureRestriction switch
+            {
+                StructureRestriction.None => null,
+                StructureRestriction.OnGround => new StructureGroundRestriction(worldData, areaSize, structureSize,
+                    StructureRestrictionTileType.Block, Direction.Down),
+                StructureRestriction.InAir => new StructureTileRestriction(worldData, areaSize, structureSize,
+                    StructureRestrictionTileType.All, false),
+                StructureRestriction.Hanging => new StructureGroundRestriction(worldData, areaSize, structureSize,
+                    StructureRestrictionTileType.Block, Direction.Up),
+                StructureRestriction.InFluid => new StructureTileRestriction(worldData, areaSize, structureSize,
+                    StructureRestrictionTileType.Fluid, true),
+                _ => throw new ArgumentOutOfRangeException(nameof(structureRestriction), structureRestriction, null)
+            };
         }
 
         private static Vector2Int GetRandomPosition(StructurePositionRestriction positionRestriction, Vector2Int structureSize, int width, int height)
