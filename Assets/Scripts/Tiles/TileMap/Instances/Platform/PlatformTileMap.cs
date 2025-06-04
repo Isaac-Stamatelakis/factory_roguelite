@@ -29,7 +29,6 @@ namespace Tiles.TileMap
         private PlatformSlopeTileMaps rightSlopeMaps;
         private Matrix4x4 cachedMatrix;
         private ItemRegistry itemRegistry;
-        private ShaderTilemapManager shaderTilemapManager;
         private TileBase emptyTile;
         public override void Initialize(TileMapType type)
         {
@@ -45,7 +44,6 @@ namespace Tiles.TileMap
             leftSlopeMaps = InitializeSlopeMap(SlopeRotation.Left);
             rightSlopeMaps = InitializeSlopeMap(SlopeRotation.Right);
             itemRegistry = ItemRegistry.GetInstance();
-            shaderTilemapManager = new ShaderTilemapManager(transform, -0.1f, false, TileMapType.Platform);
             
             return;
             PlatformSlopeTileMaps InitializeSlopeMap(SlopeRotation rotation)
@@ -152,7 +150,7 @@ namespace Tiles.TileMap
                     tilemap.SetColor(vector3Int,color);
                     return;
                 }
-                Tilemap shaderMap = shaderTilemapManager.GetTileMap(material);
+                Tilemap shaderMap = primaryShaderTilemap.GetTilemapForPlacement(position, material);
                 shaderMap.SetTile(vector3Int, tile);
                 shaderMap.SetTransformMatrix(vector3Int,cachedMatrix);
                 if (color == Color.white) return;
@@ -192,10 +190,6 @@ namespace Tiles.TileMap
             var transmutableItem = tileItem.tileOptions.TransmutableColorOverride;
             Material material = !transmutableItem ? null : itemRegistry.GetTransmutationWorldMaterial(transmutableItem);
             tilemap.SetTile(cellPosition,null);
-            if (material)
-            {
-                shaderTilemapManager.GetTileMap(material).SetTile(cellPosition,null);
-            }
             
             int state = baseTileData.state;
             bool sloped = state >= (int)PlatformTileState.SlopeDeco;
@@ -309,16 +303,8 @@ namespace Tiles.TileMap
 
         public void FillShaderList(List<ShaderTilemapManager> managers)
         {
-            managers.Add(shaderTilemapManager);
             leftSlopeMaps.AddShaperMapsToList(managers);
             rightSlopeMaps.AddShaperMapsToList(managers);
         }
-    }
-    
-    public enum PlatformPlacementMode
-    {
-        Flat,
-        Slope,
-        Update
     }
 }
