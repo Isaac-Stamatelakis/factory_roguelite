@@ -17,7 +17,7 @@ namespace Entities.Mob.CrystalCrawler
         [SerializeField] private SpriteRenderer mBodyRenderer;
         [SerializeField] private SpriteRenderer mCrystalRenderer;
         [SerializeField] private SpriteRenderer mEyeRenderer;
-        
+        [SerializeField] private float hueRotation = 0.3f;
         private int colorBitMap;
         public SerializableMobComponentType ComponentType => SerializableMobComponentType.CrystalCrawler;
 
@@ -40,14 +40,23 @@ namespace Entities.Mob.CrystalCrawler
 
             Color color = FromBitMap(colorBitMap);
             Color.RGBToHSV(color, out float h, out float s, out float v);
-            h += 0.3f;
+            h += hueRotation;
+           
+
+            float colorHue = h -= hueRotation;
+            if (h < 1)
+            {
+                colorHue += 1;
+            }
+            
             h %= 1;
             
+            Color eyeColor = Color.HSVToRGB(colorHue, s, v);
             Color bodyColor = Color.HSVToRGB(h, s, v);
-            
             
             mBodyRenderer.color = bodyColor;
             mCrystalRenderer.color = color;
+            mEyeRenderer.color = eyeColor;
         }
 
         public int ColorToInt(Color32 color)

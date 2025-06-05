@@ -34,6 +34,15 @@ namespace Items {
         public abstract Sprite GetSprite();
         public abstract ItemDisplayType? getDisplayType();
         public abstract GameStageObject GetGameStageObject();
+
+        public Tier GetTier()
+        {
+            GameStageObject gameStageObject = GetGameStageObject();
+            if (!gameStageObject) return Tier.Untiered;
+            if (gameStageObject is TieredGameStage tieredGameStage) return tieredGameStage.Tier;
+            if (gameStageObject.GetGameStageName() == "DISABLED" || gameStageObject.GetGameStageName() == "HIDE") return Tier.Disabled;
+            return Tier.Untiered;
+        }
         /// <summary>
         /// Sets game stage object of item object
         /// </summary>

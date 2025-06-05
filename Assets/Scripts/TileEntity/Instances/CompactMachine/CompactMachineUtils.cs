@@ -72,7 +72,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public static string GetCompactMachineHashFoldersPath()
         {
-            return Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), COMPACT_MACHINE_PATH);
+            return Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.GetInstance().GetWorldName()), COMPACT_MACHINE_PATH);
         }
         public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;

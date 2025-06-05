@@ -43,6 +43,7 @@ using UI.Indicators;
 using UI.Indicators.General;
 using UI.ToolTip;
 using UnityEngine.InputSystem;
+using WorldModule;
 using MoveDirection = Robot.Tool.MoveDirection;
 
 namespace PlayerModule.Mouse {
@@ -519,12 +520,18 @@ namespace PlayerModule.Mouse {
 
         public void SyncTilePlacementCooldown()
         {
+            if (WorldManager.GetInstance().WorldLoadType == WorldManager.WorldType.Structure)
+            {
+                placeCooldown = 0;
+                return;
+            }
             float tilePlacementUpgrades = RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.TilePlacementRate);
             const float MIN_PLACEMENT_RATE = 0.25f;
             const float MAX_PLACEMENT_RATE = 0.0f;
             const int MAX_UPGRADES = 10;
             placeCooldown = Mathf.Lerp(MIN_PLACEMENT_RATE,MAX_PLACEMENT_RATE,tilePlacementUpgrades/MAX_UPGRADES);
         }
+        
         
 
         public void UpdateOnToolChange()

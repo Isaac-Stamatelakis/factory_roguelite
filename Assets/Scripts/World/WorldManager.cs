@@ -26,7 +26,7 @@ namespace WorldModule {
         private WorldManager() {
             worldName = "world0"; // Default
         }
-        public static WorldManager getInstance()
+        public static WorldManager GetInstance()
         {
             {
                 if (instance == null)

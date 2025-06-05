@@ -57,7 +57,8 @@ namespace TileEntity.Instances.Machine.UI
                 {
                     outputs.Add(new List<ItemSlot>{outputSlot});
                 }
-                int randomIndex = UnityEngine.Random.Range(0, inputs.Count);
+
+                int randomIndex = transmutationDisplayableRecipe.InitialDisplayIndex;
                 InitializeTransmutationSwitchUIRecipe(
                     solidInputUI, 
                     transmutationDisplayableRecipe.InputState == ItemState.Solid ? inputs : null, 

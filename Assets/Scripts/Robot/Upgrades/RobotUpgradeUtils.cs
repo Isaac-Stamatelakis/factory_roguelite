@@ -52,6 +52,31 @@ namespace Robot.Upgrades
             }
         }
 
+        public static RobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath, List<RobotUpgradeData> nodes)
+        {
+            SerializedRobotUpgradeNodeNetwork sNetwork = DeserializeRobotNodeNetwork(upgradePath);
+            return FromSerializedNetwork(sNetwork,nodes);
+        }
+
+        public static void MaxOutUpgrades(PlayerScript playerScript, string upgradePath, List<RobotUpgradeData> nodes)
+        {
+            RobotUpgradeNodeNetwork robotUpgradeNodeNetwork = DeserializeRobotNodeNetwork(upgradePath,nodes);
+            foreach (var node in robotUpgradeNodeNetwork.UpgradeNodes)
+            {
+                ApplyUpgrade(playerScript,RobotUpgradeType.Robot,0,node,robotUpgradeNodeNetwork.UpgradeNodes,-9999); // Reset
+                ApplyUpgrade(playerScript,RobotUpgradeType.Robot,0,node,robotUpgradeNodeNetwork.UpgradeNodes,100);
+            }
+        }
+
+        public static void ResetUpgrades(PlayerScript playerScript, string upgradePath, List<RobotUpgradeData> nodes)
+        {
+            RobotUpgradeNodeNetwork robotUpgradeNodeNetwork = DeserializeRobotNodeNetwork(upgradePath,nodes);
+            foreach (var node in robotUpgradeNodeNetwork.UpgradeNodes)
+            {
+                ApplyUpgrade(playerScript,RobotUpgradeType.Robot,0,node,robotUpgradeNodeNetwork.UpgradeNodes,-9999); // Reset
+            }
+        }
+        
         public static RobotUpgradeLoadOut DeserializeRobotStatLoadOut(string json)
         {
             if (json == null) return null;
@@ -72,6 +97,46 @@ namespace Robot.Upgrades
             if (distanceFromPlayer <= RobotUpgradeUtils.BASE_REACH) return true;
             float bonusReach = RobotUpgradeUtils.GetContinuousValue(selfLoadOuts, (int)RobotUpgrade.Reach);
             return (distanceFromPlayer > RobotUpgradeUtils.BASE_REACH + bonusReach);
+        }
+
+        internal static void ApplyUpgrade(PlayerScript playerScript, RobotUpgradeType robotUpgradeType, int subType, RobotUpgradeNode robotUpgradeNode, List<RobotUpgradeNode> robotUpgradeNodes, int amount)
+        {
+            RobotUpgradeInfo upgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(robotUpgradeType, subType);
+            List<int> constUpgrades = upgradeInfo.GetConstantUpgrades();
+            int upgrade = robotUpgradeNode.NodeData.UpgradeType;
+            robotUpgradeNode.InstanceData.Amount += amount;
+            if (robotUpgradeNode.InstanceData.Amount < 0)
+            {
+                robotUpgradeNode.InstanceData.Amount = 0;
+            }
+            
+            if (constUpgrades.Contains(upgrade))
+            {
+                UpdateConstantValues(playerScript.PlayerRobot,upgrade);
+            }
+            return;
+            void UpdateConstantValues(PlayerRobot playerRobot, int constantUpgrade)
+            {
+                int totalUpgrades = 0;
+                foreach (var node in robotUpgradeNodes)
+                {
+                    if (node.NodeData.UpgradeType != constantUpgrade) continue;
+                    totalUpgrades += node.InstanceData.Amount;
+                }
+            
+                RobotStatLoadOutCollection loadOutCollection = playerRobot.RobotUpgradeLoadOut.GetCollection(robotUpgradeType, subType);
+                foreach (RobotStatLoadOut robotStatLoadOut in loadOutCollection.LoadOuts)
+                {
+                    if (robotStatLoadOut.DiscreteValues.ContainsKey(constantUpgrade))
+                    {
+                        robotStatLoadOut.DiscreteValues[constantUpgrade] = totalUpgrades;
+                    } else if (robotStatLoadOut.ContinuousValues.ContainsKey(constantUpgrade))
+                    {
+                        robotStatLoadOut.DiscreteValues[constantUpgrade] = totalUpgrades;
+                    }
+                }
+            }
+            
         }
         public static RobotUpgradeLoadOut VerifyIntegrityOfLoadOut(RobotUpgradeLoadOut loadOut, RobotItemData robotItemData)
         {

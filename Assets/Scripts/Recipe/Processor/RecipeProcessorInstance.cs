@@ -320,12 +320,11 @@ namespace Recipe.Processor
         public List<DisplayableRecipe> GetAllRecipesToDisplay()
         {
             List<DisplayableRecipe> recipes = new List<DisplayableRecipe>();
-            foreach (var kvp in modeRecipeDict)
+            foreach (var (mode, recipeObjectDict) in modeRecipeDict)
             {
-                int mode = kvp.Key;
-                foreach (var recipeKvp in kvp.Value)
+                foreach (var (_, recipeObjects) in recipeObjectDict)
                 {
-                    foreach (ItemRecipeObjectInstance recipeInstance in recipeKvp.Value)
+                    foreach (ItemRecipeObjectInstance recipeInstance in recipeObjects)
                     {
                         var outputs = ItemSlotFactory.EditToChanceSlots(recipeInstance.ItemRecipeObject.Outputs);
                         ItemSlotUtils.sortInventoryByState(recipeInstance.Inputs,out var solidInputs, out var fluidInputs);
@@ -498,7 +497,6 @@ namespace Recipe.Processor
 
         public static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, ItemSlot itemSlot)
         {
-            
             switch (recipeData.Recipe)
             {
                 case ItemRecipeObject itemRecipeObject:

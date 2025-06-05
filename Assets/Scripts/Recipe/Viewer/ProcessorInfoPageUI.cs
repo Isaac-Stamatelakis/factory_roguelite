@@ -17,7 +17,7 @@ namespace Recipe.Viewer
         private RecipeProcessorDisplayInfo recipeProcessorDisplayInfo;
         private IRecipeProcessorUI recipeProcessorUI;
         private RecipeRequirementUI recipeCostUI;
-        
+        private ProcessorCostRotatorUI processorCostRotatorUI;
         public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
             recipeProcessorDisplayInfo = (RecipeProcessorDisplayInfo)element;
@@ -37,14 +37,18 @@ namespace Recipe.Viewer
                 DisplayRecipeCost(itemDisplayableRecipe);
             } else if (displayableRecipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
             {
-                ProcessorCostRotatorUI processorCostRotatorUI = gameObject.AddComponent<ProcessorCostRotatorUI>();
+                transmutationDisplayableRecipe.RandomizeStartIndex();
+                if (!processorCostRotatorUI)
+                {
+                    processorCostRotatorUI = gameObject.AddComponent<ProcessorCostRotatorUI>();
+                }
                 processorCostRotatorUI.Initialize(transmutationDisplayableRecipe,DisplayRecipeCost);
             }
         }
 
         private void DisplayRecipeCost(ItemDisplayableRecipe itemDisplayableRecipe)
         {
-            var costString = RecipeViewerHelper.GetRecipeCostStrings(
+            var costString = RecipeViewerHelper.GetCostStringsFromItemDisplayable(
                 itemDisplayableRecipe,
                 recipeProcessorDisplayInfo.RecipeProcessorInstance.RecipeProcessorObject.RecipeType
             );

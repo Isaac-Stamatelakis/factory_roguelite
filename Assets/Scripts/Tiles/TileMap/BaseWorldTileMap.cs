@@ -12,8 +12,10 @@ using Chunks.Partitions;
 using Entities;
 using Item.Slot;
 using Items;
+using TileMaps.Layer;
 using Tiles.Options.Overlay;
 using Tiles.TileMap;
+using WorldModule;
 
 namespace TileMaps {
     public interface IHitableTileMap : IWorldTileMap{
@@ -64,6 +66,7 @@ namespace TileMaps {
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
         private float baseZValue;
+        private WorldManager.WorldType worldType;
 
         public virtual void Initialize(TileMapType type)
         {
@@ -78,6 +81,7 @@ namespace TileMaps {
                 tilemapCollider.maximumTileChangeCount=int.MaxValue; 
             }
             closedChunkSystem = transform.parent.GetComponentInParent<ClosedChunkSystem>();
+            worldType = WorldManager.GetInstance().WorldLoadType;
         }
         
         public virtual void AddPartition(IChunkPartition partition) {
@@ -158,10 +162,17 @@ namespace TileMaps {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
             if (!HasTile(vect)) return false;
+            IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
+            if (partition == null) return false;
+            
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);
+            TileItem tileItem = partition.GetTileItem(tilePositionInPartition,TileMapLayer.Base);
+            
+            if (!tileItem) return false;
+
+            if (!tileItem.tileOptions.hitable && worldType != WorldManager.WorldType.Structure) return false;
             
             BreakTile(hitTilePosition);
-            IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
-            Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);
             WriteTile(partition,tilePositionInPartition,null);
             CallListeners(hitTilePosition);
             return true;

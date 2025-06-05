@@ -174,8 +174,12 @@ public class EditorFactory
             Debug.Log("Invalid dimensions for texture");
             return null;
         }
-        
-        AssetDatabase.CreateFolder(spritePath, "Sprites");
+
+        if (!AssetDatabase.IsValidFolder(Path.Combine(spritePath, "Sprites")))
+        {
+            AssetDatabase.CreateFolder(spritePath, "Sprites");
+            AssetDatabase.Refresh();
+        }
         
         spritePath += "/Sprites/";
         int rows = texture.height/height;

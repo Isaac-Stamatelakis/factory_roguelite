@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.Burnables;
 using Item.Inventory;
 using Item.Inventory.ClickHandlers.Instances;
+using Item.Registry;
 using Item.Slot;
 using Items;
 using Items.Inventory;
@@ -31,27 +32,36 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         [SerializeField] private TextMeshProUGUI mModeText;
         private BurnerMachineInstance displayedInstance;
+        private BurnableItemRegistry burnableItemRegistry;
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
             if (tileEntityInstance is not BurnerMachineInstance burnerMachineInstance) return;
+
+            burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
             displayedInstance = burnerMachineInstance;
             title.text = tileEntityInstance.GetName();
             tileEntityInventoryUI.Display(burnerMachineInstance.GetItemInventory().Content,burnerMachineInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(burnerMachineInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddCallback(burnerMachineInstance.InventoryUpdate);
-
-            if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
-
+            
+            burnerInventoryUI.SetInputRestrictionCallBack(ValidateFunction);
+            
+            return;
             bool ValidateFunction(ItemObject itemObject, int index)
             {
                 if (!itemObject) return false;
+                uint duration = burnableItemRegistry.GetBurnDuration(itemObject);
+                
+                if (duration == 0) return false;
+
+                if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return true;
                 foreach (ItemObject whiteListedFuel in fuelRestriction.WhiteListedFuels)
                 {
                     if (whiteListedFuel?.id == itemObject.id) return true;
                 }
                 return false;
             }
-            burnerInventoryUI.SetInputRestrictionCallBack(ValidateFunction);
+            
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)
@@ -73,7 +83,7 @@ namespace TileEntity.Instances.Machine.UI
             {
                 burnableInventories.Add(new List<ItemSlot> { itemSlot });
             }
-            burnerRotator.Initialize(burnableInventories,1,100);
+            burnerRotator.Initialize(burnableInventories,1,TileEntityInventoryUI.TRANSMUTATION_ROTATE_RATE);
         }
 
         private List<ItemSlot> GetDisplayBurnables(DisplayableRecipe recipe)

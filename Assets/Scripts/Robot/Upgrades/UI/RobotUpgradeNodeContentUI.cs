@@ -189,14 +189,7 @@ namespace Robot.Upgrades
                 upgradeCostItemUI.Initialize(robotUpgradeNode,i,this);
             }
         }
-
-        private void IterateUpgradeAmount(int amount = 1)
-        {
-            robotUpgradeNode.InstanceData.Amount += amount;
-            networkUI.Display();
-            DisplayItemIcon();
-            DisplayItemCost();
-        }
+        
 
         public void OnUpgradeClick()
         {
@@ -205,8 +198,6 @@ namespace Robot.Upgrades
             if (robotUpgradeNode.InstanceData.Amount >= robotUpgradeNode.NodeData.UpgradeAmount) return;
             if (editable)
             {
-                int amount = Input.GetKeyDown(KeyCode.LeftShift) ? -1 : 1; // For testing
-                IterateUpgradeAmount(amount);
                 return;
             }
 
@@ -216,6 +207,8 @@ namespace Robot.Upgrades
             PlayerInventory playerInventory = playerScript.PlayerInventory;
 
             uint costMultiplier = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode);
+            
+            // Check if satisfies cost
             foreach (SerializedItemSlot serializedItemSlot in robotUpgradeNode.NodeData.Cost)
             {
                 ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
@@ -224,6 +217,7 @@ namespace Robot.Upgrades
                 if (playerAmount < itemSlot.amount) return;
             }
             
+            // Reduce items from player inventory
             foreach (SerializedItemSlot serializedItemSlot in robotUpgradeNode.NodeData.Cost)
             {
                 string id = serializedItemSlot.id;
@@ -243,40 +237,11 @@ namespace Robot.Upgrades
                     if (amount == 0) break;
                 }
             }
-            RobotUpgradeInfo upgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type,nodeNetwork.SubType);
-            List<int> constUpgrades = upgradeInfo.GetConstantUpgrades();
-            int upgrade = robotUpgradeNode.NodeData.UpgradeType;
-            if (constUpgrades.Contains(upgrade))
-            {
-                UpdateConstantValues(playerScript.PlayerRobot,upgrade);
-            }
             
-            IterateUpgradeAmount();
+            RobotUpgradeUtils.ApplyUpgrade(playerScript,nodeNetwork.Type,nodeNetwork.SubType,robotUpgradeNode,nodeNetwork.UpgradeNodes,1);
             networkUI.Display();
             DisplayItemIcon();
         }
-
-        private void UpdateConstantValues(PlayerRobot playerRobot, int upgrade)
-        {
-            int totalUpgrades = 0;
-            foreach (var node in nodeNetwork.UpgradeNodes)
-            {
-                if (node.NodeData.UpgradeType != upgrade) continue;
-                totalUpgrades += node.InstanceData.Amount;
-            }
-            
-            RobotStatLoadOutCollection loadOutCollection = playerRobot.RobotUpgradeLoadOut.GetCollection(nodeNetwork.Type, nodeNetwork.SubType);
-            foreach (RobotStatLoadOut robotStatLoadOut in loadOutCollection.LoadOuts)
-            {
-                if (robotStatLoadOut.DiscreteValues.ContainsKey(upgrade))
-                {
-                    robotStatLoadOut.DiscreteValues[upgrade] = totalUpgrades;
-                } else if (robotStatLoadOut.ContinuousValues.ContainsKey(upgrade))
-                {
-                    robotStatLoadOut.DiscreteValues[upgrade] = totalUpgrades;
-                }
-            }
-
-        }
+        
     }
 }

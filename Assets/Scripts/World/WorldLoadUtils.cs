@@ -36,7 +36,7 @@ namespace WorldModule {
         
         public static string GetWorldComponentPath(WorldFileType worldFileType)
         {
-            return GetWorldComponentPath(WorldManager.getInstance().GetWorldName(), worldFileType);
+            return GetWorldComponentPath(WorldManager.GetInstance().GetWorldName(), worldFileType);
         }
         
         public static string GetWorldComponentPath(string worldName, WorldFileType worldFileType)
@@ -184,7 +184,7 @@ namespace WorldModule {
 
         public static string GetCurrentWorldPath()
         {
-            return GetWorldPath(WorldManager.getInstance().GetWorldName());
+            return GetWorldPath(WorldManager.GetInstance().GetWorldName());
         }
         public static bool dimExists(string worldName, int dim) {
             string path = GetDimPath(dim);

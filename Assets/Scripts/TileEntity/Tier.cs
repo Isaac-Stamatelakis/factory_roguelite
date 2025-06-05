@@ -4,16 +4,18 @@ using UnityEngine;
 
 namespace TileEntity{
     public enum Tier {
-        Basic,
-        Advanced,
-        Elite,
-        Master,
-        Ultimate,
-        Paramount,
-        Stellar,
-        Transcendent,
-        Zenith,
-        Infinity
+        Untiered = -1,
+        Basic = 0,
+        Advanced = 1,
+        Elite = 2,
+        Master = 3,
+        Ultimate = 4,
+        Paramount = 5,
+        Stellar = 6,
+        Transcendent = 7,
+        Zenith = 8,
+        Infinity = 9,
+        Disabled = 99
     }
 
     public static class TierUtils {
@@ -22,8 +24,8 @@ namespace TileEntity{
         }
         public static ulong GetMaxEnergyUsage(this Tier tier)
         {
-            const ulong baseEnergy = 32;
-            return baseEnergy << (2*(int)tier);
+            const ulong baseEnergy = 8;
+            return baseEnergy << (2*((int)tier+1));
         }
         public static uint GetFluidStorage(this Tier tier) {
             const uint baseStorage = 8192;

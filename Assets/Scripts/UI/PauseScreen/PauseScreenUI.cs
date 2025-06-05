@@ -23,7 +23,7 @@ namespace UI.PauseScreen
             //Time.timeScale = 0f;
             uiAssetManager.load();
             resumeButton.onClick.AddListener(MainCanvasController.Instance.PopStack);
-            WorldManager worldManager = WorldManager.getInstance();
+            WorldManager worldManager = WorldManager.GetInstance();
 
             if (worldManager?.WorldLoadType == WorldManager.WorldType.Structure)
             {

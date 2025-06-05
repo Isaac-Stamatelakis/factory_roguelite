@@ -9,6 +9,7 @@ using Tiles.CustomTiles.IdTiles;
 public class RandomTileGenerator : EditorWindow {
     private string tileName;
     private Texture2D texture;
+    private readonly EditorTileItemRebuilder itemRebuilder = new EditorTileItemRebuilder();
     private int width = 1;
     private int height = 1;
     [MenuItem("Tools/Item Constructors/Tile/Random")]
@@ -48,6 +49,9 @@ public class RandomTileGenerator : EditorWindow {
         {
             createTileItems();
         }
+        itemRebuilder.DisplayGUI(Rebuild, ref tileName);
+        
+        
     }
 
     void createTileItems()
@@ -61,17 +65,9 @@ public class RandomTileGenerator : EditorWindow {
         }
         
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        string collectionPath = "Assets/EditorCreations/" + tileName;
+        string collectionPath = Path.Combine("Assets/EditorCreations", tileName);
         AssetDatabase.Refresh();
-        Sprite[] sprites = EditorFactory.SpritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName,16,16);
-        Debug.Log(sprites.Length);
-        AssetDatabase.Refresh();
-        RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
-        randomTile.m_Sprites = sprites;
-        randomTile.sprite = sprites[0];
-        ItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);
-        AssetDatabase.Refresh();
-        AssetDatabase.CreateAsset(randomTile,path + "T~" + tileName + ".asset");
+        var randomTile =  BuildRandomTile(collectionPath);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
@@ -81,5 +77,28 @@ public class RandomTileGenerator : EditorWindow {
         );
 #pragma warning restore CS0618 // Type or member is obsolete
         AssetDatabase.Refresh();
+    }
+
+    RandomTile BuildRandomTile(string path)
+    {
+        Sprite[] sprites = EditorFactory.SpritesFromTexture(texture,path, tileName,16,16);
+        AssetDatabase.Refresh();
+        RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
+        randomTile.m_Sprites = sprites;
+        randomTile.sprite = sprites[0];
+        ItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);
+        AssetDatabase.Refresh();
+        AssetDatabase.CreateAsset(randomTile,Path.Combine(path, "T~" + tileName + ".asset"));
+        return randomTile;
+    }
+    
+    private void Rebuild()
+    {
+        itemRebuilder.DeleteOldTileAssets();
+        string itemPath = itemRebuilder.GetItemPath();
+        string itemFolderPath = Path.GetDirectoryName(itemPath);
+        RandomTile randomTile = BuildRandomTile(itemFolderPath);
+        itemRebuilder.ReplaceTile(randomTile);
+        Debug.Log($"Rebuilt {tileName} at {itemPath}");
     }
 }
