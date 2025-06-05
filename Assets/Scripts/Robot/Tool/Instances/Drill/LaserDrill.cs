@@ -403,8 +403,6 @@ namespace Robot.Tool.Instances
             if (veinMinePower > 1)
             {
                 WorldTileMap worldTileMap = GetWorldTileGridMap(closedChunkSystem);
-                IOutlineTileGridMap outlineTileGridMap = worldTileMap as IOutlineTileGridMap;
-                if (outlineTileGridMap == null) return null;
                 TileItem tileItem = worldTileMap.getTileItem(cellPosition);
           
                 if (!tileItem) return null;
@@ -415,15 +413,15 @@ namespace Robot.Tool.Instances
                 Dictionary<Vector2Int, OutlineTileMapCellData> veinMineTiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
                 foreach (Vector2Int position in brokenPositions)
                 {
-                    veinMineTiles[position] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
+                    veinMineTiles[position] = worldTileMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
                 }
                 return veinMineTiles;
             }
             
-            List<IWorldTileMap> worldTileGridMaps = new List<IWorldTileMap>
+            List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
             {
-                closedChunkSystem.GetTileMap(TileMapType.Block),
-                closedChunkSystem.GetTileMap(TileMapType.Object)
+                (WorldTileMap)closedChunkSystem.GetTileMap(TileMapType.Block),
+                (WorldTileMap)closedChunkSystem.GetTileMap(TileMapType.Object)
             };
 
             
@@ -433,19 +431,11 @@ namespace Robot.Tool.Instances
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
-                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    foreach (var tileGridMap in worldTileGridMaps)
                     {
                         if (!tileGridMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
-                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
-                        {
-                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
-                        }
-                        else
-                        {
-                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
-                        }
-                         
+                        tiles[breakPosition] = tileGridMap.GetOutlineCellData(vector3Int);
                     }
                     
                 }

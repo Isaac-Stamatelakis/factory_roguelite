@@ -82,7 +82,7 @@ namespace Recipe.Processor
             foreach (var slot in slots)
             {
                 string id = slot.Id;
-                if (!includedIds.Add(id)) continue;
+                if (string.IsNullOrEmpty(id) || !includedIds.Add(id)) continue;
                 if (!dict.ContainsKey(id))
                 {
                     dict[id] = new List<ushort>();

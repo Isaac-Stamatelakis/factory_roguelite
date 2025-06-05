@@ -332,19 +332,11 @@ namespace Robot.Tool.Instances
                 for (int y = -multiHits; y <= multiHits; y++)
                 {
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
-                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    foreach (var worldTileMap in worldTileGridMaps)
                     {
-                        if (!tileGridMap.HasTile(breakPosition)) continue;
+                        if (!worldTileMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
-                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
-                        {
-                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
-                        }
-                        else
-                        {
-                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
-                        }
-                        
+                        tiles[breakPosition] = worldTileMap.GetOutlineCellData(vector3Int);
                     }
                     
                 }

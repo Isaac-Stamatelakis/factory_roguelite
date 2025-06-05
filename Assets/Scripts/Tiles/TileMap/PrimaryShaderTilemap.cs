@@ -11,6 +11,8 @@ namespace Tiles.TileMap
     public class PrimaryShaderTilemap : MonoBehaviour
     {
         private readonly HashSet<Vector2Int> tiles = new HashSet<Vector2Int>(1024);
+        private Tilemap defaultOverlayMap;
+        
         private ShaderTilemapManager shaderTilemapManager;
         public ShaderTilemapManager Manager => shaderTilemapManager;
         
@@ -27,9 +29,9 @@ namespace Tiles.TileMap
             return shaderTilemapManager.GetTileMap(material);
         }
 
-        public Tilemap GetTilemap([NotNull] Material material)
+        public Tilemap GetTilemap(Material material)
         {
-            return shaderTilemapManager.GetTileMap(material);
+            return !material ? defaultOverlayMap : shaderTilemapManager.GetTileMap(material);
         }
 
         public void RemoveTile(Vector2Int cellPosition)

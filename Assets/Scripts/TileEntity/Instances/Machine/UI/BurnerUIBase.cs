@@ -74,8 +74,6 @@ namespace TileEntity.Instances.Machine.UI
                 burnableInventories.Add(new List<ItemSlot> { itemSlot });
             }
             burnerRotator.Initialize(burnableInventories,1,100);
-            
-           
         }
 
         private List<ItemSlot> GetDisplayBurnables(DisplayableRecipe recipe)

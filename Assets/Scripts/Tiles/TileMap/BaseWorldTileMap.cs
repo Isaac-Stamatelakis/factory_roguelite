@@ -12,6 +12,7 @@ using Chunks.Partitions;
 using Entities;
 using Item.Slot;
 using Items;
+using Tiles.Options.Overlay;
 using Tiles.TileMap;
 
 namespace TileMaps {
@@ -43,7 +44,6 @@ namespace TileMaps {
         public ClosedChunkSystem GetSystem();
         public void BreakTile(Vector2Int position);
         public ItemObject GetItemObject(Vector2Int position);
-        public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition);
         public Vector2Int GetHitTilePosition(Vector2 position);
     }
     
@@ -221,22 +221,6 @@ namespace TileMaps {
         }
 
         public abstract ItemObject GetItemObject(Vector2Int position);
-        public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition)
-        {
-            // TODO MIGHT HAVE TO ADD SUPPORT TO OBJECTS FOR THIS
-            TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(cellPosition.x, cellPosition.y));
-            Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride);
-            return new OutlineTileMapCellData(
-                tilemap.GetTile(cellPosition), 
-                null,
-                tilemap.GetTransformMatrix(cellPosition).rotation,
-                tilemap.GetTransformMatrix(cellPosition).rotation,
-                tilemap.GetColor(cellPosition),
-                material,
-                null,
-                null
-            );
-        }
 
         public abstract bool BreakAndDropTile(Vector2Int position, bool dropItem);
 

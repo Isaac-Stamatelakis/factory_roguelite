@@ -68,7 +68,6 @@ namespace PlayerModule.Mouse {
         private ToolClickHandlerCollection toolClickHandlerCollection;
         private ToolPreviewController previewController = new ToolPreviewController();
         private AutoTileFinder autoTileFinder;
-        private TileHighlighter tileHighlighter;
         private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
         private AutoSelectMode autoSelectMode;
@@ -93,7 +92,6 @@ namespace PlayerModule.Mouse {
             playerTransform = transform;
             eventSystem = EventSystem.current;
             autoTileFinder = new AutoTileFinder(transform);
-            tileHighlighter = playerScript.TileViewers.TileHighlighter;
             tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
             canvasController = CanvasController.Instance;
         }
@@ -105,7 +103,6 @@ namespace PlayerModule.Mouse {
             {
                 case AutoSelectMode.None:
                     tileBreakHighlighter.Clear();
-                    tileHighlighter.Hide();
                     ToolTipController.Instance.HideToolTip(ToolTipType.World);
                     highlightPosition = null;
                     break;
@@ -115,7 +112,6 @@ namespace PlayerModule.Mouse {
                     break;
                 case AutoSelectMode.TileEntity:
                     tileBreakHighlighter.Clear();
-                    tileHighlighter.Hide();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -196,20 +192,12 @@ namespace PlayerModule.Mouse {
             }
             
             tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
-            OutlineTileMapCellData outlineTileMapCellData;
-            Vector2Int cellPosition;
-            if (hitMap is IOutlineTileGridMap outlineTileGridMap)
-            {
-                cellPosition = Global.WorldToCell(toolHitPosition);
-                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-                outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
-            }
-            else
-            {
-                cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
-                outlineTileMapCellData = hitMap.FormatMainTileMapOutlineData(new Vector3Int(cellPosition.x, cellPosition.y, 0));
-            }
-                   
+            ITileGridMap tileGridMap = (ITileGridMap)hitMap;
+            
+            var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
+            Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+            var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
+            
             tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
@@ -233,7 +221,7 @@ namespace PlayerModule.Mouse {
             }
             ToolTipController.Instance.HideToolTip(ToolTipType.World);
             highlightPosition = null;
-            tileHighlighter.Hide();
+            tileBreakHighlighter.Clear();
         }
         
 
@@ -249,7 +237,7 @@ namespace PlayerModule.Mouse {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
-            tileHighlighter.Highlight(position, worldTileGridMap.GetTileItem(position),tilemap.GetTilemap());
+            tileBreakHighlighter.Display(new Vector2Int(cellPosition.x, cellPosition.y), worldTileGridMap.GetOutlineCellData(cellPosition));
             highlightPosition = position;
             return true;
         }

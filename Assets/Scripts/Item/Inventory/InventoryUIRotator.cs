@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.Slot;
 using Items.Inventory;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Random = System.Random;
 
 namespace Item.Inventory
@@ -40,6 +41,7 @@ namespace Item.Inventory
 
         public void FixedUpdate()
         {
+            if (Keyboard.current.shiftKey.isPressed) return;
             if (ReferenceEquals(inventories, null) || ReferenceEquals(inventoryUI, null)) return;
             counter++;
             if (counter % updateTime != 0) return;
