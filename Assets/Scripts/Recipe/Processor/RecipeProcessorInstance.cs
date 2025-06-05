@@ -479,6 +479,7 @@ namespace Recipe.Processor
                 case RecipeType.Machine:
                 {
                     Tier tier = material.GetTier();
+                    Debug.Log(tier.DisplayName());
                     ulong usage = tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);

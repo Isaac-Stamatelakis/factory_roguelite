@@ -16,7 +16,8 @@ namespace Item.Inventory
         private int updateTime;
         private List<List<ItemSlot>> inventories;
         private int displaySize;
-        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true, int initialIndex = 0)
+        private Action<int> onRotateCallback;
+        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true, int initialIndex = 0, Action<int> onRotateCallback = null)
         {
             inventoryUI = GetComponent<InventoryUI>();
             if (inventories.Count == 0)
@@ -27,6 +28,7 @@ namespace Item.Inventory
             }
             this.inventories = inventories;
             this.displaySize = displaySize;
+            this.onRotateCallback = onRotateCallback;
             this.updateTime = fixedUpdatesPerSwitch;
             index = initialIndex;
             
@@ -39,6 +41,11 @@ namespace Item.Inventory
             inventoryUI.DisplayInventory(inventories[index],displaySize,clear);
         }
 
+        public void SetCallback(Action<int> callback)
+        {
+            onRotateCallback = callback;
+        }
+
         public void FixedUpdate()
         {
             if (Keyboard.current.shiftKey.isPressed) return;
@@ -48,7 +55,7 @@ namespace Item.Inventory
             index++;
             index %= inventories.Count;
             inventoryUI.DisplayInventory(inventories[index], displaySize, false);
-            
+            onRotateCallback?.Invoke(index);
         }
     }
 }
