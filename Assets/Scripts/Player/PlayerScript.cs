@@ -111,7 +111,6 @@ namespace Player
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
             playerRobot.InitializeRobot(playerRobotItem,robotStatLoadOut);
             
-            
             playerMouse.Initialize();
             playerMouse.SyncTilePlacementCooldown();
             
