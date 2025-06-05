@@ -79,7 +79,9 @@ namespace Item.Transmutation
                 case TransmutableItemState.Poor_Gem:
                     return 16f;
                 case TransmutableItemState.Ore:
-                    return 1f;
+                    // Ore is unique. Although simple processing by pulverizing can give 2x, some other methods can give 
+                    // much more. Because of this, ore should NEVER be the result of a transmutation recipe.
+                    return 1/2f;
                 case TransmutableItemState.Brick:
                     break;
                 case TransmutableItemState.Brick_Wall:

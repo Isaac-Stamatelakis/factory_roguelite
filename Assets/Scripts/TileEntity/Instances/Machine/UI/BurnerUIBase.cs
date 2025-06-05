@@ -14,6 +14,7 @@ using Recipe.Viewer;
 using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machines;
 using TMPro;
+using UI;
 using Unity.VisualScripting;
 using UnityEngine;
 using ItemObject = Items.ItemObject;
@@ -27,6 +28,8 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private InventoryUI burnerInventoryUI;
         [SerializeField] private ArrowProgressController burnerProgress;
         [SerializeField] private ArrowProgressController machineProgress;
+        [SerializeField] private AmountIteratorUI amountIteratorUI;
+        [SerializeField] private TextMeshProUGUI mModeText;
         private BurnerMachineInstance displayedInstance;
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
@@ -55,6 +58,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             title.gameObject.SetActive(false);
             tileEntityInventoryUI.DisplayRecipe(recipe);
+            amountIteratorUI.gameObject.SetActive(false);
             
             burnerInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
             

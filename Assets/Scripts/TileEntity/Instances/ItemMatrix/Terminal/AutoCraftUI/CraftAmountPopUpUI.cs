@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Matrix {
             ItemSlotUI itemSlotUI = Instantiate(ItemSlotUIPrefab, itemContainer);
             itemSlotUI.Display(toCraft);
 
-            amountIteratorUI.setListener(this);
+            amountIteratorUI.SetListener(this);
 
             cancelButton.onClick.AddListener(() => {
                 CanvasController.Instance.PopStack();

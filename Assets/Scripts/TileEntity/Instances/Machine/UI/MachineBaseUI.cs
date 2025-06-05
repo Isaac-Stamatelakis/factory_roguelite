@@ -52,7 +52,7 @@ namespace TileEntity.Instances.Machine.UI
         private IMachineInstance displayedInstance;
         public void Start()
         {
-            amountIteratorUI.setListener(this);
+            amountIteratorUI.SetListener(this);
         }
 
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
