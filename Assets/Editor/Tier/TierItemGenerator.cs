@@ -259,7 +259,7 @@ namespace EditorScripts.Tier
         protected EditorItemSlot StateToItem(TransmutableItemState state, uint amount)
         {
             ItemObject itemObject = EditorUtils.GetTransmutableItemObject(tierItemInfoObject.PrimaryMaterial, state);
-            return new EditorItemSlot(itemObject, amount);
+            return new EditorItemSlot(itemObject?.id, amount);
         }
         
 
@@ -284,7 +284,7 @@ namespace EditorScripts.Tier
 
             public RandomEditorItemSlot ToRandomEditorSlot(uint amount, float chance = 1f)
             {
-                return new RandomEditorItemSlot(ItemObject, amount, chance);
+                return new RandomEditorItemSlot(ItemObject?.id, amount, chance);
             }
 
             public void SaveAssets()

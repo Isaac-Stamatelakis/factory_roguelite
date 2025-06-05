@@ -23,6 +23,12 @@ namespace Items.Transmutable {
         public TransmutableMaterialOptions MaterialOptions;
         [SerializeField] private TransmutationShaderPairObject ShaderMaterial;
         [SerializeField] private TransmutationShaderOptionObject ShaderOption;
+        
+
+        public Tier GetTier()
+        {
+            return !gameStageObject ? Tier.Basic : gameStageObject.Tier;
+        }
 
         public bool HasShaders => ShaderMaterial;
         

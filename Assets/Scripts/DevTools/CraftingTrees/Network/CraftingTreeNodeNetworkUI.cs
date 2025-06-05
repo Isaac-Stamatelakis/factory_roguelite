@@ -98,10 +98,10 @@ namespace DevTools.CraftingTrees.Network
         
         public ItemSlot GetItemSlot(TransmutationEfficency transmutationEfficency)
         {
-            TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
-            if (!transmutableItemObject) return null;
+            ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
+            if (transmutableItemObject == null) return null;
             uint amount = (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), transmutationEfficency.Value()));
-            return new ItemSlot(transmutableItemObject, amount,null);
+            return new ItemSlot((ItemObject)transmutableItemObject, amount,null);
         }
     }
 
@@ -358,8 +358,8 @@ namespace DevTools.CraftingTrees.Network
                 if (craftingInput.NodeType == CraftingTreeNodeType.Item)
                 {
                     ItemNodeData itemNodeData = (ItemNodeData)craftingInput.NodeData;
-                    TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
-                    if (!transmutableItemObject) return false;
+                    ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
+                    if (transmutableItemObject == null) return false;
                 }
                 if (craftingOutput.NetworkData.InputIds.Count == 0) return true;
                 return craftingOutput.NetworkData.InputIds.Contains(craftingInput.GetId());

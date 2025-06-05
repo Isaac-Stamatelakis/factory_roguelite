@@ -43,7 +43,7 @@ namespace Items.Transmutable
             return $"{prefix} {materialName} {suffix}";
         }
         
-        public static TransmutableItemObject GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
+        public static ITransmutableItem GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
         {
             const string DEFAULT_MATERIAL = "Iron";
             string name = GetStateName(null,DEFAULT_MATERIAL, transmutableItemState);
@@ -61,9 +61,7 @@ namespace Items.Transmutable
         {
             ITransmutableItem inputItem = GetMaterialItem(material, inputState);
             ITransmutableItem outputItem = GetMaterialItem(material, outputState);
-            uint gcd = GetGcd((uint)(1 / inputState.GetRatio()), (uint)(1 / outputState.GetRatio()));
-            uint inputAmount = (uint)(gcd * inputState.GetRatio() / efficency);
-            uint outputAmount = (uint)(gcd * outputState.GetRatio());
+            var (inputAmount, outputAmount) = GetInputOutputAmount(inputState, outputState, efficency);
             ItemSlot input = new ItemSlot((ItemObject)inputItem, inputAmount, null);
             ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount, null);
             return (input, output);
@@ -72,15 +70,29 @@ namespace Items.Transmutable
         public static float GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
             float efficency = 1f)
         {
-            uint gcd = GetGcd((uint)(inputState.GetRatio()), (uint)(outputState.GetRatio()));
             return outputState.GetRatio() / inputState.GetRatio() * efficency;
+        }
+
+        public static (uint, uint) GetInputOutputAmount(TransmutableItemState inputState,  TransmutableItemState outputState, float efficency = 1f)
+        {
+            float transmutationRatio = GetTransmutationRatio(inputState, outputState);
+            uint inputAmount = (uint)(transmutationRatio * inputState.GetRatio());
+            uint outputAmount = (uint)(transmutationRatio * outputState.GetRatio());
+            uint gcd = GetGcd(inputAmount,outputAmount);
+            inputAmount /= gcd;
+            outputAmount /= gcd;
+            return (inputAmount, outputAmount);
         }
         
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
         {
             ITransmutableItem outputItem = GetMaterialItem(material, outputState);
             float ratio = GetTransmutationRatio(inputState, outputState, efficency);
-            ItemSlot output = new ItemSlot((ItemObject)outputItem, (uint)ratio, null);
+            
+            uint inputAmount = (uint)(ratio * inputState.GetRatio());
+            uint outputAmount = (uint)(ratio * outputState.GetRatio());
+            uint gcd = GetGcd(inputAmount,outputAmount);
+            ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount/gcd, null);
             return output;
         }
 

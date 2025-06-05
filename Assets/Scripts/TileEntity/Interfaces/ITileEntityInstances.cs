@@ -16,6 +16,23 @@ namespace TileEntity {
     }
 
     /// <summary>
+    /// TileEntityObjects which implement this interface will display UIElements with a given Material. This has higher priority of TileEntities whose
+    /// TileItems have a TransmutableMaterialItem material
+    /// </summary>
+    public interface IMaterialOverrideUITileEntity : IUITileEntity
+    {
+        public Material GetUIMaterial();
+    }
+    
+    /// <summary>
+    /// TileEntityObjects which implement this interface will display UIElements with a given Color. This has higher priority of TileEntities whose
+    /// TileItems have a TransmutableMaterialItem color
+    /// </summary>
+    public interface IColorOverrideUITileEntity : IUITileEntity
+    {
+        public Color GetColor();
+    }
+    /// <summary>
     /// TileEntityObjects which implement this interface will have their Prefabs automatically loaded and unloaded by the TileEntityAssetRegistry.
     /// </summary>
     public interface IAssetTileEntity

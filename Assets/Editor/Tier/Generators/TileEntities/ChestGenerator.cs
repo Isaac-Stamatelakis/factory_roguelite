@@ -51,7 +51,7 @@ namespace EditorScripts.Tier.Generators
             chest.AssetReference = defaultValues.UIReferences.ChestUI;
             chest.ConduitLayout = defaultValues.ConduitPortLayouts.ItemInOut;
             
-            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 16, 1f);
+            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject?.id, 16, 1f);
             
             EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 4);
             EditorItemSlot screwInput = StateToItem(TransmutableItemState.Screw, 8);

@@ -43,11 +43,11 @@ namespace EditorScripts.Tier.Generators
             torch.color = Color.white;
             torch.positionInTile = Global.TILE_SIZE / 2 * Vector2.one;
             
-            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 8, 1f);
+            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject.id, 8, 1f);
             
             EditorItemSlot rodInput = StateToItem(TransmutableItemState.Rod, 3);
             ItemObject lightItem = EditorUtils.GetTransmutableItemObject(defaultValues.RecipeInputs.DefaultLightMaterial, TransmutableItemState.Shard);
-            EditorItemSlot lightInput = new EditorItemSlot(lightItem, 1);
+            EditorItemSlot lightInput = new EditorItemSlot(lightItem.id, 1);
          
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { rodInput,lightInput };
             AssignBasicItemRecipes(recipeOutput,inputs,50,tileEntityItemGenerationData.ItemGenerationData);

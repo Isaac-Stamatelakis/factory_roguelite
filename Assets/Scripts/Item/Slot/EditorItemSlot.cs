@@ -9,25 +9,19 @@ namespace Items
     [System.Serializable]
     public class EditorItemSlot
     {
-        public ItemObject ItemObject;
+        public string Id;
         public uint Amount;
-        public List<EditorKVP<ItemTag, EditorTagData>> Tags;
-
-        public EditorItemSlot(ItemObject itemObject, uint amount)
+        
+        public EditorItemSlot(string id, uint amount)
         {
-            ItemObject = itemObject;
+            Id = id;
             Amount = amount;
         }
     }
     [System.Serializable]
-    public class EditorKVP<T1, T2>
+    public class EditorKvp<T1, T2>
     {
         public T1 Item1;
         public T2 Item2;
     }
-    public abstract class EditorTagData
-    {
-        
-    }
-
 }

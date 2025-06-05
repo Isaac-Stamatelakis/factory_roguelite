@@ -4,6 +4,7 @@ using Item.Slot;
 using Item.Transmutation;
 using Items;
 using Items.Transmutable;
+using JetBrains.Annotations;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Viewer;
@@ -80,9 +81,7 @@ namespace Recipe.Processor
             var includedIds = new HashSet<string>();
             foreach (var slot in slots)
             {
-                if (!slot.ItemObject) continue;
-                if (ReferenceEquals(slot?.ItemObject, null)) continue;
-                string id = slot.ItemObject.id;
+                string id = slot.Id;
                 if (!includedIds.Add(id)) continue;
                 if (!dict.ContainsKey(id))
                 {
@@ -277,12 +276,12 @@ namespace Recipe.Processor
             }
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
             {
-                return default;
+                return null;
             }
             ulong hash = RecipeUtils.HashItemInputs(solidItems,fluidItems);
             if (!recipeDict.TryGetValue(hash, out var recipeObjects))
             {
-                return default;
+                return null;
             }
 
             return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
@@ -296,7 +295,9 @@ namespace Recipe.Processor
             
             foreach (RecipeData recipeData in collection.GetOutputRecipes(itemSlot))
             {
-                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
+                DisplayableRecipe displayableRecipe = RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot);
+                if (displayableRecipe == null) continue;
+                displayableRecipes.Add(displayableRecipe);
             }
 
             return displayableRecipes;
@@ -308,7 +309,9 @@ namespace Recipe.Processor
             
             foreach (RecipeData recipeData in collection.GetInputRecipes(itemSlot))
             {
-                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
+                DisplayableRecipe displayableRecipe = RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot);
+                if (displayableRecipe == null) continue;
+                displayableRecipes.Add(displayableRecipe);
             }
 
             return displayableRecipes;
@@ -453,7 +456,7 @@ namespace Recipe.Processor
             }
         }
         
-        public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType, TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
+        public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType,[NotNull] TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
         {
             List<ItemSlot> solid = null;
             List<ItemSlot> fluid = null;
@@ -474,10 +477,19 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
                 case RecipeType.Machine:
-                    if (ReferenceEquals(material.gameStageObject,null)) return null;
-                    ulong usage = material.gameStageObject.Tier.GetMaxEnergyUsage();
-                    ulong cost = 32 * usage; // TODO change this
+                {
+                    Tier tier = material.GetTier();
+                    ulong usage = tier.GetMaxEnergyUsage();
+                    ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
+                }
+                case RecipeType.Burner:
+                {
+                    Tier tier = material.GetTier();
+                    uint ticks = (uint)(tier+1) * 50;
+                    return new BurnerItemRecipe(solid,fluid, ticks, ticks,0);
+                }
+                    
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -520,6 +532,8 @@ namespace Recipe.Processor
             List<ItemSlot> fluidInput = null;
             List<ChanceItemSlot> fluidOutput = null;
             var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            if (ItemSlotUtils.IsItemSlotNull(output) || ItemSlotUtils.IsItemSlotNull(input)) return null;
+            
             var chanceOutput = ItemSlotFactory.ToChanceSlot(output);
             switch (inputMatterState)
             {

@@ -87,7 +87,17 @@ namespace TileEntity.AssetManagement
                 }
                 color = transmutableItemMaterial.color;
             }
-           
+
+            if (tileEntityInstance.GetTileEntity() is IMaterialOverrideUITileEntity materialOverrideUITileEntity)
+            {
+                material = materialOverrideUITileEntity.GetUIMaterial();
+            }
+
+            if (tileEntityInstance.GetTileEntity() is IColorOverrideUITileEntity colorOverrideUITileEntity)
+            {
+                color = colorOverrideUITileEntity.GetColor();
+            }
+            
             DisplayedUIInfo displayedUIInfo = new DisplayedUIInfo
             {
                 UIMaterial = material,

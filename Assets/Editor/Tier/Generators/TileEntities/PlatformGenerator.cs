@@ -30,7 +30,7 @@ namespace EditorScripts.Tier.Generators
             tileItem.tileType = TileType.Platform;
             tileItem.tileOptions.rotatable = true;
             
-            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(itemGenerationData.ItemObject, 16, 1f);
+            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(itemGenerationData.ItemObject.id, 16, 1f);
             
             EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 3);
             List<EditorItemSlot> inputs = new List<EditorItemSlot> { plateInput};

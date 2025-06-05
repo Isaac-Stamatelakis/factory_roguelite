@@ -25,7 +25,7 @@ namespace UI {
         private float timeHeld = 0f;
         private int updateCount = 0;
         private IAmountIteratorListener listener;
-        public void setListener(IAmountIteratorListener listener) {
+        public void SetListener(IAmountIteratorListener listener) {
             this.listener = listener;
             up.onClick.AddListener(() => {
                 listener.iterate(1);
@@ -36,6 +36,7 @@ namespace UI {
             upHold.init(this);
             downHold.init(this);
         }
+        
         public void callbackDown(Transform caller)
         {
             timeHeld = 0f;

@@ -31,14 +31,15 @@ namespace Item.Transmutation.Info
             mDefaultStateInventory.SetInteractMode(InventoryInteractMode.Recipe);
             
             List<ItemSlot> stateInventory = new List<ItemSlot>();
-            foreach (var stateOptions in material.MaterialOptions.States)
+            List<TransmutableItemState> states = material.MaterialOptions.GetAllStates();
+            foreach (var state in states)
             {
-                TransmutableItemState state = (TransmutableItemState)stateOptions.state;
                 if (state == material.MaterialOptions.BaseState) continue;
                 ITransmutableItem stateItem = TransmutableItemUtils.GetMaterialItem(material, state);
                 ItemSlot stateItemSlot = new ItemSlot((ItemObject)stateItem,1,null);
                 stateInventory.Add(stateItemSlot);
             }
+            
             mStateInventory.DisplayInventory(stateInventory);
             mStateInventory.SetInteractMode(InventoryInteractMode.Recipe);
         }

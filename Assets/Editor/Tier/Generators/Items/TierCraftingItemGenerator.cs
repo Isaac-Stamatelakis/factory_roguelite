@@ -75,7 +75,7 @@ namespace EditorScripts.Tier.Generators
                 case TierGeneratedCraftingItemType.RobotArm:
                 {
                     ItemObject motorItem = LookUpGeneratedItem(TierGeneratedItemType.Motor);
-                    EditorItemSlot motorInput = new EditorItemSlot(motorItem, 2);
+                    EditorItemSlot motorInput = new EditorItemSlot(motorItem.id, 2);
             
                     EditorItemSlot plateInput = StateToItem(TransmutableItemState.Plate, 8);
                     List<EditorItemSlot> inputs = new List<EditorItemSlot> { motorInput, plateInput };

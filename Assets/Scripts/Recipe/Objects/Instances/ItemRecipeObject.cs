@@ -30,7 +30,7 @@ namespace Recipe.Objects
     {
         [SerializeField, Range(0 , 1)] public float Chance = 1f;
 
-        public RandomEditorItemSlot(ItemObject itemObject, uint amount, float chance) : base(itemObject, amount)
+        public RandomEditorItemSlot(string id, uint amount, float chance) : base(id, amount)
         {
             Chance = chance;
         }

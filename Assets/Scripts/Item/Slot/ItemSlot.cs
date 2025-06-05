@@ -44,5 +44,10 @@ namespace Item.Slot
             }
         }
 
+        public override string ToString()
+        {
+            int tagCount = tags?.Dict?.Count ?? 0;
+            return $"Slot(item:{itemObject?.name},amount:{amount},tags{tagCount}";
+        }
     }
 }

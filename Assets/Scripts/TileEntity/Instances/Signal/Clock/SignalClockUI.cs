@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Signal {
             toggle.onValueChanged.AddListener((bool val) => {
                 signalClockInstance.ClockData.Active = val;
             });
-            amountIteratorUI.setListener(this);
+            amountIteratorUI.SetListener(this);
 
         }
 
