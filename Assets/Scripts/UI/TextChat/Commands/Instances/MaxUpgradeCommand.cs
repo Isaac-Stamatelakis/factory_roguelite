@@ -10,7 +10,6 @@ using Robot.Upgrades;
 using Robot.Upgrades.Network;
 
 namespace UI.Chat {
-    [Obsolete]
     public class MaxUpgradeCommand : ChatCommand, IAutoFillChatCommand
     {
         public const string NAME = "upgrade";
@@ -27,7 +26,8 @@ namespace UI.Chat {
         public override void execute()
         {
             if (parameters.Length < 2) throw new ChatParseException("Invalid number of parameters");
-            
+
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             string modifier = parameters[0];
             List<string> modifiers = GetAllModifiers();
             if (!modifiers.Contains(modifier)) throw new ChatParseException("Invalid modifier");
@@ -35,92 +35,57 @@ namespace UI.Chat {
             string target = parameters[1];
             List<string> targets = GetAllTargets();
             if (!targets.Contains(target)) throw new ChatParseException("Invalid target");
-            
-            List<List<RobotUpgradeData>> upgradeDataListCollection = new List<List<RobotUpgradeData>>();
+
+            List<UpgradePathNodeValues> upgradeData = new List<UpgradePathNodeValues>();
             switch (target)
             {
                 case ALL_TARGET:
-                    upgradeDataListCollection.Add(playerRobot.RobotData.RobotUpgrades);
-                    for (int i = 0; i < playerRobot.ToolTypes.Count; i++)
+                    upgradeData.Add(FromPlayer());
+                    for (var index = 0; index < playerRobot.ToolTypes.Count; index++)
                     {
-                        upgradeDataListCollection.Add(playerRobot.RobotData.ToolData.Upgrades[i]);
+                        upgradeData.Add(FromTool(index));
                     }
                     break;
                 case ROBOT_TARGET:
-                    upgradeDataListCollection.Add(playerRobot.RobotData.RobotUpgrades);
+                    upgradeData.Add(FromPlayer());
                     break;
                 default: // TOOL
                     int toolIndex = targets.IndexOf(target) - 2;
-                    upgradeDataListCollection.Add(playerRobot.RobotData.ToolData.Upgrades[toolIndex]);
+                    upgradeData.Add(FromTool(toolIndex));
                     break;
             }
+
 
             if (modifier == RESET_MODFIER)
             {
-                foreach (List<RobotUpgradeData> upgradeDataList in upgradeDataListCollection)
+                foreach (UpgradePathNodeValues upgradeValues in upgradeData)
                 {
-                    ResetUpgrades(upgradeDataList);
+                    RobotUpgradeUtils.ResetUpgrades(playerScript,upgradeValues.UpgradePath,upgradeValues.Nodes);
+                }
+            } else if (modifier == MAX_MODIFIER)
+            {
+                foreach (UpgradePathNodeValues upgradeValues in upgradeData)
+                {
+                    RobotUpgradeUtils.MaxOutUpgrades(playerScript,upgradeValues.UpgradePath,upgradeValues.Nodes);
                 }
             }
-            List<string> upgradePaths = new List<string>();
-            switch (target)
-            {
-                case ALL_TARGET:
-                    upgradePaths.Add(playerRobot.CurrentRobot.UpgradePath);
-                    upgradeDataListCollection.Add(playerRobot.RobotData.RobotUpgrades);
-                    foreach (var robotTool in playerRobot.RobotTools)
-                    {
-                        upgradePaths.Add(robotTool.GetToolObject().UpgradePath);
-                    }
-                    break;
-                case ROBOT_TARGET:
-                    upgradePaths.Add(playerRobot.CurrentRobot.UpgradePath);
-                    upgradeDataListCollection.Add(playerRobot.RobotData.RobotUpgrades);
-                    break;
-                default: // TOOL
-                    int toolIndex = targets.IndexOf(target) - 2;
-                    upgradePaths.Add(playerRobot.RobotTools[toolIndex].GetToolObject().UpgradePath);
-                    break;
-            }
 
-            for (int i = 0; i < upgradePaths.Count; i++)
-            {
-                MaxUpgrades(upgradeDataListCollection[i], upgradePaths[i]);
-            }
-        }
 
-        void ResetUpgrades(List<RobotUpgradeData> upgradeDataList)
-        {
-            Debug.Log("HI");
-            foreach (RobotUpgradeData upgrade in upgradeDataList)
+            return;
+            UpgradePathNodeValues FromPlayer()
             {
-                upgrade.Amount = 0;
+                return new UpgradePathNodeValues(playerRobot.CurrentRobot.UpgradePath, playerScript.PlayerRobot.RobotData.RobotUpgrades);
             }
-        }
-
-        void MaxUpgrades(List<RobotUpgradeData> upgradeDataList, string upgradePath)
-        {
-            SerializedRobotUpgradeNodeNetwork network = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradePath);
             
-            if (network == null)
+            UpgradePathNodeValues FromTool(int toolIndex)
             {
-                return;
+                var upgradeNodes = playerRobot.RobotData.ToolData.Upgrades[toolIndex];
+                var tool = playerScript.PlayerRobot.RobotTools[toolIndex];
+                return new UpgradePathNodeValues(tool.GetToolObject().UpgradePath, upgradeNodes);
             }
+        }
+
         
-            ResetUpgrades(upgradeDataList);
-            foreach (RobotUpgradeNodeData robotUpgradeNode in network.NodeData)
-            {
-                foreach (RobotUpgradeData robotUpgradeData in upgradeDataList)
-                {
-                    if (robotUpgradeNode.UpgradeType == robotUpgradeData.Id)
-                    {
-                        robotUpgradeData.Amount += robotUpgradeNode.UpgradeAmount;
-                    }   
-                }
-            }
-            
-        }
-
         public override string getDescription()
         {
             List<string> targets = GetAllTargets();
@@ -170,6 +135,18 @@ namespace UI.Chat {
             }
 
             return null;
+        }
+
+        private struct UpgradePathNodeValues
+        {
+            public string UpgradePath;
+            public List<RobotUpgradeData> Nodes;
+
+            public UpgradePathNodeValues(string upgradePath, List<RobotUpgradeData> nodes)
+            {
+                UpgradePath = upgradePath;
+                Nodes = nodes;
+            }
         }
     }
 }
