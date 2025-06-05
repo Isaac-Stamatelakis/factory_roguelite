@@ -7,9 +7,11 @@ using Item.Slot;
 using Items;
 using Items.Tags;
 using Items.Transmutable;
+using TileEntity;
 using TileEntity.Instances.CompactMachine;
 using TileEntity.Instances.CompactMachines;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace UI.ToolTip {
@@ -51,6 +53,12 @@ namespace UI.ToolTip {
                 text += $"\n[<b>{TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula)}</b>]";
             }
 
+            if (Keyboard.current.shiftKey.isPressed)
+            {
+                Tier tier = itemSlot.itemObject.GetTier();
+                text +=  $"\nTier:<b>{tier}</b>";
+            }
+            
             if (itemSlot.tags?.Dict != null)
             {
                 string totalTagText = "\n";

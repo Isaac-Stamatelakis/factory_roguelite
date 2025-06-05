@@ -16,7 +16,7 @@ namespace Recipe.Viewer
         public void Initialize(TransmutationDisplayableRecipe transmutationDisplayableRecipe, Action<ItemDisplayableRecipe> displayRecipeCostAction)
         {
             counter = 0;
-            index = 0;
+            index = transmutationDisplayableRecipe.InitialDisplayIndex;
             transmutationRecipe = transmutationDisplayableRecipe;
             this.displayRecipeCostAction = displayRecipeCostAction;
             Display();

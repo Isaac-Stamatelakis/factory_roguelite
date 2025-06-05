@@ -37,6 +37,7 @@ namespace Recipe.Viewer
                 DisplayRecipeCost(itemDisplayableRecipe);
             } else if (displayableRecipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
             {
+                transmutationDisplayableRecipe.RandomizeStartIndex();
                 if (!processorCostRotatorUI)
                 {
                     processorCostRotatorUI = gameObject.AddComponent<ProcessorCostRotatorUI>();

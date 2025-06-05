@@ -10,6 +10,7 @@ using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity;
+using UnityEngine;
 
 namespace Recipe.Viewer
 {
@@ -102,6 +103,7 @@ namespace Recipe.Viewer
         public List<ItemSlot> Outputs;
         public ItemState InputState;
         public ItemState OutputState;
+        public int InitialDisplayIndex;
 
         public TransmutationDisplayableRecipe(RecipeData recipeData, List<ItemSlot> inputs, List<ItemSlot> outputs, ItemState inputState, ItemState outputState) : base(recipeData)
         {
@@ -114,6 +116,11 @@ namespace Recipe.Viewer
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
             return true;
+        }
+
+        public void RandomizeStartIndex()
+        {
+            
         }
 
         public ItemDisplayableRecipe ToItemDisplayableRecipe(int index)
