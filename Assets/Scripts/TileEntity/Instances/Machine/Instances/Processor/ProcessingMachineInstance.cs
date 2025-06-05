@@ -67,12 +67,23 @@ namespace TileEntity.Instances.Machines
             }
 
             EnergyInventory energyInventory = MachineEnergyInventory.EnergyInventory;
-            if (ReferenceEquals(currentRecipe?.InputEnergy,null) || energyInventory.Energy == 0) return;
-            
-            ulong energyToUse = energyInventory.Energy < currentRecipe.EnergyCostPerTick ? energyInventory.Energy : currentRecipe.EnergyCostPerTick;
-            energyInventory.Energy -= energyToUse;
-            currentRecipe.InputEnergy -= energyToUse;
-            if (currentRecipe.InputEnergy > 0) return;
+            if ((currentRecipe?.InputEnergy ?? 0) == 0 || energyInventory.Energy == 0) return;
+
+            if (currentRecipe.InputEnergy > 0)
+            {
+                ulong energyToUse = energyInventory.Energy < currentRecipe.EnergyCostPerTick 
+                    ? energyInventory.Energy 
+                    : currentRecipe.EnergyCostPerTick;
+
+                if (energyToUse < currentRecipe.InputEnergy)
+                {
+                    energyInventory.Energy -= energyToUse;
+                    currentRecipe.InputEnergy -= energyToUse;
+                    return;
+                }
+                energyInventory.Energy -= currentRecipe.InputEnergy;
+                currentRecipe.InputEnergy = 0;
+            }
             Inventory.TryOutputRecipe(currentRecipe);
         }
 
