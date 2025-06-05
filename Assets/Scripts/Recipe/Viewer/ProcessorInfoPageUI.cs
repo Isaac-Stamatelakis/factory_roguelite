@@ -47,7 +47,7 @@ namespace Recipe.Viewer
 
         private void DisplayRecipeCost(ItemDisplayableRecipe itemDisplayableRecipe)
         {
-            var costString = RecipeViewerHelper.GetRecipeCostStrings(
+            var costString = RecipeViewerHelper.GetCostStringsFromItemDisplayable(
                 itemDisplayableRecipe,
                 recipeProcessorDisplayInfo.RecipeProcessorInstance.RecipeProcessorObject.RecipeType
             );
@@ -59,10 +59,7 @@ namespace Recipe.Viewer
             }
             if (!costUICreated) recipeCostUI = Instantiate(recipeCostUIPrefab, transform);
             List<string> restrictions = GetRestrictionText(itemDisplayableRecipe);
-            foreach (string cost in costString)
-            {
-                Debug.Log(cost);
-            }
+            
             recipeCostUI.Display(costString,restrictions);
         }
 

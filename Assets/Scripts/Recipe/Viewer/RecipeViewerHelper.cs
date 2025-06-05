@@ -45,16 +45,10 @@ namespace Recipe.Viewer {
             }
             return elements;
         }
-
-        public static List<string> GetRecipeCostStrings(ItemDisplayableRecipe itemDisplayableRecipe, RecipeType recipeType)
-        {
-            List<string> strings =  GetCostStringsFromItemDisplayable(itemDisplayableRecipe, recipeType);
-            // TODO restrictions
-            return strings;
-        }
+        
         
 
-        private static List<string> GetCostStringsFromItemDisplayable(ItemDisplayableRecipe displayableRecipe, RecipeType recipeType)
+        public static List<string> GetCostStringsFromItemDisplayable(ItemDisplayableRecipe displayableRecipe, RecipeType recipeType)
         {
             RecipeObject recipeObject = displayableRecipe.RecipeData.Recipe;
             switch (recipeType)
@@ -87,16 +81,17 @@ namespace Recipe.Viewer {
                             $"Usage Rate:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
                             $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2}SECS",
                         };
-                    if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
+                    if (recipeObject is TransmutableRecipeObject)
                     {
-                        ulong usage = 32;
-                        //ulong usage = Material.tier.GetMaxEnergyUsage();
-                        ulong cost = 32 * usage; // TODO change this
+                        Tier tier = displayableRecipe.Tier;
+                        ulong usage = tier.GetMaxEnergyUsage();
+                        ulong cost = 32 * usage;
                         return new List<string>
                         {
                             $"Total Usage:{cost}J",
                             $"Usage Rate:{usage}J/T",
                             $"Time:{(double) cost / usage:F2}SECS",
+                            $"Tier:{tier}",
                         };
                     }
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
