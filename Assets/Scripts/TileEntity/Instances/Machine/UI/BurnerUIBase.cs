@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.Burnables;
 using Item.Inventory;
 using Item.Inventory.ClickHandlers.Instances;
+using Item.Registry;
 using Item.Slot;
 using Items;
 using Items.Inventory;
@@ -31,9 +32,12 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         [SerializeField] private TextMeshProUGUI mModeText;
         private BurnerMachineInstance displayedInstance;
+        private BurnableItemRegistry burnableItemRegistry;
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
             if (tileEntityInstance is not BurnerMachineInstance burnerMachineInstance) return;
+
+            burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
             displayedInstance = burnerMachineInstance;
             title.text = tileEntityInstance.GetName();
             tileEntityInventoryUI.Display(burnerMachineInstance.GetItemInventory().Content,burnerMachineInstance.GetMachineLayout(),tileEntityInstance);
@@ -45,6 +49,9 @@ namespace TileEntity.Instances.Machine.UI
             bool ValidateFunction(ItemObject itemObject, int index)
             {
                 if (!itemObject) return false;
+                uint duration = burnableItemRegistry.GetBurnDuration(itemObject);
+                if (duration == 0) return false;
+                
                 foreach (ItemObject whiteListedFuel in fuelRestriction.WhiteListedFuels)
                 {
                     if (whiteListedFuel?.id == itemObject.id) return true;
