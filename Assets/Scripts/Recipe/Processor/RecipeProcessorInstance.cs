@@ -4,6 +4,7 @@ using Item.Slot;
 using Item.Transmutation;
 using Items;
 using Items.Transmutable;
+using JetBrains.Annotations;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Viewer;
@@ -275,12 +276,12 @@ namespace Recipe.Processor
             }
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
             {
-                return default;
+                return null;
             }
             ulong hash = RecipeUtils.HashItemInputs(solidItems,fluidItems);
             if (!recipeDict.TryGetValue(hash, out var recipeObjects))
             {
-                return default;
+                return null;
             }
 
             return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
@@ -451,7 +452,7 @@ namespace Recipe.Processor
             }
         }
         
-        public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType, TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
+        public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType,[NotNull] TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
         {
             List<ItemSlot> solid = null;
             List<ItemSlot> fluid = null;
@@ -472,10 +473,19 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
                 case RecipeType.Machine:
-                    if (ReferenceEquals(material.gameStageObject,null)) return null;
-                    ulong usage = material.gameStageObject.Tier.GetMaxEnergyUsage();
-                    ulong cost = 32 * usage; // TODO change this
+                {
+                    Tier tier = material.GetTier();
+                    ulong usage = tier.GetMaxEnergyUsage();
+                    ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
+                }
+                case RecipeType.Burner:
+                {
+                    Tier tier = material.GetTier();
+                    uint ticks = (uint)tier * 50;
+                    return new BurnerItemRecipe(solid,fluid, ticks, ticks,0);
+                }
+                    
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }

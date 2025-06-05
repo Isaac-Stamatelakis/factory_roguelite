@@ -79,10 +79,21 @@ namespace Item.Transmutation
                 case TransmutableItemState.Poor_Gem:
                     return 16f;
                 case TransmutableItemState.Ore:
-                    return 1 / 2f;
+                    return 1f;
+                case TransmutableItemState.Brick:
+                    break;
+                case TransmutableItemState.Brick_Wall:
+                    break;
+                case TransmutableItemState.Wall:
+                    break;
+                case TransmutableItemState.Crystal:
+                    break;
+                case TransmutableItemState.Shard:
+                    break;
                 default:
                     return 0;
             }
+            return 0;
         }
         public static ItemState GetMatterState(this TransmutableItemState state) {
             switch (state) {
