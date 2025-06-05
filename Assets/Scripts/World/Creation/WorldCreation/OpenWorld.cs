@@ -12,7 +12,7 @@ namespace WorldModule {
             if (!WorldLoadUtils.defaultWorldExists(worldName)) {
                 Debug.LogError("Attempted to open world which doesn't exist");
             }
-            WorldManager.getInstance().SetWorldName(worldName);
+            WorldManager.GetInstance().SetWorldName(worldName);
             SceneManager.LoadScene("MainScene");
         }
 

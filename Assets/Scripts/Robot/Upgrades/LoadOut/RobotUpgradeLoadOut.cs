@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Player.Tool;
+using Robot.Upgrades.Info;
 using UnityEngine;
 
 namespace Robot.Upgrades.LoadOut
@@ -64,6 +65,51 @@ namespace Robot.Upgrades.LoadOut
             {
                 Current += LoadOuts.Count;
             }
+        }
+
+        public void OverrideUpgradeCount(RobotUpgradeType robotUpgrade, int subType)
+        {
+            var info = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(robotUpgrade,subType);
+            Array upgrades;
+            switch (robotUpgrade)
+            {
+                case RobotUpgradeType.Tool:
+                    upgrades =  Enum.GetValues(typeof(RobotUpgrade));
+                    break;
+                case RobotUpgradeType.Robot:
+                    RobotToolType toolType = (RobotToolType)subType;
+                    switch (toolType)
+                    {
+                        case RobotToolType.LaserGun:
+                            upgrades = Enum.GetValues(typeof(LaserGunUpgrade));
+                            break;
+                        case RobotToolType.LaserDrill:
+                            upgrades = Enum.GetValues(typeof(RobotDrillUpgrade));
+                            break;
+                        case RobotToolType.ConduitSlicers:
+                            upgrades = Enum.GetValues(typeof(ConduitSlicerUpgrade));
+                            break;
+                        case RobotToolType.Buildinator:
+                            upgrades = Enum.GetValues(typeof(BuildinatorUpgrade));
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(robotUpgrade), robotUpgrade, null);
+            }
+
+            List<int> continousUpgrades = info.GetContinuousUpgrades();
+            foreach (var upgrade in upgrades)
+            {
+                int value = (int)upgrade;
+                foreach (RobotStatLoadOut robotStatLoadOut in LoadOuts)
+                {
+                    
+                }
+            }
+            
         }
     }
     

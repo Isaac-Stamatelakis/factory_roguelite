@@ -69,6 +69,7 @@ namespace Dimensions {
 
         private IEnumerator InitialLoad()
         {
+            Debug.Log(WorldManager.GetInstance().WorldLoadType);
             Canvas[] canvasArray = GameObject.FindObjectsOfType<Canvas>();
             PlayerScript playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
             InitialLoadBeautifier loadBeautifier = new InitialLoadBeautifier(canvasArray, playerScript);
@@ -84,7 +85,7 @@ namespace Dimensions {
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");
             
-            WorldManager worldManager = WorldManager.getInstance();
+            WorldManager worldManager = WorldManager.GetInstance();
             string worldName = worldManager.GetWorldName();
 
             void InlineLoadQuestBook()
@@ -221,7 +222,7 @@ namespace Dimensions {
             Debug.Log($"Saved {systems} systems.");
             ticksSinceLastSave = 0;
             StartCoroutine(autoSaveUI.CompletionFade());
-            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
+            WorldBackUpUtils.BackUpWorld(WorldManager.GetInstance().GetWorldName());
         }
 
 
@@ -264,8 +265,8 @@ namespace Dimensions {
 
             if (!WorldLoadUtils.UsePersistentPath) return;
             
-            WorldManager.getInstance().SaveMetaData();
-            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
+            WorldManager.GetInstance().SaveMetaData();
+            WorldBackUpUtils.BackUpWorld(WorldManager.GetInstance().GetWorldName());
         }
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)

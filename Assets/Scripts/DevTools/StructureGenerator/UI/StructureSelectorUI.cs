@@ -32,8 +32,8 @@ namespace DevTools.Structures {
             GetComponent<Button>().onClick.AddListener(() => {
                 string path = StructureGeneratorHelper.GetStructurePath(this.title.text);
                 
-                WorldManager.getInstance().SetWorldName(path);
-                WorldManager.getInstance().WorldLoadType = WorldManager.WorldType.Structure;
+                WorldManager.GetInstance().SetWorldName(path);
+                WorldManager.GetInstance().WorldLoadType = WorldManager.WorldType.Structure;
                 WorldLoadUtils.UsePersistentPath = false;
                 SceneManager.LoadScene("MainScene");
             });

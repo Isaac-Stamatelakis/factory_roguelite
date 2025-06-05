@@ -526,6 +526,7 @@ namespace PlayerModule.Mouse {
             placeCooldown = Mathf.Lerp(MIN_PLACEMENT_RATE,MAX_PLACEMENT_RATE,tilePlacementUpgrades/MAX_UPGRADES);
         }
         
+        
 
         public void UpdateOnToolChange()
         {

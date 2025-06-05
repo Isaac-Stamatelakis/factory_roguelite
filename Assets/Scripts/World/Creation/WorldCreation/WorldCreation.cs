@@ -52,7 +52,7 @@ namespace WorldModule {
         public static IEnumerator CreateWorld(WorldCreationData worldCreationData)
         {
             yield return ItemRegistry.LoadItems();
-            WorldManager.getInstance().SetWorldName(worldCreationData.WorldName);
+            WorldManager.GetInstance().SetWorldName(worldCreationData.WorldName);
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);

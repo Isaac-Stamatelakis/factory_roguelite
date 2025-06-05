@@ -143,7 +143,7 @@ namespace UI.QuestBook {
             }
             else
             {
-                string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
+                string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.GetInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
                 string playerPageDataPath = Path.Combine(playerQuestBookPath, page.Id) + ".json";
                 string json = File.ReadAllText(playerPageDataPath);
                 List<QuestBookTaskData> taskDataList = JsonConvert.DeserializeObject<List<QuestBookTaskData>>(json);

@@ -63,7 +63,7 @@ namespace DevTools.Structures {
             Directory.CreateDirectory(path);
             
             WorldLoadUtils.UsePersistentPath = false;
-            WorldManager.getInstance().SetWorldName(path);
+            WorldManager.GetInstance().SetWorldName(path);
             Debug.Log("Structure World Created at " + path);
             
             string dimensionPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
