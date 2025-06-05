@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -65,6 +66,30 @@ public class EditorTileItemRebuilder
             AssetDatabase.DeleteAsset(assetPath);
         }
         AssetDatabase.Refresh();
+    }
+    
+
+    public void DisplayGUI(Action onClick, ref string name)
+    {
+        if (GUILayout.Button("Search For Item"))
+        {
+            SearchByTileName(name);
+        }
+        bool found = Found();
+        GUI.enabled = found;
+        Color defaultColor = GUI.color;
+        if (found)
+        {
+            GUI.color = Color.green;
+        }
+        if (GUILayout.Button("Rebuild"))
+        {
+            onClick.Invoke();
+        }
+
+        GUI.color = defaultColor;
+        
+        GUI.enabled = true;
     }
 
     public void ReplaceTile(TileBase tileBase)

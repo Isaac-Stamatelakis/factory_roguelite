@@ -38,26 +38,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
             CreateTileItem();
         }
         
-        if (GUILayout.Button("Search For Item"))
-        {
-            itemRebuilder.SearchByTileName(tileName);
-        }
-
-        bool found = itemRebuilder.Found();
-        GUI.enabled = found;
-        Color defaultColor = GUI.color;
-        if (found)
-        {
-            GUI.color = Color.green;
-        }
-        if (GUILayout.Button("Rebuild"))
-        {
-            Rebuild();
-        }
-
-        GUI.color = defaultColor;
-        
-        GUI.enabled = true;
+        itemRebuilder.DisplayGUI(Rebuild, ref tileName);
     }
 
     // ReSharper disable Unity.PerformanceAnalysis

@@ -498,7 +498,6 @@ namespace Recipe.Processor
 
         public static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, ItemSlot itemSlot)
         {
-            
             switch (recipeData.Recipe)
             {
                 case ItemRecipeObject itemRecipeObject:
