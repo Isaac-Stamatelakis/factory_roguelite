@@ -383,13 +383,11 @@ namespace Robot.Tool.Instances
             
             if (multiBreak == 0 && !autoSelectOn)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
             if (outlineDict == null)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             

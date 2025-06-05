@@ -311,7 +311,6 @@ namespace Robot.Tool.Instances
             TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
             if (multiHits == 0 && !autoSelectOn)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             

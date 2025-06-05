@@ -236,7 +236,9 @@ namespace PlayerModule.Mouse {
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
+            
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
+            cellPosition.z = 0;
             tileBreakHighlighter.Display(new Vector2Int(cellPosition.x, cellPosition.y), worldTileGridMap.GetOutlineCellData(cellPosition));
             highlightPosition = position;
             return true;
