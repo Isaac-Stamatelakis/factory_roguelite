@@ -26,7 +26,6 @@ using Robot.Upgrades.LoadOut;
 using RobotModule;
 using TileMaps.Previewer;
 using Tiles;
-using Tiles.Highlight;
 using Tiles.Indicators;
 using UI;
 using UI.Catalogue.ItemSearch;
@@ -226,9 +225,8 @@ namespace Player
     public class TileViewerCollection
     {
         public TilePlacePreviewer TilePlacePreviewer;
-        public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
-        public TileBreakHighlighter TileBreakHighlighter;
+        [FormerlySerializedAs("TileBreakHighlighter")] public TileHighlighter tileHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
         
         public void Initialize(PlayerScript playerScript)
@@ -240,18 +238,12 @@ namespace Player
         {
             TilePlacePreviewer.gameObject.SetActive(state);
         }
-        public void SetHighligherState(bool state)
-        {
-            TileHighlighter.gameObject.SetActive(state);
-        }
 
         public void SetConduitPortState(bool state)
         {
             ConduitPortViewer.gameObject.SetActive(state);
         }
-
         
-
         public void DisableConduitViewers()
         {
             ConduitPortViewer.DeActivate();
@@ -262,7 +254,6 @@ namespace Player
         public void SetAllViewerState(bool state)
         {
             TilePlacePreviewer.gameObject.SetActive(state);
-            TileHighlighter.gameObject.SetActive(state);
             ConduitPortViewer.gameObject.SetActive(state);
         }
 

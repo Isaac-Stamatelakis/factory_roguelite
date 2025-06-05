@@ -17,7 +17,7 @@ namespace Tiles.Options.Overlay
     }
     [CreateAssetMenu(fileName ="I~New RobotObject Item",menuName="Tile/Overlay/Transmutable")]
     
-    public class TransmutableTileOverlayData : TileOverlayData, IShaderTileOverlay
+    public class TransmutableTileOverlay : TileOverlay, IShaderTileOverlay
     {
         public TileWrapperObject OverlayWrapper;
         public TransmutableItemMaterial ItemMaterial;

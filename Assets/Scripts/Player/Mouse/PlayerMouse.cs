@@ -37,7 +37,6 @@ using Robot.Tool;
 using Robot.Upgrades;
 using RobotModule;
 using TileEntity.AssetManagement;
-using Tiles.Highlight;
 using Tiles.Indicators;
 using UI;
 using UI.Indicators;
@@ -68,7 +67,7 @@ namespace PlayerModule.Mouse {
         private ToolClickHandlerCollection toolClickHandlerCollection;
         private ToolPreviewController previewController = new ToolPreviewController();
         private AutoTileFinder autoTileFinder;
-        private TileBreakHighlighter tileBreakHighlighter;
+        private TileHighlighter tileHighlighter;
         private bool autoSelectableTool;
         private AutoSelectMode autoSelectMode;
         private List<IWorldTileMap> systemTileMaps = new();
@@ -92,7 +91,7 @@ namespace PlayerModule.Mouse {
             playerTransform = transform;
             eventSystem = EventSystem.current;
             autoTileFinder = new AutoTileFinder(transform);
-            tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            tileHighlighter = playerScript.TileViewers.tileHighlighter;
             canvasController = CanvasController.Instance;
         }
 
@@ -102,7 +101,7 @@ namespace PlayerModule.Mouse {
             switch (autoSelectMode)
             {
                 case AutoSelectMode.None:
-                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Clear();
                     ToolTipController.Instance.HideToolTip(ToolTipType.World);
                     highlightPosition = null;
                     break;
@@ -111,7 +110,7 @@ namespace PlayerModule.Mouse {
                     highlightPosition = null;
                     break;
                 case AutoSelectMode.TileEntity:
-                    tileBreakHighlighter.Clear();
+                    tileHighlighter.Clear();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -187,18 +186,18 @@ namespace PlayerModule.Mouse {
             IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
             if (hitMap == null || !hitMap.GetTilemap())
             {
-                tileBreakHighlighter.Clear();
+                tileHighlighter.Clear();
                 return toolHitPosition;
             }
             
-            tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+            tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
             ITileGridMap tileGridMap = (ITileGridMap)hitMap;
             
             var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
             Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
             var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
             
-            tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
+            tileHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
         
@@ -221,7 +220,7 @@ namespace PlayerModule.Mouse {
             }
             ToolTipController.Instance.HideToolTip(ToolTipType.World);
             highlightPosition = null;
-            tileBreakHighlighter.Clear();
+            tileHighlighter.Clear();
         }
         
 
@@ -239,7 +238,8 @@ namespace PlayerModule.Mouse {
             
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
             cellPosition.z = 0;
-            tileBreakHighlighter.Display(new Vector2Int(cellPosition.x, cellPosition.y), worldTileGridMap.GetOutlineCellData(cellPosition));
+            tileHighlighter.SetOutlineColor(Color.yellow);
+            tileHighlighter.Display(new Vector2Int(cellPosition.x, cellPosition.y), worldTileGridMap.GetOutlineCellData(cellPosition));
             highlightPosition = position;
             return true;
         }
@@ -546,10 +546,10 @@ namespace PlayerModule.Mouse {
 
         public void ClearToolPreview()
         {
-            tileBreakHighlighter.ResetHistory();
-            tileBreakHighlighter.Clear();
-            playerScript.TileViewers.TileBreakHighlighter.ResetHistory();
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            tileHighlighter.ResetHistory();
+            tileHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.ResetHistory();
+            playerScript.TileViewers.tileHighlighter.Clear();
             previewController.ResetRecord();
         }
 

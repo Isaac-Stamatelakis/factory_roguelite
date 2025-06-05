@@ -16,12 +16,12 @@ namespace TileMaps {
         public TileBase Tile;
         public TileBase OutlineTile;
         public TileBase OverlayTile;
-        public TileOverlayData OverlayData;
+        public TileOverlay Overlay;
         public Quaternion OutlineRotation;
         public Quaternion TileRotation;
         public Material Material;
 
-        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor, Material material, TileBase overlayTile, TileOverlayData overlayData)
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor, Material material, TileBase overlayTile, TileOverlay overlay)
         {
             Tile = tile;
             OutlineTile = outlineTile;
@@ -30,7 +30,7 @@ namespace TileMaps {
             TileColor = tileColor;
             Material = material;
             OverlayTile = overlayTile;
-            OverlayData = overlayData;
+            Overlay = overlay;
         }
     }
     
@@ -84,7 +84,7 @@ namespace TileMaps {
             
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
-            TileOverlayData tileOverlayData = tileItem.tileOptions.overlayData;
+            TileOverlay tileOverlay = tileItem.tileOptions.overlay;
 
             var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
             if (transmutableMaterial)
@@ -97,10 +97,10 @@ namespace TileMaps {
                 }
             }
             
-            if (tileOverlayData)
+            if (tileOverlay)
             {
                 Tilemap overlayPlacementMap;
-                if (tileOverlayData is not IShaderTileOverlay shaderTileOverlay)
+                if (tileOverlay is not IShaderTileOverlay shaderTileOverlay)
                 {
                     overlayPlacementMap = overlayTileMap;
                 }
@@ -109,7 +109,7 @@ namespace TileMaps {
                     Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
                     overlayPlacementMap = shaderMaterial ? primaryShaderTilemap.GetTilemapForPlacement(tilePosition, shaderMaterial) : overlayTileMap;
                 }
-                PlaceOverlayTile(tileItem.tileOptions.overlayData,overlayPlacementMap, placementPosition,tileItem,baseTileData);
+                PlaceOverlayTile(tileItem.tileOptions.overlay,overlayPlacementMap, placementPosition,tileItem,baseTileData);
             }
             TileBase outlineTile = tileItem.outline;
             if (!outlineTile) {

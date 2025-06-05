@@ -40,7 +40,7 @@ namespace Tier.Generators.Defaults
         public Tile SingleTank;
         public TileBase Platform;
         public TileBase TorchRod;
-        public TileOverlayData TorchSource;
+        public TileOverlay TorchSource;
         public TileBase MachineFrame;
     }
 

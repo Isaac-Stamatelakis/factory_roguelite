@@ -326,12 +326,12 @@ namespace TileMaps {
             TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
 
-        protected void PlaceOverlayTile(TileOverlayData tileOverlayData, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
+        protected void PlaceOverlayTile(TileOverlay tileOverlay, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
         {
-            var overlayTile = tileOverlayData.GetTile();
+            var overlayTile = tileOverlay.GetTile();
             SetTileItemTile(overlayTileMap,overlayTile, vector3Int, tileItem.tileOptions.rotatable, baseTileData);
             overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-            overlayTileMap.SetColor(vector3Int,tileOverlayData.GetColor());
+            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
         } 
         
         
@@ -549,7 +549,7 @@ namespace TileMaps {
         {
             TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(cellPosition.x, cellPosition.y));
             Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride);
-            TileOverlayData tileOverlay = tileItem?.tileOptions.overlayData;
+            TileOverlay tileOverlay = tileItem?.tileOptions.overlay;
             TileBase overlayTile = GetOverlayInformation(tileOverlay, cellPosition);
             return new OutlineTileMapCellData(
                 tilemap.GetTile(cellPosition), 
@@ -563,7 +563,7 @@ namespace TileMaps {
             );
         }
         
-        private TileBase GetOverlayInformation(TileOverlayData overlay, Vector3Int position)
+        private TileBase GetOverlayInformation(TileOverlay overlay, Vector3Int position)
         {
             if (!overlay) return null;
 

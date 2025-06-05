@@ -70,7 +70,7 @@ namespace Robot.Tool.Instances
 
         public override void TerminateClickHold()
         {
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
             laserManager?.Terminate();
             if (audioController)
             {
@@ -215,7 +215,7 @@ namespace Robot.Tool.Instances
             float ran = UnityEngine.Random.Range(0f, 1f);
             Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
             minMaxColor.colorMax = color;
-            minMaxColor.colorMin = tileItem.tileOptions.overlayData?.GetColor() ?? color;
+            minMaxColor.colorMin = tileItem.tileOptions.overlay?.GetColor() ?? color;
             particleSystemMain.startColor = minMaxColor;
         }
 
@@ -245,7 +245,7 @@ namespace Robot.Tool.Instances
                 List<ItemSlot> itemDrops = blockVeinMineEvent?.GetCollectedItems();
                 playerScript.PlayerInventory.GiveItems(itemDrops);
             }
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
 
             
             return true;
@@ -379,7 +379,7 @@ namespace Robot.Tool.Instances
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
             
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
-            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             
             if (multiBreak == 0 && !autoSelectOn)
             {
@@ -391,7 +391,7 @@ namespace Robot.Tool.Instances
                 return;
             }
             
-            tileBreakHighlighter.Display(outlineDict);
+            tileHighlighter.Display(outlineDict);
         }
 
         private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)

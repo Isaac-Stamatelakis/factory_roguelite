@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles.Indicators
 {
-    public class TileBreakHighlighter : MonoBehaviour
+    public class TileHighlighter : MonoBehaviour
     {
         [SerializeField] private Tilemap mOutlineTilemap;
         [SerializeField] private Tilemap mTilemap;
@@ -55,7 +55,10 @@ namespace Tiles.Indicators
             TileBase tile = outlineData.Tile;
             TileBase outline = outlineData.OutlineTile;
             if (!tile) return;
-                
+            mTilemap.gameObject.SetActive(true);
+            mOutlineTilemap.gameObject.SetActive(true);
+            mOverlayTilemap.gameObject.SetActive(true);
+            
             Vector3Int tilePosition = new Vector3Int(position.x, position.y, 0);
 
             Tilemap placementMap = outlineData.Material ? shaderTilemapManager.GetTileMap(outlineData.Material) : mTilemap;
@@ -76,7 +79,7 @@ namespace Tiles.Indicators
             matrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,outlineScale * Vector3.one);
             mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
             
-            var overlay = outlineData.OverlayData;
+            var overlay = outlineData.Overlay;
             if (overlay)
             {
                 Material overlayMaterial = overlay is IShaderTileOverlay shaderTileOverlay
@@ -97,10 +100,17 @@ namespace Tiles.Indicators
         public void Clear()
         {
             if (!highlighting) return;
+            ResetHistory();
             mTilemap.ClearAllTiles();
             mOutlineTilemap.ClearAllTiles();
             shaderTilemapManager.ClearAllTiles();
+            shaderTilemapManager.PushUnusedMaps();
             mOverlayTilemap.ClearAllTiles();
+            
+            mTilemap.gameObject.SetActive(false);
+            mOutlineTilemap.gameObject.SetActive(false);
+            mOverlayTilemap.gameObject.SetActive(false);
+            
             highlighting = false;
         }
     }

@@ -376,17 +376,17 @@ public class TransmutableItemGenerator : EditorWindow
         }
         
         string overlayPath = Path.Combine(oreFolderPath, ORE_OVERLAY_NAME + ".asset");
-        TransmutableTileOverlayData tileOverlayData = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlayData>(overlayPath);
-        if (!tileOverlayData)
+        TransmutableTileOverlay tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
+        if (!tileOverlay)
         {
-            tileOverlayData = CreateInstance<TransmutableTileOverlayData>();
-            tileOverlayData.ItemMaterial = material;
-            tileOverlayData.name = ORE_OVERLAY_NAME;
-            tileOverlayData.OverlayWrapper = shaderPair?.WorldMaterial ? shaderOutlineWrapper : outlineWrapper;
+            tileOverlay = CreateInstance<TransmutableTileOverlay>();
+            tileOverlay.ItemMaterial = material;
+            tileOverlay.name = ORE_OVERLAY_NAME;
+            tileOverlay.OverlayWrapper = shaderPair?.WorldMaterial ? shaderOutlineWrapper : outlineWrapper;
             string savePath = overlayPath + ".asset";
-            AssetDatabase.CreateAsset(tileOverlayData, savePath);
+            AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.SaveAssets();
-            tileOverlayData = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlayData>(savePath);
+            tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(savePath);
         }
         string[] guids = AssetDatabase.FindAssets("", new[] { oreFolderPath });
         
@@ -425,7 +425,7 @@ public class TransmutableItemGenerator : EditorWindow
                 movementModifier = tileItem.tileOptions.movementModifier,
                 requiredToolTier = tileItem.tileOptions.requiredToolTier,
                 ParticleGradient = tileItem.tileOptions.ParticleGradient,
-                overlayData = tileOverlayData
+                overlay = tileOverlay
             };
             oreTile.id = TransmutableItemUtils.GetOreId(id, material);
             oreTile.name = $"{tileItem.name} {material.name} Ore";

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b193f73f233dd8f40905f2e94acd7636
+guid: ce0fdf8f958bc044f9b9431679fc78a3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,13 +117,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: crystal_crawler_0
+      name: cave_crawler_body-export_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 16
-        width: 16
-        height: 16
+        y: 18
+        width: 20
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +131,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 788dfad68305ee54eba2514c3abe158e
-      internalID: -1513662522
+      spriteID: cfbc946fa9d78764888943f997f56a5a
+      internalID: -463830105
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: crystal_crawler_1
+      name: cave_crawler_body-export_1
       rect:
         serializedVersion: 2
-        x: 16
-        y: 16
-        width: 16
-        height: 16
+        x: 20
+        y: 18
+        width: 20
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,20 +152,62 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c1bfc2649b7737c409fd3c603b0412af
-      internalID: -921479170
+      spriteID: d6f6dd881c53bd742b0d81fb73599ba6
+      internalID: -714282779
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: crystal_crawler_2
+      name: cave_crawler_body-export_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 9
+        width: 20
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a0574833b90fb045868cd85988c71d7
+      internalID: 574416187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cave_crawler_body-export_3
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 9
+        width: 20
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e2b81d26ff76ca344a7ca4a4da6e2728
+      internalID: -1312464688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cave_crawler_body-export_4
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 16
+        width: 20
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -173,29 +215,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5f3ef41b48a02a74db2ff3adc14e7c13
-      internalID: -172704960
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: crystal_crawler_3
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 59756750d8b3a8a4997a8c10263204be
-      internalID: -1883340525
+      spriteID: 62768f9dbd78c2b49900d3dc50bba56c
+      internalID: 338676621
       vertices: []
       indices: 
       edges: []
@@ -211,10 +232,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      crystal_crawler_0: -1513662522
-      crystal_crawler_1: -921479170
-      crystal_crawler_2: -172704960
-      crystal_crawler_3: -1883340525
+      cave_crawler_body-export_0: -463830105
+      cave_crawler_body-export_1: -714282779
+      cave_crawler_body-export_2: 574416187
+      cave_crawler_body-export_3: -1312464688
+      cave_crawler_body-export_4: 338676621
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

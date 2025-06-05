@@ -69,7 +69,7 @@ namespace Robot.Tool.Instances
         public override void TerminateClickHold()
         {
             laserManager.Terminate();
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
             playerScript.PlayerMouse.ClearToolPreview();
         }
 
@@ -263,7 +263,7 @@ namespace Robot.Tool.Instances
                     break;
                 }
             }
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
         }
 
         private void RotateTile(TileItem tileItem, WorldTileMap worldTileMap, Vector2Int tilePosition, IChunkPartition partition, Vector2Int positionInPartition, int direction)
@@ -308,7 +308,7 @@ namespace Robot.Tool.Instances
         public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
-            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             if (multiHits == 0 && !autoSelectOn)
             {
                 return;
@@ -340,7 +340,7 @@ namespace Robot.Tool.Instances
                     
                 }
             }
-            tileBreakHighlighter.Display(tiles);
+            tileHighlighter.Display(tiles);
         }
 
         public override RobotArmState GetRobotArmAnimation()
