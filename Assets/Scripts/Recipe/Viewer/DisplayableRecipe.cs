@@ -9,6 +9,7 @@ using Player;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
+using TileEntity;
 
 namespace Recipe.Viewer
 {
@@ -46,6 +47,7 @@ namespace Recipe.Viewer
     }
     public class ItemDisplayableRecipe : DisplayableRecipe
     {
+        public Tier Tier;
         public List<ItemSlot> SolidInputs;
         public List<ChanceItemSlot> SolidOutputs;
         public List<ItemSlot> FluidInputs;
@@ -57,28 +59,40 @@ namespace Recipe.Viewer
             SolidOutputs = solidOutputs;
             FluidInputs = fluidInputs;
             FluidOutputs = fluidOutputs;
+            Tier = GetHighestTierItem();
         }
 
+        public ItemDisplayableRecipe(RecipeData recipeData, List<ItemSlot> solidInputs, List<ChanceItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ChanceItemSlot> fluidOutputs, Tier tier): base(recipeData)
+        {
+            SolidInputs = solidInputs;
+            SolidOutputs = solidOutputs;
+            FluidInputs = fluidInputs;
+            FluidOutputs = fluidOutputs;
+            Tier = tier;
+        }
+
+        private Tier GetHighestTierItem()
+        {
+            // Tier of a recipe is given by the highest tier of its output items
+            Tier highest = Tier.Untiered;
+            IterateItems(SolidOutputs);
+            IterateItems(FluidOutputs);
+            return highest;
+
+            void IterateItems(List<ChanceItemSlot> chanceItemSlots)
+            {
+                if (FluidOutputs == null) return;
+                foreach (ChanceItemSlot chanceItemSlot in chanceItemSlots)
+                {
+                    Tier tier = chanceItemSlot?.itemObject?.GetTier() ?? Tier.Untiered;
+                    if (tier > highest) highest = tier;
+                }
+            }
+        }
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
-            if (SolidOutputs != null)
-            {
-                foreach (ChanceItemSlot chanceItemSlot in SolidOutputs)
-                {
-                    if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
-                }
-            }
-            
-            if (FluidOutputs != null)
-            {
-                foreach (ChanceItemSlot chanceItemSlot in FluidOutputs)
-                {
-                    if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
-                }
-            }
-            
-
-            return false;
+            int tierInt = (int)Tier;
+            return gameStageCollection.HasStage(tierInt.ToString());
         }
     }
     
@@ -107,10 +121,11 @@ namespace Recipe.Viewer
             if (index < 0 || index >= Inputs.Count) return null;
             List<ItemSlot> inputListWrapper = new List<ItemSlot> { Inputs[index] };
             ItemSlot output = Outputs[index];
+            Tier tier = output?.itemObject?.GetTier() ?? Tier.Untiered;
             ChanceItemSlot chanceItemSlot = new ChanceItemSlot(output?.itemObject, output?.amount ?? 0, output?.tags, 1);
             List<ChanceItemSlot> outputListWrapper = new List<ChanceItemSlot> { chanceItemSlot };
             // TODO fluid and tile items
-            return new ItemDisplayableRecipe(RecipeData,inputListWrapper,outputListWrapper,null,null);
+            return new ItemDisplayableRecipe(RecipeData,inputListWrapper,outputListWrapper,null,null,tier);
         }
     }
 }

@@ -102,6 +102,15 @@ namespace Recipe.Viewer {
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
                 case RecipeType.Burner:
+                    /*
+                    if (recipeObject is BurnerRecipeObject burnerRecipeObject)
+                        return new List<string>
+                        {
+                            $"Time:{burnerRecipeObject.Ticks}",
+                            $"Usage Rate:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
+                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2}SECS",
+                        };
+                        */
                     return null;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
