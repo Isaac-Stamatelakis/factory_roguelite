@@ -49,11 +49,13 @@ namespace Item.Burnables
                         rotator = mItemSlotInventoryUI.AddComponent<InventoryUIRotator>();
                     }
                     rotator.enabled = true;
+                    int initialIndex = UnityEngine.Random.Range(0, burnableMaterialDisplay.ItemSlotList.Count);
                     rotator.Initialize(
                         burnableMaterialDisplay.ItemSlotList,1,50,
-                        initialIndex:UnityEngine.Random.Range(0,burnableMaterialDisplay.ItemSlotList.Count),
+                        initialIndex:initialIndex,
                         onRotateCallback:DisplayIndex
                     );
+                    DisplayIndex(initialIndex);
 
                     void DisplayIndex(int index)
                     {
@@ -113,11 +115,14 @@ namespace Item.Burnables
         {
             Material = material;
             ItemSlotList = new List<List<ItemSlot>>();
+            BurnableItemRegistry burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
             List<TransmutableItemState> states = material.MaterialOptions.GetAllStates();
-
             foreach (TransmutableItemState state in states)
             {
+                
                 ITransmutableItem transmutableItem = TransmutableItemUtils.GetMaterialItem(material, state);
+                if (burnableItemRegistry.GetBurnDuration((ItemObject)transmutableItem) == 0) continue;
+                
                 if (transmutableItem == null) continue;
                 ItemSlot itemSlot = new ItemSlot((ItemObject)transmutableItem, 1, null);
                 List<ItemSlot> nestedItemSlotList = new List<ItemSlot> { itemSlot };
