@@ -52,6 +52,7 @@ namespace Chunks.Systems {
             GameObject primaryShaderMap = new GameObject("MainShaderOverlay");
             primaryShaderMap.transform.parent = container.transform;
             PrimaryShaderTilemap primaryShaderTilemap = primaryShaderMap.AddComponent<PrimaryShaderTilemap>();
+            primaryShaderTilemap.Initialize();
             closedChunkSystem.SetShaderTilemap(primaryShaderTilemap);
             
             List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();

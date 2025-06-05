@@ -162,6 +162,7 @@ namespace Chunks.Systems {
             this.coveredArea = coveredArea;
             InitLoaders();
             
+            tileGridMapShaderMaps.Add(PrimaryShaderTilemap.Manager);
             foreach (var worldTileMap in tileGridMaps.Values)
             {
                 if (worldTileMap is IWorldShaderTilemap worldShaderTilemap)
@@ -239,9 +240,10 @@ namespace Chunks.Systems {
         private void CullShaderMaps()
         {
             double r = random.NextDouble();
-            if (r >= 0.1f) return;
+            if (r >= 0.03f) return;
             tileGridMapShaderMaps[lastShaderMapIndex].PushUnusedMaps();
             lastShaderMapIndex++;
+            
             lastShaderMapIndex %= tileGridMapShaderMaps.Count;
 
         }

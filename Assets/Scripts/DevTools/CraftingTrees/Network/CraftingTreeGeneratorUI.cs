@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using DevTools.CraftingTrees.TreeEditor;
 using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
 
 namespace DevTools.CraftingTrees.Network
@@ -12,6 +13,7 @@ namespace DevTools.CraftingTrees.Network
         [SerializeField] private CraftingTreeNodeNetworkUI mNodeNetworkUI;
         [SerializeField] private CraftingTreeNodeEditorUI mNodeEditorUI;
         [SerializeField] private CraftingTreeSettingEditorUI mSettingEditorUI;
+        [SerializeField] private TextMeshProUGUI mTitle;
         private CraftingTreeGenerator craftingTreeGenerator;
         private string filePath;
         private CraftingTreeNodeNetwork nodeNetwork;
@@ -20,6 +22,7 @@ namespace DevTools.CraftingTrees.Network
         public void Initialize(CraftingTreeNodeNetwork nodeNetwork, string filePath)
         {
             string treeName =  Path.GetFileName(filePath).Replace(".json",string.Empty);
+            mTitle.text = treeName;
             this.nodeNetwork = nodeNetwork;
             this.filePath = filePath;
             craftingTreeGenerator = new CraftingTreeGenerator();
@@ -30,6 +33,7 @@ namespace DevTools.CraftingTrees.Network
                 mNodeEditorUI
             };
             mSettingEditorUI.Initialize(this,nodeNetwork,craftingTreeGenerator,listeners,treeName);
+            
         }
 
         public void OnDestroy()
@@ -47,7 +51,6 @@ namespace DevTools.CraftingTrees.Network
         public void Rebuild()
         {
             mNodeNetworkUI.Display();
-            mSettingEditorUI.CalculateEnergyBalance();
         }
     }
 

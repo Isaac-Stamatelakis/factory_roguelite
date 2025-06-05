@@ -67,7 +67,7 @@ namespace Player.Movement
                     if (!playerRobot.IsMoving()) return; 
                     float ran = UnityEngine.Random.value;
                     if (ran > PARTICLE_CHANCE) return;
-                    FluidTileMap.PlayerParticles(playerRobot.transform.position,FluidTileMap.FluidParticleType.Standard);
+                    FluidTileMap.PlayParticles(playerRobot.transform.position,FluidTileMap.FluidParticleType.Standard);
                     return;
                 }
                 

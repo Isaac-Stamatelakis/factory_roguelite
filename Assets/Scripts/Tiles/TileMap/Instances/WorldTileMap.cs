@@ -279,6 +279,7 @@ namespace TileMaps {
             {
                 partition = GetPartitionAtPosition(position);
             }
+            if (partition == null) return;
             
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);

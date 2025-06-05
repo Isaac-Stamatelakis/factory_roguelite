@@ -12,14 +12,14 @@ namespace Tiles.TileMap
     {
         private readonly HashSet<Vector2Int> tiles = new HashSet<Vector2Int>(1024);
         private ShaderTilemapManager shaderTilemapManager;
-
-        public void Start()
+        public ShaderTilemapManager Manager => shaderTilemapManager;
+        
+        public void Initialize()
         {
             shaderTilemapManager = new ShaderTilemapManager(transform, -0.1f, false, TileMapType.Block, 5);
             Grid grid = gameObject.AddComponent<Grid>();
             grid.cellSize = new Vector3(Global.TILE_SIZE, Global.TILE_SIZE, 1f);
         }
-        
 
         public Tilemap GetTilemapForPlacement(Vector2Int cellPosition, [NotNull] Material material)
         {

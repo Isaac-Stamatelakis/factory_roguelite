@@ -81,6 +81,7 @@ namespace TileMaps {
         {
             Vector2Int tilePosition = new Vector2Int(x, y);
             IChunkPartition partition = GetPartitionAtPosition(tilePosition);
+            if (partition == null) return;
             Vector3Int placementPosition = new Vector3Int(x,y,0);
             PlaceTileInTilemap(tilemap,tileItem,placementPosition,partition);
             

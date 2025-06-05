@@ -50,25 +50,39 @@ namespace Tiles.TileMap.Platform
 
         public void SetTile(ref Vector3Int cellPosition, TileBase slopeTile, TileBase decoTile, ref Matrix4x4 transformMatrix, ref Color color, Material material)
         {
-            Tilemap slopePlacementMap = !material ? slopeTileMap : slopeShaderTilemapManager.GetTileMap(material);
+            bool hasMaterial = material;
             Tilemap decoPlacementMap = !material ? decoTileMap : decoShaderTilemapManager.GetTileMap(material);
             
-            slopePlacementMap.SetTile(cellPosition, slopeTile);
-            slopePlacementMap.SetTransformMatrix(cellPosition,transformMatrix);
+            slopeTileMap.SetTile(cellPosition, slopeTile);
+            slopeTileMap.SetTransformMatrix(cellPosition,transformMatrix);
             
             decoPlacementMap.SetTile(cellPosition + Vector3Int.down, decoTile);
             decoPlacementMap.SetTransformMatrix(cellPosition+Vector3Int.down,transformMatrix);
             
             extraColliderTilemap.SetTile(cellPosition+extendTileDirection, extraColliderTile);
             extraColliderTilemap.SetTransformMatrix(cellPosition+extendTileDirection,transformMatrix);
-            
-            if (color != Color.white)
+
+            bool hasColor = color != Color.white;
+            if (hasColor)
             {
-                slopePlacementMap.SetTileFlags(cellPosition, TileFlags.None);
-                slopePlacementMap.SetColor(cellPosition,color);
                 decoPlacementMap.SetTileFlags(cellPosition+Vector3Int.down, TileFlags.None);
                 decoPlacementMap.SetColor(cellPosition+Vector3Int.down,color);
+                if (!hasMaterial)
+                {
+                    slopeTileMap.SetTileFlags(cellPosition, TileFlags.None);
+                    slopeTileMap.SetColor(cellPosition,color);
+                }
             }
+
+            if (!hasMaterial) return;
+            
+            Tilemap shaderMap = slopeShaderTilemapManager.GetTileMap(material);
+            shaderMap.SetTile(cellPosition, slopeTile);
+            shaderMap.SetTransformMatrix(cellPosition,transformMatrix);
+            if (!hasColor) return;
+            shaderMap.SetTileFlags(cellPosition, TileFlags.None);
+            shaderMap.SetColor(cellPosition,color);
+            
         }
 
         public void AddShaperMapsToList(List<ShaderTilemapManager> managers)
