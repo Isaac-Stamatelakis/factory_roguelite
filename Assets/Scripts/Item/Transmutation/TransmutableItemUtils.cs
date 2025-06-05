@@ -64,8 +64,6 @@ namespace Items.Transmutable
             var (inputAmount, outputAmount) = GetInputOutputAmount(inputState, outputState, efficency);
             ItemSlot input = new ItemSlot((ItemObject)inputItem, inputAmount, null);
             ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount, null);
-            Debug.Log(input);
-            Debug.Log(output);
             return (input, output);
         }
 

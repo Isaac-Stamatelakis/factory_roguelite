@@ -295,7 +295,9 @@ namespace Recipe.Processor
             
             foreach (RecipeData recipeData in collection.GetOutputRecipes(itemSlot))
             {
-                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
+                DisplayableRecipe displayableRecipe = RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot);
+                if (displayableRecipe == null) continue;
+                displayableRecipes.Add(displayableRecipe);
             }
 
             return displayableRecipes;
@@ -307,7 +309,9 @@ namespace Recipe.Processor
             
             foreach (RecipeData recipeData in collection.GetInputRecipes(itemSlot))
             {
-                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
+                DisplayableRecipe displayableRecipe = RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot);
+                if (displayableRecipe == null) continue;
+                displayableRecipes.Add(displayableRecipe);
             }
 
             return displayableRecipes;
@@ -528,6 +532,8 @@ namespace Recipe.Processor
             List<ItemSlot> fluidInput = null;
             List<ChanceItemSlot> fluidOutput = null;
             var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            if (ItemSlotUtils.IsItemSlotNull(output) || ItemSlotUtils.IsItemSlotNull(input)) return null;
+            
             var chanceOutput = ItemSlotFactory.ToChanceSlot(output);
             switch (inputMatterState)
             {
