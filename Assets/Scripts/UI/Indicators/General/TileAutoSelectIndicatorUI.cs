@@ -39,6 +39,7 @@ namespace UI.Indicators.General
         public void Initialize(PlayerMouse playerMouse)
         {
             this.playerMouse = playerMouse;
+            autoSelectMode = playerMouse.GetAutoSelectMode();
             Display();
         }
         public void Display()

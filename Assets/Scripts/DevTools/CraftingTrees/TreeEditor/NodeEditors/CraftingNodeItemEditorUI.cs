@@ -79,9 +79,8 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                 if (otherNode.NodeType != CraftingTreeNodeType.Transmutation) continue;
                 if (!otherNode.NetworkData.InputIds.Contains(id)) continue;
                 
-                float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutationNodeData.InputState, transmutableItemObject.getState(), nodeNetwork.TransmutationEfficency.Value());
-                uint amount = (uint)(transmutationNodeData.InputAmount * ratio);
-                UpdateTransmutationNode(new SerializedItemSlot(transmutationNodeData.OutputItemId,amount,null),nodeNetwork,otherNode);
+                var (inputAmount, _) = TransmutableItemUtils.GetInputOutputAmount(transmutationNodeData.InputState,transmutableItemObject.getState(),nodeNetwork.TransmutationEfficency.Value());
+                UpdateTransmutationNode(new SerializedItemSlot(transmutationNodeData.OutputItemId,inputAmount,null),nodeNetwork,otherNode);
             }
         }
     }

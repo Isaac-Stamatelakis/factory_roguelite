@@ -101,6 +101,17 @@ namespace Recipe.Viewer
         {
             return true;
         }
+
+        public ItemDisplayableRecipe ToItemDisplayableRecipe(int index)
+        {
+            if (index < 0 || index >= Inputs.Count) return null;
+            List<ItemSlot> inputListWrapper = new List<ItemSlot> { Inputs[index] };
+            ItemSlot output = Outputs[index];
+            ChanceItemSlot chanceItemSlot = new ChanceItemSlot(output?.itemObject, output?.amount ?? 0, output?.tags, 1);
+            List<ChanceItemSlot> outputListWrapper = new List<ChanceItemSlot> { chanceItemSlot };
+            // TODO fluid and tile items
+            return new ItemDisplayableRecipe(RecipeData,inputListWrapper,outputListWrapper,null,null);
+        }
     }
 }
 

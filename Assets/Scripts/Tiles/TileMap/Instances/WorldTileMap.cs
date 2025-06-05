@@ -25,7 +25,7 @@ using Tiles.TileMap;
 
 namespace TileMaps {
     public interface ITileGridMap {
-        public TileItem getTileItem(Vector2Int cellPosition);
+        public OutlineTileMapCellData GetOutlineCellData(Vector3Int cellPosition);
     }
 
     public interface IChiselableTileMap
@@ -326,12 +326,12 @@ namespace TileMaps {
             TilePlaceUtils.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
 
-        protected void PlaceOverlayTile(TileOverlayData tileOverlayData, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
+        protected void PlaceOverlayTile(TileOverlay tileOverlay, Tilemap overlayTileMap, Vector3Int vector3Int, TileItem tileItem, BaseTileData baseTileData )
         {
-            var overlayTile = tileOverlayData.GetTile();
+            var overlayTile = tileOverlay.GetTile();
             SetTileItemTile(overlayTileMap,overlayTile, vector3Int, tileItem.tileOptions.rotatable, baseTileData);
             overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-            overlayTileMap.SetColor(vector3Int,tileOverlayData.GetColor());
+            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
         } 
         
         
@@ -543,6 +543,34 @@ namespace TileMaps {
                 default:
                     return false;
             }
+        }
+        
+        public virtual OutlineTileMapCellData GetOutlineCellData(Vector3Int cellPosition)
+        {
+            TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(cellPosition.x, cellPosition.y));
+            Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride);
+            TileOverlay tileOverlay = tileItem?.tileOptions.overlay;
+            TileBase overlayTile = GetOverlayInformation(tileOverlay, cellPosition);
+            return new OutlineTileMapCellData(
+                tilemap.GetTile(cellPosition), 
+                null,
+                tilemap.GetTransformMatrix(cellPosition).rotation,
+                tilemap.GetTransformMatrix(cellPosition).rotation,
+                tilemap.GetColor(cellPosition),
+                material,
+                overlayTile,
+                tileOverlay
+            );
+        }
+        
+        private TileBase GetOverlayInformation(TileOverlay overlay, Vector3Int position)
+        {
+            if (!overlay) return null;
+
+            if (overlay is not IShaderTileOverlay shaderTileOverlay) return primaryShaderTilemap.GetTilemap(null).GetTile(position);
+            
+            Tilemap shaderMap = primaryShaderTilemap.GetTilemap(shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World));
+            return shaderMap.GetTile(position);
         }
     }
 }

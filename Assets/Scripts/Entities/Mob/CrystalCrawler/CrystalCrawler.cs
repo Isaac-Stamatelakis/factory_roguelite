@@ -39,10 +39,15 @@ namespace Entities.Mob.CrystalCrawler
             }
 
             Color color = FromBitMap(colorBitMap);
-            mBodyRenderer.color = new Color(94 / 255f, 94 / 255f, 94 / 255f, 1f);
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            h += 0.3f;
+            h %= 1;
+            
+            Color bodyColor = Color.HSVToRGB(h, s, v);
+            
+            
+            mBodyRenderer.color = bodyColor;
             mCrystalRenderer.color = color;
-            Color invertedColor = new Color(1-color.r,1-color.g,1-color.b);
-            mEyeRenderer.color = invertedColor;
         }
 
         public int ColorToInt(Color32 color)

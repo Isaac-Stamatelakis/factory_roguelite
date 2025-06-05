@@ -67,16 +67,15 @@ namespace Items.Transmutable
             return (input, output);
         }
 
-        public static float GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
-            float efficency = 1f)
+        public static float GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState)
         {
-            return outputState.GetRatio() / inputState.GetRatio() * efficency;
+            return outputState.GetRatio() / inputState.GetRatio();
         }
 
         public static (uint, uint) GetInputOutputAmount(TransmutableItemState inputState,  TransmutableItemState outputState, float efficency = 1f)
         {
             float transmutationRatio = GetTransmutationRatio(inputState, outputState);
-            uint inputAmount = (uint)(transmutationRatio * inputState.GetRatio());
+            uint inputAmount = (uint)(transmutationRatio * inputState.GetRatio() / efficency);
             uint outputAmount = (uint)(transmutationRatio * outputState.GetRatio());
             uint gcd = GetGcd(inputAmount,outputAmount);
             inputAmount /= gcd;
@@ -87,12 +86,9 @@ namespace Items.Transmutable
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
         {
             ITransmutableItem outputItem = GetMaterialItem(material, outputState);
-            float ratio = GetTransmutationRatio(inputState, outputState, efficency);
             
-            uint inputAmount = (uint)(ratio * inputState.GetRatio());
-            uint outputAmount = (uint)(ratio * outputState.GetRatio());
-            uint gcd = GetGcd(inputAmount,outputAmount);
-            ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount/gcd, null);
+            var (_, outputAmount) = GetInputOutputAmount(inputState, outputState, efficency);
+            ItemSlot output = new ItemSlot((ItemObject)outputItem, outputAmount, null);
             return output;
         }
 

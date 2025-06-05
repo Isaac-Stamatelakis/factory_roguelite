@@ -45,11 +45,11 @@ public static class RecipeUtils {
     where T : ItemRecipe
     {
         float efficency = transmutableRecipe.Efficency.Value();
-        var (inputAmount, _) = TransmutableItemUtils.GetInputOutputAmount(transmutableRecipe.InputState,transmutableRecipe.OutputState,efficency);
+        var (inputAmount, outputAmount) = TransmutableItemUtils.GetInputOutputAmount(transmutableRecipe.InputState,transmutableRecipe.OutputState,efficency);
         if (inputItem.amount < inputAmount) return null;
         inputItem.amount -= inputAmount;
-        var output = TransmutableItemUtils.TransmuteOutput(material, transmutableRecipe.InputState, transmutableRecipe.OutputState);
-        return (T)RecipeFactory.GetTransmutationRecipe(recipeType,material, transmutableRecipe.OutputState, output);
+        ItemSlot outputSlot = new ItemSlot((ItemObject)TransmutableItemUtils.GetMaterialItem(material, transmutableRecipe.OutputState), outputAmount, null);
+        return (T)RecipeFactory.GetTransmutationRecipe(recipeType,material, transmutableRecipe.OutputState, outputSlot);
     }
     
     public static Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candidateRecipe)
@@ -144,22 +144,6 @@ public static class RecipeUtils {
                 Debug.LogWarning($"Null recipe in processor {recipeProcessor.name}");
                 return;
             }
-
-            /* Not sure what the point of this is
-            foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
-            {
-                if (editorItemSlot.ItemObject) continue;
-                Debug.LogWarning($"ItemRecipeObject {itemRecipeObject.name} is invalid");
-                return;
-            }
-
-            foreach (RandomEditorItemSlot editorItemSlot in itemRecipeObject.Outputs)
-            {
-                if (editorItemSlot.ItemObject) continue;
-                Debug.LogWarning($"ItemRecipeObject {itemRecipeObject.name} is invalid");
-                return;
-            }
-            */
             
             switch (recipeType)
             {

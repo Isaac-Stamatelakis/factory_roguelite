@@ -25,7 +25,7 @@ namespace Tiles.TileMap
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) return; // Might need this?
             
-            TileOverlayData tileOverlayData = tileItem.tileOptions.overlayData;
+            TileOverlay tileOverlay = tileItem.tileOptions.overlay;
             var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
             Vector3Int placementPositon = new Vector3Int(x, y, 0);
             
@@ -43,11 +43,11 @@ namespace Tiles.TileMap
                 }
             }
 
-            if (!tileOverlayData) return;
+            if (!tileOverlay) return;
             
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            PlaceOverlayTile(tileItem.tileOptions.overlayData,overlayTileMap, new Vector3Int(x,y,0),tileItem,baseTileData);
+            PlaceOverlayTile(tileItem.tileOptions.overlay,overlayTileMap, new Vector3Int(x,y,0),tileItem,baseTileData);
         }
 
         

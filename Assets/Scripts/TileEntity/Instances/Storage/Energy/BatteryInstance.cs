@@ -22,7 +22,9 @@ namespace TileEntity.Instances.Storage {
             if (Energy >= Storage) {
                 return 0;
             }
-            onEnergyInsertCallBack?.Invoke();
+            
+            // Im not sure why I originally added this callback?
+            //onEnergyInsertCallBack?.Invoke();
             ulong sum = Energy+=amount;
             if (sum > Storage) {
                 Energy = Storage;

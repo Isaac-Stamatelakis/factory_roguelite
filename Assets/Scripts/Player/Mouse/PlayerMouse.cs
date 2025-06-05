@@ -37,7 +37,6 @@ using Robot.Tool;
 using Robot.Upgrades;
 using RobotModule;
 using TileEntity.AssetManagement;
-using Tiles.Highlight;
 using Tiles.Indicators;
 using UI;
 using UI.Indicators;
@@ -69,7 +68,6 @@ namespace PlayerModule.Mouse {
         private ToolPreviewController previewController = new ToolPreviewController();
         private AutoTileFinder autoTileFinder;
         private TileHighlighter tileHighlighter;
-        private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
         private AutoSelectMode autoSelectMode;
         private List<IWorldTileMap> systemTileMaps = new();
@@ -93,8 +91,7 @@ namespace PlayerModule.Mouse {
             playerTransform = transform;
             eventSystem = EventSystem.current;
             autoTileFinder = new AutoTileFinder(transform);
-            tileHighlighter = playerScript.TileViewers.TileHighlighter;
-            tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            tileHighlighter = playerScript.TileViewers.tileHighlighter;
             canvasController = CanvasController.Instance;
         }
 
@@ -104,8 +101,7 @@ namespace PlayerModule.Mouse {
             switch (autoSelectMode)
             {
                 case AutoSelectMode.None:
-                    tileBreakHighlighter.Clear();
-                    tileHighlighter.Hide();
+                    tileHighlighter.Clear();
                     ToolTipController.Instance.HideToolTip(ToolTipType.World);
                     highlightPosition = null;
                     break;
@@ -114,8 +110,7 @@ namespace PlayerModule.Mouse {
                     highlightPosition = null;
                     break;
                 case AutoSelectMode.TileEntity:
-                    tileBreakHighlighter.Clear();
-                    tileHighlighter.Hide();
+                    tileHighlighter.Clear();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -191,26 +186,18 @@ namespace PlayerModule.Mouse {
             IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
             if (hitMap == null || !hitMap.GetTilemap())
             {
-                tileBreakHighlighter.Clear();
+                tileHighlighter.Clear();
                 return toolHitPosition;
             }
             
-            tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
-            OutlineTileMapCellData outlineTileMapCellData;
-            Vector2Int cellPosition;
-            if (hitMap is IOutlineTileGridMap outlineTileGridMap)
-            {
-                cellPosition = Global.WorldToCell(toolHitPosition);
-                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-                outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
-            }
-            else
-            {
-                cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
-                outlineTileMapCellData = hitMap.FormatMainTileMapOutlineData(new Vector3Int(cellPosition.x, cellPosition.y, 0));
-            }
-                   
-            tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
+            tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+            ITileGridMap tileGridMap = (ITileGridMap)hitMap;
+            
+            var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
+            Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+            var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
+            
+            tileHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
         
@@ -233,7 +220,7 @@ namespace PlayerModule.Mouse {
             }
             ToolTipController.Instance.HideToolTip(ToolTipType.World);
             highlightPosition = null;
-            tileHighlighter.Hide();
+            tileHighlighter.Clear();
         }
         
 
@@ -248,8 +235,11 @@ namespace PlayerModule.Mouse {
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
+            
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
-            tileHighlighter.Highlight(position, worldTileGridMap.GetTileItem(position),tilemap.GetTilemap());
+            cellPosition.z = 0;
+            tileHighlighter.SetOutlineColor(Color.yellow);
+            tileHighlighter.Display(new Vector2Int(cellPosition.x, cellPosition.y), worldTileGridMap.GetOutlineCellData(cellPosition));
             highlightPosition = position;
             return true;
         }
@@ -556,10 +546,10 @@ namespace PlayerModule.Mouse {
 
         public void ClearToolPreview()
         {
-            tileBreakHighlighter.ResetHistory();
-            tileBreakHighlighter.Clear();
-            playerScript.TileViewers.TileBreakHighlighter.ResetHistory();
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            tileHighlighter.ResetHistory();
+            tileHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.ResetHistory();
+            playerScript.TileViewers.tileHighlighter.Clear();
             previewController.ResetRecord();
         }
 

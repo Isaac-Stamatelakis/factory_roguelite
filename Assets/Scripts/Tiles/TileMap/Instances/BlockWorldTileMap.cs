@@ -16,12 +16,12 @@ namespace TileMaps {
         public TileBase Tile;
         public TileBase OutlineTile;
         public TileBase OverlayTile;
-        public TileOverlayData OverlayData;
+        public TileOverlay Overlay;
         public Quaternion OutlineRotation;
         public Quaternion TileRotation;
         public Material Material;
 
-        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor, Material material, TileBase overlayTile, TileOverlayData overlayData)
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation, Color tileColor, Material material, TileBase overlayTile, TileOverlay overlay)
         {
             Tile = tile;
             OutlineTile = outlineTile;
@@ -30,14 +30,11 @@ namespace TileMaps {
             TileColor = tileColor;
             Material = material;
             OverlayTile = overlayTile;
-            OverlayData = overlayData;
+            Overlay = overlay;
         }
     }
-    public interface IOutlineTileGridMap : IWorldTileMap
-    {
-        public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
-    }
-    public class BlockWorldTileMap : WorldTileMap, IOutlineTileGridMap
+    
+    public class BlockWorldTileMap : WorldTileMap
     {
         private Tilemap outlineTileMap;
         private Tilemap overlayTileMap;
@@ -87,7 +84,7 @@ namespace TileMaps {
             
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
-            TileOverlayData tileOverlayData = tileItem.tileOptions.overlayData;
+            TileOverlay tileOverlay = tileItem.tileOptions.overlay;
 
             var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
             if (transmutableMaterial)
@@ -100,10 +97,10 @@ namespace TileMaps {
                 }
             }
             
-            if (tileOverlayData)
+            if (tileOverlay)
             {
                 Tilemap overlayPlacementMap;
-                if (tileOverlayData is not IShaderTileOverlay shaderTileOverlay)
+                if (tileOverlay is not IShaderTileOverlay shaderTileOverlay)
                 {
                     overlayPlacementMap = overlayTileMap;
                 }
@@ -112,7 +109,7 @@ namespace TileMaps {
                     Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
                     overlayPlacementMap = shaderMaterial ? primaryShaderTilemap.GetTilemapForPlacement(tilePosition, shaderMaterial) : overlayTileMap;
                 }
-                PlaceOverlayTile(tileItem.tileOptions.overlayData,overlayPlacementMap, placementPosition,tileItem,baseTileData);
+                PlaceOverlayTile(tileItem.tileOptions.overlay,overlayPlacementMap, placementPosition,tileItem,baseTileData);
             }
             TileBase outlineTile = tileItem.outline;
             if (!outlineTile) {
@@ -133,43 +130,13 @@ namespace TileMaps {
             tempMatrix4x4.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation), Vector3.one);
             outlineTileMap.SetTransformMatrix(placementPosition,tempMatrix4x4);
         }
-
-       
-
-        public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
+        
+        public override OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            TileItem tileItem = (TileItem)GetItemObject(new  Vector2Int(position.x, position.y));
-            Material material = ItemRegistry.GetInstance().GetTransmutationWorldMaterialNullSafe(tileItem?.tileOptions.TransmutableColorOverride);
-            
-            TileBase overlayTile;
-            var overlay = tileItem?.tileOptions.overlayData;
-            if (overlay)
-            {
-                if (overlay is IShaderTileOverlay shaderTileOverlay)
-                {
-                    Tilemap shaderMap = primaryShaderTilemap.GetTilemap(shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World));
-                    overlayTile = shaderMap.GetTile(position);
-                }
-                else
-                {
-                    overlayTile = overlayTileMap.GetTile(position);
-                }
-            }
-            else
-            {
-                overlayTile = null;
-            }
-           
-            return new OutlineTileMapCellData(
-                tilemap.GetTile(position),
-                outlineTileMap.GetTile(position),
-                tilemap.GetTransformMatrix(position).rotation,
-                outlineTileMap.GetTransformMatrix(position).rotation,
-                tilemap.GetColor(position),
-                material,
-                overlayTile,
-                tileItem?.tileOptions.overlayData
-            );
+            OutlineTileMapCellData outlineTileMapCellData = base.GetOutlineCellData(position);
+            outlineTileMapCellData.OutlineTile = outlineTileMap.GetTile(position);
+            outlineTileMapCellData.OutlineRotation = outlineTileMap.GetTransformMatrix(position).rotation;
+            return outlineTileMapCellData;
         }
     }
 }

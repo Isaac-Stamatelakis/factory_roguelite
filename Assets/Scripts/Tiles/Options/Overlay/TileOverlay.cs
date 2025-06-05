@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace Tiles.Options.Overlay
 {
     
-    public abstract class TileOverlayData : ScriptableObject
+    public abstract class TileOverlay : ScriptableObject
     {
         public abstract TileBase GetDisplayTile();
         public abstract TileBase GetTile();

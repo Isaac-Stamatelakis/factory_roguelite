@@ -32,13 +32,20 @@ namespace Recipe.Viewer
         {
             DisplayableRecipe displayableRecipe = recipeProcessorDisplayInfo.Pages[pageIndex];
             recipeProcessorUI.DisplayRecipe(displayableRecipe);
-            DisplayRecipeCost(displayableRecipe);
+            if (displayableRecipe is ItemDisplayableRecipe itemDisplayableRecipe)
+            {
+                DisplayRecipeCost(itemDisplayableRecipe);
+            } else if (displayableRecipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
+            {
+                ProcessorCostRotatorUI processorCostRotatorUI = gameObject.AddComponent<ProcessorCostRotatorUI>();
+                processorCostRotatorUI.Initialize(transmutationDisplayableRecipe,DisplayRecipeCost);
+            }
         }
 
-        private void DisplayRecipeCost(DisplayableRecipe displayableRecipe)
+        private void DisplayRecipeCost(ItemDisplayableRecipe itemDisplayableRecipe)
         {
             var costString = RecipeViewerHelper.GetRecipeCostStrings(
-                displayableRecipe,
+                itemDisplayableRecipe,
                 recipeProcessorDisplayInfo.RecipeProcessorInstance.RecipeProcessorObject.RecipeType
             );
             bool costUICreated = !ReferenceEquals(recipeCostUI, null);
@@ -48,7 +55,7 @@ namespace Recipe.Viewer
                 return;
             }
             if (!costUICreated) recipeCostUI = Instantiate(recipeCostUIPrefab, transform);
-            List<string> restrictions = GetRestrictionText(displayableRecipe);
+            List<string> restrictions = GetRestrictionText(itemDisplayableRecipe);
             
             recipeCostUI.Display(costString,restrictions);
         }
@@ -63,6 +70,7 @@ namespace Recipe.Viewer
             restrictions.Add(recipeRestrictionInfo.GetRestrictionText(displayableRecipe));
             return restrictions;
         }
+        
     }
 
     public class RecipeProcessorDisplayInfo : ICatalogueElement

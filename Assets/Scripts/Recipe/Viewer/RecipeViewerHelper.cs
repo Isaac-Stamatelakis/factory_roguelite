@@ -46,25 +46,13 @@ namespace Recipe.Viewer {
             return elements;
         }
 
-        public static List<string> GetRecipeCostStrings(DisplayableRecipe displayableRecipe, RecipeType recipeType)
+        public static List<string> GetRecipeCostStrings(ItemDisplayableRecipe itemDisplayableRecipe, RecipeType recipeType)
         {
-            List<string> strings = GetCostStringsOfDisplayable(displayableRecipe, recipeType);
+            List<string> strings =  GetCostStringsFromItemDisplayable(itemDisplayableRecipe, recipeType);
             // TODO restrictions
             return strings;
         }
-
-        private static List<string> GetCostStringsOfDisplayable(DisplayableRecipe displayableRecipe, RecipeType recipeType)
-        {
-            switch (displayableRecipe)
-            {
-                case ItemDisplayableRecipe itemDisplayableRecipe:
-                    return GetCostStringsFromItemDisplayable(itemDisplayableRecipe, recipeType);
-                case TransmutationDisplayableRecipe transmutationDisplayableRecipe:
-                    return GetCostStringsFromTransmutationDisplayable(transmutationDisplayableRecipe, recipeType);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        
 
         private static List<string> GetCostStringsFromItemDisplayable(ItemDisplayableRecipe displayableRecipe, RecipeType recipeType)
         {
@@ -115,27 +103,6 @@ namespace Recipe.Viewer {
                     return null;
                 case RecipeType.Burner:
                     return null;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
-            }
-        }
-
-        private static List<string> GetCostStringsFromTransmutationDisplayable(TransmutationDisplayableRecipe displayableRecipe, RecipeType recipeType)
-        {
-            TransmutableRecipeObject transmutableRecipeObject = (TransmutableRecipeObject)displayableRecipe.RecipeData.Recipe;
-            switch (recipeType)
-            {
-                case RecipeType.Item:
-                    return new List<string>();
-                case RecipeType.Machine:
-                    return new List<string>
-                    {
-                        $"Total Usage: ?J",
-                        $"Usage Rate: 32^(2*TIER)J/T",
-                        $"Time: ?SECS",
-                    };
-                case RecipeType.Burner:
-                    return new List<string>();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }

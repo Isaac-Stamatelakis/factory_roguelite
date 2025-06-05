@@ -69,7 +69,7 @@ namespace Robot.Tool.Instances
         public override void TerminateClickHold()
         {
             laserManager.Terminate();
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
             playerScript.PlayerMouse.ClearToolPreview();
         }
 
@@ -263,7 +263,7 @@ namespace Robot.Tool.Instances
                     break;
                 }
             }
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
         }
 
         private void RotateTile(TileItem tileItem, WorldTileMap worldTileMap, Vector2Int tilePosition, IChunkPartition partition, Vector2Int positionInPartition, int direction)
@@ -308,10 +308,9 @@ namespace Robot.Tool.Instances
         public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
-            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             if (multiHits == 0 && !autoSelectOn)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             
@@ -332,24 +331,16 @@ namespace Robot.Tool.Instances
                 for (int y = -multiHits; y <= multiHits; y++)
                 {
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
-                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    foreach (var worldTileMap in worldTileGridMaps)
                     {
-                        if (!tileGridMap.HasTile(breakPosition)) continue;
+                        if (!worldTileMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
-                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
-                        {
-                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
-                        }
-                        else
-                        {
-                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
-                        }
-                        
+                        tiles[breakPosition] = worldTileMap.GetOutlineCellData(vector3Int);
                     }
                     
                 }
             }
-            tileBreakHighlighter.Display(tiles);
+            tileHighlighter.Display(tiles);
         }
 
         public override RobotArmState GetRobotArmAnimation()

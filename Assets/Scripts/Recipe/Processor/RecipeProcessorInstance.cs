@@ -82,7 +82,7 @@ namespace Recipe.Processor
             foreach (var slot in slots)
             {
                 string id = slot.Id;
-                if (!includedIds.Add(id)) continue;
+                if (string.IsNullOrEmpty(id) || !includedIds.Add(id)) continue;
                 if (!dict.ContainsKey(id))
                 {
                     dict[id] = new List<ushort>();
@@ -364,7 +364,7 @@ namespace Recipe.Processor
                             }
 
                             if (!inputMatch || !outputMatch) continue;
-                            var (input,output) = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState);
+                            var (input,output) = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState,transRecipe.Efficency.Value());
                             inputs.Add(input);
                             outputs.Add(output);
                             break;
@@ -479,6 +479,7 @@ namespace Recipe.Processor
                 case RecipeType.Machine:
                 {
                     Tier tier = material.GetTier();
+                    Debug.Log(tier.DisplayName());
                     ulong usage = tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
@@ -531,7 +532,7 @@ namespace Recipe.Processor
             List<ChanceItemSlot> solidOutput = null;
             List<ItemSlot> fluidInput = null;
             List<ChanceItemSlot> fluidOutput = null;
-            var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState,transmutableRecipeObject.Efficency.Value());
             if (ItemSlotUtils.IsItemSlotNull(output) || ItemSlotUtils.IsItemSlotNull(input)) return null;
             
             var chanceOutput = ItemSlotFactory.ToChanceSlot(output);

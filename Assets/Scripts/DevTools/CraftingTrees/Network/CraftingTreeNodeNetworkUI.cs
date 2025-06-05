@@ -100,8 +100,8 @@ namespace DevTools.CraftingTrees.Network
         {
             ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(OutputItemId);
             if (transmutableItemObject == null) return null;
-            uint amount = (uint)(InputAmount*TransmutableItemUtils.GetTransmutationRatio(InputState, transmutableItemObject.getState(), transmutationEfficency.Value()));
-            return new ItemSlot((ItemObject)transmutableItemObject, amount,null);
+            var (inputAmount, _) = TransmutableItemUtils.GetInputOutputAmount(InputState,transmutableItemObject.getState(),transmutationEfficency.Value());
+            return new ItemSlot((ItemObject)transmutableItemObject, inputAmount,null);
         }
     }
 

@@ -17,12 +17,12 @@ namespace TileEntity.Instances.Machine.UI
 {
     public class TileEntityInventoryUI : MonoBehaviour, IInventoryUITileEntityUI
     {
+        public const int TRANSMUTATION_ROTATE_RATE = 50;
         [SerializeField] public InventoryUI solidInputUI;
         [SerializeField] public InventoryUI solidOutputUI;
         [SerializeField] public InventoryUI fluidInputUI;
         [SerializeField] public InventoryUI fluidOutputUI;
         private ITileEntityInstance displayedTileEntity;
-        
         public void Display(TileEntityInventory machineItemInventory, TileEntityLayoutObject layoutObject, ITileEntityInstance tileEntityInstance)
         {
             this.displayedTileEntity = tileEntityInstance;
@@ -166,7 +166,7 @@ namespace TileEntity.Instances.Machine.UI
             {
                 rotator = inventoryUI.AddComponent<InventoryUIRotator>();
             }
-            rotator.Initialize(inventories,size,50,initialIndex:initialIndex);
+            rotator.Initialize(inventories,size,TRANSMUTATION_ROTATE_RATE,initialIndex:initialIndex);
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
 

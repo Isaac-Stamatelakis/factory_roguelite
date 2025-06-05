@@ -70,7 +70,7 @@ namespace Robot.Tool.Instances
 
         public override void TerminateClickHold()
         {
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
             laserManager?.Terminate();
             if (audioController)
             {
@@ -215,7 +215,7 @@ namespace Robot.Tool.Instances
             float ran = UnityEngine.Random.Range(0f, 1f);
             Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
             minMaxColor.colorMax = color;
-            minMaxColor.colorMin = tileItem.tileOptions.overlayData?.GetColor() ?? color;
+            minMaxColor.colorMin = tileItem.tileOptions.overlay?.GetColor() ?? color;
             particleSystemMain.startColor = minMaxColor;
         }
 
@@ -245,7 +245,7 @@ namespace Robot.Tool.Instances
                 List<ItemSlot> itemDrops = blockVeinMineEvent?.GetCollectedItems();
                 playerScript.PlayerInventory.GiveItems(itemDrops);
             }
-            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            playerScript.TileViewers.tileHighlighter.Clear();
 
             
             return true;
@@ -379,21 +379,19 @@ namespace Robot.Tool.Instances
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
             
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
-            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             
             if (multiBreak == 0 && !autoSelectOn)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
             if (outlineDict == null)
             {
-                tileBreakHighlighter.Clear();
                 return;
             }
             
-            tileBreakHighlighter.Display(outlineDict);
+            tileHighlighter.Display(outlineDict);
         }
 
         private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)
@@ -403,8 +401,6 @@ namespace Robot.Tool.Instances
             if (veinMinePower > 1)
             {
                 WorldTileMap worldTileMap = GetWorldTileGridMap(closedChunkSystem);
-                IOutlineTileGridMap outlineTileGridMap = worldTileMap as IOutlineTileGridMap;
-                if (outlineTileGridMap == null) return null;
                 TileItem tileItem = worldTileMap.getTileItem(cellPosition);
           
                 if (!tileItem) return null;
@@ -415,15 +411,15 @@ namespace Robot.Tool.Instances
                 Dictionary<Vector2Int, OutlineTileMapCellData> veinMineTiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
                 foreach (Vector2Int position in brokenPositions)
                 {
-                    veinMineTiles[position] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
+                    veinMineTiles[position] = worldTileMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
                 }
                 return veinMineTiles;
             }
             
-            List<IWorldTileMap> worldTileGridMaps = new List<IWorldTileMap>
+            List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
             {
-                closedChunkSystem.GetTileMap(TileMapType.Block),
-                closedChunkSystem.GetTileMap(TileMapType.Object)
+                (WorldTileMap)closedChunkSystem.GetTileMap(TileMapType.Block),
+                (WorldTileMap)closedChunkSystem.GetTileMap(TileMapType.Object)
             };
 
             
@@ -433,19 +429,11 @@ namespace Robot.Tool.Instances
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
-                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    foreach (var tileGridMap in worldTileGridMaps)
                     {
                         if (!tileGridMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
-                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
-                        {
-                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
-                        }
-                        else
-                        {
-                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
-                        }
-                         
+                        tiles[breakPosition] = tileGridMap.GetOutlineCellData(vector3Int);
                     }
                     
                 }
