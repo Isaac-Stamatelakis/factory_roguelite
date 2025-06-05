@@ -48,10 +48,12 @@ namespace Item.Registry
         {
             if (ReferenceEquals(itemObject, null)) return 0;
             if (itemBurnDurations.TryGetValue(itemObject.id, out var duration)) return duration;
-            if (itemObject is not TransmutableItemObject transmutableItemObject) return 0;
-            var material = transmutableItemObject.getMaterial();
+            if (itemObject is not ITransmutableItem transmutableItem) return 0;
+            var material = transmutableItem.getMaterial();
             if (!materialBurnDurations.TryGetValue(material, out var matDuration)) return 0;
-            var state = transmutableItemObject.getState();
+            var state = transmutableItem.getState();
+            
+            if (state.GetMatterState() != ItemState.Solid) return 0;
             float stateRatio = state.GetRatio();
             return (uint) (matDuration / stateRatio);
         }
@@ -70,14 +72,12 @@ namespace Item.Registry
             return displayList;
         }
 
-        public List<BurnableItemDisplay> GetAllMaterialsToDisplay()
+        public List<BurnableMaterialDisplay> GetAllMaterialsToDisplay()
         {
-            List<BurnableItemDisplay> displayList = new List<BurnableItemDisplay>();
+            List<BurnableMaterialDisplay> displayList = new List<BurnableMaterialDisplay>();
             foreach (var material in materialBurnDurations.Keys)
             {
-                ITransmutableItem defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
-                ItemSlot defaultItemSlot = new ItemSlot((ItemObject)defaultItem, 1,null);
-                displayList.Add(new BurnableItemDisplay(defaultItemSlot));
+                displayList.Add(new BurnableMaterialDisplay(material));
             }
 
             return displayList;

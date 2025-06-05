@@ -43,22 +43,25 @@ namespace TileEntity.Instances.Machine.UI
             tileEntityInventoryUI.Display(burnerMachineInstance.GetItemInventory().Content,burnerMachineInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(burnerMachineInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddCallback(burnerMachineInstance.InventoryUpdate);
-
-            if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
-
+            
+            burnerInventoryUI.SetInputRestrictionCallBack(ValidateFunction);
+            
+            return;
             bool ValidateFunction(ItemObject itemObject, int index)
             {
                 if (!itemObject) return false;
                 uint duration = burnableItemRegistry.GetBurnDuration(itemObject);
-                if (duration == 0) return false;
                 
+                if (duration == 0) return false;
+
+                if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return true;
                 foreach (ItemObject whiteListedFuel in fuelRestriction.WhiteListedFuels)
                 {
                     if (whiteListedFuel?.id == itemObject.id) return true;
                 }
                 return false;
             }
-            burnerInventoryUI.SetInputRestrictionCallBack(ValidateFunction);
+            
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)

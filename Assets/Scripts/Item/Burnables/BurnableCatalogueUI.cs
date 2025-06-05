@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Item.GameStage;
+using Item.Inventory;
 using Item.Slot;
+using Item.Transmutation;
 using Items;
 using Items.Inventory;
 using Items.Transmutable;
@@ -10,6 +12,7 @@ using Recipe;
 using Recipe.Collection;
 using TMPro;
 using UI.Catalogue.InfoViewer;
+using Unity.VisualScripting;
 using UnityEngine;
 using BurnableItemRegistry = Item.Registry.BurnableItemRegistry;
 
@@ -21,6 +24,7 @@ namespace Item.Burnables
         [SerializeField] private TextMeshProUGUI mBurnTimeText;
         [SerializeField] private InventoryUI mItemSlotInventoryUI;
         private BurnableInfo burnableInfo;
+        private InventoryUIRotator rotator;
         public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
             burnableInfo = (BurnableInfo)element;
@@ -33,7 +37,28 @@ namespace Item.Burnables
             switch (burnableDisplay)
             {
                 case BurnableItemDisplay burnableItemDisplay:
+                    if (rotator)
+                    {
+                        rotator.enabled = false;
+                    }
                     DisplayItemSlot(burnableItemDisplay.ItemSlot);
+                    break;
+                case BurnableMaterialDisplay burnableMaterialDisplay:
+                    if (!rotator)
+                    {
+                        rotator = mItemSlotInventoryUI.AddComponent<InventoryUIRotator>();
+                    }
+                    rotator.enabled = true;
+                    rotator.Initialize(
+                        burnableMaterialDisplay.ItemSlotList,1,50,
+                        initialIndex:UnityEngine.Random.Range(0,burnableMaterialDisplay.ItemSlotList.Count),
+                        onRotateCallback:DisplayIndex
+                    );
+
+                    void DisplayIndex(int index)
+                    {
+                        DisplayItemSlot(burnableMaterialDisplay.ItemSlotList[index][0]);
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -76,6 +101,33 @@ namespace Item.Burnables
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
             return gameStageCollection.HasStage(ItemSlot?.itemObject?.GetGameStageObject());
+        }
+    }
+
+    public class BurnableMaterialDisplay : BurnableDisplay
+    {
+        public TransmutableItemMaterial Material;
+        public List<List<ItemSlot>> ItemSlotList;
+
+        public BurnableMaterialDisplay(TransmutableItemMaterial material)
+        {
+            Material = material;
+            ItemSlotList = new List<List<ItemSlot>>();
+            List<TransmutableItemState> states = material.MaterialOptions.GetAllStates();
+
+            foreach (TransmutableItemState state in states)
+            {
+                ITransmutableItem transmutableItem = TransmutableItemUtils.GetMaterialItem(material, state);
+                if (transmutableItem == null) continue;
+                ItemSlot itemSlot = new ItemSlot((ItemObject)transmutableItem, 1, null);
+                List<ItemSlot> nestedItemSlotList = new List<ItemSlot> { itemSlot };
+                ItemSlotList.Add(nestedItemSlotList);
+            }
+        }
+
+        public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
+        {
+            return gameStageCollection.HasStage(Material?.gameStageObject);
         }
     }
     
