@@ -67,8 +67,8 @@ namespace Recipe.Viewer {
                     if (recipeObject is GeneratorItemRecipeObject generatorRecipe)
                         return new List<string>
                         {
-                            $"Total Generation:{(ulong)generatorRecipe.Ticks * generatorRecipe.EnergyPerTick}J",
-                            $"Generation Rate:{generatorRecipe.EnergyPerTick}J/t",
+                            $"Production:{(ulong)generatorRecipe.Ticks * generatorRecipe.EnergyPerTick}J",
+                            $"Rate:{generatorRecipe.EnergyPerTick}J/t",
                             $"Time:{generatorRecipe.Ticks / 50f:F2}SECS",
                         };
                     Debug.LogWarning("Passive item recipe object is not a Generator Recipe");
@@ -77,8 +77,8 @@ namespace Recipe.Viewer {
                     if (recipeObject is ItemEnergyRecipeObject itemEnergyRecipe)
                         return new List<string>
                         {
-                            $"Total Usage:{itemEnergyRecipe.TotalInputEnergy}J",
-                            $"Usage Rate:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
+                            $"Cost:{itemEnergyRecipe.TotalInputEnergy}J",
+                            $"Usage:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
                             $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2}SECS",
                         };
                     if (recipeObject is TransmutableRecipeObject)
@@ -88,8 +88,8 @@ namespace Recipe.Viewer {
                         ulong cost = 32 * usage;
                         return new List<string>
                         {
-                            $"Total Usage:{cost}J",
-                            $"Usage Rate:{usage}J/T",
+                            $"Cost:{cost}J",
+                            $"Usage:{usage}J/T",
                             $"Time:{(double) cost / usage:F2}SECS",
                             $"Tier:{tier}",
                         };
@@ -97,16 +97,21 @@ namespace Recipe.Viewer {
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
                 case RecipeType.Burner:
-                    /*
-                    if (recipeObject is BurnerRecipeObject burnerRecipeObject)
+                     if (recipeObject is BurnerRecipeObject burnerRecipeObject)
                         return new List<string>
                         {
                             $"Time:{burnerRecipeObject.Ticks}",
-                            $"Usage Rate:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
-                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2}SECS",
                         };
-                        */
-                    return null;
+                     if (recipeObject is TransmutableRecipeObject) {
+                         Tier tier = displayableRecipe.Tier;
+                         uint ticks = 50 * ((uint)tier + 2);
+                         return new List<string>
+                         {
+                             $"Time:{ticks}T",
+                             $"Tier:{tier}",
+                         };
+                     }
+                     return null;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
