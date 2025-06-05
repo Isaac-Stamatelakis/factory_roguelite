@@ -7,10 +7,10 @@ using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]
-    public class Sign : TileEntityObject, IUITileEntity
+    public class Sign : TileEntityObject, IUITileEntity, IMaterialOverrideUITileEntity
     {
         public AssetReference AssetReference;
-
+        public Material Material;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignInstance(this,tilePosition,tileItem,chunk);
@@ -19,6 +19,11 @@ namespace TileEntity.Instances.Signs {
         public AssetReference GetUIAssetReference()
         {
             return AssetReference;
+        }
+
+        public Material GetUIMaterial()
+        {
+            return Material;
         }
     }
     [System.Serializable]
