@@ -28,6 +28,7 @@ using Tiles.CustomTiles.StateTiles.Instances.Platform;
 using Tiles.TileMap;
 using Tiles.TileMap.Platform;
 using UnityEngine.Tilemaps;
+using WorldModule;
 using Object = UnityEngine.Object;
 
 namespace TileMaps.Place {
@@ -143,6 +144,8 @@ namespace TileMaps.Place {
         }
         public static bool BaseTilePlaceable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
+            if (!tileItem.tileOptions.hitable && WorldManager.GetInstance().WorldLoadType != WorldManager.WorldType.Structure) return false;
+            
             bool playerCollidable = tileItem.tileType == TileType.Block;
             if (playerCollidable)
             {
