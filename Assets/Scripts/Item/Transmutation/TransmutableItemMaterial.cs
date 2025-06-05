@@ -23,6 +23,7 @@ namespace Items.Transmutable {
         public TransmutableMaterialOptions MaterialOptions;
         [SerializeField] private TransmutationShaderPairObject ShaderMaterial;
         [SerializeField] private TransmutationShaderOptionObject ShaderOption;
+        
 
         public Tier GetTier()
         {

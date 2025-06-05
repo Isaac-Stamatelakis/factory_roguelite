@@ -109,9 +109,9 @@ namespace TileEntity.Instances.Machine.UI
             if (size == 0) return;
             
             inventoryUI.DisplayInventory(inventory);
-            if (displayedTileEntity is IIndexInventoryListener inventoryListener)
+            if (displayedTileEntity is IMachineInstance machineInstance)
             {
-                inventoryUI.AddListener(inventoryListener);
+                inventoryUI.AddCallback(machineInstance.InventoryUpdate);
             }
             
         }

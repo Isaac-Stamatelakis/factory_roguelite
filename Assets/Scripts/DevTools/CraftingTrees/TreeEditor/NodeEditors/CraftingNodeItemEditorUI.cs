@@ -169,8 +169,8 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                                     ItemNodeData otherItemNodeData = (ItemNodeData)otherNode.NodeData;
                                     transmutationNodeData.InputState = TransmutableItemState.Ingot;
                                     transmutationNodeData.InputAmount = otherItemNodeData.SerializedItemSlot?.amount ?? 1;
-                                    TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(otherItemNodeData.SerializedItemSlot?.id);
-                                    if (!transmutableItemObject) break;
+                                    ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(otherItemNodeData.SerializedItemSlot?.id);
+                                    if (transmutableItemObject == null) break;
                                     transmutationNodeData.InputState = transmutableItemObject.getState();
                                     break;
                                 }
@@ -309,8 +309,8 @@ namespace DevTools.CraftingTrees.TreeEditor.NodeEditors
                 }
                 if (inputNode.NodeType != CraftingTreeNodeType.Item) return ReturnDefault();
                 ItemNodeData itemNodeData = (ItemNodeData)inputNode.NodeData;
-                TransmutableItemObject transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
-                if (!transmutableItemObject)
+                ITransmutableItem transmutableItemObject = ItemRegistry.GetInstance().GetTransmutableItemObject(itemNodeData.SerializedItemSlot?.id);
+                if (transmutableItemObject == null)
                 {
                     return ReturnDefault();
                 }

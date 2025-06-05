@@ -46,7 +46,6 @@ public static class RecipeUtils {
     {
         float efficency = transmutableRecipe.Efficency.Value();
         var (inputAmount, _) = TransmutableItemUtils.GetInputOutputAmount(transmutableRecipe.InputState,transmutableRecipe.OutputState,efficency);
-        Debug.Log(inputAmount);
         if (inputItem.amount < inputAmount) return null;
         inputItem.amount -= inputAmount;
         var output = TransmutableItemUtils.TransmuteOutput(material, transmutableRecipe.InputState, transmutableRecipe.OutputState);

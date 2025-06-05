@@ -486,7 +486,7 @@ namespace Recipe.Processor
                 case RecipeType.Burner:
                 {
                     Tier tier = material.GetTier();
-                    uint ticks = (uint)tier * 50;
+                    uint ticks = (uint)(tier+1) * 50;
                     return new BurnerItemRecipe(solid,fluid, ticks, ticks,0);
                 }
                     

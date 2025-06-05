@@ -82,7 +82,8 @@ namespace Item.Transmutation.Info
 
         public int GetPageCount()
         {
-            return 3;
+            // Could update to 3 latter
+            return 1;
         }
 
         public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)

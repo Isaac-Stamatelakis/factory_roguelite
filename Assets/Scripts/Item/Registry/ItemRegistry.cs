@@ -186,7 +186,7 @@ namespace Items {
             return null;
         }
 
-        public TransmutableItemObject GetTransmutableItemObject(string id) {
+        public ITransmutableItem GetTransmutableItemObject(string id) {
             if (id == null) {
                 return null;
             }
@@ -194,10 +194,7 @@ namespace Items {
                 return null;
             }
 
-            if (itemObject is TransmutableItemObject value) {
-                return value;
-            }
-            return null;
+            return itemObject as ITransmutableItem;
         }
         public ItemObject GetItemObject(string id)
         {

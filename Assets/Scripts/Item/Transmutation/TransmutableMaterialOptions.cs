@@ -23,6 +23,24 @@ namespace Items.Transmutable
         public List<TransmutableStateOptions> States;
         public List<TransmutableTileStateOptions> TileStates;
         public List<TransmutableFluidTileOptions> FluidStates;
+        
+        public List<TransmutableItemState> GetAllStates()
+        {
+            List<TransmutableItemState> states = new List<TransmutableItemState>();
+            foreach (TransmutableStateOptions stateOptions in States)
+            {
+                states.Add((TransmutableItemState)stateOptions.state);
+            }
+            foreach (TransmutableTileStateOptions stateOptions in TileStates)
+            {
+                states.Add((TransmutableItemState)stateOptions.state);
+            }
+            foreach (TransmutableFluidTileOptions stateOptions in FluidStates)
+            {
+                states.Add((TransmutableItemState)stateOptions.state);
+            }
+            return states;
+        }
     }
     
     [System.Serializable]

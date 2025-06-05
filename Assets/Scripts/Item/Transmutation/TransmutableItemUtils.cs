@@ -43,7 +43,7 @@ namespace Items.Transmutable
             return $"{prefix} {materialName} {suffix}";
         }
         
-        public static TransmutableItemObject GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
+        public static ITransmutableItem GetDefaultObjectOfState(TransmutableItemState transmutableItemState)
         {
             const string DEFAULT_MATERIAL = "Iron";
             string name = GetStateName(null,DEFAULT_MATERIAL, transmutableItemState);
