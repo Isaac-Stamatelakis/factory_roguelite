@@ -38,7 +38,7 @@ namespace EditorScripts.Tier.Generators
             }
 
             ladder.speed = 7.5f + bonusSpeed;
-            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject, 16, 1f);
+            RandomEditorItemSlot recipeOutput = new RandomEditorItemSlot(tileEntityItemGenerationData.ItemGenerationData.ItemObject.id, 16, 1f);
             
             EditorItemSlot rodInput = StateToItem(TransmutableItemState.Rod, 6);
             EditorItemSlot screwInput = StateToItem(TransmutableItemState.Screw, 9);

@@ -588,7 +588,7 @@ namespace Player {
             
         }
 
-        public void TemporarilyPausePlayer(float delay = 0.2f)
+        public void TemporarilyPausePlayer(float delay = 0.35f)
         {
             StartCoroutine(UnPausePlayer(delay));
             if (paused) return;

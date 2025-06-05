@@ -80,9 +80,7 @@ namespace Recipe.Processor
             var includedIds = new HashSet<string>();
             foreach (var slot in slots)
             {
-                if (!slot.ItemObject) continue;
-                if (ReferenceEquals(slot?.ItemObject, null)) continue;
-                string id = slot.ItemObject.id;
+                string id = slot.Id;
                 if (!includedIds.Add(id)) continue;
                 if (!dict.ContainsKey(id))
                 {

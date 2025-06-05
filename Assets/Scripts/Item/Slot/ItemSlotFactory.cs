@@ -230,22 +230,14 @@ public static class ItemSlotFactory
     }
     public static ItemSlot FromEditorObject(EditorItemSlot editorItemSlot)
     {
-        
-        if (editorItemSlot.Tags.Count != 0)
-        {
-            Debug.LogWarning("Tag Deserialization not implemented yet");
-        }
-
-        return new ItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null);
+        ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(editorItemSlot.Id);
+        return new ItemSlot(itemObject,editorItemSlot.Amount,null);
     }
     
     public static ChanceItemSlot FromRandomEditorObject(RandomEditorItemSlot editorItemSlot)
     {
-        if (editorItemSlot.Tags.Count != 0)
-        {
-            Debug.LogWarning("Tag Deserialization not implemented yet");
-        }
-        return new ChanceItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null, editorItemSlot.Chance);
+        ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(editorItemSlot.Id);
+        return new ChanceItemSlot(itemObject,editorItemSlot.Amount,null, editorItemSlot.Chance);
     }
     
     

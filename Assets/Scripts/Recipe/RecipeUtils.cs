@@ -145,6 +145,7 @@ public static class RecipeUtils {
                 return;
             }
 
+            /* Not sure what the point of this is
             foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
             {
                 if (editorItemSlot.ItemObject) continue;
@@ -158,6 +159,7 @@ public static class RecipeUtils {
                 Debug.LogWarning($"ItemRecipeObject {itemRecipeObject.name} is invalid");
                 return;
             }
+            */
             
             switch (recipeType)
             {
