@@ -131,6 +131,11 @@ namespace TileEntity.Instances.Machine.Instances
             currentRecipe = null;
         }
 
+        public void EnergyInsertUpdate()
+        {
+            // May need this later
+        }
+
         public abstract void PlaceInitialize();
         public ConduitPortLayout GetConduitPortLayout()
         {

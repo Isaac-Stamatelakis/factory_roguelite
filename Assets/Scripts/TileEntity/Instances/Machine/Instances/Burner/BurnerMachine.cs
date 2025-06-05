@@ -92,7 +92,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         public override void TickUpdate()
         {
             BurnerFuelInventory.Tick();
-            if (ReferenceEquals(currentRecipe,null) || currentRecipe.RemainingTicks <= 0) return;
+            if ((currentRecipe?.RemainingTicks ?? 0) <= 0) return;
             
             if (!BurnerFuelInventory.Active())
             {

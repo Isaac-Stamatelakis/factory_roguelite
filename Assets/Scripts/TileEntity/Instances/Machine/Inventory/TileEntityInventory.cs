@@ -89,7 +89,6 @@ namespace TileEntity {
             ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.itemOutputs, itemRecipe.SolidOutputs, Global.MAX_SIZE);
             ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
             bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
-            Debug.Log("Tried output");
             if (!recipeConsumed) return;
             parent.ResetRecipe();
             parent.InventoryUpdate();

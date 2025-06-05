@@ -364,7 +364,7 @@ namespace Recipe.Processor
                             }
 
                             if (!inputMatch || !outputMatch) continue;
-                            var (input,output) = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState);
+                            var (input,output) = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState,transRecipe.Efficency.Value());
                             inputs.Add(input);
                             outputs.Add(output);
                             break;
@@ -531,7 +531,7 @@ namespace Recipe.Processor
             List<ChanceItemSlot> solidOutput = null;
             List<ItemSlot> fluidInput = null;
             List<ChanceItemSlot> fluidOutput = null;
-            var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState,transmutableRecipeObject.Efficency.Value());
             if (ItemSlotUtils.IsItemSlotNull(output) || ItemSlotUtils.IsItemSlotNull(input)) return null;
             
             var chanceOutput = ItemSlotFactory.ToChanceSlot(output);

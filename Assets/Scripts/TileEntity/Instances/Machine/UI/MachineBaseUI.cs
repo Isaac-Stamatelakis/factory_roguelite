@@ -36,6 +36,7 @@ namespace TileEntity.Instances.Machine.UI
         public void IterateMode(int amount);
         public int GetModeCount();
         public void ResetRecipe();
+        public void EnergyInsertUpdate();
     }
     
     public class MachineBaseUI : MonoBehaviour, ITileEntityUI, IAmountIteratorListener, IRecipeProcessorUI, IInventoryUIAggregator
