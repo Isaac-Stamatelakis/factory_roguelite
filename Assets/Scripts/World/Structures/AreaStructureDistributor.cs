@@ -63,7 +63,6 @@ namespace WorldModule.Caves {
                     placementAttempts--;
                     continue;
                 }
-                Debug.Log(randomPosition.Value);
                 placedStructures[(Vector2Int)randomPosition] = variant;
                 AreaStructureDistributorUtils.PlaceStructure(worldTileData,(Vector2Int)randomPosition, variant.Data, variant.Size);
                 return;

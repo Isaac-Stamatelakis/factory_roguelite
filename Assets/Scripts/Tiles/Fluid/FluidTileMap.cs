@@ -136,7 +136,7 @@ namespace Fluids {
             PlayParticles(particles.Splash, worldPosition,fluidTileItem);
         }
 
-        public void PlayerParticles(Vector2 worldPosition, FluidParticleType particleType)
+        public void PlayParticles(Vector2 worldPosition, FluidParticleType particleType)
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             FluidCell fluidCell = simulator.GetFluidCell(new  Vector2Int(cellPosition.x, cellPosition.y));
@@ -144,7 +144,9 @@ namespace Fluids {
             FluidTileItem fluidTileItem = fluidCell?.FluidTileItem;
             if (!fluidTileItem) return;
             
-            ParticleSystem system = GetFluidParticles(particleType, fluidTileItem.fluidOptions.Lit);
+ 
+            ParticleSystem system = GetFluidParticles(particleType, !(fluidTileItem.fluidOptions.MaterialColorOverride?.HasShaders ?? false) && fluidTileItem.fluidOptions.Lit);
+
             PlayParticles(system, worldPosition,fluidTileItem);
         }
 
@@ -170,6 +172,21 @@ namespace Fluids {
         }
         void PlayParticles(ParticleSystem particles, Vector2 position, FluidTileItem fluidTileItem)
         {
+            Material material = itemRegistry.GetTransmutationWorldMaterialNullSafe(fluidTileItem.fluidOptions.MaterialColorOverride);
+            if (material)
+            {
+                var systemRenderer = particles.GetComponent<Renderer>();
+                systemRenderer.material = material;
+            }
+            else
+            {
+                if (!fluidTileItem.fluidOptions.Lit)
+                {
+                    Material litMaterial = tilemap.GetComponent<TilemapRenderer>().material;
+                    var systemRenderer = particles.GetComponent<Renderer>();
+                    systemRenderer.material = litMaterial;
+                }
+            }
             particles.transform.position = position;
             var mainModule = particles.main;
             mainModule.startColor = fluidTileItem.fluidOptions.GetFluidColor();
