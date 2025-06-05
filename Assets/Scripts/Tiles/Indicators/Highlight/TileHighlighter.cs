@@ -1,4 +1,5 @@
 using System;
+using Items;
 using TileMaps.Place;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -8,18 +9,20 @@ namespace Tiles.Highlight
     public class TileHighlighter : MonoBehaviour
     {
         [SerializeField] private Color color;
-
         [SerializeField] private Tilemap mBaseMap;
         [SerializeField] private SpriteRenderer mOutline;
         private Vector3Int lastCellPosition;
         private bool active;
-        
+        private Material defaultMaterial;
+        private TilemapRenderer tilemapRenderer;
         public void Start()
         { 
             int colorKey = Shader.PropertyToID("_Color");
             mOutline.materials[0].SetColor(colorKey,color);
+            tilemapRenderer = mBaseMap.GetComponent<TilemapRenderer>();
+            defaultMaterial = tilemapRenderer.material;
         }
-        public void Highlight(Vector2 worldPosition, Tilemap tilemap)
+        public void Highlight(Vector2 worldPosition, TileItem tileItem, Tilemap tilemap)
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             cellPosition.z = 0;
@@ -36,6 +39,16 @@ namespace Tiles.Highlight
             }
             active = true;
             mBaseMap.SetTile(cellPosition,tileBase);
+            var transmutableMaterial = tileItem.tileOptions.TransmutableColorOverride;
+            if (transmutableMaterial?.HasShaders ?? false)
+            {
+                tilemapRenderer.material = ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableMaterial);
+            }
+            else
+            {
+                tilemapRenderer.material = defaultMaterial;
+            }
+            
             Color tileColor = tilemap.GetColor(cellPosition);
             if (tileColor != Color.white)
             {

@@ -249,7 +249,7 @@ namespace PlayerModule.Mouse {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
-            tileHighlighter.Highlight(position, tilemap.GetTilemap());
+            tileHighlighter.Highlight(position, worldTileGridMap.GetTileItem(position),tilemap.GetTilemap());
             highlightPosition = position;
             return true;
         }
