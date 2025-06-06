@@ -35,7 +35,11 @@ using Random = Unity.Mathematics.Random;
 
 namespace Robot.Tool.Instances
 {
-    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool
+    public interface IPreviewableTool : IAutoSelectTool
+    {
+        public bool Preview(Vector2Int cellPosition);
+    }
+    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool, IPreviewableTool
     {
         private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
@@ -350,7 +354,7 @@ namespace Robot.Tool.Instances
             return toolData?.Layer.ToString();
         }
 
-        public override bool Preview(Vector2Int cellPosition)
+        public bool Preview(Vector2Int cellPosition)
         {
             switch (toolData.Layer)
             {
@@ -382,7 +386,7 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             
-            if (multiBreak == 0 && veinMinePower == 0)
+            if (multiBreak == 0 && veinMinePower < 2)
             {
                 return false;
             }

@@ -567,7 +567,7 @@ namespace TileMaps {
         {
             if (!overlay) return null;
 
-            if (overlay is not IShaderTileOverlay shaderTileOverlay) return primaryShaderTilemap.GetTilemap(null).GetTile(position);
+            if (overlay is not IShaderTileOverlay shaderTileOverlay) return primaryShaderTilemap?.GetTilemap(null)?.GetTile(position);
             
             Tilemap shaderMap = primaryShaderTilemap.GetTilemap(shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World));
             return shaderMap.GetTile(position);

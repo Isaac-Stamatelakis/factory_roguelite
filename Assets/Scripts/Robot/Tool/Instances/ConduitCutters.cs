@@ -160,11 +160,6 @@ namespace Robot.Tool.Instances
             return toolData?.Type.ToString();
         }
 
-        public override bool Preview(Vector2Int cellPosition)
-        {
-            return true;
-        }
-
         public override RobotArmState GetRobotArmAnimation()
         {
             return RobotArmState.ConduitCutter;

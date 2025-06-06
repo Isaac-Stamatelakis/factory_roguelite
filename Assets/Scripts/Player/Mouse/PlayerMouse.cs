@@ -34,6 +34,7 @@ using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
+using Robot.Tool.Instances;
 using Robot.Upgrades;
 using RobotModule;
 using TileEntity.AssetManagement;
@@ -198,8 +199,10 @@ namespace PlayerModule.Mouse {
             playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.SetOverride(toolPreviewOverride);
             if (toolPreviewOverride)
             {
+                tileHighlighter.SetOutlineColor(((IPreviewableTool)playerInventory.CurrentTool).GetColor());
                 return;
             }
+            previewController.ResetRecord();
             
             if (autoSelectMode == AutoSelectMode.Tool)
             {
@@ -668,7 +671,7 @@ namespace PlayerModule.Mouse {
         
         public bool Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
         {
-            if (robotToolInstance == null) return false;
+            if (robotToolInstance is not IPreviewableTool previewableTool) return false;
        
             if (mousePosition == lastMousePosition) return lastPreviewState;
             Vector2Int tilePosition = Global.WorldToCell(mousePosition);
@@ -677,12 +680,13 @@ namespace PlayerModule.Mouse {
             lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
             lastPreviewState = true;
-            return robotToolInstance.Preview(tilePosition);
+            return previewableTool.Preview(tilePosition);
         }
         
 
         public void ResetRecord()
         {
+            if (lastPreviewState == false) return;
             lastPreviewState = false;
             lastMousePosition = Vector2.negativeInfinity;
             lastTilePosition = Vector2Int.one * int.MaxValue;

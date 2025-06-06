@@ -35,7 +35,7 @@ namespace Robot.Tool.Instances
     {
         
     }
-    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool
+    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool, IPreviewableTool
     {
         private RobotToolLaserManager laserManager;
         
@@ -305,7 +305,7 @@ namespace Robot.Tool.Instances
             return toolData?.Mode.ToString();
         }
 
-        public override bool Preview(Vector2Int cellPosition)
+        public bool Preview(Vector2Int cellPosition)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
