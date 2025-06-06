@@ -69,7 +69,6 @@ namespace Dimensions {
 
         private IEnumerator InitialLoad()
         {
-            Debug.Log(WorldManager.GetInstance().WorldLoadType);
             Canvas[] canvasArray = GameObject.FindObjectsOfType<Canvas>();
             PlayerScript playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
             InitialLoadBeautifier loadBeautifier = new InitialLoadBeautifier(canvasArray, playerScript);

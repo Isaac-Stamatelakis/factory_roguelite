@@ -60,7 +60,7 @@ namespace Robot.Tool
         public string GetName();
         public string GetModeName();
         public RobotToolObject GetToolObject();
-        public void Preview(Vector2Int cellPosition, bool autoSelectOn);
+        public bool Preview(Vector2Int cellPosition);
         public RobotArmState GetRobotArmAnimation();
         public int GetSubState();
     }
@@ -113,7 +113,7 @@ namespace Robot.Tool
         {
             return robotObject;
         }
-        public abstract void Preview(Vector2Int cellPosition, bool autoSelectOn);
+        public abstract bool Preview(Vector2Int cellPosition);
         public abstract RobotArmState GetRobotArmAnimation();
         public abstract int GetSubState();
     }

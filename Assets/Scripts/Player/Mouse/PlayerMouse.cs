@@ -184,21 +184,6 @@ namespace PlayerModule.Mouse {
             TileMapLayer layer = autoSelectTool.GetAutoSelectLayer();
             if (layer != TileMapLayer.Base) return mousePosition;
             toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,range);
-            IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
-            if (hitMap == null || !hitMap.GetTilemap())
-            {
-                tileHighlighter.Clear();
-                return toolHitPosition;
-            }
-            
-            tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
-            ITileGridMap tileGridMap = (ITileGridMap)hitMap;
-            
-            var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
-            Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-            var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
-            
-            tileHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
         
@@ -209,7 +194,35 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
-            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, autoSelectMode==AutoSelectMode.Tool);
+            bool toolPreviewOverride = previewController.Preview(playerInventory.CurrentTool, toolHitPosition);
+            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.SetOverride(toolPreviewOverride);
+            if (toolPreviewOverride)
+            {
+                return;
+            }
+            
+            if (autoSelectMode == AutoSelectMode.Tool)
+            {
+                IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
+                if (hitMap == null || !hitMap.GetTilemap())
+                {
+                    tileHighlighter.Clear();
+                }
+                
+                if (playerInventory.CurrentTool is not IAutoSelectTool autoSelectTool) return;
+                
+                tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+                ITileGridMap tileGridMap = (ITileGridMap)hitMap;
+                if (tileGridMap == null) return;
+            
+                var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
+                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+                var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
+            
+                tileHighlighter.Display(cellPosition,outlineTileMapCellData);
+                return;
+            }
+            
             
             if (autoSelectMode != AutoSelectMode.TileEntity) return;
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
@@ -651,23 +664,26 @@ namespace PlayerModule.Mouse {
     {
         private Vector2 lastMousePosition;
         private Vector2Int lastTilePosition;
+        private bool lastPreviewState;
         
-        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition, bool autoSelectOn)
+        public bool Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
         {
-            if (robotToolInstance == null) return;
+            if (robotToolInstance == null) return false;
        
-            if (mousePosition == lastMousePosition) return;
+            if (mousePosition == lastMousePosition) return lastPreviewState;
             Vector2Int tilePosition = Global.WorldToCell(mousePosition);
-            if (lastTilePosition == tilePosition) return;
+            if (lastTilePosition == tilePosition) return lastPreviewState;
             
             lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
-            robotToolInstance.Preview(tilePosition, autoSelectOn);
+            lastPreviewState = true;
+            return robotToolInstance.Preview(tilePosition);
         }
         
 
         public void ResetRecord()
         {
+            lastPreviewState = false;
             lastMousePosition = Vector2.negativeInfinity;
             lastTilePosition = Vector2Int.one * int.MaxValue;
         }

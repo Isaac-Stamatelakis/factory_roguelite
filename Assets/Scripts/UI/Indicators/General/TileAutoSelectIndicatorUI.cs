@@ -35,6 +35,7 @@ namespace UI.Indicators.General
         [SerializeField] private AutoSelectSprites autoSelectSprites;
         private PlayerMouse.AutoSelectMode autoSelectMode;
         private PlayerMouse playerMouse;
+        private bool overriden;
 
         public void Initialize(PlayerMouse playerMouse)
         {
@@ -68,6 +69,13 @@ namespace UI.Indicators.General
             autoSelectMode = GlobalHelper.ShiftEnum(dir, autoSelectMode);
             playerMouse.SetAutoSelect(autoSelectMode);
             Display();
+        }
+
+        public void SetOverride(bool newState)
+        {
+            if (overriden == newState) return;
+            overriden = newState;
+            image.color = overriden ? Color.grey : Color.white; 
         }
 
         public PlayerControl GetPlayerControl()
