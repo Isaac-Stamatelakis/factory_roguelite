@@ -59,18 +59,22 @@ namespace Recipe.Viewer {
                     if (recipeObject is PassiveItemRecipeObject passiveRecipe)
                         return new List<string>
                         {
-                            $"Time:{passiveRecipe.Ticks / 50f:F2} Secs",
+                            $"Time:{passiveRecipe.Seconds} Secs",
                         };
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
                 case RecipeType.Generator:
                     if (recipeObject is GeneratorItemRecipeObject generatorRecipe)
+                    {
+                        uint ticks = GlobalHelper.TileEntitySecondsToTicks(generatorRecipe.Seconds);
                         return new List<string>
                         {
-                            $"Production:{(ulong)generatorRecipe.Ticks * generatorRecipe.EnergyPerTick}J",
+                            $"Production:{ticks * generatorRecipe.EnergyPerTick}J",
                             $"Rate:{generatorRecipe.EnergyPerTick}J/t",
-                            $"Time:{generatorRecipe.Ticks / 50f:F2}SECS",
+                            $"Time:{generatorRecipe.Seconds}SECS",
                         };
+                    }
+                        
                     Debug.LogWarning("Passive item recipe object is not a Generator Recipe");
                     return null;
                 case RecipeType.Machine:
@@ -100,7 +104,7 @@ namespace Recipe.Viewer {
                      if (recipeObject is BurnerRecipeObject burnerRecipeObject)
                         return new List<string>
                         {
-                            $"Time:{burnerRecipeObject.Ticks}",
+                            $"Time:{burnerRecipeObject.Seconds}",
                         };
                      if (recipeObject is TransmutableRecipeObject) {
                          Tier tier = displayableRecipe.Tier;

@@ -113,7 +113,7 @@ namespace DevTools.CraftingTrees.Network
 
     public class PassiveRecipeMetaData : RecipeMetaData
     {
-        public int Ticks = 50;
+        public float Seconds = 1;
     }
 
     public class BurnerRecipeMetaData : PassiveRecipeMetaData

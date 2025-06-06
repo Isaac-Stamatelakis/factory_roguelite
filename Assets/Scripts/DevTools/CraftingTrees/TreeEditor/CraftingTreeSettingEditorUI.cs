@@ -249,12 +249,12 @@ namespace DevTools.CraftingTrees.TreeEditor
                     case RecipeType.Passive:
                         PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
                         PassiveRecipeMetaData passiveRecipeMetaData = (PassiveRecipeMetaData)processorNodeData.RecipeData;
-                        passiveItemRecipeObject.Ticks = passiveRecipeMetaData.Ticks;
+                        passiveItemRecipeObject.Seconds = passiveRecipeMetaData.Seconds;
                         break;
                     case RecipeType.Generator:
                         GeneratorItemRecipeObject generatorItemRecipeObject = (GeneratorItemRecipeObject)recipeObject;
                         GeneratorItemRecipeMetaData generatorRecipeMetaData = (GeneratorItemRecipeMetaData)processorNodeData.RecipeData;
-                        generatorItemRecipeObject.Ticks = generatorRecipeMetaData.Ticks;
+                        generatorItemRecipeObject.Seconds = generatorRecipeMetaData.Seconds;
                         generatorItemRecipeObject.EnergyPerTick = generatorRecipeMetaData.EnergyPerTick;
                         break;
                     case RecipeType.Machine:
@@ -266,7 +266,7 @@ namespace DevTools.CraftingTrees.TreeEditor
                     case RecipeType.Burner:
                         BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
                         BurnerRecipeMetaData burnerRecipeMetaData = (BurnerRecipeMetaData)processorNodeData.RecipeData;
-                        burnerRecipeObject.Ticks = burnerRecipeMetaData.Ticks;
+                        burnerRecipeObject.Seconds = burnerRecipeMetaData.Seconds;
                         burnerRecipeObject.PassiveSpeed = burnerRecipeMetaData.PassiveSpeed;
                         break;
                     
