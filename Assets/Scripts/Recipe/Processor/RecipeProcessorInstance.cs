@@ -463,6 +463,7 @@ namespace Recipe.Processor
                 {
                     BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
                     uint ticks = GlobalHelper.TileEntitySecondsToTicks(burnerRecipeObject.Seconds);
+                    Debug.Log(ticks);
                     return new BurnerItemRecipe(solidOutputs, fluidOutputs, ticks, ticks, burnerRecipeObject.PassiveSpeed);
                 }
                     

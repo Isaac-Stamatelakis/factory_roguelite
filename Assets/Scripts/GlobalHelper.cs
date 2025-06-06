@@ -156,7 +156,7 @@ public static class GlobalHelper
     public static uint TileEntitySecondsToTicks(float seconds)
     {
         uint fixedUpdates = (uint)(seconds / Time.fixedDeltaTime);
-        return fixedUpdates * Global.TILE_ENTITY_TICK_RATE;
+        return fixedUpdates / Global.TILE_ENTITY_TICK_RATE;
     }
 
     public static void SerializeCompressedJson<T>(T classInstance, string path)
