@@ -435,7 +435,7 @@ namespace Dimensions {
                 yield break;
             }
             
-            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
+            if (newSystem is not ConduitClosedChunkSystem && activeSystem is ConduitClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
             }

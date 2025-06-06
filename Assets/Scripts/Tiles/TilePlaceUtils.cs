@@ -86,7 +86,7 @@ namespace TileMaps.Place {
                     PlaceTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData, itemTagCollection: itemSlot?.tags);
                     return true;
                 }
-                case ConduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
+                case ConduitItem when closedChunkSystem is not ConduitClosedChunkSystem:
                     return false;
                 case ConduitItem conduitItem:
                 {
@@ -98,7 +98,7 @@ namespace TileMaps.Place {
                     if (checkConditions && !ConduitPlacable(conduitItem,worldPlaceLocation,conduitTileMap)) {
                         return false;
                     }
-                    PlaceConduit(playerScript, conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
+                    PlaceConduit(playerScript, conduitItem,worldPlaceLocation,conduitMap,(ConduitClosedChunkSystem)closedChunkSystem);
                     return true;
                 }
                 case FluidTileItem fluidTileItem:
@@ -492,7 +492,7 @@ namespace TileMaps.Place {
             {
                 TileEntityUtils.UpdateMultiBlockOnPlace(tileEntityInstance, multiBlockTileAggregate);
             }
-            if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+            if (closedChunkSystem is ConduitClosedChunkSystem conduitTileClosedChunkSystem) {
                 conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);
             }
         }
@@ -500,7 +500,7 @@ namespace TileMaps.Place {
         
 
         private static void PlaceConduit(PlayerScript playerScript, ConduitItem conduitItem, Vector2 worldPosition,
-            IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
+            IWorldTileMap iWorldTileMap, ConduitClosedChunkSystem closedChunkSystem)
         {
             Vector2Int placePosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.GetConduitType();

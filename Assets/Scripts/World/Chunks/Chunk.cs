@@ -47,7 +47,7 @@ namespace Chunks {
     public interface IChunkSystem
     {
         public void Save();
-        public void TickUpdate();
+        public void TileEntityTickUpdate();
         public IEnumerator SaveCoroutine();
         public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry);
     }

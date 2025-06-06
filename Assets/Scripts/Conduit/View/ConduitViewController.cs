@@ -38,7 +38,7 @@ namespace Conduit.View
     {
         private ConduitType? currentViewType;
         private PlayerScript playerScript;
-        private ConduitTileClosedChunkSystem chunkSystem;
+        private ConduitClosedChunkSystem chunkSystem;
         
         public void FixedUpdate()
         {
@@ -140,7 +140,7 @@ namespace Conduit.View
         }
         
 
-        public void Initialize(ConduitTileClosedChunkSystem chunkSystem, PlayerScript playerScript)
+        public void Initialize(ConduitClosedChunkSystem chunkSystem, PlayerScript playerScript)
         {
             this.chunkSystem = chunkSystem;
             this.playerScript = playerScript;

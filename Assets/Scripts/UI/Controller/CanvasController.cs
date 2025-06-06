@@ -237,6 +237,7 @@ namespace UI
                 return;
             }
             DisplayedUIInfo uiInfo = uiObjectStack.Peek();
+       
             if (!uiInfo.termianteOnEscape && !uiInfo.additionalTerminator.HasValue && uiInfo.TerminateContextPathBinding == null)
             {
                 Debug.LogWarning($"Tried to override exit action for '{uiInfo.gameObject.name}' with no terminator");
@@ -244,10 +245,7 @@ namespace UI
                 return;
             }
             exitAction.RemoveAllBindingOverrides();
-            if (uiInfo.termianteOnEscape)
-            {
-                exitAction.ApplyBindingOverride(0,"/Keyboard/Escape");
-            }
+            exitAction.ApplyBindingOverride(0, uiInfo.termianteOnEscape ? "/Keyboard/Escape" : string.Empty);
 
             if (uiInfo.additionalTerminator.HasValue)
             {
@@ -265,6 +263,8 @@ namespace UI
             {
                 exitAction.ApplyBindingOverride(2,controlPath);
             }
+
+            
         }
 
         public void ResetExitAction()

@@ -45,7 +45,12 @@ namespace Chunks.Systems {
         {
         }
     }
-    public class ConduitTileClosedChunkSystem : ClosedChunkSystem
+
+    public interface IConduitClosedChunkSystem : IChunkSystem
+    {
+        public void ConduitTickUpdate();
+    }
+    public class ConduitClosedChunkSystem : ClosedChunkSystem, IConduitClosedChunkSystem
     {
         private string savePath;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict;
@@ -220,18 +225,7 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
             }
         }
-
-        public override void TickUpdate()
-        {
-            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
-            {
-                tickableTileEntity.TickUpdate();
-            }
-            foreach (ITickableConduitSystemManager tickableConduitSystemManager in tickableConduitSystemManagers)
-            {
-                tickableConduitSystemManager.TickUpdate();
-            }
-        }
+        
 
         public override IEnumerator SaveCoroutine()
         {
@@ -254,6 +248,22 @@ namespace Chunks.Systems {
                 }
                 ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
                 yield return wait;
+            }
+        }
+        
+        public override void TileEntityTickUpdate()
+        {
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                tickableTileEntity.TickUpdate();
+            }
+        }
+        
+        public void ConduitTickUpdate()
+        {
+            foreach (ITickableConduitSystemManager tickableConduitSystemManager in tickableConduitSystemManagers)
+            {
+                tickableConduitSystemManager.TickUpdate();
             }
         }
     }

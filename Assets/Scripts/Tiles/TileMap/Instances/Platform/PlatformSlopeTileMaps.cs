@@ -39,11 +39,17 @@ namespace Tiles.TileMap.Platform
 
         public void Clear(Vector3Int cellPosition, Material material)
         {
-            Tilemap slopePlacementMap = !material ? slopeTileMap : slopeShaderTilemapManager.GetTileMap(material);
-            Tilemap decoPlacementMap = !material ? decoTileMap : decoShaderTilemapManager.GetTileMap(material);
+            slopeTileMap.SetTile(cellPosition, null);
             
-            slopePlacementMap.SetTile(cellPosition, null);
-            decoPlacementMap.SetTile(cellPosition+Vector3Int.down, null);
+            if (material)
+            {
+                slopeShaderTilemapManager.GetTileMap(material).SetTile(cellPosition,null);
+                decoShaderTilemapManager.GetTileMap(material).SetTile(cellPosition+Vector3Int.down,null);
+            }
+            else
+            {
+                decoTileMap.SetTile(cellPosition, null);
+            }
             
             extraColliderTilemap.SetTile(cellPosition+extendTileDirection, null); 
         }

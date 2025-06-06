@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using UI.QuestBook.Data.Node;
 using UI.QuestBook.Tasks;
 using UI.QuestBook.Tasks.Rewards;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 
@@ -121,6 +122,15 @@ namespace UI.QuestBook {
                     Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
                     editSizeUI.transform.SetParent(canvas.transform,false);
                 });
+            }
+        }
+
+        public void Update()
+        {
+            if (Keyboard.current.tabKey.wasPressedThisFrame)
+            {
+                questBookPageUI.gameObject.SetActive(true);
+                GameObject.Destroy(gameObject);
             }
         }
 

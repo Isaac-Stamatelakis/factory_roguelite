@@ -82,7 +82,7 @@ public class RandomTileGenerator : EditorWindow {
         RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
         randomTile.m_Sprites = sprites;
         randomTile.sprite = sprites[0];
-        ItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);
+        ItemEditorFactory.SetTileTransformOffset(sprites[0],randomTile);
         AssetDatabase.Refresh();
         AssetDatabase.CreateAsset(randomTile,Path.Combine(path, "T~" + tileName + ".asset"));
         return randomTile;

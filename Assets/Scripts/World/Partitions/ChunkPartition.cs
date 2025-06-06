@@ -46,7 +46,7 @@ namespace Chunks.Partitions {
         }
 
 
-        public void Tick() {
+        public void TickTileEntities() {
             if (tickableTileEntities == null) {
                 return;
             }

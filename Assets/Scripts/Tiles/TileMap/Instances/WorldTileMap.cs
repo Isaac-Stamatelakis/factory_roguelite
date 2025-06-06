@@ -231,7 +231,7 @@ namespace TileMaps {
             return partition.GetTileEntity(tilePositionInPartition);
         }
         protected void DeleteTileEntityFromConduit(Vector2Int position) {
-            if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+            if (base.closedChunkSystem is ConduitClosedChunkSystem conduitTileClosedChunkSystem) {
                 conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
             }
         }
@@ -425,15 +425,15 @@ namespace TileMaps {
 
             ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
             IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
-            ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = closedChunkSystem as ConduitTileClosedChunkSystem;
-            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitTileClosedChunkSystem, null);
+            ConduitClosedChunkSystem conduitClosedChunkSystem = closedChunkSystem as ConduitClosedChunkSystem;
+            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitClosedChunkSystem, null);
             
             // Important to delete the tile entity before the rotation changes
-            if (updatePort) conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
+            if (updatePort) conduitClosedChunkSystem.TileEntityDeleteUpdate(position);
             
             baseTileData.rotation = newRotation;
             SetTile(position.x,position.y,tileItem);
-            if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
+            if (updatePort) conduitClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
             if (updateOnRotate) UpdateListeners(position,tileItem);
             
             closedChunkSystem.BreakIndicator.RotateTile(position,direction);

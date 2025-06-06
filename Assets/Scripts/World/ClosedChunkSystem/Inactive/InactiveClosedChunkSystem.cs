@@ -40,10 +40,12 @@ namespace Chunks.Systems {
         }
     }
     
-    public class SoftLoadedClosedChunkSystem : IChunkSystem
+    public class SoftLoadedClosedChunkSystem : IChunkSystem, IConduitClosedChunkSystem
     {
+        public uint TickOffset { get; private set; }
         public SoftLoadedClosedChunkSystem(List<ISoftLoadableTileEntity> softLoadableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
         {
+            TickOffset = (uint)UnityEngine.Random.Range(0,Mathf.FloorToInt(1/Time.fixedDeltaTime));
             this.tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
             {
@@ -64,15 +66,11 @@ namespace Chunks.Systems {
         private int dim;
         private string savePath;
         public string SavePath => savePath;
-        public void TickUpdate()
+        public void TileEntityTickUpdate()
         {
             foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
             {
                 tickableTileEntity.TickUpdate();
-            }
-            foreach (ITickableConduitSystem tickableConduitSystem in TickableConduitSystems)
-            {
-                tickableConduitSystem.TickUpdate();
             }
         }
 
@@ -193,6 +191,14 @@ namespace Chunks.Systems {
         public override string ToString()
         {
             return $"SoftLoadedClosedChunkSystem at path {savePath} has {tickableTileEntities.Count} TickableTileEntities & {TickableConduitSystems.Count} TickableConduitSystems";
+        }
+
+        public void ConduitTickUpdate()
+        {
+            foreach (ITickableConduitSystem tickableConduitSystem in TickableConduitSystems)
+            {
+                tickableConduitSystem.TickUpdate();
+            }
         }
     }
     public class ClosedChunkSystemAssembler : ILoadedChunkSystem
@@ -426,7 +432,7 @@ namespace Chunks.Systems {
             }
         }
 
-        public void TickUpdate() {
+        public void TileEntityTickUpdate() {
             foreach (IConduitSystemManager manager in conduitSystemManagersDict.Values) {
                 if (manager is ITickableConduitSystemManager tickableConduitSystem) {
                     tickableConduitSystem.TickUpdate();
@@ -434,7 +440,7 @@ namespace Chunks.Systems {
             }
             foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
-                    partition.Tick();
+                    partition.TickTileEntities();
                 }
             }
         }

@@ -25,7 +25,7 @@ namespace Dimensions {
         
         private Vector2 returnPortalLocation;
         public Vector2 ReturnPortalLocation => returnPortalLocation;
-
+        private uint tickCounter = 3;
         public string GetCurrentCaveId()
         {
             return caveId;
@@ -64,7 +64,10 @@ namespace Dimensions {
 
         public override void TickUpdate()
         {
-            activeSystem?.TickUpdate();
+            if (tickCounter % Global.TILE_ENTITY_TICK_RATE == 0)
+            {
+                activeSystem?.TileEntityTickUpdate();
+            }
         }
 
         
