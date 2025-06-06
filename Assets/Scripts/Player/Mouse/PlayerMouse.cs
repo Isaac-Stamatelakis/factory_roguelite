@@ -379,15 +379,15 @@ namespace PlayerModule.Mouse {
             conduitPortUI.Display(conduitPort,conduit);
             return true;
         }
-        
-        
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mousePosition"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public bool TryClickTileEntity(Vector2 mousePosition) {
+        public void TryClickTileEntity(Vector2 mousePosition) {
             if (highlightPosition.HasValue)
             {
                 mousePosition = highlightPosition.Value;
@@ -395,25 +395,25 @@ namespace PlayerModule.Mouse {
             int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             
-            if (ReferenceEquals(tilemapObject,null)) return false;
+            if (ReferenceEquals(tilemapObject,null)) return;
             Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
             Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
             Vector2Int? tilePosition = FindTileAtLocation.Find(mouseCellPosition,tilemap);
             if (tilePosition == null) {
-                return false;
+                return;
             }
             Vector2Int nonNullPosition = (Vector2Int) tilePosition;
             Vector2 worldPositionTile = new Vector2(nonNullPosition.x/2f,nonNullPosition.y/2f);
             ILoadedChunk chunk = GetChunk(worldPositionTile);
             if (chunk == null) {
-                return false;
+                return;
             }
             Vector2Int partitionPosition = Global.GetPartitionFromWorld(worldPositionTile);
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PARTITIONS_PER_CHUNK;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
-            if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return false;
+            if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return;
             
             
             
@@ -426,13 +426,12 @@ namespace PlayerModule.Mouse {
             if (!clickInstanceInterface && tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
                 TileEntityAssetRegistry.Instance.DisplayUI(tileEntityInstance);
-                return true;
+                return;
             }
-            if (tileEntityInstance is not IRightClickableTileEntity rightClickableTileEntity) return false;
+            if (tileEntityInstance is not IRightClickableTileEntity rightClickableTileEntity) return;
             
             rightClickableTileEntity.OnRightClick();
             tileHighlighter.Clear();
-            return true;
         }
         
         private void StopPlayerHorizontalMovement()

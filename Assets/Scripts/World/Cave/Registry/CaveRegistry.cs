@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Dimensions;
 using Item.Transmutation;
@@ -10,9 +11,11 @@ using TileEntity.Instances.Caves.DimensionalStabilizer;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using World.Cave.DecorationDistributor;
 using World.Cave.InfoUI;
 using World.Cave.TileDistributor.Ore;
 using WorldModule.Caves;
+using Debug = UnityEngine.Debug;
 
 namespace World.Cave.Registry
 {
@@ -50,7 +53,7 @@ namespace World.Cave.Registry
                 var genModelHandle = Addressables.LoadAssetAsync<GenerationModel>(caveObject.generationModel);
                 genModelHandles.Add(genModelHandle);
             }
-
+            
             for (var index = 0; index < genModelHandles.Count; index++)
             {
                 var genModelHandle = genModelHandles[index];
@@ -59,11 +62,14 @@ namespace World.Cave.Registry
                 Addressables.Release(genModelHandle);
                 
                 CaveObject caveObject = caves[index];
+                
                 string id = caveObject.GetId();
-                CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,genModel.GetBaseId());
+                CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,genModel);
                 if (caveTileCollection == null) continue;
                 caveDataDict[id] = caveTileCollection;
             }
+            
+            
             Addressables.Release(handle);
             DimensionManager.Instance.OnCaveRegistryLoad(this);
         }
@@ -72,26 +78,12 @@ namespace World.Cave.Registry
         {
             return caveDataDict.GetValueOrDefault(id);
         }
-        private CaveTileCollection CreateCaveTileCollection(CaveObject caveObject, string baseId)
+        private CaveTileCollection CreateCaveTileCollection(CaveObject caveObject, GenerationModel generationModel)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance(); // This might be an issue
             List<float> odds = new List<float>();
             List<string> ids = new List<string>();
             List<string> tileIds = new List<string>();
-            
-            void AppendIdAndChance(string id, float chance)
-            {
-                if (!ids.Contains(id))
-                {
-                    ids.Add(id);
-                    odds.Add(chance);
-                }
-                else
-                {
-                    int index = ids.IndexOf(id);
-                    odds[index] += chance;
-                }
-            }
             
             if (caveObject.TileDistributorObject)
             {
@@ -129,7 +121,7 @@ namespace World.Cave.Registry
                     }
                 }
             }
-
+            
             if (caveObject.OreDistributionObject)
             {
                 foreach (var oreDistribution in caveObject.OreDistributionObject.OreDistributions)
@@ -170,6 +162,14 @@ namespace World.Cave.Registry
                     }
                 }
             }
+
+            float decorationSpawnRatio = generationModel.DecorationRatioEstimate;
+            
+            foreach (CaveDecoration caveDecoration in caveObject.CaveDecorations)
+            {
+                AppendIdAndChance(caveDecoration.TileItem?.id, decorationSpawnRatio*caveDecoration.Fill);
+            }
+            
             
             if (odds.Count == 0) return null;
             float[] cumulativeOdds = new float[odds.Count];
@@ -178,7 +178,21 @@ namespace World.Cave.Registry
             {
                 cumulativeOdds[i] = cumulativeOdds[i - 1] + odds[i];
             }
-            return new CaveTileCollection(cumulativeOdds, ids.ToArray(), baseId);
+            return new CaveTileCollection(cumulativeOdds, ids.ToArray(), generationModel.GetBaseId());
+            
+            void AppendIdAndChance(string id, float chance)
+            {
+                if (!ids.Contains(id))
+                {
+                    ids.Add(id);
+                    odds.Add(chance);
+                }
+                else
+                {
+                    int index = ids.IndexOf(id);
+                    odds[index] += chance;
+                }
+            }
         }
 
         public List<CaveInfoCatalogueElement> GetCavesWithItem(string id)
