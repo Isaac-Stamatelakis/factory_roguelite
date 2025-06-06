@@ -387,6 +387,11 @@ namespace Dimensions {
 
         public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
         {
+            if (setPlayerSystemRoutineActive)
+            {
+                Debug.LogWarning("Cannot initiate dimension switch for player as another switch is already in progress");
+                return;
+            }
             StartCoroutine(SetPlayerSystemCoroutine(player, dimension, teleportPosition, key, dimensionOptions));
         }
 
@@ -483,12 +488,15 @@ namespace Dimensions {
             newSystem.InstantCacheChunksNearPlayer();
             yield return newSystem.LoadTileEntityAssets();
             newSystem.PlayerPartitionUpdate();
-            setPlayerSystemRoutineActive = false;
+            
             
             Vector3 playerPosition = player.transform.position;
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
+
+            yield return new WaitForSeconds(0.1f); // Prevent players from spamming teleport
+            setPlayerSystemRoutineActive = false;
         }
         
         
