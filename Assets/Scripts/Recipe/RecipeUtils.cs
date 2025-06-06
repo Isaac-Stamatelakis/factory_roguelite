@@ -11,6 +11,7 @@ using Recipe;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
+using TileEntity;
 using UnityEngine;
 
 namespace RecipeModule
@@ -44,6 +45,9 @@ public static class RecipeUtils {
     public static T TryCraftTransmutableRecipe<T>(TransmutableRecipeObject transmutableRecipe, ItemSlot inputItem, TransmutableItemMaterial material, RecipeType recipeType)
     where T : ItemRecipe
     {
+        Tier tier = material.GetTier();
+        if (tier < transmutableRecipe.MinimumTier || tier > transmutableRecipe.MaximumTier) return null;
+        
         float efficency = transmutableRecipe.Efficency.Value();
         var (inputAmount, outputAmount) = TransmutableItemUtils.GetInputOutputAmount(transmutableRecipe.InputState,transmutableRecipe.OutputState,efficency);
         if (inputItem.amount < inputAmount) return null;

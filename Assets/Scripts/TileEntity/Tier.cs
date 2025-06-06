@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TileEntity{
     public enum Tier {
-        Untiered = -1,
+        [InspectorName("No Minimum (Untiered)")] Untiered = -1,
         Basic = 0,
         Advanced = 1,
         Elite = 2,
@@ -15,7 +15,7 @@ namespace TileEntity{
         Transcendent = 7,
         Zenith = 8,
         Infinity = 9,
-        Disabled = 99
+        [InspectorName("No Maximum (Disabled)")]  Disabled = 99
     }
 
     public static class TierUtils {

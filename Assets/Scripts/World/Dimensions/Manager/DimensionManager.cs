@@ -484,18 +484,18 @@ namespace Dimensions {
             }
             
             player.PlayerUIContainer.IndicatorManager.Display(player);
-            
-            newSystem.InstantCacheChunksNearPlayer();
             yield return newSystem.LoadTileEntityAssets();
-            newSystem.PlayerPartitionUpdate();
-            
             
             Vector3 playerPosition = player.transform.position;
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
-
+                
+            newSystem.InstantCacheChunksNearPlayer();
+            newSystem.PlayerPartitionUpdate();
+            
             yield return new WaitForSeconds(0.1f); // Prevent players from spamming teleport
+            
             setPlayerSystemRoutineActive = false;
         }
         

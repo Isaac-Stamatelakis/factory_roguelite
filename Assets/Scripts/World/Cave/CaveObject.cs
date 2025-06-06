@@ -13,6 +13,7 @@ using World.Cave.DecorationDistributor;
 using World.Cave.Distributors.FluidDistributor;
 using World.Cave.TileDistributor;
 using World.Cave.TileDistributor.Ore;
+using World.Cave.TileDistributor.Standard;
 using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
@@ -27,12 +28,12 @@ namespace WorldModule.Caves {
         public string Description {get => description;}
         public int ChunkWidth = 21;
         public int ChunkHeight = 21;
-        public AssetReference generationModel;
+        public GenerationModel generationModel;
         public TileDistributorObject TileDistributorObject;
         public OreDistributionObject OreDistributionObject;
-        public AssetReference entityDistributor;
-        public AssetReference structureDistributor;
-        public List<AssetReference> songs;
+        public CaveEntityDistributor entityDistributor;
+        public AreaStructureDistributor structureDistributor;
+        public List<AudioClip> songs;
         public List<CaveDecoration> CaveDecorations;
         public List<FluidAreaDistribution> FluidAreaDistributions;
         public List<FluidPoolDistribution> FluidPoolDistributions;
@@ -70,21 +71,19 @@ namespace WorldModule.Caves {
     public class CaveInstance: IGeneratedArea {
         private CaveObject caveObject;
         public CaveObject CaveObject => caveObject;
-        private CaveElements caveElements;
 
-        public CaveInstance(CaveObject caveObject, CaveElements caveElements)
+        public CaveInstance(CaveObject caveObject)
         {
             this.caveObject = caveObject;
-            this.caveElements = caveElements;
         }
 
         public IEnumerator Generate(int seed) {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            double total = 0;
+            
             Vector2Int worldSize = new Vector2Int(caveObject.ChunkWidth, caveObject.ChunkHeight) * Global.CHUNK_SIZE;
             UnityEngine.Random.InitState(seed);
-            IEnumerator worldTileDataEnumerator = caveElements.GenerationModel.GenerateBase(seed,worldSize);
+            IEnumerator worldTileDataEnumerator = caveObject.generationModel.GenerateBase(seed,worldSize);
             yield return worldTileDataEnumerator;
             SeralizedWorldData worldTileData =  worldTileDataEnumerator.Current as SeralizedWorldData;
             
@@ -92,17 +91,44 @@ namespace WorldModule.Caves {
             IntervalVector coveredArea = caveObject.GetChunkCoveredArea();
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.CHUNK_SIZE;
             stopwatch.Restart();
-            caveElements.TileDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
-           
-            double tileDistributionTime = stopwatch.Elapsed.TotalSeconds;
-            total += tileDistributionTime;
-            double entityDistributionTime = 0;
-            if (!ReferenceEquals(caveElements.StructureDistributor, null))
+
+            if (caveObject.TileDistributorObject)
             {
-                caveElements.StructureDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+                List<TileDistribution> tileDistributions = new List<TileDistribution>();
+                foreach (StandardTileDistrubtion distributorObjectData in caveObject.TileDistributorObject.TileDistributions)
+                {
+                    if (distributorObjectData == null) continue;
+                    List<TileDistributionFrequency> tileDistributionFrequencies = new List<TileDistributionFrequency>();
+                    foreach (TileDistributionFrequency frequency in distributorObjectData.Tiles)
+                    {
+                        if (frequency.frequency == 0 || frequency.tileItem?.id == null) continue;
+                        tileDistributionFrequencies.Add(frequency);
+                    }
+                    FrequencyTileAggregator frequencyTileAggregator = new FrequencyTileAggregator(tileDistributionFrequencies);
+                    tileDistributions.Add(new TileDistribution(frequencyTileAggregator, distributorObjectData.TileDistributionData));
+                }
+
+                AreaTileDistributor areaTileDistributor = new AreaTileDistributor(tileDistributions, caveObject.generationModel.GetBaseId());
+                areaTileDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             }
             
-            caveElements.OreDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            if (caveObject.structureDistributor)
+            {
+                caveObject.structureDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            }
+            
+            if (caveObject.OreDistributionObject)
+            {
+                List<TileDistribution> tileDistributions = new List<TileDistribution>();
+                foreach (OreDistribution oreDistribution in caveObject.OreDistributionObject.OreDistributions)
+                {
+                    OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material,oreDistribution.SubDistrubtions);
+                    tileDistributions.Add(new TileDistribution(oreTileAggregator,oreDistribution.TileDistributionData));
+
+                }
+                AreaTileDistributor oreDistributor = new AreaTileDistributor(tileDistributions,caveObject.generationModel.GetBaseId());
+                oreDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            }
             
             AreaGenerationHelper.SmoothNatureTiles(worldTileData,size.x,size.y);
             CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(caveObject.CaveDecorations);
@@ -113,31 +139,15 @@ namespace WorldModule.Caves {
             
             FluidPoolDistributor fluidPoolDistributor = new FluidPoolDistributor(caveObject.FluidPoolDistributions);
             fluidPoolDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+
+            caveObject.entityDistributor?.Distribute(worldTileData, size.x, size.y, bottomLeft);
             
-            if (caveElements.CaveEntityDistributor != null) {
-                stopwatch.Restart();
-                caveElements.CaveEntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
-                entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
-                total += entityDistributionTime;
-            }
-            MusicTrackController.Instance.SetSong(caveElements.Songs);
+            MusicTrackController.Instance.SetSong(caveObject.songs);
             yield return worldTileData;
         }
         
         
         
     }
-    
-    public class CaveElements {
-        public GenerationModel GenerationModel;
-        public AreaTileDistributor TileDistributor;
-        public List<AudioClip> Songs;
-        public AreaStructureDistributor StructureDistributor;
-        public AreaTileDistributor OreDistributor;
-        public CaveEntityDistributor CaveEntityDistributor;
-    }
-
-    
-
 }
 

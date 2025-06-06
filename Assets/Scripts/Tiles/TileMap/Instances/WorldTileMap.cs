@@ -86,6 +86,7 @@ namespace TileMaps {
             Vector2Int hitPosition = WorldToTileMapPosition(position);
             int maxSearchWidth = 16;
             int searchWidth = 1;
+            if (!tilemap) return new Vector2Int(-2147483647,-2147483647);
             
             while (searchWidth < maxSearchWidth) {
                 if (Global.ModInt(searchWidth,2) == 0) {

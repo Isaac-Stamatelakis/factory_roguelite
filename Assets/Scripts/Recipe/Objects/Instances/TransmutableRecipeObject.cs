@@ -1,6 +1,7 @@
 using System;
 using Item.Transmutation;
 using Recipe.Data;
+using TileEntity;
 using UnityEngine;
 
 namespace Recipe.Objects
@@ -12,6 +13,15 @@ namespace Recipe.Objects
         public TransmutableItemState InputState;
         public TransmutableItemState OutputState;
         public TransmutationEfficency Efficency;
+        
+        public Tier MinimumTier = Tier.Untiered;
+        public Tier MaximumTier = Tier.Disabled;
+
+        public Vector2Int GetTierRange()
+        {
+            return new Vector2Int((int)MinimumTier, (int)MaximumTier);
+        }
+        
     }
     public enum TransmutationEfficency
     {
