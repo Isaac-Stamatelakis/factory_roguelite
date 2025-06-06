@@ -59,38 +59,43 @@ namespace Recipe.Viewer {
                     if (recipeObject is PassiveItemRecipeObject passiveRecipe)
                         return new List<string>
                         {
-                            $"Time:{passiveRecipe.Ticks / 50f:F2} Secs",
+                            $"Time:{passiveRecipe.Seconds:F1} s",
                         };
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
                 case RecipeType.Generator:
                     if (recipeObject is GeneratorItemRecipeObject generatorRecipe)
+                    {
+                        uint ticks = GlobalHelper.TileEntitySecondsToTicks(generatorRecipe.Seconds);
                         return new List<string>
                         {
-                            $"Production:{(ulong)generatorRecipe.Ticks * generatorRecipe.EnergyPerTick}J",
-                            $"Rate:{generatorRecipe.EnergyPerTick}J/t",
-                            $"Time:{generatorRecipe.Ticks / 50f:F2}SECS",
+                            $"Production:{ticks * generatorRecipe.EnergyPerTick} J",
+                            $"Rate:{generatorRecipe.EnergyPerTick} J/t",
+                            $"Time:{generatorRecipe.Seconds} s",
                         };
+                    }
+                        
                     Debug.LogWarning("Passive item recipe object is not a Generator Recipe");
                     return null;
                 case RecipeType.Machine:
                     if (recipeObject is ItemEnergyRecipeObject itemEnergyRecipe)
                         return new List<string>
                         {
-                            $"Cost:{itemEnergyRecipe.TotalInputEnergy}J",
-                            $"Usage:{itemEnergyRecipe.MinimumEnergyPerTick}J/T",
-                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2}SECS",
+                            $"Cost:{itemEnergyRecipe.TotalInputEnergy} J",
+                            $"Usage:{itemEnergyRecipe.MinimumEnergyPerTick * Global.TicksPerSecond} J/s",
+                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F1} S",
                         };
                     if (recipeObject is TransmutableRecipeObject)
                     {
                         Tier tier = displayableRecipe.Tier;
-                        ulong usage = tier.GetMaxEnergyUsage();
-                        ulong cost = 32 * usage;
+                        ulong tickUsage = tier.GetMaxEnergyUsage();
+                        ulong secondUsage = tickUsage * Global.TicksPerSecond;
+                        ulong cost = 32 * tickUsage;
                         return new List<string>
                         {
-                            $"Cost:{cost}J",
-                            $"Usage:{usage}J/T",
-                            $"Time:{(double) cost / usage:F2}SECS",
+                            $"Cost:{cost} J",
+                            $"Usage:{secondUsage} J/s",
+                            $"Time:{(double) cost /secondUsage:F1} s",
                             $"Tier:{tier}",
                         };
                     }
@@ -100,14 +105,14 @@ namespace Recipe.Viewer {
                      if (recipeObject is BurnerRecipeObject burnerRecipeObject)
                         return new List<string>
                         {
-                            $"Time:{burnerRecipeObject.Ticks}",
+                            $"Time:{burnerRecipeObject.Seconds:F1} s",
                         };
                      if (recipeObject is TransmutableRecipeObject) {
                          Tier tier = displayableRecipe.Tier;
                          uint ticks = 50 * ((uint)tier + 2);
                          return new List<string>
                          {
-                             $"Time:{ticks}T",
+                             $"Time:{ticks / Global.TicksPerSecond} s",
                              $"Tier:{tier}",
                          };
                      }

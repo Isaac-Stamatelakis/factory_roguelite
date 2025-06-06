@@ -33,11 +33,11 @@ namespace Chunks.Systems {
         
         }
 
-        public override void TickUpdate()
+        public override void TileEntityTickUpdate()
         {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    partition.Tick();
+                    partition.TickTileEntities();
                 }
             }
         }

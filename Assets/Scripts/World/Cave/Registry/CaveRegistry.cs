@@ -47,24 +47,13 @@ namespace World.Cave.Registry
             
             
             var caves = handle.Result;
-            List<AsyncOperationHandle<GenerationModel>> genModelHandles = new List<AsyncOperationHandle<GenerationModel>>();
-            foreach (CaveObject caveObject in caves)
-            {
-                var genModelHandle = Addressables.LoadAssetAsync<GenerationModel>(caveObject.generationModel);
-                genModelHandles.Add(genModelHandle);
-            }
             
-            for (var index = 0; index < genModelHandles.Count; index++)
+            for (var index = 0; index < caves.Count; index++)
             {
-                var genModelHandle = genModelHandles[index];
-                yield return genModelHandle;
-                var genModel = genModelHandle.Result;
-                Addressables.Release(genModelHandle);
-                
                 CaveObject caveObject = caves[index];
-                
                 string id = caveObject.GetId();
-                CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,genModel);
+                if (!caveObject.generationModel) continue;
+                CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,caveObject.generationModel);
                 if (caveTileCollection == null) continue;
                 caveDataDict[id] = caveTileCollection;
             }

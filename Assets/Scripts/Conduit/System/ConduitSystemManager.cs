@@ -40,7 +40,7 @@ namespace Conduits.Systems {
         public IConduit GetConduitAtCellPosition(Vector2Int position);
         public void ConduitJoinUpdate(IConduit conduit, IConduit adj);
         public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj);
-        public void SetSystem(ConduitTileClosedChunkSystem conduitTileClosedChunkSystem);
+        public void SetSystem(ConduitClosedChunkSystem conduitClosedChunkSystem);
         public bool IsSystemLoaded();
         public void SetTileMapVisibility(bool visible);
     }
@@ -62,7 +62,7 @@ namespace Conduits.Systems {
         protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
         protected ConduitTileMap ConduitTileMap;
-        protected ConduitTileClosedChunkSystem ChunkSystem;
+        protected ConduitClosedChunkSystem ChunkSystem;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
@@ -79,7 +79,7 @@ namespace Conduits.Systems {
             BuildSystems();
         }
 
-        public void SetSystem(ConduitTileClosedChunkSystem chunkSystem)
+        public void SetSystem(ConduitClosedChunkSystem chunkSystem)
         {
             this.ChunkSystem = chunkSystem;
         }

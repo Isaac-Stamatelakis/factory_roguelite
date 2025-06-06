@@ -30,6 +30,8 @@ namespace Dimensions {
         private CompactMachineClosedChunkSystem activeSystem;
         private List<Vector2Int> currentSystemPath;
         public List<Vector2Int> CurrentSystemPath => currentSystemPath;
+        private uint tickCounter;
+        private const uint ACTIVE_SYSTEM_TICK_OFFSET = 1;
         
         public override ClosedChunkSystem GetActiveSystem()
         {
@@ -389,15 +391,36 @@ namespace Dimensions {
 
         public override void TickUpdate()
         {
-            foreach (var system in softLoadedClosedChunkSystems) {
-                system.TickUpdate();
+            foreach (var system in softLoadedClosedChunkSystems)
+            {
+                uint counter = tickCounter + system.TickOffset;
+                if (counter % Global.TILE_ENTITY_TICK_RATE == 0)
+                {
+                    system.TileEntityTickUpdate();
+                }
+
+                if (counter % Global.CONDUIT_TICK_RATE == 0)
+                {
+                    system.ConduitTickUpdate();
+                }
             }
-            activeSystem?.TickUpdate();
+
+            uint activeSystemCounter = tickCounter + ACTIVE_SYSTEM_TICK_OFFSET;
+            if (activeSystemCounter % Global.CONDUIT_TICK_RATE == 0)
+            {
+                activeSystem?.TileEntityTickUpdate();
+            }
+
+            if (activeSystemCounter % Global.CONDUIT_TICK_RATE == 0)
+            {
+                activeSystem?.ConduitTickUpdate();
+            }
+            tickCounter++;
         }
 
         public override void DeActivateSystem()
         {
-            if (activeSystem is not ConduitTileClosedChunkSystem closedChunkSystem) return;
+            if (activeSystem is not ConduitClosedChunkSystem closedChunkSystem) return;
             var softLoadedSystem = closedChunkSystem.ToSoftLoadedSystem();
             softLoadedSystem.ClearActiveComponents();
             this.softLoadedClosedChunkSystems.Add(softLoadedSystem);

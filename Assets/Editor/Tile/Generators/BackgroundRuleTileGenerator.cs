@@ -6,10 +6,11 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using Tiles.CustomTiles;
 
-public class BackgroundGeneratorWindow : EditorWindow {
+public class BackgroundGeneratorWindow : EditorWindow
+{
     private Texture2D texture;
     private string tileName;
-    private EditorTileItemRebuilder itemRebuilder = new EditorTileItemRebuilder();
+    private readonly EditorTileItemRebuilder itemRebuilder = new EditorTileItemRebuilder();
     [MenuItem("Tools/Item Constructors/Tile/Background")]
     public static void ShowWindow()
     {
@@ -66,7 +67,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
 
     private void Rebuild()
     {
-        itemRebuilder.DeleteOldTileAssets();
+        itemRebuilder.DeleteOldTileAssets(true);
         string itemPath = itemRebuilder.GetItemPath();
         string itemFolderPath = Path.GetDirectoryName(itemPath);
         BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,itemFolderPath + "/", tileName);

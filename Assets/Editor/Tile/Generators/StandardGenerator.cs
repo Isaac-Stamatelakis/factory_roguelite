@@ -12,6 +12,7 @@ public class Standard1TileGeneratorWindow : EditorWindow {
     private TileColliderType colliderType;
     private string tileName;
     private string path;
+    private readonly EditorTileItemRebuilder rebuilder = new EditorTileItemRebuilder();
     [MenuItem("Tools/Item Constructors/Tile/Standard")]
     public static void ShowWindow()
     {
@@ -52,6 +53,8 @@ public class Standard1TileGeneratorWindow : EditorWindow {
         {
             createTileItem();
         }
+        
+        rebuilder.DisplayGUI(RebuildTile, ref tileName);
     }
 
     private void createTileItem()
@@ -62,5 +65,32 @@ public class Standard1TileGeneratorWindow : EditorWindow {
 #pragma warning restore CS0618 // Type or member is obsolete
         ItemEditorFactory.SaveTileWithName(tile,tileName);
         
+    }
+
+    private void RebuildTile()
+    {
+        TileItem tileItem = rebuilder.TileItem;
+        TileBase tileBase = tileItem.tile;
+        if (tileBase is not Tile tile)
+        {
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(tileBase));
+            AssetDatabase.Refresh();
+            
+            Tile newTile = ItemEditorFactory.StandardTileCreator(sprite,colliderType);;
+            string itemPath = rebuilder.GetItemPath();
+            string itemFolderPath = Path.GetDirectoryName(itemPath);
+            ItemEditorFactory.SaveTileWithName(newTile,tileName,path:itemFolderPath + '/');
+            tileItem.tile = newTile;
+            
+            EditorUtility.SetDirty(tileItem);
+            AssetDatabase.SaveAssetIfDirty(tileItem);
+        }
+        else
+        {
+            tile.sprite = sprite;
+            ItemEditorFactory.SetTileTransformOffset(sprite,tile);
+            EditorUtility.SetDirty(tile);
+            AssetDatabase.SaveAssetIfDirty(tile);
+        }
     }
 }

@@ -10,6 +10,7 @@ using UI.QuestBook.Data;
 using UI.QuestBook.Data.Node;
 using UI.QuestBook.Data.Rewards;
 using UI.QuestBook.Tasks;
+using UnityEngine.InputSystem;
 
 namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage>
@@ -30,6 +31,7 @@ namespace UI.QuestBook {
         {
             this.idNodeDictionary = idNodeDictionary;
         }
+        
         public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, 
             QuestBookUI questBookUI, string questBookPath, string playerDataPath)
         {
@@ -62,7 +64,7 @@ namespace UI.QuestBook {
             
             Display();
         }
-        
+
         protected override INodeUI GenerateNode(QuestBookNode node)
         {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
@@ -88,7 +90,6 @@ namespace UI.QuestBook {
             return idNodeDictionary.GetValueOrDefault(id);
         }
         
-
         private Vector2 GetNodeVectorSize(QuestBookNodeSize nodeSize)
         {
             const float BASE_SIZE = 64f;

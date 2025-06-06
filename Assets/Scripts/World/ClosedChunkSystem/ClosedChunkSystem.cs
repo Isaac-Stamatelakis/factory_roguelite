@@ -394,7 +394,7 @@ namespace Chunks.Systems {
             }
         }
 
-        public abstract void TickUpdate();
+        public abstract void TileEntityTickUpdate();
 
 
         public abstract IEnumerator SaveCoroutine();

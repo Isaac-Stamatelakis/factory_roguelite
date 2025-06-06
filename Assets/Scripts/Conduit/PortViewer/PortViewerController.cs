@@ -34,7 +34,7 @@ namespace Conduits.PortViewer {
     {
         [SerializeField] private UIRingSelector ringSelectorPrefab;
         [SerializeField] private ConduitPortTiles portConduitTiles;
-        private ConduitTileClosedChunkSystem closedChunkSystem;
+        private ConduitClosedChunkSystem closedChunkSystem;
         private ConduitPortViewer portViewer;
         private PlayerInventory playerInventory;
         private ItemRegistry itemRegistry;
@@ -46,7 +46,7 @@ namespace Conduits.PortViewer {
             portViewer = GetComponentInChildren<ConduitPortViewer>();
         }
 
-        public void Initialize(ConduitTileClosedChunkSystem closedChunkSystem, PlayerScript playerScript) {
+        public void Initialize(ConduitClosedChunkSystem closedChunkSystem, PlayerScript playerScript) {
             this.closedChunkSystem = closedChunkSystem;
             playerInventory = playerScript.PlayerInventory;
             itemRegistry = ItemRegistry.GetInstance();

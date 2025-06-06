@@ -155,9 +155,9 @@ namespace Recipe.Processor
             InitializeModeRecipeDict();
             collection = new ItemRecipeCollection(this);
             modeNameDict = new Dictionary<int, string>();
-            foreach (var modeNameKVP in recipeProcessorObject.ModeNamesMap)
+            foreach (var modeNameKvp in recipeProcessorObject.ModeNamesMap)
             {
-                modeNameDict[modeNameKVP.Mode] = modeNameKVP.Name;
+                modeNameDict[modeNameKvp.Mode] = modeNameKvp.Name;
             }
         }
         
@@ -238,7 +238,7 @@ namespace Recipe.Processor
             {
                 modeRecipeTransmutation.Remove(mode);
             }
-
+            
             if (hashCollisions > 0) Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
         }
         
@@ -274,19 +274,19 @@ namespace Recipe.Processor
                     if (result != null) return result;
                 }
             }
+            
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
             {
                 return null;
             }
             ulong hash = RecipeUtils.HashItemInputs(solidItems,fluidItems);
+           
             if (!recipeDict.TryGetValue(hash, out var recipeObjects))
             {
                 return null;
             }
-
-            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
             
-
+            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
         }
         
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
@@ -335,23 +335,24 @@ namespace Recipe.Processor
                 }
             }
 
-            foreach (var kvp in modeRecipeTransmutation)
+            foreach (var (mode, transmutableRecipes) in modeRecipeTransmutation)
             {
-                int mode = kvp.Key;
-                foreach (var (inputState, transRecipe) in kvp.Value)
+                foreach (var (inputState, transRecipe) in transmutableRecipes)
                 {
                     List<TransmutableItemMaterial> materials = ItemRegistry.GetInstance().GetAllMaterials();
                     List<ItemSlot> inputs = new List<ItemSlot>();
                     List<ItemSlot> outputs = new List<ItemSlot>();
-                    // TODO add fluid and tile
+                    
                     foreach (TransmutableItemMaterial material in materials)
                     {
+                        Tier materialTier = material.GetTier();
+                        if (!transRecipe.CanCraftTier(materialTier)) continue;
+                        
                         bool inputMatch = false;
                         bool outputMatch = false;
-                        foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
+                        List<TransmutableItemState> states = material.MaterialOptions.GetAllStates();
+                        foreach (TransmutableItemState state in states)
                         {
-                            
-                            TransmutableItemState state = (TransmutableItemState)stateOptions.state;
                             if (state == transRecipe.InputState)
                             {
                                 inputMatch = true;
@@ -439,17 +440,29 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solidOutputs, fluidOutputs);
                 case RecipeType.Passive:
+                {
                     PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
-                    return new PassiveItemRecipe(solidOutputs,fluidOutputs, passiveItemRecipeObject.Ticks, passiveItemRecipeObject.Ticks);
+                    uint ticks = GlobalHelper.TileEntitySecondsToTicks(passiveItemRecipeObject.Seconds);
+                    return new PassiveItemRecipe(solidOutputs,fluidOutputs, ticks, ticks);
+                }
+                
                 case RecipeType.Generator:
+                {
                     GeneratorItemRecipeObject generatorRecipeObject = (GeneratorItemRecipeObject)recipeObject;
-                    return new GeneratorItemRecipe(solidOutputs,fluidOutputs, generatorRecipeObject.Ticks, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
+                    uint ticks = GlobalHelper.TileEntitySecondsToTicks(generatorRecipeObject.Seconds);
+                    return new GeneratorItemRecipe(solidOutputs,fluidOutputs, ticks, ticks, generatorRecipeObject.EnergyPerTick);
+                }
+                    
                 case RecipeType.Machine:
                     ItemEnergyRecipeObject itemRecipeObject = (ItemEnergyRecipeObject)recipeObject;
                     return new ItemEnergyRecipe(solidOutputs,fluidOutputs, itemRecipeObject.TotalInputEnergy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.MinimumEnergyPerTick);
                 case RecipeType.Burner:
+                {
                     BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
-                    return new BurnerItemRecipe(solidOutputs, fluidOutputs, burnerRecipeObject.Ticks, burnerRecipeObject.Ticks, burnerRecipeObject.PassiveSpeed);
+                    uint ticks = GlobalHelper.TileEntitySecondsToTicks(burnerRecipeObject.Seconds);
+                    return new BurnerItemRecipe(solidOutputs, fluidOutputs, ticks, ticks, burnerRecipeObject.PassiveSpeed);
+                }
+                    
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -478,7 +491,6 @@ namespace Recipe.Processor
                 case RecipeType.Machine:
                 {
                     Tier tier = material.GetTier();
-                    Debug.Log(tier.DisplayName());
                     ulong usage = tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
@@ -507,7 +519,12 @@ namespace Recipe.Processor
                         Debug.LogWarning("Tried to get transmutable item displayable recipe for non transmutable item");
                         return null;
                     }
-                    return ToDisplayableRecipe(recipeData, transmutableRecipeObject,transmutableItemObject);
+
+                    Tier materialTier = transmutableItemObject.GetTier();
+                    return !transmutableRecipeObject.CanCraftTier(materialTier) 
+                        ? null 
+                        : ToDisplayableRecipe(recipeData, transmutableRecipeObject,transmutableItemObject);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeData.Recipe), recipeData.Recipe, null);
             }

@@ -5,6 +5,6 @@ namespace Recipe.Objects
     [CreateAssetMenu(fileName ="New Passive Item Recipe",menuName="Crafting/Recipes/Passive")]
     public class PassiveItemRecipeObject : ItemRecipeObject
     {
-        public int Ticks;
+        public float Seconds;
     }
 }

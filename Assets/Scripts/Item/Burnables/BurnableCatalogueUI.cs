@@ -69,7 +69,7 @@ namespace Item.Burnables
 
         private void DisplayItemSlot(ItemSlot itemSlot)
         {
-            mItemSlotInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
+            mItemSlotInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},false);
             mItemSlotInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
             ItemObject itemObject = itemSlot.itemObject;
             mNameText.text = $"Name: {itemObject.name}";

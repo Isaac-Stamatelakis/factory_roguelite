@@ -361,7 +361,7 @@ namespace PlayerModule.Mouse {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem.Interactable) return true; // Return true in this case so click is cancelled out
             
-            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+            if (closedChunkSystem is not ConduitClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
             

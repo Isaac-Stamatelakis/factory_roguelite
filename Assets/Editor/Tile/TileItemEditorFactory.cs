@@ -103,12 +103,12 @@ public static class ItemEditorFactory
             tile.colliderType = Tile.ColliderType.Sprite;
         }
         
-        setTileTransformOffset(sprite,tile);
+        SetTileTransformOffset(sprite,tile);
         
         return tile;
     }
 
-    public static void setTileTransformOffset(Sprite sprite, Tile tile) {
+    public static void SetTileTransformOffset(Sprite sprite, Tile tile) {
         Vector2Int spriteSize = Global.GetSpriteSize(sprite);
         Matrix4x4 tileTransform = tile.transform;
         if (spriteSize.x % 2 == 0) {

@@ -22,15 +22,6 @@ using Debug = UnityEngine.Debug;
 namespace WorldModule.Caves {
     
     public static class CaveUtils {
-        public static IEnumerable LoadCaveElements(CaveObject caveObject) {
-            var entityHandle = caveObject.entityDistributor.LoadAssetAsync<UnityEngine.Object>();
-            var generationModelHandle = caveObject.generationModel.LoadAssetAsync<UnityEngine.Object>();
-            
-            yield return entityHandle;
-            yield return generationModelHandle;
-            
-        }
-
         public static string IdFromName(string name)
         {
             return name.ToLower().Replace(" ", "_");
@@ -42,102 +33,7 @@ namespace WorldModule.Caves {
         }
         
         public static IEnumerator LoadCave(CaveObject caveObject, CaveCallback caveCallback) {
-            CaveElements caveElements = new CaveElements();
-            Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
-            if (caveObject.generationModel == null) {
-                Debug.LogError($"Cannot teleport to cave {caveObject.name}: does not have a generation model");
-                yield break;
-            }
-
-            handles["Model"] = caveObject.generationModel.LoadAssetAsync<Object>();
-            if (caveObject.entityDistributor.RuntimeKeyIsValid()) {
-                handles["Entity"] = Addressables.LoadAssetAsync<Object>(caveObject.entityDistributor);
-            }
-
-            if (caveObject.structureDistributor.RuntimeKeyIsValid())
-            {
-                handles["Structure"] = Addressables.LoadAssetAsync<Object>(caveObject.structureDistributor);
-            }
-            
-
-            List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
-            foreach (AssetReference assetReference in caveObject.songs) {
-                if (assetReference.RuntimeKeyIsValid()) {
-                    songHandles.Add(assetReference.LoadAssetAsync<Object>());
-                }
-                
-            }
-
-            foreach (var kvp in handles) {
-                yield return kvp.Value;
-            }
-            
-            foreach (var handle in songHandles) {
-                yield return handle;
-            }
-            
-            EntityRegistry entityRegistry = EntityRegistry.Instance;
-            if (handles.TryGetValue("Entity", out var entityHandle) && entityHandle.Result is CaveEntityDistrubtionObject caveEntityDistrubtionObject)
-            {
-                List<EntityDistribution> entityDistributions = caveEntityDistrubtionObject.entities;
-                List<string> ids = new List<string>();
-                foreach (EntityDistribution entityDistribution in entityDistributions)
-                {
-                    ids.Add(entityDistribution.entityId);
-                }
-                entityRegistry.ClearCache(ids);
-                yield return entityRegistry.LoadEntitiesIntoMemory(ids);
-                caveElements.CaveEntityDistributor = new CaveEntityDistributor(entityDistributions,caveObject,caveElements);
-            } else
-            {
-                entityRegistry.ClearCache();
-            }
-            if (handles.TryGetValue("Structure", out var structureHandle)) {
-                caveElements.StructureDistributor = AddressableUtils.validateHandle<AreaStructureDistributor>(structureHandle);
-            }
-            
-            caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(handles["Model"]);
-            caveElements.Songs = AddressableUtils.validateHandles<AudioClip>(songHandles);
-
-            if (caveObject.TileDistributorObject)
-            {
-                List<TileDistribution> tileDistributions = new List<TileDistribution>();
-                foreach (StandardTileDistrubtion distributorObjectData in caveObject.TileDistributorObject.TileDistributions)
-                {
-                    if (distributorObjectData == null) continue;
-                    List<TileDistributionFrequency> tileDistributionFrequencies = new List<TileDistributionFrequency>();
-                    foreach (TileDistributionFrequency frequency in distributorObjectData.Tiles)
-                    {
-                        if (frequency.frequency == 0 || frequency.tileItem?.id == null) continue;
-                        tileDistributionFrequencies.Add(frequency);
-                    }
-                    FrequencyTileAggregator frequencyTileAggregator = new FrequencyTileAggregator(tileDistributionFrequencies);
-                    tileDistributions.Add(new TileDistribution(frequencyTileAggregator, distributorObjectData.TileDistributionData));
-                }
-            
-                caveElements.TileDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
-            }
-
-            if (caveObject.OreDistributionObject)
-            {
-                List<TileDistribution> tileDistributions = new List<TileDistribution>();
-                foreach (OreDistribution oreDistribution in caveObject.OreDistributionObject.OreDistributions)
-                {
-                    OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material,oreDistribution.SubDistrubtions);
-                    tileDistributions.Add(new TileDistribution(oreTileAggregator,oreDistribution.TileDistributionData));
-
-                }
-                caveElements.OreDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
-            }
-            
-            foreach (var kvp in handles) {
-                Addressables.Release(kvp.Value);
-            }
-            
-            foreach (var handle in songHandles) {
-                Addressables.Release(handle);
-            }
-            CaveInstance caveInstance = new CaveInstance(caveObject,caveElements);
+            CaveInstance caveInstance = new CaveInstance(caveObject);
             
             yield return caveCallback(caveInstance);
 

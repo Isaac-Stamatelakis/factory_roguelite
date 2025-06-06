@@ -57,7 +57,7 @@ namespace Chunks.IO {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             if (closedChunkSystem is TileClosedChunkSystem) {
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeralizedWorldData>>(json));
-            } else if (closedChunkSystem is ConduitTileClosedChunkSystem) {
+            } else if (closedChunkSystem is ConduitClosedChunkSystem) {
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<WorldTileConduitData>>(json));
             }
             List<IChunkPartitionData> chunkPartitionData = new List<IChunkPartitionData>();

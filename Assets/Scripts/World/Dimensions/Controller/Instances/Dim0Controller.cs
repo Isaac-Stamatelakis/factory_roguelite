@@ -13,8 +13,9 @@ using Tiles.TileMap.Interval;
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
-        private IChunkSystem dim0System;
+        private IConduitClosedChunkSystem dim0System;
         private List<SoftLoadedConduitTileChunk> cachedChunks;
+        private uint tickCounter;
         public void SetSoftLoadedSystem(SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem, List<SoftLoadedConduitTileChunk> chunks)
         {
             cachedChunks = chunks;
@@ -30,7 +31,7 @@ namespace Dimensions {
             {
                 GameObject closedChunkSystemObject = new GameObject();
                 closedChunkSystemObject.name="Dim0System";
-                ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
+                ConduitClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitClosedChunkSystem>();
                 string path = WorldLoadUtils.GetDimPath(0);
                 ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(cachedChunks,path,0);
                 IntervalVector bounds = closedChunkSystemAssembler.GetBounds();
@@ -49,7 +50,7 @@ namespace Dimensions {
         }
         public override void DeActivateSystem()
         {
-            if (dim0System is not ConduitTileClosedChunkSystem closedChunkSystem) return;
+            if (dim0System is not ConduitClosedChunkSystem closedChunkSystem) return;
             SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = closedChunkSystem.ToSoftLoadedSystem();
             dim0System = softLoadedClosedChunkSystem;
             softLoadedClosedChunkSystem.ClearActiveComponents();
@@ -74,7 +75,16 @@ namespace Dimensions {
 
         public override void TickUpdate()
         {
-            dim0System?.TickUpdate();
+            if (tickCounter % Global.TILE_ENTITY_TICK_RATE == 0)
+            {
+                dim0System?.TileEntityTickUpdate();
+            }
+
+            if (tickCounter % Global.CONDUIT_TICK_RATE == 0)
+            {
+                dim0System?.ConduitTickUpdate();
+            }
+            tickCounter++;
         }
     }
 }

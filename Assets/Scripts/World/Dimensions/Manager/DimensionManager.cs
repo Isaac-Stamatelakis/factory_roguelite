@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
@@ -40,6 +41,7 @@ using World.Cave.Registry;
 using World.Dimensions.Serialization;
 using World.Serialization;
 using WorldModule.Caves;
+using Debug = UnityEngine.Debug;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -76,11 +78,13 @@ namespace Dimensions {
             loadBeautifier.Hide();
             
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
-            Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             Coroutine entityInitialize = StartCoroutine(EntityRegistry.Initialize());
             yield return itemLoad;
-            yield return recipeLoad;
             yield return entityInitialize;
+            
+            // Recipes must be initialized after items :(
+            Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
+            yield return recipeLoad;
             
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");
@@ -387,6 +391,11 @@ namespace Dimensions {
 
         public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
         {
+            if (setPlayerSystemRoutineActive)
+            {
+                Debug.LogWarning("Cannot initiate dimension switch for player as another switch is already in progress");
+                return;
+            }
             StartCoroutine(SetPlayerSystemCoroutine(player, dimension, teleportPosition, key, dimensionOptions));
         }
 
@@ -430,7 +439,7 @@ namespace Dimensions {
                 yield break;
             }
             
-            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
+            if (newSystem is not ConduitClosedChunkSystem && activeSystem is ConduitClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
             }
@@ -479,16 +488,19 @@ namespace Dimensions {
             }
             
             player.PlayerUIContainer.IndicatorManager.Display(player);
-            
-            newSystem.InstantCacheChunksNearPlayer();
             yield return newSystem.LoadTileEntityAssets();
-            newSystem.PlayerPartitionUpdate();
-            setPlayerSystemRoutineActive = false;
             
             Vector3 playerPosition = player.transform.position;
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
+                
+            newSystem.InstantCacheChunksNearPlayer();
+            newSystem.PlayerPartitionUpdate();
+            
+            yield return new WaitForSeconds(0.1f); // Prevent players from spamming teleport
+            
+            setPlayerSystemRoutineActive = false;
         }
         
         

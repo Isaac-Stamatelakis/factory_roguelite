@@ -82,6 +82,7 @@ namespace Player
         private ClosedChunkSystem currentSystem;
         public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
+        
 
         public void SetInputActions(InputActions inputActions)
         {

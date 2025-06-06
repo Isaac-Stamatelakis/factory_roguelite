@@ -104,9 +104,9 @@ namespace DevTools.CraftingTrees.TreeEditor
                         if (processorNodeData.RecipeData is PassiveRecipeMetaData passiveRecipeMetaData)
                         {
                             FormattedInputFieldUI tickInput = GameObject.Instantiate(mFormattedInputFieldPrefab, nodeContentContainer, false);
-                            tickInput.DisplayUInt("Ticks", (uint)passiveRecipeMetaData.Ticks, (value) =>
+                            tickInput.DisplayFloat("Time (s)", passiveRecipeMetaData.Seconds, (value) =>
                             {
-                                passiveRecipeMetaData.Ticks = (int)value;
+                                passiveRecipeMetaData.Seconds = value;
                             });
                             CanvasController.Instance.AddTypingListener(tickInput.InputField);
                         }

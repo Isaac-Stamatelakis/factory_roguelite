@@ -13,7 +13,7 @@ namespace Recipe.Collection
     public class BurnableItemCollection : ScriptableObject
     {
         public ItemObject BurnableRegistryImage;
-        public List<EditorKvp<ItemObject, uint>> ItemBurnDurations;
-        public List<EditorKvp<TransmutableItemMaterial, uint>> MaterialBurnDurations;
+        public List<EditorKvp<ItemObject, float>> ItemBurnDurations;
+        public List<EditorKvp<TransmutableItemMaterial, float>> MaterialBurnDurations;
     }
 }

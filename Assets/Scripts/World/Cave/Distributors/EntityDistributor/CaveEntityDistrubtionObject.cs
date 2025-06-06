@@ -20,13 +20,11 @@ namespace WorldModule.Caves {
     public class CaveEntityDistributor : ICaveDistributor
     {
         private List<EntityDistribution> entities;
-        private CaveElements caveElements;
         private CaveObject caveObject;
 
-        public CaveEntityDistributor(List<EntityDistribution> distributions, CaveObject caveObject, CaveElements caveElements)
+        public CaveEntityDistributor(List<EntityDistribution> distributions, CaveObject caveObject)
         {
             this.entities = distributions;
-            this.caveElements = caveElements;
             this.caveObject = caveObject;
         }
 

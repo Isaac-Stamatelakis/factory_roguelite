@@ -38,7 +38,10 @@ namespace UI.QuestBook
         {
             Transform child = transform.GetChild(0);
             child.gameObject.SetActive(true);
-            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: PlayerControl.OpenQuestBook,
+            CanvasController.Instance.DisplayObject(
+                child.gameObject,
+                keyCodes: PlayerControl.OpenQuestBook,
+                terminateOnEscape:true,
                 hideParent:false, 
                 originalParent:transform
             );

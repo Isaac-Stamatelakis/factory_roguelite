@@ -14,9 +14,9 @@ namespace Item.Registry
     {
         public const int RANDOM_ITEM_AMOUNT = 15;
         public const int RANDOM_MATERIAL_AMOUNT = 3;
-        public ItemObject BurnableRegistryImage;
-        private Dictionary<string, uint> itemBurnDurations;
-        private Dictionary<TransmutableItemMaterial, uint> materialBurnDurations;
+        public readonly ItemObject BurnableRegistryImage;
+        private readonly Dictionary<string, uint> itemBurnDurations;
+        private readonly Dictionary<TransmutableItemMaterial, uint> materialBurnDurations;
         
         public int MaterialCount => materialBurnDurations.Count;
         public int ItemCount => itemBurnDurations.Count;
@@ -26,12 +26,21 @@ namespace Item.Registry
             itemBurnDurations = new Dictionary<string, uint>();
             foreach (var tuple in collection.ItemBurnDurations)
             {
-                itemBurnDurations[tuple.Item1.id] = tuple.Item2;
+                ItemObject itemObject = tuple.Item1;
+                if (!itemObject) continue;
+                
+                float seconds = tuple.Item2;
+                uint ticks = GlobalHelper.TileEntitySecondsToTicks(seconds);
+                itemBurnDurations[itemObject.id] = ticks;
             }
             materialBurnDurations = new Dictionary<TransmutableItemMaterial, uint>();
             foreach (var tuple in collection.MaterialBurnDurations)
             {
-                materialBurnDurations[tuple.Item1] = tuple.Item2;
+                TransmutableItemMaterial material = tuple.Item1;
+                if (!material) continue;
+                float seconds = tuple.Item2;
+                uint ticks = GlobalHelper.TileEntitySecondsToTicks(seconds);
+                materialBurnDurations[material] = ticks;
             }
 
             BurnableRegistryImage = collection.BurnableRegistryImage;
