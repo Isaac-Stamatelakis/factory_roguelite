@@ -35,7 +35,11 @@ using Random = Unity.Mathematics.Random;
 
 namespace Robot.Tool.Instances
 {
-    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool
+    public interface IPreviewableTool : IAutoSelectTool
+    {
+        public bool Preview(Vector2Int cellPosition);
+    }
+    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool, IPreviewableTool
     {
         private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
@@ -350,16 +354,17 @@ namespace Robot.Tool.Instances
             return toolData?.Layer.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
+        public bool Preview(Vector2Int cellPosition)
         {
             switch (toolData.Layer)
             {
                 case TileMapLayer.Base:
-                    PreviewBaseLayer(cellPosition,autoSelectOn);
-                    break;
+                    return PreviewBaseLayer(cellPosition);
                 case TileMapLayer.Background: // TODO
                     break;
             }
+
+            return false;
         }
 
         public override RobotArmState GetRobotArmAnimation()
@@ -372,7 +377,7 @@ namespace Robot.Tool.Instances
             return (int)toolData.Layer;
         }
 
-        private void PreviewBaseLayer(Vector2Int cellPosition, bool autoSelectOn)
+        private bool PreviewBaseLayer(Vector2Int cellPosition)
         {
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
@@ -381,17 +386,18 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
             
-            if (multiBreak == 0 && !autoSelectOn)
+            if (multiBreak == 0 && veinMinePower < 2)
             {
-                return;
+                return false;
             }
             Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
             if (outlineDict == null)
             {
-                return;
+                return false;
             }
             
             tileHighlighter.Display(outlineDict);
+            return true;
         }
 
         private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)

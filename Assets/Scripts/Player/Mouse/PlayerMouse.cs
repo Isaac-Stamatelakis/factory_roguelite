@@ -34,6 +34,7 @@ using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
+using Robot.Tool.Instances;
 using Robot.Upgrades;
 using RobotModule;
 using TileEntity.AssetManagement;
@@ -184,21 +185,6 @@ namespace PlayerModule.Mouse {
             TileMapLayer layer = autoSelectTool.GetAutoSelectLayer();
             if (layer != TileMapLayer.Base) return mousePosition;
             toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,range);
-            IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
-            if (hitMap == null || !hitMap.GetTilemap())
-            {
-                tileHighlighter.Clear();
-                return toolHitPosition;
-            }
-            
-            tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
-            ITileGridMap tileGridMap = (ITileGridMap)hitMap;
-            
-            var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
-            Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-            var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
-            
-            tileHighlighter.Display(cellPosition,outlineTileMapCellData);
             return toolHitPosition;
         }
         
@@ -209,7 +195,37 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
-            previewController.Preview(playerInventory.CurrentTool,toolHitPosition, autoSelectMode==AutoSelectMode.Tool);
+            bool toolPreviewOverride = previewController.Preview(playerInventory.CurrentTool, toolHitPosition);
+            playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.SetOverride(toolPreviewOverride);
+            if (toolPreviewOverride)
+            {
+                tileHighlighter.SetOutlineColor(((IPreviewableTool)playerInventory.CurrentTool).GetColor());
+                return;
+            }
+            previewController.ResetRecord();
+            
+            if (autoSelectMode == AutoSelectMode.Tool)
+            {
+                IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
+                if (hitMap == null || !hitMap.GetTilemap())
+                {
+                    tileHighlighter.Clear();
+                }
+                
+                if (playerInventory.CurrentTool is not IAutoSelectTool autoSelectTool) return;
+                
+                tileHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+                ITileGridMap tileGridMap = (ITileGridMap)hitMap;
+                if (tileGridMap == null) return;
+            
+                var cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
+                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+                var outlineTileMapCellData = tileGridMap.GetOutlineCellData(vector3Int);
+            
+                tileHighlighter.Display(cellPosition,outlineTileMapCellData);
+                return;
+            }
+            
             
             if (autoSelectMode != AutoSelectMode.TileEntity) return;
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
@@ -363,15 +379,15 @@ namespace PlayerModule.Mouse {
             conduitPortUI.Display(conduitPort,conduit);
             return true;
         }
-        
-        
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mousePosition"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public bool TryClickTileEntity(Vector2 mousePosition) {
+        public void TryClickTileEntity(Vector2 mousePosition) {
             if (highlightPosition.HasValue)
             {
                 mousePosition = highlightPosition.Value;
@@ -379,47 +395,43 @@ namespace PlayerModule.Mouse {
             int layers = TileMapLayer.Base.ToRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             
-            if (ReferenceEquals(tilemapObject,null)) return false;
+            if (ReferenceEquals(tilemapObject,null)) return;
             Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
             Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
             Vector2Int? tilePosition = FindTileAtLocation.Find(mouseCellPosition,tilemap);
             if (tilePosition == null) {
-                return false;
+                return;
             }
             Vector2Int nonNullPosition = (Vector2Int) tilePosition;
             Vector2 worldPositionTile = new Vector2(nonNullPosition.x/2f,nonNullPosition.y/2f);
             ILoadedChunk chunk = GetChunk(worldPositionTile);
             if (chunk == null) {
-                return false;
+                return;
             }
             Vector2Int partitionPosition = Global.GetPartitionFromWorld(worldPositionTile);
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PARTITIONS_PER_CHUNK;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
-            if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return false;
+            if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return;
             
-            IRightClickableTileEntity rightClickableTileEntity = tileEntityInstance as IRightClickableTileEntity;
+            
             
             // In cases where the tile entity has both ui and click behavior, holding left shit lets the player interact with the entity instance
-            bool clickInstanceInterface = rightClickableTileEntity != null && Keyboard.current.leftShiftKey.isPressed;
-            if (rightClickableTileEntity is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
+            bool clickInstanceInterface = Keyboard.current.leftShiftKey.isPressed;
+            if (tileEntityInstance is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
                 StopPlayerHorizontalMovement();
             }
             if (!clickInstanceInterface && tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
-                
                 TileEntityAssetRegistry.Instance.DisplayUI(tileEntityInstance);
-                
-                return true;
+                return;
             }
+            if (tileEntityInstance is not IRightClickableTileEntity rightClickableTileEntity) return;
             
-
-            rightClickableTileEntity?.OnRightClick();
-            return rightClickableTileEntity != null;
-
-            
+            rightClickableTileEntity.OnRightClick();
+            tileHighlighter.Clear();
         }
         
         private void StopPlayerHorizontalMovement()
@@ -651,23 +663,27 @@ namespace PlayerModule.Mouse {
     {
         private Vector2 lastMousePosition;
         private Vector2Int lastTilePosition;
+        private bool lastPreviewState;
         
-        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition, bool autoSelectOn)
+        public bool Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
         {
-            if (robotToolInstance == null) return;
+            if (robotToolInstance is not IPreviewableTool previewableTool) return false;
        
-            if (mousePosition == lastMousePosition) return;
+            if (mousePosition == lastMousePosition) return lastPreviewState;
             Vector2Int tilePosition = Global.WorldToCell(mousePosition);
-            if (lastTilePosition == tilePosition) return;
+            if (lastTilePosition == tilePosition) return lastPreviewState;
             
             lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
-            robotToolInstance.Preview(tilePosition, autoSelectOn);
+            lastPreviewState = true;
+            return previewableTool.Preview(tilePosition);
         }
         
 
         public void ResetRecord()
         {
+            if (lastPreviewState == false) return;
+            lastPreviewState = false;
             lastMousePosition = Vector2.negativeInfinity;
             lastTilePosition = Vector2Int.one * int.MaxValue;
         }

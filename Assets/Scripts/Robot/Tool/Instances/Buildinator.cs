@@ -35,7 +35,7 @@ namespace Robot.Tool.Instances
     {
         
     }
-    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool
+    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool, IPreviewableTool
     {
         private RobotToolLaserManager laserManager;
         
@@ -305,13 +305,13 @@ namespace Robot.Tool.Instances
             return toolData?.Mode.ToString();
         }
 
-        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
+        public bool Preview(Vector2Int cellPosition)
         {
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             TileHighlighter tileHighlighter = playerScript.TileViewers.tileHighlighter;
-            if (multiHits == 0 && !autoSelectOn)
+            if (multiHits == 0)
             {
-                return;
+                return false;
             }
             
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
@@ -341,6 +341,7 @@ namespace Robot.Tool.Instances
                 }
             }
             tileHighlighter.Display(tiles);
+            return true;
         }
 
         public override RobotArmState GetRobotArmAnimation()

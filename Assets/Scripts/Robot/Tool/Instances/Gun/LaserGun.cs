@@ -138,11 +138,7 @@ namespace Robot.Tool.Instances
         {
             return toolData.LaserGunMode.ToString();
         }
-
-        public override void Preview(Vector2Int cellPosition, bool autoSelectOn)
-        {
-            
-        }
+        
 
         public override RobotArmState GetRobotArmAnimation()
         {

@@ -222,9 +222,9 @@ namespace TileMaps {
             Vector2 worldPosition = tilemap.CellToWorld(new Vector3Int(position.x, position.y, 0));
             return GetHitTilePosition(worldPosition);
         }
-        public Vector2Int WorldToTileMapPosition(Vector2 position) {
-            Vector3Int vect = tilemap.WorldToCell(position);
-            return new Vector2Int(vect.x,vect.y);
+        public Vector2Int WorldToTileMapPosition(Vector2 position)
+        {
+            return Global.WorldToCell(position);
         }
         public virtual void BreakTile(Vector2Int position) {
             Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
