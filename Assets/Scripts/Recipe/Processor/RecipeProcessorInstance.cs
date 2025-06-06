@@ -335,23 +335,24 @@ namespace Recipe.Processor
                 }
             }
 
-            foreach (var kvp in modeRecipeTransmutation)
+            foreach (var (mode, transmutableRecipes) in modeRecipeTransmutation)
             {
-                int mode = kvp.Key;
-                foreach (var (inputState, transRecipe) in kvp.Value)
+                foreach (var (inputState, transRecipe) in transmutableRecipes)
                 {
                     List<TransmutableItemMaterial> materials = ItemRegistry.GetInstance().GetAllMaterials();
                     List<ItemSlot> inputs = new List<ItemSlot>();
                     List<ItemSlot> outputs = new List<ItemSlot>();
-                    // TODO add fluid and tile
+                    
                     foreach (TransmutableItemMaterial material in materials)
                     {
+                        Tier materialTier = material.GetTier();
+                        if (!transRecipe.CanCraftTier(materialTier)) continue;
+                        
                         bool inputMatch = false;
                         bool outputMatch = false;
-                        foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
+                        List<TransmutableItemState> states = material.MaterialOptions.GetAllStates();
+                        foreach (TransmutableItemState state in states)
                         {
-                            
-                            TransmutableItemState state = (TransmutableItemState)stateOptions.state;
                             if (state == transRecipe.InputState)
                             {
                                 inputMatch = true;
@@ -507,7 +508,12 @@ namespace Recipe.Processor
                         Debug.LogWarning("Tried to get transmutable item displayable recipe for non transmutable item");
                         return null;
                     }
-                    return ToDisplayableRecipe(recipeData, transmutableRecipeObject,transmutableItemObject);
+
+                    Tier materialTier = transmutableItemObject.GetTier();
+                    return !transmutableRecipeObject.CanCraftTier(materialTier) 
+                        ? null 
+                        : ToDisplayableRecipe(recipeData, transmutableRecipeObject,transmutableItemObject);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeData.Recipe), recipeData.Recipe, null);
             }

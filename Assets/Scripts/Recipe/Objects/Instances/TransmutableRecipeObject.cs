@@ -17,11 +17,10 @@ namespace Recipe.Objects
         public Tier MinimumTier = Tier.Untiered;
         public Tier MaximumTier = Tier.Disabled;
 
-        public Vector2Int GetTierRange()
+        public bool CanCraftTier(Tier tier)
         {
-            return new Vector2Int((int)MinimumTier, (int)MaximumTier);
+            return tier >= MinimumTier && tier <= MaximumTier;
         }
-        
     }
     public enum TransmutationEfficency
     {

@@ -27,7 +27,7 @@ namespace Items.Transmutable {
 
         public Tier GetTier()
         {
-            return !gameStageObject ? Tier.Basic : gameStageObject.Tier;
+            return !gameStageObject ? Tier.Untiered : gameStageObject.Tier;
         }
 
         public bool HasShaders => ShaderMaterial;
