@@ -10,7 +10,7 @@ public class EditorTileItemRebuilder
 {
     private string tileName;
     private TileItem tileItem;
-    
+    public TileItem TileItem => tileItem;
 
     public void SearchByTileName(string name)
     {
@@ -39,7 +39,7 @@ public class EditorTileItemRebuilder
         return !Found() ? string.Empty : AssetDatabase.GetAssetPath(tileItem);
     }
 
-    public void DeleteOldTileAssets()
+    public void DeleteOldTileAssets(bool deleteTile)
     {
         string path = AssetDatabase.GetAssetPath(tileItem);
         string itemFolderPath = Path.GetDirectoryName(path);
@@ -48,12 +48,16 @@ public class EditorTileItemRebuilder
             Debug.LogError("Could not find item path");
             return;
         }
-        
-        TileBase oldTile = tileItem.tile;
-        if (oldTile)
+
+        if (deleteTile)
         {
-            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(oldTile));
+            TileBase oldTile = tileItem.tile;
+            if (oldTile)
+            {
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(oldTile));
+            }
         }
+        
         
         const string SPRITE_FOLDER_NAME = "Sprites";
         string spriteFolderPath = Path.Combine(itemFolderPath, SPRITE_FOLDER_NAME);

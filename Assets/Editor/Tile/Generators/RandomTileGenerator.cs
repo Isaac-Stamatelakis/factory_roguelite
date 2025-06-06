@@ -10,8 +10,7 @@ public class RandomTileGenerator : EditorWindow {
     private string tileName;
     private Texture2D texture;
     private readonly EditorTileItemRebuilder itemRebuilder = new EditorTileItemRebuilder();
-    private int width = 1;
-    private int height = 1;
+    private int tileSize = 1;
     [MenuItem("Tools/Item Constructors/Tile/Random")]
     public static void ShowWindow()
     {
@@ -35,13 +34,10 @@ public class RandomTileGenerator : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-
-        GUILayout.Label("Enter Dimensions in tiles");
+        
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Width:", GUILayout.Width(50));
-        width = EditorGUILayout.IntField(width);
-        EditorGUILayout.LabelField("Height:", GUILayout.Width(50));
-        height = EditorGUILayout.IntField(height);
+        EditorGUILayout.LabelField("TileSize (World Space (16x16):", GUILayout.Width(100));
+        tileSize = EditorGUILayout.IntField(tileSize);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
@@ -94,11 +90,28 @@ public class RandomTileGenerator : EditorWindow {
     
     private void Rebuild()
     {
-        itemRebuilder.DeleteOldTileAssets();
+        itemRebuilder.DeleteOldTileAssets(false);
         string itemPath = itemRebuilder.GetItemPath();
         string itemFolderPath = Path.GetDirectoryName(itemPath);
-        RandomTile randomTile = BuildRandomTile(itemFolderPath);
-        itemRebuilder.ReplaceTile(randomTile);
+        TileItem tileItem = itemRebuilder.TileItem;
+        TileBase tileBase = tileItem.tile;
+        if (tileBase is RandomTile randomTile)
+        {
+            Sprite[] sprites = EditorFactory.SpritesFromTexture(texture,itemFolderPath, tileName,tileSize*16,tileSize*16);
+            AssetDatabase.Refresh();
+            randomTile.m_Sprites = sprites;
+            randomTile.sprite = sprites[0];
+            EditorUtility.SetDirty(randomTile);
+            AssetDatabase.SaveAssetIfDirty(randomTile);
+            AssetDatabase.Refresh();
+        }
+        else
+        {
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(tileBase));
+            AssetDatabase.Refresh();
+            RandomTile newRandomTile = BuildRandomTile(itemFolderPath);
+            itemRebuilder.ReplaceTile(newRandomTile);
+        }
         Debug.Log($"Rebuilt {tileName} at {itemPath}");
     }
 }
