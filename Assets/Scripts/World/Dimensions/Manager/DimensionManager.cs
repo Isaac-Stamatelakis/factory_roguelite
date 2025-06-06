@@ -60,6 +60,7 @@ namespace Dimensions {
             instance = this;
         }
         protected DimController currentDimension;
+        private bool setPlayerSystemRoutineActive;
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
         protected ClosedChunkSystem activeSystem;
         
@@ -391,6 +392,13 @@ namespace Dimensions {
 
         private IEnumerator SetPlayerSystemCoroutine(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
         {
+            if (setPlayerSystemRoutineActive)
+            {
+                Debug.LogWarning("Cannot initiate dimension switch for player as another switch is already in progress");
+                yield break;
+            }
+            setPlayerSystemRoutineActive = true;
+            
             DimController controller = GetDimController(dimension);
             if (player.PlayerRobot.Dead)
             {
@@ -437,17 +445,14 @@ namespace Dimensions {
             newSystem.InitializeMiscObjects(miscObjects);
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
             
-            Vector3 playerPosition = player.transform.position;
-
             IntervalVector coveredArea = activeSystem.CoveredArea;
             const int BONUS_MIN = 1;
             const float CHUNK_WORLD_SIZE = Global.CHUNK_SIZE * Global.TILE_SIZE;
             teleportPosition.x = Mathf.Clamp(teleportPosition.x,coveredArea.X.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.X.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
             teleportPosition.y = Mathf.Clamp(teleportPosition.y,coveredArea.Y.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.Y.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
             
-            playerPosition.x = teleportPosition.x;
-            playerPosition.y = teleportPosition.y;
-            player.transform.position = playerPosition;
+            
+            
             player.SyncToClosedChunkSystem(newSystem,this,dimension);
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             GlobalHelper.DeleteAllChildren(player.TemporaryObjectContainer);
@@ -478,6 +483,12 @@ namespace Dimensions {
             newSystem.InstantCacheChunksNearPlayer();
             yield return newSystem.LoadTileEntityAssets();
             newSystem.PlayerPartitionUpdate();
+            setPlayerSystemRoutineActive = false;
+            
+            Vector3 playerPosition = player.transform.position;
+            playerPosition.x = teleportPosition.x;
+            playerPosition.y = teleportPosition.y;
+            player.transform.position = playerPosition;
         }
         
         
