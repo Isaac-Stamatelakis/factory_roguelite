@@ -415,27 +415,24 @@ namespace PlayerModule.Mouse {
             ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
             if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return false;
             
-            IRightClickableTileEntity rightClickableTileEntity = tileEntityInstance as IRightClickableTileEntity;
+            
             
             // In cases where the tile entity has both ui and click behavior, holding left shit lets the player interact with the entity instance
-            bool clickInstanceInterface = rightClickableTileEntity != null && Keyboard.current.leftShiftKey.isPressed;
-            if (rightClickableTileEntity is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
+            bool clickInstanceInterface = Keyboard.current.leftShiftKey.isPressed;
+            if (tileEntityInstance is IStopPlayerRightClickableTileEntity || tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
                 StopPlayerHorizontalMovement();
             }
             if (!clickInstanceInterface && tileEntityInstance.GetTileEntity() is IUITileEntity)
             {
-                
                 TileEntityAssetRegistry.Instance.DisplayUI(tileEntityInstance);
-                
                 return true;
             }
+            if (tileEntityInstance is not IRightClickableTileEntity rightClickableTileEntity) return false;
             
-
-            rightClickableTileEntity?.OnRightClick();
-            return rightClickableTileEntity != null;
-
-            
+            rightClickableTileEntity.OnRightClick();
+            tileHighlighter.Clear();
+            return true;
         }
         
         private void StopPlayerHorizontalMovement()
