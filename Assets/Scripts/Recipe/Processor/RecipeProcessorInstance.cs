@@ -155,9 +155,9 @@ namespace Recipe.Processor
             InitializeModeRecipeDict();
             collection = new ItemRecipeCollection(this);
             modeNameDict = new Dictionary<int, string>();
-            foreach (var modeNameKVP in recipeProcessorObject.ModeNamesMap)
+            foreach (var modeNameKvp in recipeProcessorObject.ModeNamesMap)
             {
-                modeNameDict[modeNameKVP.Mode] = modeNameKVP.Name;
+                modeNameDict[modeNameKvp.Mode] = modeNameKvp.Name;
             }
         }
         
@@ -192,6 +192,7 @@ namespace Recipe.Processor
                     foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
                     {
                         ItemSlot itemSlot = ItemSlotFactory.FromEditorObject(editorItemSlot);
+                        Debug.Log(itemSlot?.itemObject?.name);
                         if (!ReferenceEquals(itemSlot?.itemObject, null)) inputs.Add(itemSlot);
                     }
                     if (inputs.Count == 0) continue;
@@ -206,6 +207,7 @@ namespace Recipe.Processor
                         tempModeRecipeDict[mode][hash] = new List<ItemRecipeObject>();
                     }
                     tempModeRecipeDict[mode][hash].Add(itemRecipeObject);
+                    Debug.Log(itemRecipeObject.name);
                 }
             }
 
@@ -239,6 +241,7 @@ namespace Recipe.Processor
                 modeRecipeTransmutation.Remove(mode);
             }
 
+            Debug.Log(recipeProcessorObject.name + "," + modeRecipeDict.Count);
             if (hashCollisions > 0) Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
         }
         
@@ -274,19 +277,19 @@ namespace Recipe.Processor
                     if (result != null) return result;
                 }
             }
+            
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
             {
                 return null;
             }
             ulong hash = RecipeUtils.HashItemInputs(solidItems,fluidItems);
+           
             if (!recipeDict.TryGetValue(hash, out var recipeObjects))
             {
                 return null;
             }
-
-            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
             
-
+            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
         }
         
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
@@ -491,7 +494,6 @@ namespace Recipe.Processor
                 case RecipeType.Machine:
                 {
                     Tier tier = material.GetTier();
-                    Debug.Log(tier.DisplayName());
                     ulong usage = tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO should probably apply some scaling to this so its not linear
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);

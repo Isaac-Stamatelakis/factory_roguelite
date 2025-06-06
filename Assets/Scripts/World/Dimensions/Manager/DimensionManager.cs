@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
@@ -40,6 +41,7 @@ using World.Cave.Registry;
 using World.Dimensions.Serialization;
 using World.Serialization;
 using WorldModule.Caves;
+using Debug = UnityEngine.Debug;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -76,11 +78,13 @@ namespace Dimensions {
             loadBeautifier.Hide();
             
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
-            Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             Coroutine entityInitialize = StartCoroutine(EntityRegistry.Initialize());
             yield return itemLoad;
-            yield return recipeLoad;
             yield return entityInitialize;
+            
+            // Recipes must be initialized after items :(
+            Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
+            yield return recipeLoad;
             
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");

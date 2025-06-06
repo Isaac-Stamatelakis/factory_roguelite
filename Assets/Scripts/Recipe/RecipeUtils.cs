@@ -130,7 +130,6 @@ public static class RecipeUtils {
         public static void InsertValidRecipes(RecipeProcessor recipeProcessor, RecipeObject recipeObject, List<ItemRecipeObject> itemRecipes, Dictionary<TransmutableItemState, TransmutableRecipeObject> transmutableRecipes)
         {
             if (ReferenceEquals(recipeObject, null)) return;
-            
             RecipeType recipeType = recipeProcessor.RecipeType;
             if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
             {

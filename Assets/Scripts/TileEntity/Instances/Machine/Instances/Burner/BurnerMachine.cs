@@ -67,7 +67,6 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         public void Tick()
         {
             if (RemainingDuration > 0) RemainingDuration--;
-            if (RemainingDuration == 0) Parent.InventoryUpdate();
         }
 
         public float GetBurnPercent()
