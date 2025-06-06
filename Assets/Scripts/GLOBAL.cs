@@ -22,6 +22,8 @@ public static class Global
     public const int BLOCK_LAYER = 512;
     public const int CONDUIT_TICK_RATE = 25; // 2 times per second
     public const int TILE_ENTITY_TICK_RATE = 5; // 10 times per second
+
+    public static uint TicksPerSecond => (uint)(1 / (Time.fixedDeltaTime*TILE_ENTITY_TICK_RATE));
     
     public static float Mod(float x, float m) {
     return (x%m + m)%m;

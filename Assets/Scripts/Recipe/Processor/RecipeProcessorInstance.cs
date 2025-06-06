@@ -192,7 +192,6 @@ namespace Recipe.Processor
                     foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
                     {
                         ItemSlot itemSlot = ItemSlotFactory.FromEditorObject(editorItemSlot);
-                        Debug.Log(itemSlot?.itemObject?.name);
                         if (!ReferenceEquals(itemSlot?.itemObject, null)) inputs.Add(itemSlot);
                     }
                     if (inputs.Count == 0) continue;
@@ -207,7 +206,6 @@ namespace Recipe.Processor
                         tempModeRecipeDict[mode][hash] = new List<ItemRecipeObject>();
                     }
                     tempModeRecipeDict[mode][hash].Add(itemRecipeObject);
-                    Debug.Log(itemRecipeObject.name);
                 }
             }
 
@@ -240,8 +238,7 @@ namespace Recipe.Processor
             {
                 modeRecipeTransmutation.Remove(mode);
             }
-
-            Debug.Log(recipeProcessorObject.name + "," + modeRecipeDict.Count);
+            
             if (hashCollisions > 0) Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
         }
         
@@ -463,7 +460,6 @@ namespace Recipe.Processor
                 {
                     BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
                     uint ticks = GlobalHelper.TileEntitySecondsToTicks(burnerRecipeObject.Seconds);
-                    Debug.Log(ticks);
                     return new BurnerItemRecipe(solidOutputs, fluidOutputs, ticks, ticks, burnerRecipeObject.PassiveSpeed);
                 }
                     
