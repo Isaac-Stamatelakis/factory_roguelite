@@ -45,7 +45,6 @@ namespace Items.Inventory {
         protected Func<int, string> toolTipOverride;
         public Func<int, string> ToolTipOverride => toolTipOverride;
         private int highlightedSlot = -1;
-        private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
         private InventoryUI connection;
         private HashSet<ItemTag> tagRestrictions = new HashSet<ItemTag>();
@@ -61,6 +60,7 @@ namespace Items.Inventory {
         private Func<ItemObject, int, bool> validateInputCallback;
         private Color highlightColor = new Color(255 / 255f, 215 / 255f, 0, 100 / 255f);
         private Color defaultItemPanelColor;
+        private int currentRefreshSlotIndex;
         
         public void Awake()
         {
@@ -251,22 +251,13 @@ namespace Items.Inventory {
         {
             return inventory;
         }
-
-        public void SetRefresh(bool refresh)
-        {
-            this.refresh = refresh;
-        }
-
+        
         public void SetMaxSize(uint max)
         {
             maxStackSize = max;
         }
-
-        public void FixedUpdate()
-        {
-            if (!refresh) return;
-            RefreshSlots();
-        }
+        
+        
 
         public TClickHandler[] GetClickHandlers<TClickHandler>() where TClickHandler : ItemSlotUIClickHandler
         {
@@ -309,6 +300,24 @@ namespace Items.Inventory {
             for (int n = 0; n < slots.Count; n ++) {
                 RefreshSlot(n);
             }
+        }
+
+        public void BatchRefreshSlots(int batchSize)
+        {
+            int inventorySize = slots.Count;
+            if (batchSize > inventorySize)
+            {
+                batchSize = inventorySize;
+            }
+
+            for (int i = 0; i < batchSize; i++)
+            {
+                int idx = (currentRefreshSlotIndex + i) % inventorySize;
+                Debug.Log(idx);
+                RefreshSlot(idx);
+            }
+            currentRefreshSlotIndex += batchSize;
+            currentRefreshSlotIndex %= inventorySize;
         }
         
         public void RefreshSlot(int n) {

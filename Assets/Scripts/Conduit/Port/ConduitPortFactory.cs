@@ -127,8 +127,7 @@ namespace Conduits.Ports {
             }
 
             TileItem tileItem = tileEntity.GetTileItem();
-            Debug.Log(tileItem?.name);
-            Debug.Log("A");
+            
             if (!tileItem || tileItem.tileOptions.rotatable) return entityPorts;
             Vector2Int spriteSize = Global.GetSpriteSize(tileItem.GetSprite());
             List<TileEntityPortData> tileEntityPortDatas = new List<TileEntityPortData>();

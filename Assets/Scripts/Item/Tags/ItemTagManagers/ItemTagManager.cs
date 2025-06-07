@@ -38,7 +38,7 @@ namespace Item.Tags.ItemTagManagers
         public bool AreStackable(object first, object second);
     }
 
-    public interface IItemTagNullStackable
+    public interface IItemTagNullStackable : IItemTagStackable
     {
         public bool IsStackableWithNullObject([NotNull] object nonNullObject);
     }

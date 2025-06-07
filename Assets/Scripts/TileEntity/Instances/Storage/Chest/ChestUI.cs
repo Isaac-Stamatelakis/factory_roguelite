@@ -23,7 +23,7 @@ namespace TileEntity.Instances.Storage.Chest
 
         public void FixedUpdate()
         {
-            mInventoryUI.RefreshSlots();
+            mInventoryUI.BatchRefreshSlots(9);
         }
 
         public InventoryUI GetInput()

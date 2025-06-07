@@ -29,8 +29,8 @@ namespace TileEntity.Instances.Machine.UI
             InitializeInventoryUI(solidInputUI, machineItemInventory.itemInputs,layoutObject?.SolidInputs);
             InitializeInventoryUI(solidOutputUI, machineItemInventory.itemOutputs,layoutObject?.SolidOutputs);
             InitializeInventoryUI(fluidInputUI, machineItemInventory.fluidInputs,layoutObject?.FluidInputs);
-            
             InitializeInventoryUI(fluidOutputUI, machineItemInventory.fluidOutputs,layoutObject?.FluidOutputs);
+            
             if (solidOutputUI) solidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
             if (fluidOutputUI) fluidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
             
@@ -95,11 +95,10 @@ namespace TileEntity.Instances.Machine.UI
         }
         public void FixedUpdate()
         {
-            
-            solidInputUI?.RefreshSlots();
-            solidOutputUI?.RefreshSlots();
-            fluidInputUI?.RefreshSlots();
-            fluidOutputUI?.RefreshSlots();
+            solidInputUI?.BatchRefreshSlots(3);
+            solidOutputUI?.BatchRefreshSlots(3);
+            fluidInputUI?.BatchRefreshSlots(3);
+            fluidOutputUI?.BatchRefreshSlots(3);
         }
 
         private int SizeCheckInventoryUI<T>(InventoryUI inventoryUI, List<T> inventory, MachineInventoryOptions inventoryOptions) where T : ItemSlot

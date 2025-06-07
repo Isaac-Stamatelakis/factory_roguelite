@@ -120,7 +120,7 @@ namespace UI.Indicators.General
             
             void UpdateRotation()
             {
-                if (currentItem.tile is PlatformStateTile)
+                if (currentItem?.tile is PlatformStateTile)
                 {
                     placementOptions.Rotation = GlobalHelper.ShiftEnum(direction, placementOptions.Rotation);
                     bool invalid = placementOptions.Rotation is PlayerTileRotation.Degrees180 or PlayerTileRotation.Degrees270;
