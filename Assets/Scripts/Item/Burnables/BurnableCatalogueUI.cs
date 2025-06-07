@@ -10,6 +10,7 @@ using Items.Transmutable;
 using Player;
 using Recipe;
 using Recipe.Collection;
+using Recipe.Processor;
 using TMPro;
 using UI.Catalogue.InfoViewer;
 using Unity.VisualScripting;
@@ -27,61 +28,26 @@ namespace Item.Burnables
         private InventoryUIRotator rotator;
         public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
+            rotator = mItemSlotInventoryUI.AddComponent<InventoryUIRotator>();
             burnableInfo = (BurnableInfo)element;
             DisplayPage(0);
         }
 
         public override void DisplayPage(int pageIndex)
         {
-            BurnableDisplay burnableDisplay = burnableInfo.BurnableItems[pageIndex];
-            switch (burnableDisplay)
+            if (rotator)
             {
-                case BurnableItemDisplay burnableItemDisplay:
-                    if (rotator)
-                    {
-                        rotator.enabled = false;
-                    }
-                    DisplayItemSlot(burnableItemDisplay.ItemSlot);
-                    break;
-                case BurnableMaterialDisplay burnableMaterialDisplay:
-                    if (!rotator)
-                    {
-                        rotator = mItemSlotInventoryUI.AddComponent<InventoryUIRotator>();
-                    }
-                    rotator.enabled = true;
-                    int initialIndex = UnityEngine.Random.Range(0, burnableMaterialDisplay.ItemSlotList.Count);
-                    rotator.Initialize(
-                        burnableMaterialDisplay.ItemSlotList,1,50,
-                        initialIndex:initialIndex,
-                        onRotateCallback:DisplayIndex
-                    );
-                    DisplayIndex(initialIndex);
-
-                    void DisplayIndex(int index)
-                    {
-                        DisplayItemSlot(burnableMaterialDisplay.ItemSlotList[index][0]);
-                    }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                rotator.enabled = false;
             }
-        }
-
-        private void DisplayItemSlot(ItemSlot itemSlot)
-        {
-            mItemSlotInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},false);
-            mItemSlotInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
-            ItemObject itemObject = itemSlot.itemObject;
-            mNameText.text = $"Name: {itemObject.name}";
-            uint burnTicks = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
-            float burnSeconds = (float)burnTicks / Global.TicksPerSecond;
-            mBurnTimeText.text = $"Burn Duration: {burnSeconds} s";
+            BurnableDisplay burnableDisplay = burnableInfo.BurnableItems[pageIndex];
+            burnableDisplay.Display(mItemSlotInventoryUI,mNameText,mBurnTimeText);
         }
     }
 
     public abstract class BurnableDisplay : IGameStageItemDisplay
     {
         public abstract bool FilterStage(PlayerGameStageCollection gameStageCollection);
+        public abstract void Display(InventoryUI inventoryUI, TextMeshProUGUI itemText, TextMeshProUGUI extraText);
     }
 
     public interface IGameStageItemDisplay
@@ -104,6 +70,17 @@ namespace Item.Burnables
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
             return gameStageCollection.HasStage(ItemSlot?.itemObject?.GetGameStageObject());
+        }
+
+        public override void Display(InventoryUI inventoryUI, TextMeshProUGUI itemText, TextMeshProUGUI extraText)
+        {
+            inventoryUI.DisplayInventory(new List<ItemSlot>{ItemSlot},false);
+            inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+            ItemObject itemObject = ItemSlot.itemObject;
+            itemText.text = $"Name: {itemObject.name}";
+            uint burnTicks = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
+            float burnSeconds = (float)burnTicks / Global.TicksPerSecond;
+            extraText.text = $"Burn Duration: {burnSeconds} s";
         }
     }
 
@@ -135,6 +112,53 @@ namespace Item.Burnables
         {
             return gameStageCollection.HasStage(Material?.gameStageObject);
         }
+
+        public override void Display(InventoryUI inventoryUI, TextMeshProUGUI itemText, TextMeshProUGUI extraText)
+        {
+            InventoryUIRotator rotator = inventoryUI.GetComponent<InventoryUIRotator>();
+            rotator.enabled = true;
+            int initialIndex = UnityEngine.Random.Range(0, ItemSlotList.Count);
+            rotator.Initialize(
+                ItemSlotList,1,50,
+                initialIndex:initialIndex,
+                onRotateCallback:DisplayIndex
+            );
+            DisplayIndex(initialIndex);
+            return;
+
+            void DisplayIndex(int index)
+            {
+                ItemObject itemObject = ItemSlotList[index][0].itemObject;
+                itemText.text = $"Name: {itemObject.name}";
+                uint burnTicks = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
+                float burnSeconds = (float)burnTicks / Global.TicksPerSecond;
+                extraText.text = $"Burn Duration: {burnSeconds} s";
+            }
+        }
+    }
+
+    public class BurnerProcessorDisplay : BurnableDisplay
+    {
+        public RecipeProcessorInstance Processor;
+
+        public BurnerProcessorDisplay(RecipeProcessorInstance processor)
+        {
+            Processor = processor;
+        }
+
+        public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
+        {
+            return true; // Might have to change this later
+        }
+
+        public override void Display(InventoryUI inventoryUI, TextMeshProUGUI itemText, TextMeshProUGUI extraText)
+        {
+            ItemSlot itemSlot = new ItemSlot(Processor.RecipeProcessorObject.DisplayImage, 1, null);
+            inventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},false);
+            inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+            itemText.text = $"Name: {itemSlot.itemObject.name}";
+            extraText.text = $"Burner Machine";
+        }
     }
     
     public class BurnableInfo : ICatalogueElement
@@ -162,8 +186,15 @@ namespace Item.Burnables
 
         public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)
         {
-            BurnableItemRegistry burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
             List<BurnableDisplay> toDisplay = new List<BurnableDisplay>();
+            List<RecipeProcessorInstance> burnerProcessors = RecipeRegistry.GetInstance().GetAllProcessorsOfType(RecipeType.Burner);
+            foreach (RecipeProcessorInstance processor in burnerProcessors)
+            {
+                toDisplay.Add(new BurnerProcessorDisplay(processor));
+            }
+            
+            BurnableItemRegistry burnableItemRegistry = ItemRegistry.BurnableItemRegistry;
+            
             toDisplay.AddRange(burnableItemRegistry.GetAllItemsToDisplay());
             toDisplay.AddRange(burnableItemRegistry.GetAllMaterialsToDisplay());
             BurnableInfo burnableInfo = new BurnableInfo(toDisplay);

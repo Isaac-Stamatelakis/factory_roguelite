@@ -79,6 +79,17 @@ namespace Recipe {
             return val;
         }
 
+        public List<RecipeProcessorInstance> GetAllProcessorsOfType(RecipeType recipeType)
+        {
+            List<RecipeProcessorInstance> typedProcessors = new List<RecipeProcessorInstance>();
+            foreach (var processor in processors)
+            {
+                if (processor.RecipeProcessorObject.RecipeType != recipeType) continue;
+                typedProcessors.Add(processor);
+            }
+            return typedProcessors;
+        }
+
         public Dictionary<RecipeProcessor, List<DisplayableRecipe>> GetRecipesWithItemInOutput(ItemSlot itemSlot) {
             var processorOutput = new Dictionary<RecipeProcessor, List<DisplayableRecipe>>();
             foreach (RecipeProcessorInstance recipeProcessor in processors)
