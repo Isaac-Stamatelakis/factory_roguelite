@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
+using Item.Slot;
 using Items.Inventory;
 using LibNoise.Operator;
 using Recipe.Data;
@@ -15,7 +17,7 @@ namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
         IStopPlayerRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
-        IBluePrintPlaceInitializedTileEntity, IRecipeRestrictionTileEntity
+        IBluePrintPlaceInitializedTileEntity, IRecipeRestrictionTileEntity, IDropItemsOnBreakTileEntity
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
         protected TRecipe currentRecipe;
@@ -154,6 +156,11 @@ namespace TileEntity.Instances.Machine.Instances
             bool passes = (Restrictions & (int) recipeRestriction) != 0;
             if (!passes) return;
             Restrictions -= (int)recipeRestriction;
+        }
+
+        public virtual List<ItemSlot> GetDroppableItems()
+        {
+            return Inventory.Content.GetDroppableItems();
         }
     }
 }

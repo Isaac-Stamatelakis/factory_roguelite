@@ -5,8 +5,10 @@ using Item.Slot;
 using Items;
 using Items.Tags;
 using Items.Tags.FluidContainers;
+using Player;
 using PlayerModule;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Item.Inventory.ClickHandlers.Instances
 {
@@ -60,22 +62,17 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         private void InsertFluidCell(ItemSlot container, IFluidContainerData iFluidContainerData)
         {
-            var inventory = inventoryUI.GetInventory();
             if (container.tags?.Dict == null || !container.tags.Dict.ContainsKey(ItemTag.FluidContainer) ||
                 container.tags.Dict[ItemTag.FluidContainer] == null)
             {
                 ExtractFromInventoryIntoFluidCell(container,iFluidContainerData, PlayerManager.Instance.GetPlayer().PlayerInventory);
         
-            } else if (ItemSlotUtils.IsItemSlotNull(inventory[index])) {
+            } else {
                 InsertFluidCellIntoInventory(container, iFluidContainerData);
             }
-            
-
             inventoryUI.CallListeners(index);
             inventoryUI.RefreshSlots();
             GrabbedItemProperties.Instance.UpdateSprite();
-            
-            
         }
 
         private void ExtractFromInventoryIntoFluidCell(ItemSlot container, IFluidContainerData containerData, PlayerInventory playerInventory)
@@ -86,7 +83,6 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) return;
             
             ItemSlot tagFluidSlot = container.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
-
             
             if (ItemSlotUtils.IsItemSlotNull(tagFluidSlot))
             {
@@ -95,7 +91,6 @@ namespace Item.Inventory.ClickHandlers.Instances
                 return;
             }
             
-
             if (tagFluidSlot.amount >= containerData.GetStorage() || !ItemSlotUtils.AreEqual(tagFluidSlot, inventorySlot)) return;
             uint space = containerData.GetStorage() - tagFluidSlot.amount;
 
@@ -111,6 +106,9 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (container.amount == 1)
             {
                 container.tags.Dict[ItemTag.FluidContainer] = fluidItem;
+                GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+                grabbedItemProperties.SetItemSlot(null); // Set to null first so tag display is relaoded
+                grabbedItemProperties.SetItemSlot(container);
                 return;
             }
            
@@ -134,21 +132,52 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
         private void InsertFluidCellIntoInventory(ItemSlot container, IFluidContainerData containerData)
         {
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            bool holdingShift = Keyboard.current.shiftKey.isPressed;
+            
             var inventory = inventoryUI.GetInventory();
             object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
-            if (itemSlotObject is not ItemSlot itemSlot || ItemSlotUtils.IsItemSlotNull(itemSlot)) {
+            if (itemSlotObject is not ItemSlot fluidContainerFluidSlot || ItemSlotUtils.IsItemSlotNull(fluidContainerFluidSlot)) {
                 return;
             }
             ItemSlot fluidInventorySlot = inventory[index];
-            if (ItemSlotUtils.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
-                // TODO
+            
+            if (string.Equals(fluidInventorySlot?.itemObject?.id,fluidContainerFluidSlot?.itemObject?.id)) { // No need to check tags
+                // Merge
+                InsertIntoInventory(holdingShift);
                 return;
             }
-            inventory[index] = itemSlot;
+            inventory[index] = fluidContainerFluidSlot;
             container.amount--;
             ItemSlot empty = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
-            PlayerManager.Instance.GetPlayer().PlayerInventory.Give(empty);
+            playerScript.PlayerInventory.Give(empty);
+            return;
+            
+            void InsertIntoInventory(bool all)
+            {
+                uint maxSize = inventoryUI.MaxSize;
+                if (fluidInventorySlot.amount >= maxSize) return;
+                while (container.amount > 0 && fluidContainerFluidSlot.amount > 0)
+                {
+                    fluidInventorySlot.amount += fluidContainerFluidSlot.amount;
+                    container.amount--;
+                    if (fluidInventorySlot.amount > maxSize)
+                    {
+                        ItemSlot newContainer = new  ItemSlot(container.itemObject, 1, null);
+                        ItemSlot splitFluidItem = new ItemSlot(fluidContainerFluidSlot.itemObject, fluidContainerFluidSlot.amount - maxSize, null);
+                        ItemSlotUtils.AddTag(newContainer, ItemTag.FluidContainer,splitFluidItem);
+                        fluidInventorySlot.amount = maxSize;
+                        playerScript.PlayerInventory.Give(newContainer);
+                        break;
+                    }
+                    ItemSlot newEmpty = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
+                    playerScript.PlayerInventory.Give(newEmpty);
+                    if (!all) break;
+                }
+            }
         }
+        
+        
 
         protected override void RightClick()
         {

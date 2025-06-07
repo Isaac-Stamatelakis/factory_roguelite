@@ -74,7 +74,8 @@ namespace Item.Burnables
             ItemObject itemObject = itemSlot.itemObject;
             mNameText.text = $"Name: {itemObject.name}";
             uint burnTicks = ItemRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);
-            mBurnTimeText.text = $"Burn Time: {burnTicks}T";
+            float burnSeconds = (float)burnTicks / Global.TicksPerSecond;
+            mBurnTimeText.text = $"Burn Duration: {burnSeconds} s";
         }
     }
 

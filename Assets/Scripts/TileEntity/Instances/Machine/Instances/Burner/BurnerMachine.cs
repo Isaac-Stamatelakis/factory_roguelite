@@ -190,8 +190,15 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         {
             return BurnerFuelInventory;
         }
-        
-        
+
+        public override List<ItemSlot> GetDroppableItems()
+        {
+            List<ItemSlot> items = base.GetDroppableItems();
+            items.AddRange(BurnerFuelInventory.BurnerSlots);
+            return base.GetDroppableItems();
+        }
+
+
         private class SerializedBurnerMachine
         {
             public int Mode;

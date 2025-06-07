@@ -10,6 +10,7 @@ using Items;
 using Conduits.Ports;
 using Entities;
 using Entities.Mobs;
+using Item.Slot;
 using Player;
 using Tiles.Fluid.Simulation;
 
@@ -168,6 +169,17 @@ namespace Chunks.Partitions {
             if (!tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity)) return;
             if (tileEntity is IBreakActionTileEntity breakActionTileEntity) {
                 breakActionTileEntity.OnBreak();
+            }
+
+            if (tileEntity is IDropItemsOnBreakTileEntity dropItemsOnBreakTileEntity && parent is ILoadedChunk loadedChunk)
+            {
+                Transform entityContainer = loadedChunk.GetEntityContainer();
+                List<ItemSlot> items = dropItemsOnBreakTileEntity.GetDroppableItems();
+                Vector2 worldPosition = tileEntity.GetWorldPosition();
+                foreach (ItemSlot itemSlot in items)
+                {
+                    ItemEntityFactory.SpawnItemEntityFromBreak(worldPosition, itemSlot, entityContainer);
+                }
             }
             if (tileEntity is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.Unload();

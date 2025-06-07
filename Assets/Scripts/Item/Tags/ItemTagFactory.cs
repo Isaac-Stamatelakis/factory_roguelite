@@ -9,9 +9,9 @@ using Items.Tags.Matrix;
 namespace Items.Tags{
     public static class ItemTagFactory
     {
-        public static ItemTagCollection Initalize(ItemObject itemObject) {
+        public static ItemTagCollection Initialize(ItemObject itemObject) {
             if (itemObject is ITaggableItem taggable) {
-                return initalizeFromTaggable(taggable);
+                return InitializeFromTaggable(taggable);
             }
             return null; 
         }
@@ -27,7 +27,7 @@ namespace Items.Tags{
             return Newtonsoft.Json.JsonConvert.SerializeObject(seralized);
         }
 
-        public static ItemTagCollection deseralize(string data) {
+        public static ItemTagCollection Deserialize(string data) {
             if (data == null) {
                 return null;
             }
@@ -40,7 +40,7 @@ namespace Items.Tags{
             return new ItemTagCollection(dict);
      
         }
-        private static ItemTagCollection initalizeFromTaggable(ITaggableItem taggable) {
+        private static ItemTagCollection InitializeFromTaggable(ITaggableItem taggable) {
             List<ItemTag> tags = taggable.getTags();
             if (tags.Count == 0) {
                 return null;

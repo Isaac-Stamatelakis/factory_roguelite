@@ -14,7 +14,7 @@ using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Storage;
 
 namespace TileEntity {
-    public class TileEntityInventory {
+    public class TileEntityInventory : IDroppableInventory {
         public List<ItemSlot> itemInputs;
         public List<ItemSlot> itemOutputs;
         public List<ItemSlot> fluidInputs;
@@ -37,7 +37,14 @@ namespace TileEntity {
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
-        
+
+        public List<ItemSlot> GetDroppableItems()
+        {
+            List<ItemSlot> dropList = new List<ItemSlot>();
+            dropList.AddRange(itemInputs);
+            dropList.AddRange(itemOutputs);
+            return dropList;
+        }
     }
     public class MachineItemInventory : IItemConduitInteractable
     {
@@ -61,7 +68,6 @@ namespace TileEntity {
             parent.InventoryUpdate();
             return extracted;
         }
-
         
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
@@ -93,6 +99,11 @@ namespace TileEntity {
             parent.ResetRecipe();
             parent.InventoryUpdate();
         }
+    }
+
+    public interface IDroppableInventory
+    {
+        public List<ItemSlot> GetDroppableItems();
     }
 
     public class MachineEnergyInventory :  IEnergyPortTileEntityAggregator

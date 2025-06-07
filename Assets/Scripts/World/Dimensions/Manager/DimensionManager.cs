@@ -421,6 +421,7 @@ namespace Dimensions {
             }
             
             dimensionOptions ??= GetDimensionOptions(dimension);
+            
             activeSystem?.Save();
             activeSystem?.DeactivateAllPartitions();
             currentDimension?.DeActivateSystem();

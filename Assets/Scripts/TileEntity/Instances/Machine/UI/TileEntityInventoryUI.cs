@@ -29,9 +29,16 @@ namespace TileEntity.Instances.Machine.UI
             InitializeInventoryUI(solidInputUI, machineItemInventory.itemInputs,layoutObject?.SolidInputs);
             InitializeInventoryUI(solidOutputUI, machineItemInventory.itemOutputs,layoutObject?.SolidOutputs);
             InitializeInventoryUI(fluidInputUI, machineItemInventory.fluidInputs,layoutObject?.FluidInputs);
+            
             InitializeInventoryUI(fluidOutputUI, machineItemInventory.fluidOutputs,layoutObject?.FluidOutputs);
             if (solidOutputUI) solidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
             if (fluidOutputUI) fluidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
+            
+            TileItem tileItem = displayedTileEntity.GetTileItem();
+            Tier tier = tileItem.GetTier();
+            uint fluidStorage = tier.GetFluidStorage();
+            fluidInputUI.SetMaxSize(fluidStorage);
+            fluidOutputUI.SetMaxSize(fluidStorage);
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)

@@ -55,7 +55,7 @@ namespace Items.Inventory {
         public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
         [SerializeField] private bool enableToolTip = true;
         public bool EnableToolTip => enableToolTip;
-        private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
+        private uint maxStackSize = Global.MAX_SIZE;
         public uint MaxSize => maxStackSize;
         private Action<PointerEventData.InputButton, int> overrideClickAction;
         private Func<ItemObject, int, bool> validateInputCallback;
@@ -259,6 +259,7 @@ namespace Items.Inventory {
 
         public void SetMaxSize(uint max)
         {
+            Debug.Log(max);
             maxStackSize = max;
         }
 
