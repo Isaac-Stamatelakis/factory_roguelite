@@ -50,6 +50,19 @@ namespace Items {
         }
 
         public Color Color => fluidOptions.GetFluidColor();
+        
+        public (Material,Color) GetRendererValues()
+        {
+            TransmutableItemMaterial transmutableItemMaterial = fluidOptions.MaterialColorOverride;
+            Material material = transmutableItemMaterial?.HasShaders ?? false
+                ? ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableItemMaterial)
+                : null;
+            
+            Color color = Color;
+            color.a = fluidOptions.Opacity;
+            
+            return (material, color);
+        }
     }
     [System.Serializable]
     public class FluidOptions {

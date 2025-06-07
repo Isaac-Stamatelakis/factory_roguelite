@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Items;
 using UnityEngine;
 
@@ -35,6 +36,11 @@ namespace Item.Tags.ItemTagManagers
     public interface IItemTagStackable
     {
         public bool AreStackable(object first, object second);
+    }
+
+    public interface IItemTagNullStackable
+    {
+        public bool IsStackableWithNullObject([NotNull] object nonNullObject);
     }
     public abstract class ItemTagManager : ISerializableTag
     {

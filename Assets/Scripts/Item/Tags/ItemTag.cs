@@ -120,20 +120,21 @@ namespace Items.Tags {
             if (first == null && second == null) {
                 return true;
             }
-            if (first == null) {
-                return false;
-            }
-            if (second == null) {
-                return false;
-            }
             
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!itemTagManagerDict.TryGetValue(tag, out ItemTagManager manager))
             {
                 Debug.LogWarning($"ItemTagManager not implemented for {tag}");
                 return false;
             }
-            #endif
+#endif
+            if (first == null || second == null)
+            {
+                if (manager is not IItemTagNullStackable nullStackable) return false;
+                object nonNullObject = first ?? second; // Nice and clean c# syntax
+                return nullStackable.IsStackableWithNullObject(nonNullObject);
+            }
+            
             if (manager is not IItemTagStackable itemTagStackable) return false;
             return itemTagStackable.AreStackable(first, second);
         }

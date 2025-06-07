@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Item.Tags.ItemTagManagers.Instances
 {
-    public class FluidContainerTagManager : ItemTagManager, IItemTagWorldViewable, IItemTagUIViewable, IToolTipTagViewable, IItemTagReferencedType, IItemTagStackable
+    public class FluidContainerTagManager : ItemTagManager, IItemTagWorldViewable, IItemTagUIViewable, IToolTipTagViewable, IItemTagReferencedType, IItemTagStackable, IItemTagNullStackable
     {
         public override string Serialize(object obj)
         {
@@ -23,21 +23,27 @@ namespace Item.Tags.ItemTagManagers.Instances
 
         public GameObject GetWorldTagObject(object obj, ItemObject containerObject)
         {
-            if (obj is not ItemSlot fluidItem) {
+            if (obj is not ItemSlot fluidItemSlot || fluidItemSlot.itemObject is not FluidTileItem fluidTileItem) {
                 return null;
             }
+
+            if (ItemSlotUtils.IsItemSlotNull(fluidItemSlot)) return null;
             if (containerObject is not IFluidContainerData fluidContainer) {
                 return null;
             }
             
             GameObject fluidGameObject = new GameObject();
             
-            fluidGameObject.name = fluidItem.itemObject.name;
+            fluidGameObject.name = fluidItemSlot.itemObject.name;
             SpriteRenderer spriteRenderer = fluidGameObject.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = fluidItem.itemObject.GetSprite();
+            spriteRenderer.sprite = fluidItemSlot.itemObject.GetSprite();
             
             Vector2 scale = fluidContainer.GetWorldFluidSpriteScale();
             fluidGameObject.transform.localScale = scale;
+            
+            var (material, color) = fluidTileItem.GetRendererValues();
+            spriteRenderer.material = material;
+            spriteRenderer.color = color;
             return fluidGameObject;
         }
 
@@ -46,6 +52,7 @@ namespace Item.Tags.ItemTagManagers.Instances
             if (obj is not ItemSlot fluidItemSlot || fluidItemSlot.itemObject is not FluidTileItem fluidTileItem) {
                 return null;
             }
+            if (ItemSlotUtils.IsItemSlotNull(fluidItemSlot)) return null;
             
             if (containerObject is not IFluidContainerData fluidContainer) {
                 return null;
@@ -58,24 +65,20 @@ namespace Item.Tags.ItemTagManagers.Instances
             Image image = fluidObject.AddComponent<Image>();
             image.sprite = fluidItemSlot.itemObject.GetSprite();
             
-            TransmutableItemMaterial transmutableItemMaterial = fluidTileItem.fluidOptions.MaterialColorOverride;
-            Material material = transmutableItemMaterial?.HasShaders ?? false
-                ? ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableItemMaterial)
-                : null;
+            var (material, color) = fluidTileItem.GetRendererValues();
             image.material = material;
-            
-            Color color = fluidTileItem.Color;
-            color.a = fluidTileItem.fluidOptions.Opacity;
             image.color = color;
      
             RectTransform rectTransform = fluidObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = spriteSize;
             return fluidObject;
         }
+        
 
         public string GetToolTip(object obj)
         {
             if (obj is not ItemSlot fluidItem) return null;
+            if (ItemSlotUtils.IsItemSlotNull(fluidItem)) return null;
             return $"Storing {ItemDisplayUtils.FormatAmountText(fluidItem.amount,false,ItemState.Fluid)} of {fluidItem.itemObject.name}\n";
         }
 
@@ -88,7 +91,14 @@ namespace Item.Tags.ItemTagManagers.Instances
         {
             if (first is not ItemSlot firstSlot) return false;
             if (second is not ItemSlot secondSlot) return false;
+            if (firstSlot.amount == 0 || secondSlot.amount == 0) return true;
             return firstSlot.amount == secondSlot.amount && String.Equals(firstSlot.itemObject?.id, secondSlot.itemObject?.id);
+        }
+
+        public bool IsStackableWithNullObject(object nonNullObject)
+        {
+            if (nonNullObject is not ItemSlot itemSlot) return true;
+            return ItemSlotUtils.IsItemSlotNull(itemSlot);
         }
     }
 }
