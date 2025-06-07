@@ -42,10 +42,9 @@ namespace Chunks.Systems {
     
     public class SoftLoadedClosedChunkSystem : IChunkSystem, IConduitClosedChunkSystem
     {
-        public uint TickOffset { get; private set; }
+        public uint TickOffset { get; set; }
         public SoftLoadedClosedChunkSystem(List<ISoftLoadableTileEntity> softLoadableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
         {
-            TickOffset = (uint)UnityEngine.Random.Range(0,Mathf.FloorToInt(1/Time.fixedDeltaTime));
             this.tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
             {
@@ -66,6 +65,11 @@ namespace Chunks.Systems {
         private int dim;
         private string savePath;
         public string SavePath => savePath;
+
+        public void SetTickOffset(uint tick)
+        {
+            TickOffset = tick;
+        }
         public void TileEntityTickUpdate()
         {
             foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)

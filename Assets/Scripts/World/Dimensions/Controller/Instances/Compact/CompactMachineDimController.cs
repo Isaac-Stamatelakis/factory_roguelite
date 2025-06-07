@@ -26,7 +26,8 @@ namespace Dimensions {
         private ISingleSystemController baseDimController;
         private CompactMachineTree<SoftLoadedClosedChunkSystem> systemTree;
         
-        private List<SoftLoadedClosedChunkSystem> softLoadedClosedChunkSystems = new();
+        private readonly List<SoftLoadedClosedChunkSystem> softLoadedClosedChunkSystems = new();
+        private readonly CompactMachineUpdateMap compactMachineUpdateMap = new();
         private CompactMachineClosedChunkSystem activeSystem;
         private List<Vector2Int> currentSystemPath;
         public List<Vector2Int> CurrentSystemPath => currentSystemPath;
@@ -168,6 +169,7 @@ namespace Dimensions {
         {
             // O(n*m)
             softLoadedClosedChunkSystems.Remove(tree.Data);
+            compactMachineUpdateMap.RemoveSoftLoadedSystem(tree.Data);
             foreach (var (position, child) in tree.Children)
             {
                 RemoveFromList(child);
@@ -290,6 +292,7 @@ namespace Dimensions {
             currentSystemPath = path;
             activeSystem = area;
             softLoadedClosedChunkSystems.Remove(softLoadedClosedChunkSystem);
+            compactMachineUpdateMap.RemoveSoftLoadedSystem(softLoadedClosedChunkSystem);
             currentNode.Data = null;
             return area;
         }
@@ -303,6 +306,7 @@ namespace Dimensions {
             
             // Remove dim0 data from tree
             softLoadedClosedChunkSystems.Remove(systemTree.Data);
+            compactMachineUpdateMap.RemoveSoftLoadedSystem(systemTree.Data);
             systemTree.Data = null;
             Debug.Log($"Loaded {softLoadedClosedChunkSystems.Count} Compact Machine Systems");
         }
@@ -317,12 +321,14 @@ namespace Dimensions {
             SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = assemberTree.Data.ToSoftLoaded();
             CompactMachineTree<SoftLoadedClosedChunkSystem> tree = new CompactMachineTree<SoftLoadedClosedChunkSystem>(softLoadedClosedChunkSystem, assemberTree.CompactMachineInstance);
             softLoadedClosedChunkSystems.Add(softLoadedClosedChunkSystem);
+            compactMachineUpdateMap.AddSoftLoadedSystem(softLoadedClosedChunkSystem);
             foreach (var (position, child) in assemberTree.Children)
             {
                 tree.Children[position] = SoftLoadTree(child);
             }
             return tree;
         }
+        
 
         private class CompactMachineTree<T>
         {
@@ -391,20 +397,8 @@ namespace Dimensions {
 
         public override void TickUpdate()
         {
-            foreach (var system in softLoadedClosedChunkSystems)
-            {
-                uint counter = tickCounter + system.TickOffset;
-                if (counter % Global.TILE_ENTITY_TICK_RATE == 0)
-                {
-                    system.TileEntityTickUpdate();
-                }
-
-                if (counter % Global.CONDUIT_TICK_RATE == 0)
-                {
-                    system.ConduitTickUpdate();
-                }
-            }
-
+            compactMachineUpdateMap.TickUpdate(tickCounter);
+            
             uint activeSystemCounter = tickCounter + ACTIVE_SYSTEM_TICK_OFFSET;
             if (activeSystemCounter % Global.CONDUIT_TICK_RATE == 0)
             {
@@ -424,10 +418,82 @@ namespace Dimensions {
             var softLoadedSystem = closedChunkSystem.ToSoftLoadedSystem();
             softLoadedSystem.ClearActiveComponents();
             this.softLoadedClosedChunkSystems.Add(softLoadedSystem);
+            compactMachineUpdateMap.AddSoftLoadedSystem(softLoadedSystem);
+            
             var currentTree = systemTree.GetTree(currentSystemPath);
             currentTree.Data = softLoadedSystem;
             GameObject.Destroy(closedChunkSystem.gameObject);
             activeSystem = null;
+        }
+
+        private class CompactMachineUpdateMap
+        {
+            private uint currentTickOffset; // Can start at 0 since dim0 system will always be the first in
+            private const int MAX_INDEX = 50; // Have to change this if every change fixed update rate. Cannot hard code it cause unity complains when calling Time.fixedDeltaTime in static constructor
+            private readonly Dictionary<uint, List<SoftLoadedClosedChunkSystem>> tileEntityTickSystemListDict = new();
+            private readonly Dictionary<uint, List<SoftLoadedClosedChunkSystem>> conduitTickSystemListDict = new();
+
+            public void AddSoftLoadedSystem(SoftLoadedClosedChunkSystem system)
+            {
+                uint tileEntityTick = currentTickOffset % Global.TILE_ENTITY_TICK_RATE;
+                if (!tileEntityTickSystemListDict.ContainsKey(tileEntityTick))
+                {
+                    tileEntityTickSystemListDict.Add(tileEntityTick, new List<SoftLoadedClosedChunkSystem>());
+                }
+                tileEntityTickSystemListDict[tileEntityTick].Add(system);
+                
+                
+                uint conduitEntityTick = currentTickOffset % Global.CONDUIT_TICK_RATE;
+                if (!conduitTickSystemListDict.ContainsKey(conduitEntityTick))
+                {
+                    conduitTickSystemListDict.Add(conduitEntityTick, new List<SoftLoadedClosedChunkSystem>());
+                }
+                conduitTickSystemListDict[conduitEntityTick].Add(system);
+                
+                system.SetTickOffset(currentTickOffset);
+                currentTickOffset++;
+                
+                // Avoid putting at the same offset as dim0 system which is when current % max is 0
+                if (currentTickOffset % MAX_INDEX == 0) currentTickOffset++;
+            }
+
+            public void RemoveSoftLoadedSystem(SoftLoadedClosedChunkSystem system)
+            {
+                uint tileEntityTick = system.TickOffset % Global.TILE_ENTITY_TICK_RATE;
+                tileEntityTickSystemListDict[tileEntityTick].Remove(system);
+                if (tileEntityTickSystemListDict[tileEntityTick].Count == 0) 
+                {
+                    tileEntityTickSystemListDict.Remove(tileEntityTick);
+                }
+                
+                uint conduitEntityTick = system.TickOffset % Global.CONDUIT_TICK_RATE;
+                conduitTickSystemListDict[conduitEntityTick].Remove(system);
+                if (conduitTickSystemListDict[conduitEntityTick].Count == 0) 
+                {
+                    conduitTickSystemListDict.Remove(conduitEntityTick);
+                }
+            }
+
+            public void TickUpdate(uint counter)
+            {
+                uint tileEntityTick = counter % Global.TILE_ENTITY_TICK_RATE;
+                if (tileEntityTickSystemListDict.TryGetValue(tileEntityTick, out var tileEntityUpdateSystems))
+                {
+                    foreach (var system in tileEntityUpdateSystems)
+                    {
+                        system.TileEntityTickUpdate();
+                    }
+                }
+                
+                uint conduitTick = counter % Global.CONDUIT_TICK_RATE;
+                if (conduitTickSystemListDict.TryGetValue(conduitTick, out var conduitUpdateSystems))
+                {
+                    foreach (var system in conduitUpdateSystems)
+                    {
+                        system.ConduitTickUpdate();
+                    }
+                }
+            }
         }
     }
 }
