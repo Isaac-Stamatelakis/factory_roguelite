@@ -13,6 +13,7 @@ using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Machines;
 using UI;
 using UnityEngine;
+using Random = System.Random;
 
 namespace TileEntity.Instances.Machine.Instances.Passive
 {
@@ -66,7 +67,10 @@ namespace TileEntity.Instances.Machine.Instances.Passive
 
         public void Tick()
         {
-            if (RemainingDuration > 0) RemainingDuration--;
+            if (RemainingDuration == 0) return;
+            RemainingDuration--;
+            if (RemainingDuration > 0) return;
+            TryConsumeFuel();
         }
 
         public float GetBurnPercent()
@@ -84,34 +88,37 @@ namespace TileEntity.Instances.Machine.Instances.Passive
     public class BurnerMachineInstance : MachineInstance<BurnerMachine, BurnerItemRecipe>, IBurnerMachine
     {
         public BurnerFuelInventory BurnerFuelInventory;
+        private readonly System.Random random = new Random();
         public BurnerMachineInstance(BurnerMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
         public override void TickUpdate()
         {
+            UpdateRecipe();
             BurnerFuelInventory.Tick();
-            if ((currentRecipe?.RemainingTicks ?? 0) <= 0) return;
             
-            if (!BurnerFuelInventory.Active())
+            return;
+            void UpdateRecipe()
             {
-                float passiveSpeed = currentRecipe.PassiveSpeed;
-                bool coolOff = passiveSpeed == 0;
-                if (coolOff) // Recipes with 0 passive speed 'cool off' when no fuel is burning reversing progress
+                if (currentRecipe == null) return;
+            
+                if (!BurnerFuelInventory.Active())
                 {
-                    if (currentRecipe.RemainingTicks >= currentRecipe.InitalTicks) return;
-                    currentRecipe.RemainingTicks += 1;
-                    if (currentRecipe.RemainingTicks > currentRecipe.InitalTicks)
+                    float passiveSpeed = currentRecipe.PassiveSpeed;
+                    if (passiveSpeed == 0 && currentRecipe.RemainingTicks < currentRecipe.InitalTicks) // Recipes with 0 passive speed 'cool off' when no fuel is burning reversing progress
                     {
-                        currentRecipe.RemainingTicks = currentRecipe.InitalTicks;
+                        currentRecipe.RemainingTicks++;
+                        return;
                     }
-                    return;
+
+                    double ran = random.NextDouble();
+                    if (ran > passiveSpeed) return;
                 }
+                currentRecipe.RemainingTicks--;
+                if (currentRecipe.RemainingTicks > 0) return;
+                Inventory.TryOutputRecipe(currentRecipe);
             }
-            double tick = BurnerFuelInventory.Active() ? 1 : currentRecipe.PassiveSpeed;
-            currentRecipe.RemainingTicks -= tick;
-            if (currentRecipe.RemainingTicks > 0) return;
-            Inventory.TryOutputRecipe(currentRecipe);
         }
 
         public override void OnRightClick()

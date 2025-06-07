@@ -33,9 +33,9 @@ namespace Recipe.Data
 
     public class PassiveItemRecipe : ItemRecipe
     {
-        public double InitalTicks;
-        public double RemainingTicks;
-        public PassiveItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks) : base(solidOutputs, fluidOutputs)
+        public uint InitalTicks;
+        public uint RemainingTicks;
+        public PassiveItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, uint initalTicks, uint remainginTicks) : base(solidOutputs, fluidOutputs)
         {
             InitalTicks = initalTicks;
             RemainingTicks = remainginTicks;
@@ -45,7 +45,7 @@ namespace Recipe.Data
     public class BurnerItemRecipe : PassiveItemRecipe
     {
         public float PassiveSpeed;
-        public BurnerItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks, float passiveSpeed) 
+        public BurnerItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, uint initalTicks, uint remainginTicks, float passiveSpeed) 
             : base(solidOutputs, fluidOutputs, initalTicks, remainginTicks)
         {
             PassiveSpeed = passiveSpeed;
@@ -54,7 +54,7 @@ namespace Recipe.Data
     public class GeneratorItemRecipe : PassiveItemRecipe
     {
         public ulong EnergyOutputPerTick;
-        public GeneratorItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks, ulong energyOutputPerTick) : base(solidOutputs,fluidOutputs, initalTicks, remainginTicks)
+        public GeneratorItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, uint initalTicks, uint remainginTicks, ulong energyOutputPerTick) : base(solidOutputs,fluidOutputs, initalTicks, remainginTicks)
         {
             EnergyOutputPerTick = energyOutputPerTick;
         }
@@ -217,9 +217,9 @@ namespace Recipe.Data
     }
     public class SerializedPassiveItemRecipe : SerializedItemRecipe
     {
-        public double RemainingTicks;
-        public double InitalTicks;
-        public SerializedPassiveItemRecipe(string itemOutputs, string fluidOutputs, double initalTicks, double remainingTicks) : base(itemOutputs, fluidOutputs)
+        public uint RemainingTicks;
+        public uint InitalTicks;
+        public SerializedPassiveItemRecipe(string itemOutputs, string fluidOutputs, uint initalTicks, uint remainingTicks) : base(itemOutputs, fluidOutputs)
         {
             InitalTicks = initalTicks;
             RemainingTicks = remainingTicks;
@@ -229,7 +229,7 @@ namespace Recipe.Data
     public class SerializedBurnerItemRecipe : SerializedPassiveItemRecipe
     {
         public float PassiveSpeed;
-        public SerializedBurnerItemRecipe(string itemOutputs, string fluidOutputs, double initalTicks, double remainingTicks, float passiveSpeed) : base(itemOutputs, fluidOutputs, initalTicks, remainingTicks)
+        public SerializedBurnerItemRecipe(string itemOutputs, string fluidOutputs, uint initalTicks, uint remainingTicks, float passiveSpeed) : base(itemOutputs, fluidOutputs, initalTicks, remainingTicks)
         {
             PassiveSpeed = passiveSpeed;
         }
@@ -239,7 +239,7 @@ namespace Recipe.Data
     {
         public ulong EnergyOutputPerTick;
 
-        public SerializedGeneratorItemRecipe(string itemOutputs,string fluidOutputs,double initalTicks, double remainingTicks, ulong energyOutputPerTick) : base(itemOutputs, fluidOutputs,initalTicks, remainingTicks)
+        public SerializedGeneratorItemRecipe(string itemOutputs,string fluidOutputs,uint initalTicks, uint remainingTicks, ulong energyOutputPerTick) : base(itemOutputs, fluidOutputs,initalTicks, remainingTicks)
         {
             EnergyOutputPerTick = energyOutputPerTick;
         }

@@ -8,6 +8,8 @@ namespace Player.Robot
 {
     public class PlayerRobotUI : MonoBehaviour
     {
+        [SerializeField] private Color healthColor;
+        [SerializeField] private Color energyColor;
         [SerializeField] private GridMaskedSliderUI mHealthBar;
         [SerializeField] private GridMaskedSliderUI mEnergyBar;
 
@@ -15,8 +17,9 @@ namespace Player.Robot
         {
             const int SIZE = 10;
             Vector2Int cellSize = new Vector2Int(30, 40);
-            mHealthBar.Initialize(Color.green, SIZE, cellSize);
-            mEnergyBar.Initialize(Color.yellow, SIZE, cellSize);
+
+            mHealthBar.Initialize(healthColor, SIZE, cellSize);
+            mEnergyBar.Initialize(energyColor, SIZE, cellSize);
         }
         public void Display(PlayerRobot playerRobot)
         {

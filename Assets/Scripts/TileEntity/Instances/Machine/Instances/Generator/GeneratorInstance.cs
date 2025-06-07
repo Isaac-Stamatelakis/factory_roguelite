@@ -45,18 +45,12 @@ namespace TileEntity.Instances.Machines
 
             EnergyInventory energyInventory = MachineEnergyInventory.EnergyInventory;
             ulong space = energyInventory.GetSpace();
-            if (space > currentRecipe.EnergyOutputPerTick)
-            {
-                energyInventory.Energy += currentRecipe.EnergyOutputPerTick;
-                currentRecipe.RemainingTicks--;
-            }
-            else
-            {
-                energyInventory.Fill();
-                double loss = (double)space/currentRecipe.EnergyOutputPerTick;
-                currentRecipe.RemainingTicks -= loss;
-            }
-            if (!(currentRecipe.RemainingTicks <= 0)) return;
+            if (space < currentRecipe.EnergyOutputPerTick) return;
+            
+            energyInventory.Energy += currentRecipe.EnergyOutputPerTick;
+            currentRecipe.RemainingTicks--;
+            
+            if (currentRecipe.RemainingTicks > 0) return;
             Inventory.TryOutputRecipe(currentRecipe);
         }
         
