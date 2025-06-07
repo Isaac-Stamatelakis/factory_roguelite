@@ -59,7 +59,7 @@ namespace Recipe.Viewer {
                     if (recipeObject is PassiveItemRecipeObject passiveRecipe)
                         return new List<string>
                         {
-                            $"Time:{passiveRecipe.Seconds:F1} s",
+                            $"Duration: {passiveRecipe.Seconds:F1} s",
                         };
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
@@ -69,9 +69,9 @@ namespace Recipe.Viewer {
                         uint ticks = GlobalHelper.TileEntitySecondsToTicks(generatorRecipe.Seconds);
                         return new List<string>
                         {
-                            $"Production:{ticks * generatorRecipe.EnergyPerTick} J",
-                            $"Rate:{generatorRecipe.EnergyPerTick} J/t",
-                            $"Time:{generatorRecipe.Seconds} s",
+                            $"Total Generation:{ ticks * generatorRecipe.EnergyPerTick} J",
+                            $"Generation: {generatorRecipe.EnergyPerTick * Global.TicksPerSecond} J/s",
+                            $"Duration: {generatorRecipe.Seconds} s",
                         };
                     }
                         
@@ -81,9 +81,9 @@ namespace Recipe.Viewer {
                     if (recipeObject is ItemEnergyRecipeObject itemEnergyRecipe)
                         return new List<string>
                         {
-                            $"Cost:{itemEnergyRecipe.TotalInputEnergy} J",
-                            $"Usage:{itemEnergyRecipe.MinimumEnergyPerTick * Global.TicksPerSecond} J/s",
-                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F1} S",
+                            $"Total Usage: {itemEnergyRecipe.TotalInputEnergy} J",
+                            $"Usage: {itemEnergyRecipe.MinimumEnergyPerTick * Global.TicksPerSecond} J/s",
+                            $"Duration: {(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F1} s",
                         };
                     if (recipeObject is TransmutableRecipeObject)
                     {
@@ -93,10 +93,10 @@ namespace Recipe.Viewer {
                         ulong cost = 32 * tickUsage;
                         return new List<string>
                         {
-                            $"Cost:{cost} J",
-                            $"Usage:{secondUsage} J/s",
-                            $"Time:{(double) cost /secondUsage:F1} s",
-                            $"Tier:{tier}",
+                            $"Total Usage: {cost} J",
+                            $"Usage: {secondUsage} J/s",
+                            $"Duration: {(double) cost /secondUsage:F1} s",
+                            $"Tier: {tier}",
                         };
                     }
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
@@ -105,15 +105,15 @@ namespace Recipe.Viewer {
                      if (recipeObject is BurnerRecipeObject burnerRecipeObject)
                         return new List<string>
                         {
-                            $"Time:{burnerRecipeObject.Seconds:F1} s",
+                            $"Duration: {burnerRecipeObject.Seconds:F1} s",
                         };
                      if (recipeObject is TransmutableRecipeObject) {
                          Tier tier = displayableRecipe.Tier;
                          uint ticks = 50 * ((uint)tier + 2);
                          return new List<string>
                          {
-                             $"Time:{ticks / Global.TicksPerSecond} s",
-                             $"Tier:{tier}",
+                             $"Duration: {ticks / Global.TicksPerSecond} s",
+                             $"Tier: {tier}",
                          };
                      }
                      return null;

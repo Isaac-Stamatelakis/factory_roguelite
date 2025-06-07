@@ -124,6 +124,15 @@ namespace TileEntity {
     public interface IBreakActionTileEntity {
         public void OnBreak();
     }
+    
+    /// <summary>
+    /// TileEntities which implement this interface will have the method drop the list of returned items on break
+    /// </summary>
+    public interface IDropItemsOnBreakTileEntity
+    {
+        public List<ItemSlot> GetDroppableItems();
+    }
+    
     /// <summary>
     /// TileEntities which implement this interface will have the method 'AssembleMultiBlock' called during the MultiBlock assembly phase of system loading.
     /// </summary>
