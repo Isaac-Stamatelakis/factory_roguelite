@@ -130,7 +130,6 @@ namespace Items {
             
             if (displaying && ItemSlotUtils.AreEqual(itemSlot, displayedSlot))
             {
-                Debug.Log("Equal");
                 this.displayedSlot = itemSlot;
                 SetAmountText();
                 return;

@@ -69,13 +69,9 @@ namespace Item.Inventory.ClickHandlers.Instances
             } else if (ItemSlotUtils.IsItemSlotNull(inventory[index])) {
                 InsertFluidCellIntoInventory(container, iFluidContainerData);
             }
-            
-
             inventoryUI.CallListeners(index);
             inventoryUI.RefreshSlots();
             GrabbedItemProperties.Instance.UpdateSprite();
-            
-            
         }
 
         private void ExtractFromInventoryIntoFluidCell(ItemSlot container, IFluidContainerData containerData, PlayerInventory playerInventory)
@@ -86,7 +82,6 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) return;
             
             ItemSlot tagFluidSlot = container.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
-
             
             if (ItemSlotUtils.IsItemSlotNull(tagFluidSlot))
             {
@@ -95,7 +90,6 @@ namespace Item.Inventory.ClickHandlers.Instances
                 return;
             }
             
-
             if (tagFluidSlot.amount >= containerData.GetStorage() || !ItemSlotUtils.AreEqual(tagFluidSlot, inventorySlot)) return;
             uint space = containerData.GetStorage() - tagFluidSlot.amount;
 
@@ -111,6 +105,9 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (container.amount == 1)
             {
                 container.tags.Dict[ItemTag.FluidContainer] = fluidItem;
+                GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+                grabbedItemProperties.SetItemSlot(null); // Set to null first so tag display is relaoded
+                grabbedItemProperties.SetItemSlot(container);
                 return;
             }
            
