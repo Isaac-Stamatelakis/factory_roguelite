@@ -28,7 +28,6 @@ namespace Item.Inventory.ClickHandlers.Instances
             ItemSlot inventorySlot = inventory[index];
             if (ItemSlotUtils.IsItemSlotNull(inventorySlot))
             {
-                
                 if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
                 if ((!inventoryUI.ValidateInput(grabbedSlot,index))) return;
                 ItemSlot newSlot = ItemSlotFactory.Splice(grabbedSlot,1);

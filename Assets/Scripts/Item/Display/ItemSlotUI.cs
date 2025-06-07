@@ -130,6 +130,7 @@ namespace Items {
             
             if (displaying && ItemSlotUtils.AreEqual(itemSlot, displayedSlot))
             {
+                Debug.Log("Equal");
                 this.displayedSlot = itemSlot;
                 SetAmountText();
                 return;
@@ -311,13 +312,11 @@ namespace Items {
         
 
         public void DisplayTagVisuals(ItemSlot itemSlot) {
+            DisableItemSlotVisuals();
             if (itemSlot.tags?.Dict == null) {
                 return;
             }
-            
-            foreach (var keyValuePair in itemSlot.tags.Dict) {
-                ItemTag itemTag = keyValuePair.Key;
-                object data = keyValuePair.Value;
+            foreach (var (itemTag, data) in itemSlot.tags.Dict) {
                 GameObject visualElement = itemTag.GetUITagElement(itemSlot,data);
                 if (ReferenceEquals(visualElement,null)) continue;
 
