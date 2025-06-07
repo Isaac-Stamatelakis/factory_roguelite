@@ -3,6 +3,7 @@ using Item.GrabbedItem;
 using Item.Slot;
 using Items;
 using Items.Tags.FluidContainers;
+using Items.Transmutable;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,6 @@ namespace Item.Tags.ItemTagManagers.Instances
 {
     public class FluidContainerTagManager : ItemTagManager, IItemTagWorldViewable, IItemTagUIViewable, IToolTipTagViewable, IItemTagReferencedType, IItemTagStackable
     {
-
         public override string Serialize(object obj)
         {
             return obj is not ItemSlot itemSlot ? null : ItemSlotFactory.seralizeItemSlot(itemSlot);
@@ -43,7 +43,7 @@ namespace Item.Tags.ItemTagManagers.Instances
 
         public GameObject GetUITagObject(object obj, ItemObject containerObject)
         {
-            if (obj is not ItemSlot fluidItem) {
+            if (obj is not ItemSlot fluidItemSlot || fluidItemSlot.itemObject is not FluidTileItem fluidTileItem) {
                 return null;
             }
             
@@ -56,7 +56,18 @@ namespace Item.Tags.ItemTagManagers.Instances
             }
             GameObject fluidObject = new GameObject();
             Image image = fluidObject.AddComponent<Image>();
-            image.sprite = fluidItem.itemObject.GetSprite();
+            image.sprite = fluidItemSlot.itemObject.GetSprite();
+            
+            TransmutableItemMaterial transmutableItemMaterial = fluidTileItem.fluidOptions.MaterialColorOverride;
+            Material material = transmutableItemMaterial?.HasShaders ?? false
+                ? ItemRegistry.GetInstance().GetTransmutationUIMaterial(transmutableItemMaterial)
+                : null;
+            image.material = material;
+            
+            Color color = fluidTileItem.Color;
+            color.a = fluidTileItem.fluidOptions.Opacity;
+            image.color = color;
+     
             RectTransform rectTransform = fluidObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = spriteSize;
             return fluidObject;
