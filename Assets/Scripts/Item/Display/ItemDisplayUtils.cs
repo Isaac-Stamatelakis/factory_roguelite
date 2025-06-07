@@ -45,7 +45,7 @@ namespace Items {
         private static string FormatFluidItemText(uint amount)
         {
             const string FLUID_SUFFIX = "L";
-            if (amount <= 1000)
+            if (amount < 1000)
             {
                 return $"{amount}m{FLUID_SUFFIX}";
             }
@@ -58,7 +58,7 @@ namespace Items {
 
             i--; // Go one suffix down for fluids
             string suffix = i < 0 ? string.Empty : suffixes[i];
-            return fAmount.ToString("0.00" + suffix + FLUID_SUFFIX);
+            return fAmount.ToString("0.0" + suffix + FLUID_SUFFIX);
         }
         public static Vector3 GetItemScale(Sprite sprite) {
             Vector2 pixelSize = GetItemSize(sprite);

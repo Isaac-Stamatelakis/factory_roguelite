@@ -729,6 +729,7 @@ namespace Player {
 
         public void InitializeRobot(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
         {
+            mPlayerRobotUI.Initialize();
             SetRobot(itemSlot);
             RobotUpgradeLoadOut = RobotUpgradeUtils.VerifyIntegrityOfLoadOut(loadOutData,robotData);
             InitializeTools();

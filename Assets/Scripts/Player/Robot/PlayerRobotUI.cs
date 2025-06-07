@@ -1,5 +1,6 @@
 using Robot;
 using RobotModule;
+using UI.GeneralUIElements.Sliders;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,16 +8,23 @@ namespace Player.Robot
 {
     public class PlayerRobotUI : MonoBehaviour
     {
-        [SerializeField] private Scrollbar mHealthBar;
-        [SerializeField] private Scrollbar mEnergyBar;
-        
+        [SerializeField] private GridMaskedSliderUI mHealthBar;
+        [SerializeField] private GridMaskedSliderUI mEnergyBar;
+
+        public void Initialize()
+        {
+            const int SIZE = 10;
+            Vector2Int cellSize = new Vector2Int(30, 40);
+            mHealthBar.Initialize(Color.green, SIZE, cellSize);
+            mEnergyBar.Initialize(Color.yellow, SIZE, cellSize);
+        }
         public void Display(PlayerRobot playerRobot)
         {
             if (!playerRobot) return;
             RobotItemData robotData = playerRobot.RobotData;
             if (robotData == null) return;
-            mHealthBar.size = robotData.Health / playerRobot.GetMaxHealth();
-            mEnergyBar.size = ((float)robotData.Energy) / playerRobot.GetEnergyStorage();
+            mHealthBar.SetFill(robotData.Health / playerRobot.GetMaxHealth());
+            mEnergyBar.SetFill((float)robotData.Energy / playerRobot.GetEnergyStorage());
         }
         
     }
