@@ -28,8 +28,8 @@ namespace TileEntity{
             return baseEnergy << (2*((int)tier+1));
         }
         public static uint GetFluidStorage(this Tier tier) {
-            const uint baseStorage = 8192;
-            return baseStorage << (2*(int)tier);
+            const uint baseStorage = 8000;
+            return baseStorage << (2*((int)tier+1));
         }
         
     }

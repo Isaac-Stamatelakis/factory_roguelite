@@ -7,6 +7,7 @@ using Items.Tags;
 using Items.Tags.FluidContainers;
 using PlayerModule;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Item.Inventory.ClickHandlers.Instances
 {
@@ -131,6 +132,11 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
         private void InsertFluidCellIntoInventory(ItemSlot container, IFluidContainerData containerData)
         {
+            bool holdingShift = Keyboard.current.shiftKey.isPressed;
+            if (holdingShift)
+            {
+                
+            }
             var inventory = inventoryUI.GetInventory();
             object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
             if (itemSlotObject is not ItemSlot itemSlot || ItemSlotUtils.IsItemSlotNull(itemSlot)) {
@@ -138,7 +144,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             }
             ItemSlot fluidInventorySlot = inventory[index];
             if (ItemSlotUtils.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
-                // TODO
+                uint maxSize = inventoryUI.MaxSize;
                 return;
             }
             inventory[index] = itemSlot;
