@@ -70,7 +70,7 @@ namespace Conduits.Ports {
             ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
             if (!layout) return null;
             List<TileEntityPortData> ports = GetEntityPorts(layout, type);
-            return RotateEntityPorts(ports, partition, tileEntityInstance.GetPositionInPartition());
+            return RotateEntityPorts(tileEntityInstance, ports, partition, tileEntityInstance.GetPositionInPartition());
         }
 
         public static List<TileEntityPortData> GetEntityPorts(ConduitPortLayout layout, ConduitType type)
@@ -118,15 +118,18 @@ namespace Conduits.Ports {
             };
         }
 
-        public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
+        public static List<TileEntityPortData> RotateEntityPorts(ITileEntityInstance tileEntity, List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
         {
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             if (baseTileData.rotation == 0)
             {
                 return entityPorts;
             }
-           
-            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
+
+            TileItem tileItem = tileEntity.GetTileItem();
+            Debug.Log(tileItem?.name);
+            Debug.Log("A");
+            if (!tileItem || tileItem.tileOptions.rotatable) return entityPorts;
             Vector2Int spriteSize = Global.GetSpriteSize(tileItem.GetSprite());
             List<TileEntityPortData> tileEntityPortDatas = new List<TileEntityPortData>();
             foreach (TileEntityPortData portData in entityPorts)

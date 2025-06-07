@@ -84,6 +84,8 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             ItemSlot tagFluidSlot = container.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
             
+            bool holdingShift = Keyboard.current.shiftKey.isPressed;
+            
             if (ItemSlotUtils.IsItemSlotNull(tagFluidSlot))
             {
                 ItemSlot fluidItem = CreateNewFluidItem(inventorySlot, containerData.GetStorage());
