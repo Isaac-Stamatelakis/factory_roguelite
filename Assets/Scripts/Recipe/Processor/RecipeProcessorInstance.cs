@@ -238,8 +238,25 @@ namespace Recipe.Processor
             {
                 modeRecipeTransmutation.Remove(mode);
             }
-            
-            if (hashCollisions > 0) Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
+
+            if (hashCollisions == 0 || recipeProcessorObject.IgnoreHashCollisions) return;
+            Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
+            foreach (var (_, hashDict) in modeRecipeDict)
+            {
+                foreach (var (hash, recipes) in hashDict)
+                {
+                    if (recipes.Length < 2) continue;
+                    string recipeNames = string.Empty;
+                    for (var index = 0; index < recipes.Length; index++)
+                    {
+                        var recipe = recipes[index];
+                        recipeNames += recipe.ItemRecipeObject.name;
+                        if (index != recipes.Length - 1) recipeNames += ", ";
+                    }
+
+                    Debug.LogWarning($"Hash collision at {hash} between recipes: {recipeNames}");
+                }
+            }
         }
         
         public T GetRecipe<T>(int mode, List<ItemSlot> solidItems, List<ItemSlot> fluidItems) where T : ItemRecipe

@@ -95,6 +95,7 @@ namespace TileEntity.Instances.Machine.UI
         }
         public void FixedUpdate()
         {
+            if (displayedTileEntity == null) return; // Only refresh for tile entity
             solidInputUI?.BatchRefreshSlots(3);
             solidOutputUI?.BatchRefreshSlots(3);
             fluidInputUI?.BatchRefreshSlots(3);

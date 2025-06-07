@@ -304,6 +304,9 @@ namespace Items.Inventory {
 
         public void BatchRefreshSlots(int batchSize)
         {
+            if (slots == null || inventory == null) {
+                return;
+            }
             int inventorySize = slots.Count;
             if (batchSize > inventorySize)
             {
@@ -313,8 +316,7 @@ namespace Items.Inventory {
             for (int i = 0; i < batchSize; i++)
             {
                 int idx = (currentRefreshSlotIndex + i) % inventorySize;
-                Debug.Log(idx);
-                RefreshSlot(idx);
+                slots[idx].Display(inventory[idx]);
             }
             currentRefreshSlotIndex += batchSize;
             currentRefreshSlotIndex %= inventorySize;

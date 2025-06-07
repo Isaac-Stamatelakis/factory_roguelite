@@ -16,7 +16,7 @@ namespace Recipe.Processor {
         public ItemObject DisplayImage;
         public TileEntityLayoutObject LayoutObject;
         public RecipeProcessorRestrictionObject ProcessorRestrictionObject;
-        
+        public bool IgnoreHashCollisions = false;
 
         public RecipeCollection GetRecipeCollection(int mode)
         {

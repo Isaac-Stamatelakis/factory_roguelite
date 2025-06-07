@@ -102,6 +102,7 @@ namespace TileEntity.AssetManagement
             {
                 UIMaterial = material,
                 Color = color,
+                termianteOnEscape = true
             };
             if (tileEntityUI is IInventoryUITileEntityUI or IInventoryUIAggregator)
             {
