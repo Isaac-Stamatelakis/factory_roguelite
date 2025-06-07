@@ -417,6 +417,7 @@ namespace Dimensions {
             if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
                 player.transform.position = teleportPosition;
+                setPlayerSystemRoutineActive = false;
                 yield break;
             }
             
@@ -437,6 +438,7 @@ namespace Dimensions {
             if (ReferenceEquals(newSystem,activeSystem))
             {
                 player.transform.position = teleportPosition;
+                setPlayerSystemRoutineActive = false;
                 yield break;
             }
             

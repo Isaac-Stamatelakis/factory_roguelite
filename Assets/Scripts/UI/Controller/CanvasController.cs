@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Player;
 using Player.Controls;
+using Player.UI;
 using PlayerModule.KeyPress;
 using TMPro;
 using UI.PauseScreen;
@@ -240,9 +241,13 @@ namespace UI
        
             if (!uiInfo.termianteOnEscape && !uiInfo.additionalTerminator.HasValue && uiInfo.TerminateContextPathBinding == null)
             {
-                Debug.LogWarning($"Tried to override exit action for '{uiInfo.gameObject.name}' with no terminator");
-                ResetExitAction();
-                return;
+                IExitActionlessUI exitActionless = uiInfo.gameObject.GetComponent<IExitActionlessUI>();
+                if (exitActionless == null)
+                {
+                    Debug.LogWarning($"Tried to override exit action for '{uiInfo.gameObject.name}' with no terminator. If this effect is intentional, ensure the UIObject has a component that implements 'IExitActionlessUI'");
+                    ResetExitAction();
+                    return;
+                }
             }
             exitAction.RemoveAllBindingOverrides();
             exitAction.ApplyBindingOverride(0, uiInfo.termianteOnEscape ? "/Keyboard/Escape" : string.Empty);

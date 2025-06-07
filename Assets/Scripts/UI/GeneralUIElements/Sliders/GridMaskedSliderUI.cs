@@ -13,9 +13,10 @@ namespace UI.GeneralUIElements.Sliders
         {
             InitializeGrid(mLightGrid, color,true);
             Color.RGBToHSV(color, out float h, out float s, out float v);
-            h -= 0.3f;
-            if (h < 0) h++;
-            Color darkColor = Color.HSVToRGB(h, s, v);
+            h += 0.05f;
+            h %= 1;
+            Color darkColor = 0.2f*Color.HSVToRGB(h, s, v);
+            darkColor.a = 1;
             InitializeGrid(mDarkGrid, darkColor,false);
             
             return;
@@ -34,6 +35,7 @@ namespace UI.GeneralUIElements.Sliders
 
         public void SetFill(float fill)
         {
+            fill = Mathf.Clamp(fill,0, 1f);
             mMask.rectTransform.anchorMax = new Vector2(fill, mMask.rectTransform.anchorMax.y);
         }
     }

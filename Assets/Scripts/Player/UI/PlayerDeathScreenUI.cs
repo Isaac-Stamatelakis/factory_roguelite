@@ -5,13 +5,18 @@ using Dimensions;
 using Item.Slot;
 using PlayerModule;
 using TileEntity;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Player.UI
 {
-    public class PlayerDeathScreenUI : MonoBehaviour
+    public interface IExitActionlessUI
+    {
+        
+    }
+    public class PlayerDeathScreenUI : MonoBehaviour, IExitActionlessUI
     {
         [SerializeField] private Button mRespawnButton;
         [SerializeField] private Button mTitleScreenButton;
@@ -30,7 +35,7 @@ namespace Player.UI
         private void RespawnClick()
         {
             playerScript.PlayerRobot.Respawn();
-            GameObject.Destroy(gameObject);
+            CanvasController.Instance.PopStack();
         }
 
         private void TitleScreenClick()

@@ -697,9 +697,8 @@ namespace Player {
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             PlayerDeathScreenUI playerDeathScreenUI = Instantiate(deathScreenUIPrefab);
             playerDeathScreenUI.Initialize(playerScript);
-            CanvasController.Instance.DisplayOnParentCanvas(playerDeathScreenUI.gameObject);
+            CanvasController.Instance.DisplayObject(playerDeathScreenUI.gameObject,terminateOnEscape:false);
             playerScript.PlayerInventory.DropAll();
-            
         }
 
         public void TogglePlatformCollider()
