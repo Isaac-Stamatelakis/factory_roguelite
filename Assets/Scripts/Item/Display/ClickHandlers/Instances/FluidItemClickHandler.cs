@@ -63,15 +63,15 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         private void ClickFluidCell(ItemSlot container, IFluidContainerData iFluidContainerData)
         {
-            Debug.Log("A");
-            if (container.tags?.Dict == null || !container.tags.Dict.ContainsKey(ItemTag.FluidContainer) ||
+            if (
+                container.tags?.Dict == null 
+                || !container.tags.Dict.ContainsKey(ItemTag.FluidContainer) 
+                || container.tags.Dict[ItemTag.FluidContainer] == null ||
                 (container.tags.Dict[ItemTag.FluidContainer] is ItemSlot fluidTagSlot && ItemSlotUtils.IsItemSlotNull(fluidTagSlot)))
             {
-                Debug.Log("B");
                 ExtractFromInventoryIntoFluidCell(container,iFluidContainerData, PlayerManager.Instance.GetPlayer().PlayerInventory);
         
             } else {
-                Debug.Log("C");
                 InsertFluidCellIntoInventory(container, iFluidContainerData);
             }
             inventoryUI.CallListeners(index);
@@ -97,7 +97,6 @@ namespace Item.Inventory.ClickHandlers.Instances
                 uint storage = containerData.GetStorage();
                 extractionSize = inventoryFluidSlot.amount / storage;
             }
-            Debug.Log(extractionSize);
             extractionSize = (uint)Mathf.Min(extractionSize, container.amount);
             ItemSlot fluidItem = CreateNewFluidItem(inventoryFluidSlot, containerData.GetStorage(),extractionSize);
             GivePlayerFluidItem(fluidItem, container, playerInventory, extractionSize);
@@ -160,17 +159,28 @@ namespace Item.Inventory.ClickHandlers.Instances
                     return;
                 }
             }
-            uint cellInsertAmount;
-            if (!holdingShift)
+            uint remainingSpace = inventoryUI.MaxSize - fluidInventorySlot.amount;
+            uint maxCellInputs = remainingSpace / fluidContainerFluidSlot.amount;
+            uint cellInsertAmount = (uint)Mathf.Min(holdingShift ? 1 : container.amount, maxCellInputs);
+            
+            if (cellInsertAmount == 0) // Cannot insert a full fluid cell
             {
-                cellInsertAmount = 1;
+                uint dif = inventoryUI.MaxSize - fluidInventorySlot.amount;
+                fluidInventorySlot.amount = inventoryUI.MaxSize;
+                if (container.amount == 1)
+                {
+                    fluidContainerFluidSlot.amount -= dif;
+                }
+                else
+                {
+                    ItemSlot newFluidCell = new ItemSlot(container.itemObject, 1, null);
+                    container.amount--;
+                    ItemSlotUtils.AddTag(newFluidCell,ItemTag.FluidContainer, new ItemSlot(fluidContainerFluidSlot.itemObject, dif, null));
+                }
+                return;
             }
-            else
-            {
-                uint remainingSpace = inventoryUI.MaxSize - fluidInventorySlot.amount;
-                uint maxCellInputs = remainingSpace / fluidContainerFluidSlot.amount;
-                cellInsertAmount = (uint)Mathf.Min(container.amount, maxCellInputs);
-            }
+            Debug.Log(cellInsertAmount);
+            Debug.Log(inventoryUI.MaxSize);
             fluidInventorySlot.amount += cellInsertAmount * fluidContainerFluidSlot.amount;
             if (container.amount != cellInsertAmount)
             {
