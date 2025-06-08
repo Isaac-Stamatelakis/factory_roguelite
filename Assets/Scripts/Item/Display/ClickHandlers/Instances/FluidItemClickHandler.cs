@@ -7,6 +7,7 @@ using Items.Tags;
 using Items.Tags.FluidContainers;
 using Player;
 using PlayerModule;
+using UnityEditorInternal.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -79,33 +80,36 @@ namespace Item.Inventory.ClickHandlers.Instances
         {
             ItemSlotUtils.BuildTagDictIfNull(container);
             container.tags.Dict.TryAdd(ItemTag.FluidContainer, null);
-            ItemSlot inventorySlot = inventoryUI.GetItemSlot(index);
-            if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) return;
-            
-            ItemSlot tagFluidSlot = container.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
+            ItemSlot inventoryFluidSlot = inventoryUI.GetItemSlot(index);
+            if (ItemSlotUtils.IsItemSlotNull(inventoryFluidSlot)) return;
             
             bool holdingShift = Keyboard.current.shiftKey.isPressed;
-            
-            if (ItemSlotUtils.IsItemSlotNull(tagFluidSlot))
+            uint extractionSize;
+            if (!holdingShift)
             {
-                ItemSlot fluidItem = CreateNewFluidItem(inventorySlot, containerData.GetStorage());
-                GivePlayerFluidItem(fluidItem, container, playerInventory);
-                return;
+                extractionSize = 1;
             }
-            
-            if (tagFluidSlot.amount >= containerData.GetStorage() || !ItemSlotUtils.AreEqual(tagFluidSlot, inventorySlot)) return;
-            uint space = containerData.GetStorage() - tagFluidSlot.amount;
+            else
+            {
+                uint storage = containerData.GetStorage();
+                extractionSize = inventoryFluidSlot.amount / storage;
+            }
 
-            uint toTake = inventorySlot.amount > space ? space : inventorySlot.amount;
-            inventorySlot.amount -= toTake;
-            ItemSlot mergedFluidItem = new ItemSlot(inventorySlot.itemObject, tagFluidSlot.amount + toTake, null);
-            GivePlayerFluidItem(mergedFluidItem, container, playerInventory);
+            extractionSize = (uint)Mathf.Min(extractionSize, container.amount);
+            ItemSlot fluidItem = CreateNewFluidItem(inventoryFluidSlot, containerData.GetStorage(),extractionSize);
+            GivePlayerFluidItem(fluidItem, container, playerInventory, extractionSize);
 
+            if (container.amount <= 0 || inventoryFluidSlot.amount <= 0) return;
+            ItemSlot leftOverFluidItem = CreateNewFluidItem(inventoryFluidSlot, containerData.GetStorage(),1);
+            ItemSlot newFluidCell = new ItemSlot(container.itemObject, 1, null);
+            container.amount--;
+            ItemSlotUtils.AddTag(newFluidCell, ItemTag.FluidContainer, leftOverFluidItem);
+            playerInventory.Give(newFluidCell);
         }
 
-        private void GivePlayerFluidItem(ItemSlot fluidItem, ItemSlot container, PlayerInventory playerInventory)
+        private void GivePlayerFluidItem(ItemSlot fluidItem, ItemSlot container, PlayerInventory playerInventory, uint extractionSize)
         {
-            if (container.amount == 1)
+            if (container.amount == extractionSize)
             {
                 container.tags.Dict[ItemTag.FluidContainer] = fluidItem;
                 GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
@@ -118,18 +122,18 @@ namespace Item.Inventory.ClickHandlers.Instances
             {
                 { ItemTag.FluidContainer, fluidItem }
             });
-            ItemSlot newCell = new ItemSlot(container.itemObject, 1, itemTagCollection);
-            container.amount--;
+            ItemSlot newCell = new ItemSlot(container.itemObject, extractionSize, itemTagCollection);
+            container.amount -= extractionSize;
             playerInventory.Give(newCell);
             inventoryUI.Connection?.RefreshSlots();
             
         }
 
-        private ItemSlot CreateNewFluidItem(ItemSlot inventorySlot, uint maxStorage)
+        private ItemSlot CreateNewFluidItem(ItemSlot inventorySlot, uint maxStorage, uint extractionAmount)
         {
             uint size = GlobalHelper.Clamp(inventorySlot.amount, 0, maxStorage);
             ItemSlot newSlot = new ItemSlot(inventorySlot.itemObject, size,null);
-            inventorySlot.amount -= size;
+            inventorySlot.amount -= size * extractionAmount;
             return newSlot;
         }
         private void InsertFluidCellIntoInventory(ItemSlot container, IFluidContainerData containerData)
