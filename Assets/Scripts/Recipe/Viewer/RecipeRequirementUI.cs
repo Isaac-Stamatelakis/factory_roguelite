@@ -15,17 +15,18 @@ namespace Recipe.Viewer
         {
             GlobalHelper.DeleteAllChildren(mCostList.transform);
             GlobalHelper.DeleteAllChildren(mRequirementList.transform);
-            foreach (string cost in costs)
-            {
-                var textElement = Instantiate(textElementPrefab, mCostList.transform);
-                textElement.text = cost;
-            }
 
             mRequirementList.gameObject.SetActive(requirements.Count > 0);
             foreach (string requirement in requirements)
             {
                 var textElement = Instantiate(textElementPrefab, mRequirementList.transform);
                 textElement.text = requirement;
+            }
+            
+            foreach (string cost in costs)
+            {
+                var textElement = Instantiate(textElementPrefab, mCostList.transform);
+                textElement.text = cost;
             }
         }
     }

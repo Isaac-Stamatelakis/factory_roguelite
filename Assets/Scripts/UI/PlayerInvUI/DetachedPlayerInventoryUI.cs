@@ -22,7 +22,7 @@ using UnityEngine.UI;
 
 namespace UI.PlayerInvUI
 {
-    public class StackedPlayerInvUIElement : MonoBehaviour
+    public class DetachedPlayerInventoryUI : MonoBehaviour
     {
         [SerializeField] private InventoryUI playerInventoryUI;
         [SerializeField] private GameObject playerInventoryContainer;
@@ -33,6 +33,7 @@ namespace UI.PlayerInvUI
         {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             playerInventoryUI.DisplayInventory(playerInventory.Inventory);
+            playerInventory.SyncToDetachedPlayerInventory(this);
             originalPlayerInventoryUI = playerInventory.InventoryUI;
             playerInventoryUI.AddCallback(RefreshBaseUI);
         }

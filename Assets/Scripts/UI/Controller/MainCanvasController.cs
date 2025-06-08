@@ -10,6 +10,7 @@ using UI.PlayerInvUI;
 using UI.QuestBook;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI
@@ -24,7 +25,7 @@ namespace UI
     {
         public static MainCanvasController TInstance => instance as MainCanvasController;
         [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
-        [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
+        [FormerlySerializedAs("stackedPlayerInvUIElementPrefab")] [SerializeField] private DetachedPlayerInventoryUI detachedPlayerInventoryUIPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
         [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
         [SerializeField] private Canvas canvas;
@@ -57,7 +58,7 @@ namespace UI
 
         public void DisplayUIWithPlayerInventory(GameObject uiObject)
         {
-            var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
+            var stackedPlayerUI = Instantiate(detachedPlayerInventoryUIPrefab);
             
             stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
             DisplayObject(stackedPlayerUI.gameObject);
@@ -65,7 +66,7 @@ namespace UI
         
         public void DisplayUIWithPlayerInventory(GameObject uiObject, DisplayedUIInfo displayedUIInfo)
         {
-            var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
+            var stackedPlayerUI = Instantiate(detachedPlayerInventoryUIPrefab);
             
             stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
             DisplayObject(stackedPlayerUI.gameObject);

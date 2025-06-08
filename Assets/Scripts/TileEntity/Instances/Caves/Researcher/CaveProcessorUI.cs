@@ -187,7 +187,6 @@ namespace TileEntity.Instances.Caves.Researcher
                     ItemSlot spliced = ItemSlotFactory.Splice(current, amount - requiredAmount);
                     current.amount = requiredAmount;
                     PlayerManager.Instance.GetPlayer().PlayerInventory.Give(spliced);
-                    GetComponentInParent<StackedPlayerInvUIElement>().PlayerInventoryUI.RefreshSlots();
                     amount = requiredAmount;
                 }
                 TextMeshProUGUI textMeshProUGUI = mResearchItemsUI.GetItemSlotUI(index).mBottomText;

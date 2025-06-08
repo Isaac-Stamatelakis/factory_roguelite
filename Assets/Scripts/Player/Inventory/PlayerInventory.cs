@@ -33,6 +33,7 @@ using UI;
 using UI.Indicators;
 using UI.Indicators.General;
 using UI.Indicators.Placement;
+using UI.PlayerInvUI;
 using UI.ToolTip;
 
 namespace PlayerModule {
@@ -66,8 +67,9 @@ namespace PlayerModule {
         public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
         private InventoryMode inventoryMode = InventoryMode.Closed;
         private PlayerScript playerScript;
-
         private GameObject inventoryIndicator;
+
+        private DetachedPlayerInventoryUI extraPlayerInventoryUI;
         // Start is called before the first frame update
         void Start()
         {
@@ -91,6 +93,7 @@ namespace PlayerModule {
         public void Refresh()
         {
             playerInventoryGrid.RefreshSlots();
+            extraPlayerInventoryUI?.PlayerInventoryUI?.RefreshSlots();
         }
 
         public void SetInteractMode(InteractMode interactMode)
@@ -351,6 +354,11 @@ namespace PlayerModule {
         {
             if (n != selectedSlot) return;
             ChangeSelectedSlot(n); // If selected slot changes call ChangeSelectedSlot on index to refresh indicators
+        }
+
+        public void SyncToDetachedPlayerInventory(DetachedPlayerInventoryUI detachedPlayerInventoryUI)
+        {
+            this.extraPlayerInventoryUI = detachedPlayerInventoryUI;
         }
     }
 
